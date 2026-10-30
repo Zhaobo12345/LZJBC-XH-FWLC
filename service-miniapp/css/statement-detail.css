@@ -1,0 +1,738 @@
+.phone-frame {
+    position: relative;
+}
+
+.page-content {
+    height: calc(100% - 44px - 44px);
+    overflow-y: auto;
+    background-color: #F5F5F5;
+}
+
+.status-banner {
+    background: linear-gradient(135deg, #FA8C16 0%, #FAAD14 100%);
+    padding: 20px;
+    color: #FFFFFF;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 16px;
+}
+
+.status-banner.effective {
+    background: linear-gradient(135deg, #52C41A 0%, #73D13D 100%);
+}
+
+.status-banner.rejected {
+    background: linear-gradient(135deg, #FF4D4F 0%, #FF7875 100%);
+}
+
+.status-banner.paid {
+    background: linear-gradient(135deg, #1890FF 0%, #40A9FF 100%);
+}
+
+.status-icon {
+    font-size: 32px;
+}
+
+.status-info {
+    flex: 1;
+}
+
+.status-text {
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 4px;
+}
+
+.status-desc {
+    font-size: 12px;
+    opacity: 0.8;
+}
+
+.reject-reason-banner {
+    background-color: #FFF2F0;
+    border-radius: 8px;
+    padding: 12px 16px;
+    margin: 0 16px 16px;
+    border: 1px solid #FFCCC7;
+}
+
+.banner-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+}
+
+.banner-icon {
+    font-size: 14px;
+}
+
+.banner-title {
+    font-size: 13px;
+    font-weight: 500;
+    color: #FF4D4F;
+}
+
+.banner-content {
+    font-size: 13px;
+    color: #595959;
+    line-height: 1.5;
+}
+
+.detail-card {
+    background-color: #FFFFFF;
+    margin: 0 16px 12px;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.detail-header {
+    padding: 16px;
+    border-bottom: 1px solid #F0F0F0;
+}
+
+.type-tag {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 4px;
+    font-size: 12px;
+    color: #FFFFFF;
+    background-color: #1890FF;
+    margin-bottom: 12px;
+}
+
+.type-tag.worker_wage {
+    background-color: #1890FF;
+}
+
+.type-tag.material {
+    background-color: #52C41A;
+}
+
+.type-tag.measure {
+    background-color: #FA8C16;
+}
+
+.type-tag.insurance {
+    background-color: #722ED1;
+}
+
+.type-tag.foreman_wage {
+    background-color: #13C2C2;
+}
+
+.amount-section {
+    margin-top: 8px;
+}
+
+.amount {
+    font-size: 28px;
+    font-weight: 700;
+    color: #262626;
+}
+
+.detail-body {
+    padding: 12px 16px;
+}
+
+.detail-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid #F5F5F5;
+}
+
+.detail-row:last-child {
+    border-bottom: none;
+}
+
+.detail-label {
+    font-size: 14px;
+    color: #8C8C8C;
+}
+
+.detail-value {
+    font-size: 14px;
+    color: #262626;
+}
+
+.contract-link {
+    color: #1890FF;
+}
+
+.confirmer-role-tag {
+    display: inline-block;
+    padding: 2px 8px;
+    background-color: #E6F7FF;
+    color: #1890FF;
+    font-size: 12px;
+    border-radius: 4px;
+    margin-right: 8px;
+}
+
+.confirmer-name-text {
+    font-size: 14px;
+    color: #262626;
+}
+
+.card-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: #262626;
+    padding: 16px 16px 12px;
+}
+
+.desc-content {
+    padding: 0 16px 16px;
+    font-size: 14px;
+    color: #595959;
+    line-height: 1.6;
+}
+
+.confirm-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 0 16px 16px;
+}
+
+.confirm-avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #1890FF 0%, #40A9FF 100%);
+    color: #FFFFFF;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    font-weight: 600;
+}
+
+.confirm-detail {
+    flex: 1;
+}
+
+.confirm-name {
+    font-size: 14px;
+    font-weight: 500;
+    color: #262626;
+    margin-bottom: 4px;
+}
+
+.confirm-time {
+    font-size: 12px;
+    color: #8C8C8C;
+}
+
+.voucher-info {
+    padding: 0 16px 16px;
+}
+
+.voucher-uploader {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 12px;
+    font-size: 13px;
+    color: #8C8C8C;
+}
+
+.uploader-avatar {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #1890FF 0%, #40A9FF 100%);
+    color: #FFFFFF;
+    font-size: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.uploader-text {
+    color: #595959;
+}
+
+.uploader-text strong {
+    color: #262626;
+}
+
+.voucher-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+}
+
+.voucher-img {
+    aspect-ratio: 1;
+    border-radius: 8px;
+    background-color: #F5F5F5;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    overflow: hidden;
+}
+
+.voucher-img .img-placeholder {
+    font-size: 24px;
+    color: #BFBFBF;
+}
+
+.operation-log-card {
+    background-color: #FFFFFF;
+    margin: 0 16px 12px;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.log-list {
+    padding: 0 16px 16px;
+}
+
+.log-item {
+    display: flex;
+    gap: 12px;
+    padding: 12px 0;
+    border-bottom: 1px solid #F5F5F5;
+}
+
+.log-item:last-child {
+    border-bottom: none;
+}
+
+.log-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: #1890FF;
+    margin-top: 5px;
+    flex-shrink: 0;
+}
+
+.log-content {
+    flex: 1;
+}
+
+.log-text {
+    font-size: 14px;
+    color: #262626;
+    margin-bottom: 4px;
+}
+
+.log-time {
+    font-size: 12px;
+    color: #8C8C8C;
+}
+
+.action-footer {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    padding: 16px;
+    background-color: #FFFFFF;
+    border-top: 1px solid #F0F0F0;
+    display: flex;
+    gap: 12px;
+}
+
+.action-footer.hidden {
+    display: none;
+}
+
+.btn-reject {
+    flex: 1;
+    height: 44px;
+    border-radius: 8px;
+    background-color: #F5F5F5;
+    color: #595959;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    font-weight: 500;
+}
+
+.btn-confirm {
+    flex: 1;
+    height: 44px;
+    border-radius: 8px;
+    background-color: #1890FF;
+    color: #FFFFFF;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    font-weight: 500;
+}
+
+.action-footer.single {
+    justify-content: center;
+}
+
+.btn-upload-voucher {
+    flex: 1;
+    height: 44px;
+    border-radius: 22px;
+    background-color: #FFFFFF;
+    color: #1890FF;
+    border: 1px solid #1890FF;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    font-weight: 500;
+}
+
+.waiting-hint {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    padding: 16px;
+    background-color: #FFFFFF;
+    border-top: 1px solid #F0F0F0;
+    text-align: center;
+    font-size: 14px;
+    color: #8C8C8C;
+}
+
+.confirm-modal-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 300;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.confirm-modal-overlay.show {
+    opacity: 1;
+    visibility: visible;
+}
+
+.confirm-modal {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0.9);
+    width: 85%;
+    max-width: 280px;
+    background-color: #FFFFFF;
+    border-radius: 12px;
+    z-index: 301;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+}
+
+.confirm-modal.show {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 1;
+    visibility: visible;
+}
+
+.confirm-modal-content {
+    padding: 20px;
+    text-align: center;
+}
+
+.confirm-modal-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: #262626;
+    margin-bottom: 12px;
+}
+
+.confirm-modal-desc {
+    font-size: 14px;
+    color: #595959;
+    margin-bottom: 20px;
+    line-height: 1.5;
+}
+
+.confirm-modal-footer {
+    display: flex;
+    gap: 12px;
+}
+
+.confirm-modal-btn {
+    flex: 1;
+    height: 44px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    font-weight: 500;
+}
+
+.confirm-modal-btn.cancel {
+    background-color: #F5F5F5;
+    color: #595959;
+}
+
+.confirm-modal-btn.confirm {
+    background-color: #1890FF;
+    color: #FFFFFF;
+}
+
+.reject-drawer-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 300;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+}
+
+.reject-drawer-overlay.show {
+    opacity: 1;
+    visibility: visible;
+}
+
+.reject-drawer {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #FFFFFF;
+    border-radius: 16px 16px 0 0;
+    z-index: 301;
+    transform: translateY(100%);
+    transition: transform 0.3s ease;
+    max-height: 70vh;
+}
+
+.reject-drawer.show {
+    transform: translateY(0);
+}
+
+.drawer-header {
+    padding: 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #F0F0F0;
+}
+
+.drawer-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: #262626;
+}
+
+.drawer-close {
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    color: #8C8C8C;
+}
+
+.drawer-body {
+    padding: 16px;
+}
+
+.reject-reason-input {
+    width: 100%;
+    height: 120px;
+    padding: 12px;
+    border: 1px solid #E8E8E8;
+    border-radius: 8px;
+    font-size: 14px;
+    color: #262626;
+    resize: none;
+    box-sizing: border-box;
+}
+
+.reject-reason-input:focus {
+    outline: none;
+    border-color: #1890FF;
+}
+
+.modal-hint {
+    font-size: 12px;
+    color: #FF4D4F;
+    margin-top: 8px;
+}
+
+.drawer-footer {
+    padding: 12px 16px;
+    display: flex;
+    gap: 12px;
+    border-top: 1px solid #F0F0F0;
+}
+
+.btn-cancel {
+    flex: 1;
+    height: 44px;
+    border-radius: 8px;
+    background-color: #F5F5F5;
+    color: #595959;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    font-weight: 500;
+}
+
+.btn-submit {
+    flex: 1;
+    height: 44px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    font-weight: 500;
+}
+
+.btn-submit.reject {
+    background-color: #FF4D4F;
+    color: #FFFFFF;
+}
+
+.voucher-drawer-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 300;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+}
+
+.voucher-drawer-overlay.show {
+    opacity: 1;
+    visibility: visible;
+}
+
+.voucher-drawer {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #FFFFFF;
+    border-radius: 16px 16px 0 0;
+    z-index: 301;
+    transform: translateY(100%);
+    transition: transform 0.3s ease;
+    max-height: 70vh;
+}
+
+.voucher-drawer.show {
+    transform: translateY(0);
+}
+
+.voucher-upload-area {
+    padding-bottom: 8px;
+}
+
+.upload-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+}
+
+.upload-item {
+    aspect-ratio: 1;
+    border-radius: 8px;
+    background-color: #F5F5F5;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+}
+
+.upload-item.add {
+    border: 1px dashed #D9D9D9;
+    background-color: #FAFAFA;
+}
+
+.upload-item .add-icon {
+    font-size: 28px;
+    color: #8C8C8C;
+    line-height: 1;
+}
+
+.upload-item .add-text {
+    font-size: 12px;
+    color: #8C8C8C;
+    margin-top: 4px;
+}
+
+.upload-item.preview {
+    background-color: #E8E8E8;
+}
+
+.upload-item .delete-btn {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background-color: rgba(0, 0, 0, 0.5);
+    color: #FFFFFF;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.upload-hint {
+    font-size: 12px;
+    color: #8C8C8C;
+    margin-top: 12px;
+    text-align: center;
+}
+
+.toast-modal {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0.9);
+    background-color: rgba(0, 0, 0, 0.7);
+    color: #FFFFFF;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-size: 14px;
+    z-index: 1000;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+}
+
+.toast-modal.show {
+    opacity: 1;
+    visibility: visible;
+    transform: translate(-50%, -50%) scale(1);
+}
+
+.toast-content {
+    white-space: nowrap;
+}

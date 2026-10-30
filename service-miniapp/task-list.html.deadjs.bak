@@ -1,0 +1,2242 @@
+﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>家装平台小程序原型 - 任务列表</title>
+    <link rel="stylesheet" href="common.css">
+    <style>
+        .page-content {
+            height: calc(100% - 44px - 44px);
+        }
+
+        .search-filter-bar {
+            background-color: var(--bg-primary);
+            padding: 4px 10px;
+        }
+
+        .search-input {
+            width: 100%;
+            height: 28px;
+            background-color: var(--bg-secondary);
+            border: none;
+            border-radius: 14px;
+            padding: 0 12px;
+            font-size: 13px;
+            color: var(--text-primary);
+            outline: none;
+        }
+
+        .search-input::placeholder {
+            color: var(--text-tertiary);
+        }
+
+        .search-input:focus {
+            background-color: #E6F7FF;
+        }
+
+        .filter-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .filter-tag {
+            display: flex;
+            align-items: center;
+            padding: 4px 10px;
+            background-color: var(--status-primary-bg);
+            border-radius: 14px;
+            font-size: 12px;
+            color: var(--primary-color);
+        }
+
+        .filter-tag .remove {
+            margin-left: 6px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .filter-level-one {
+            display: flex;
+            background-color: var(--bg-primary);
+            padding: 8px 16px;
+            gap: 8px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .filter-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            padding: 6px 12px 0px 12px;
+            background-color: var(--bg-primary);
+            position: relative;
+            z-index: 1;
+        }
+
+        .filter-group {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex: 1;
+        }
+
+        .filter-group:first-child {
+            flex: 0 0 auto;
+        }
+
+        .filter-label {
+            font-size: 12px;
+            color: var(--text-secondary);
+            white-space: nowrap;
+        }
+
+        .filter-toggle {
+            display: flex;
+            background-color: var(--bg-secondary);
+            border-radius: 16px;
+            overflow: hidden;
+            padding: 2px;
+        }
+
+        .filter-option {
+            padding: 5px 12px;
+            font-size: 12px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            user-select: none;
+            -webkit-user-select: none;
+            border-radius: 14px;
+            background-color: transparent;
+        }
+
+        .filter-option:hover {
+            color: var(--primary-color);
+        }
+
+        .filter-option.active {
+            background-color: var(--primary-color);
+            color: #FFFFFF;
+        }
+
+        .filter-option.active:hover {
+            background-color: var(--primary-color);
+        }
+
+        .filter-select {
+            position: relative;
+            padding: 6px 28px 6px 12px;
+            font-size: 12px;
+            color: var(--text-primary);
+            background-color: var(--bg-secondary);
+            border: none;
+            border-radius: 16px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            user-select: none;
+            -webkit-user-select: none;
+            min-width: 90px;
+        }
+
+        .filter-select:hover {
+            background-color: #E6F7FF;
+        }
+
+        .filter-select.active {
+            background-color: #E6F7FF;
+            color: var(--primary-color);
+        }
+
+        .filter-select::after {
+            content: '▼';
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 8px;
+            color: var(--text-tertiary);
+            transition: transform 0.2s;
+        }
+
+        .filter-select.active::after {
+            transform: translateY(-50%) rotate(180deg);
+            color: var(--primary-color);
+        }
+
+        .status-dropdown {
+            position: absolute;
+            top: calc(100% + 6px);
+            right: 0;
+            width: 140px;
+            background-color: var(--bg-primary);
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+            border: 1px solid var(--border-color);
+            overflow: hidden;
+            z-index: 1000;
+            display: none;
+        }
+
+        .status-dropdown.show {
+            display: block;
+            animation: dropdownFadeIn 0.15s ease;
+        }
+
+        @keyframes dropdownFadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-4px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .status-dropdown-item {
+            padding: 10px 14px;
+            font-size: 13px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.15s;
+            user-select: none;
+            -webkit-user-select: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .status-dropdown-item:hover {
+            background-color: #F5F5F5;
+        }
+
+        .status-dropdown-item.active {
+            background-color: #E6F7FF;
+            color: var(--primary-color);
+            font-weight: 500;
+        }
+
+        .status-dropdown-item.active::before {
+            content: '✓';
+            font-size: 12px;
+        }
+
+        .contract-section {
+            background-color: var(--bg-primary);
+            margin-bottom: 8px;
+        }
+
+        .contract-header {
+            display: flex;
+            align-items: center;
+            padding: 12px 16px;
+            background-color: var(--bg-secondary);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .contract-header:hover {
+            background-color: #E6F7FF;
+        }
+
+        .contract-header .contract-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-light) 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #FFFFFF;
+            font-size: 16px;
+            margin-right: 12px;
+        }
+
+        .contract-header .contract-info {
+            flex: 1;
+        }
+
+        .contract-header .contract-name {
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .contract-header .contract-meta {
+            font-size: 12px;
+            color: var(--text-tertiary);
+            margin-top: 2px;
+        }
+
+        .contract-header .contract-stats {
+            display: flex;
+            gap: 12px;
+            margin-right: 12px;
+        }
+
+        .contract-header .stat-badge {
+            font-size: 12px;
+            padding: 2px 8px;
+            border-radius: 10px;
+        }
+
+        .contract-header .stat-badge.pending {
+            background-color: var(--status-warning-bg);
+            color: var(--warning-color);
+        }
+
+        .contract-header .stat-badge.confirming {
+            background-color: var(--status-primary-bg);
+            color: var(--primary-color);
+        }
+
+        .contract-header .arrow {
+            color: var(--text-tertiary);
+            transition: transform 0.3s;
+        }
+
+        .contract-header .arrow.expanded {
+            transform: rotate(180deg);
+        }
+
+        .stage-group {
+            display: none;
+        }
+
+        .stage-group.show {
+            display: block;
+        }
+
+        .stage-header {
+            display: flex;
+            align-items: center;
+            padding: 10px 16px 10px 44px;
+            background-color: var(--bg-primary);
+            border-bottom: 1px solid var(--border-color);
+            cursor: pointer;
+        }
+
+        .stage-header:hover {
+            background-color: #F5F5F5;
+        }
+
+        .stage-header .stage-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: var(--primary-color);
+            margin-right: 8px;
+        }
+
+        .stage-header .stage-dot.completed {
+            background-color: var(--success-color);
+        }
+
+        .stage-header .stage-dot.confirming {
+            background-color: var(--warning-color);
+        }
+
+        .stage-header .stage-name {
+            flex: 1;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .stage-header .stage-count {
+            font-size: 12px;
+            color: var(--text-tertiary);
+        }
+
+        .stage-header .sequential-icon {
+            color: var(--warning-color);
+            margin-left: 8px;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            gap: 2px;
+        }
+
+        .stage-header .sequential-icon::before {
+            content: '↪';
+        }
+
+        .task-item.disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .task-item.disabled .task-name {
+            color: var(--text-tertiary);
+        }
+
+        .task-item.disabled::after {
+            content: '🔒';
+            font-size: 12px;
+            margin-left: 8px;
+        }
+
+        .stage-header .arrow {
+            margin-left: 8px;
+            color: var(--text-tertiary);
+            font-size: 10px;
+            transition: transform 0.3s;
+        }
+
+        .stage-header .arrow.expanded {
+            transform: rotate(180deg);
+        }
+
+        .temp-tasks-section {
+            border-top: 1px solid var(--border-color);
+        }
+
+        .temp-tasks-header {
+            display: flex;
+            align-items: center;
+            padding: 10px 16px 10px 44px;
+            background-color: var(--bg-primary);
+            border-bottom: 1px solid var(--border-color);
+            cursor: pointer;
+        }
+
+        .temp-tasks-header:hover {
+            background-color: #F5F5F5;
+        }
+
+        .temp-tasks-icon {
+            font-size: 14px;
+            margin-right: 8px;
+        }
+
+        .temp-tasks-title {
+            flex: 1;
+            font-size: 13px;
+            font-weight: 600;
+            color: #722ED1;
+        }
+
+        .temp-tasks-count {
+            font-size: 12px;
+            color: var(--text-tertiary);
+        }
+
+        .temp-tasks-header .arrow {
+            margin-left: 8px;
+            color: var(--text-tertiary);
+            font-size: 10px;
+            transition: transform 0.3s;
+        }
+
+        .temp-tasks-header .arrow.expanded {
+            transform: rotate(180deg);
+        }
+
+        .temp-tasks-list {
+            display: none;
+        }
+
+        .temp-tasks-list.show {
+            display: block;
+        }
+
+        .task-list {
+            display: none;
+        }
+
+        .task-list.show {
+            display: block;
+        }
+
+        .task-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 16px 12px 60px;
+            border-bottom: 1px solid var(--border-color);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .task-item:hover {
+            background-color: #E6F7FF;
+        }
+
+        .task-item:last-child {
+            border-bottom: none;
+        }
+
+        .task-item .task-status {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 12px;
+            font-size: 12px;
+            flex-shrink: 0;
+        }
+
+        .task-item .task-status.completed {
+            background-color: var(--success-color);
+            color: #FFFFFF;
+        }
+
+        .task-item .task-status.confirming {
+            background-color: var(--warning-color);
+            color: #FFFFFF;
+        }
+
+        .task-item .task-status.executing {
+            background-color: var(--primary-color);
+            color: #FFFFFF;
+        }
+
+        .task-item .task-status.pending {
+            background-color: var(--bg-tertiary);
+            color: var(--text-tertiary);
+        }
+
+        .task-item .task-status-text {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 12px;
+            padding: 4px 10px;
+            border-radius: 12px;
+            flex-shrink: 0;
+        }
+
+        .task-item .task-status-text .status-icon {
+            font-size: 10px;
+        }
+
+        .task-item .task-status-text.pending {
+            background-color: var(--status-warning-bg);
+            color: var(--warning-color);
+        }
+
+        .task-item .task-status-text.confirming {
+            background-color: var(--status-primary-bg);
+            color: var(--primary-color);
+        }
+
+        .task-item .task-status-text.completed {
+            background-color: var(--status-success-bg);
+            color: var(--success-color);
+        }
+
+        .task-item .task-status-text.executing {
+            background-color: var(--status-primary-bg);
+            color: var(--primary-color);
+        }
+
+        .task-item .confirm-progress {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-top: 6px;
+        }
+
+        .task-item .confirm-progress-bar {
+            flex: 1;
+            height: 4px;
+            background-color: var(--bg-tertiary);
+            border-radius: 2px;
+            overflow: hidden;
+        }
+
+        .task-item .confirm-progress-fill {
+            height: 100%;
+            background-color: var(--primary-color);
+            border-radius: 2px;
+            transition: width 0.3s;
+        }
+
+        .task-item .confirm-progress-text {
+            font-size: 11px;
+            color: var(--text-tertiary);
+            white-space: nowrap;
+        }
+
+        .task-item .priority-badge {
+            font-size: 10px;
+            padding: 1px 6px;
+            border-radius: 4px;
+            margin-left: 6px;
+        }
+
+        .task-item .priority-badge.urgent {
+            background-color: #FFF1F0;
+            color: var(--error-color);
+        }
+
+        .task-item .priority-badge.important {
+            background-color: #FFF7E6;
+            color: var(--warning-color);
+        }
+
+        .task-item .priority-badge.normal {
+            background-color: var(--bg-secondary);
+            color: var(--text-tertiary);
+        }
+
+        .task-item .task-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .task-item .task-name {
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 6px;
+            line-height: 1.4;
+        }
+
+        .task-item .task-tag {
+            font-size: 10px;
+            padding: 1px 6px;
+            border-radius: 4px;
+            flex-shrink: 0;
+            white-space: nowrap;
+        }
+
+        .task-item .task-tag.contract {
+            background-color: #E6F7FF;
+            color: #1890FF;
+        }
+
+        .task-item .task-tag.temp {
+            background-color: #F9F0FF;
+            color: #722ED1;
+        }
+
+        .task-item .task-meta {
+            font-size: 12px;
+            color: var(--text-tertiary);
+            margin-top: 4px;
+        }
+
+        .empty-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 48px 16px;
+            color: var(--text-tertiary);
+        }
+
+        .empty-state .icon {
+            font-size: 48px;
+            margin-bottom: 12px;
+            opacity: 0.6;
+        }
+
+        .empty-state .text {
+            font-size: 14px;
+        }
+
+        .result-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 3px 12px;
+            background-color: var(--bg-primary);
+            border-bottom: 1px solid var(--border-color);
+            font-size: 11px;
+            color: var(--text-tertiary);
+        }
+
+        .expand-all-btn {
+            color: var(--primary-color);
+            cursor: pointer;
+        }
+
+        .quick-filter-bar {
+            display: flex;
+            padding: 8px 12px;
+            gap: 6px;
+            background-color: var(--bg-primary);
+            border-bottom: 1px solid var(--border-color);
+            flex-wrap: nowrap;
+        }
+
+        .quick-filter-bar::-webkit-scrollbar {
+            display: none;
+        }
+
+        .quick-filter-btn {
+            flex: 1;
+            padding: 6px 8px;
+            background-color: var(--bg-secondary);
+            border-radius: 16px;
+            font-size: 12px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            transition: all 0.2s;
+            border: 1px solid transparent;
+            white-space: nowrap;
+            min-width: 0;
+        }
+
+        .quick-filter-btn:hover {
+            background-color: #E6F7FF;
+        }
+
+        .quick-filter-btn.active {
+            background-color: var(--primary-color);
+            color: #FFFFFF;
+        }
+
+        .quick-filter-btn .badge {
+            background-color: rgba(255,255,255,0.3);
+            padding: 0 6px;
+            border-radius: 8px;
+            font-size: 10px;
+        }
+
+        .quick-filter-btn:not(.active) .badge {
+            background-color: var(--status-warning-bg);
+            color: var(--warning-color);
+        }
+
+        .filter-panel-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0,0,0,0.5);
+            z-index: 999;
+            display: none;
+        }
+
+        .filter-panel-overlay.show {
+            display: block;
+        }
+
+        .filter-panel {
+            position: absolute;
+            top: 0;
+            right: -280px;
+            width: 280px;
+            height: 100%;
+            background-color: var(--bg-primary);
+            z-index: 1000;
+            transition: right 0.3s;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .filter-panel.show {
+            right: 0;
+        }
+
+        .filter-panel-header {
+            padding: 16px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .filter-panel-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .filter-panel-close {
+            font-size: 20px;
+            color: var(--text-tertiary);
+            cursor: pointer;
+        }
+
+        .filter-panel-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px;
+        }
+
+        .filter-group {
+            margin-bottom: 20px;
+        }
+
+        .filter-group-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .filter-group-title .tip {
+            font-size: 11px;
+            color: var(--text-tertiary);
+            font-weight: normal;
+        }
+
+        .filter-multi-options {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .filter-multi-option {
+            padding: 8px 14px;
+            background-color: var(--bg-secondary);
+            border-radius: 8px;
+            font-size: 13px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 1px solid transparent;
+        }
+
+        .filter-multi-option:hover {
+            background-color: #E6F7FF;
+        }
+
+        .filter-multi-option.selected {
+            background-color: #E6F7FF;
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+        }
+
+        .filter-panel-footer {
+            padding: 16px;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            gap: 12px;
+        }
+
+        .filter-panel-btn {
+            flex: 1;
+            height: 40px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+        }
+
+        .filter-panel-btn.reset {
+            background-color: var(--bg-secondary);
+            color: var(--text-secondary);
+        }
+
+        .filter-panel-btn.apply {
+            background-color: var(--primary-color);
+            color: #FFFFFF;
+        }
+
+        .save-filter-btn {
+            font-size: 12px;
+            color: var(--primary-color);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            margin-top: 12px;
+        }
+
+        .saved-filters {
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .saved-filter-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 12px;
+            background-color: var(--bg-secondary);
+            border-radius: 8px;
+            margin-bottom: 8px;
+            cursor: pointer;
+        }
+
+        .saved-filter-item:hover {
+            background-color: #E6F7FF;
+        }
+
+        .saved-filter-name {
+            font-size: 13px;
+            color: var(--text-primary);
+        }
+
+        .saved-filter-delete {
+            font-size: 14px;
+            color: var(--text-tertiary);
+        }
+
+        .view-switch-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px 16px;
+            background-color: var(--bg-primary);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .view-switch-tabs {
+            display: flex;
+            background-color: var(--bg-secondary);
+            border-radius: 6px;
+            padding: 2px;
+        }
+
+        .view-switch-tab {
+            padding: 6px 12px;
+            font-size: 12px;
+            color: var(--text-secondary);
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .view-switch-tab.active {
+            background-color: var(--bg-primary);
+            color: var(--primary-color);
+            font-weight: 600;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+        }
+
+        .group-by-selector {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .group-by-selector select {
+            padding: 4px 8px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            font-size: 12px;
+            background-color: var(--bg-primary);
+            cursor: pointer;
+        }
+
+        .flat-task-list {
+            display: none;
+        }
+
+        .flat-task-list.show {
+            display: block;
+        }
+
+        .flat-task-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 16px;
+            background-color: var(--bg-primary);
+            border-bottom: 1px solid var(--border-color);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .flat-task-item:hover {
+            background-color: #E6F7FF;
+        }
+
+        .flat-task-item .task-status {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 12px;
+            font-size: 12px;
+            flex-shrink: 0;
+        }
+
+        .flat-task-item .task-status.completed {
+            background-color: var(--success-color);
+            color: #FFFFFF;
+        }
+
+        .flat-task-item .task-status.confirming {
+            background-color: var(--warning-color);
+            color: #FFFFFF;
+        }
+
+        .flat-task-item .task-status.pending {
+            background-color: var(--bg-tertiary);
+            color: var(--text-tertiary);
+        }
+
+        .flat-task-item .task-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .flat-task-item .task-name {
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 6px;
+            line-height: 1.4;
+        }
+
+        .flat-task-item .task-tag {
+            font-size: 10px;
+            padding: 1px 6px;
+            border-radius: 4px;
+            flex-shrink: 0;
+            white-space: nowrap;
+        }
+
+        .flat-task-item .task-tag.contract {
+            background-color: #E6F7FF;
+            color: #1890FF;
+        }
+
+        .flat-task-item .task-tag.temp {
+            background-color: #F9F0FF;
+            color: #722ED1;
+        }
+
+        .flat-task-item .priority-badge {
+            font-size: 10px;
+            padding: 1px 6px;
+            border-radius: 4px;
+            flex-shrink: 0;
+            white-space: nowrap;
+        }
+
+        .flat-task-item .priority-badge.important {
+            background-color: #FFF1F0;
+            color: var(--error-color);
+        }
+
+        .flat-task-item .priority-badge.urgent {
+            background-color: #FFF1F0;
+            color: var(--error-color);
+        }
+
+        .flat-task-item .task-meta {
+            font-size: 12px;
+            color: var(--text-tertiary);
+            margin-top: 4px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .flat-task-item .task-meta .contract-name {
+            color: var(--primary-color);
+        }
+
+        .flat-task-item .task-status-text {
+            font-size: 12px;
+            padding: 4px 10px;
+            border-radius: 12px;
+            flex-shrink: 0;
+        }
+
+        .flat-task-item .task-status-text.pending {
+            background-color: var(--status-warning-bg);
+            color: var(--warning-color);
+        }
+
+        .flat-task-item .task-status-text.confirming {
+            background-color: var(--status-primary-bg);
+            color: var(--primary-color);
+        }
+
+        .flat-task-item .task-status-text.completed {
+            background-color: var(--status-success-bg);
+            color: var(--success-color);
+        }
+    </style>
+<style>
+    /* v2-native-capsule-style：微信原生胶囊占位（不可自定义，仅演示位置） */
+    .nav-bar .native-capsule {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 5px;
+        min-width: 46px;
+        height: 28px;
+        padding: 0 8px;
+        border: 1px dashed #cfcfcf;
+        border-radius: 14px;
+        color: #b3b3b3;
+        font-size: 13px;
+        line-height: 1;
+        user-select: none;
+        box-sizing: border-box;
+    }
+</style>
+</head>
+<body>
+    <div class="phone-frame">
+        <div class="status-bar">
+            <div class="time">9:41</div>
+            <div class="icons">📶 🔋</div>
+        </div>
+        
+        <div class="nav-bar">
+            <div class="back" onclick="history.back()">← 返回</div>
+            <div class="title centered">全部任务</div>
+            
+            
+        
+            <div class="actions"><div class="native-capsule" title="微信原生胶囊：由微信客户端渲染，开发者不可自定义其内容"></div></div>
+        </div>
+            
+
+        
+        <div class="page-content">
+            <div class="search-filter-bar">
+                <input type="text" class="search-input" placeholder="搜索任务名称..." id="searchInput" oninput="filterTasks()">
+            </div>
+
+            <div class="filter-bar" id="taskFilterBar">
+                <div class="filter-group">
+                    <span class="filter-label">参与</span>
+                    <div class="filter-toggle" id="participantToggle">
+                        <div class="filter-option active" data-filter="all">全部</div>
+                        <div class="filter-option" data-filter="mine">我参与</div>
+                    </div>
+                </div>
+                <div class="filter-group" style="position: relative;">
+                    <span class="filter-label">状态</span>
+                    <div class="filter-select" id="statusSelectBtn">
+                        全部状态
+                    </div>
+                    <div class="status-dropdown" id="statusDropdownMenu">
+                        <div class="status-dropdown-item active" data-status="all">全部状态</div>
+                        <div class="status-dropdown-item" data-status="pending">待开始</div>
+                        <div class="status-dropdown-item" data-status="executing">执行中</div>
+                        <div class="status-dropdown-item" data-status="confirming">确认中</div>
+                        <div class="status-dropdown-item" data-status="completed">已完成</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="result-bar">
+                <span id="resultCount">共 24 个任务</span>
+                <span class="expand-all-btn" onclick="expandAllContracts()">展开全部</span>
+            </div>
+            
+            <div id="taskContainer">
+                <div class="contract-section" data-contract="contract-1">
+                    <div class="contract-header" onclick="toggleContract(this)">
+                        <div class="contract-icon">📄</div>
+                        <div class="contract-info">
+                            <div class="contract-name">水电分包合同</div>
+                            <div class="contract-meta">水电工作组 · 4个阶段 · 12个任务</div>
+                        </div>
+                        <div class="contract-stats">
+                            <span class="stat-badge pending">待开始 3</span>
+                            <span class="stat-badge confirming">确认中 1</span>
+                        </div>
+                        <div class="arrow expanded">▼</div>
+                    </div>
+                    <div class="stage-group show">
+                        <div class="stage-item" data-sequential="true">
+                            <div class="stage-header" onclick="toggleStage(this)">
+                                <div class="stage-dot completed"></div>
+                                <div class="stage-name">材料进场阶段</div>
+                                <div class="sequential-icon" title="按序执行"></div>
+                                <div class="stage-count">3/3 已完成</div>
+                                <div class="arrow expanded">▼</div>
+                            </div>
+                            <div class="task-list show">
+                                <div class="task-item" data-type="contract" data-status="completed" data-priority="normal" data-task-index="0" data-participant="true" onclick="goToTaskDetail(this)">
+                                    <div class="task-status completed">✓</div>
+                                    <div class="task-info">
+                                        <div class="task-name">材料采购</div>
+                                        <div class="task-meta">执行人：张三 · 确认人：李四、王五</div>
+                                    </div>
+                                    <div class="task-status-text completed"><span class="status-icon">✓</span>已完成</div>
+                                </div>
+                                <div class="task-item" data-type="contract" data-status="completed" data-priority="normal" data-task-index="1" data-participant="true" onclick="goToTaskDetail(this)">
+                                    <div class="task-status completed">✓</div>
+                                    <div class="task-info">
+                                        <div class="task-name">材料运输</div>
+                                        <div class="task-meta">执行人：张三 · 确认人：李四</div>
+                                    </div>
+                                    <div class="task-status-text completed"><span class="status-icon">✓</span>已完成</div>
+                                </div>
+                                <div class="task-item" data-type="contract" data-status="completed" data-priority="normal" data-task-index="2" data-participant="true" onclick="goToTaskDetail(this)">
+                                    <div class="task-status completed">✓</div>
+                                    <div class="task-info">
+                                        <div class="task-name">材料确认</div>
+                                        <div class="task-meta">执行人：张三 · 确认人：李四、王五、赵六</div>
+                                    </div>
+                                    <div class="task-status-text completed"><span class="status-icon">✓</span>已完成</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="stage-item" data-sequential="true">
+                            <div class="stage-header" onclick="toggleStage(this)">
+                                <div class="stage-dot confirming"></div>
+                                <div class="stage-name">布管布线阶段</div>
+                                <div class="sequential-icon" title="按序执行"></div>
+                                <div class="stage-count">3/5 进行中</div>
+                                <div class="arrow">▼</div>
+                            </div>
+                            <div class="task-list">
+                                <div class="task-item" data-type="contract" data-status="completed" data-priority="normal" data-task-index="0" data-participant="true" onclick="goToTaskDetail(this)">
+                                    <div class="task-status completed">✓</div>
+                                    <div class="task-info">
+                                        <div class="task-name">开槽</div>
+                                        <div class="task-meta">执行人：李四 · 确认人：张三、王五</div>
+                                    </div>
+                                    <div class="task-status-text completed"><span class="status-icon">✓</span>已完成</div>
+                                </div>
+                                <div class="task-item" data-type="contract" data-status="completed" data-priority="normal" data-task-index="1" data-participant="true" onclick="goToTaskDetail(this)">
+                                    <div class="task-status completed">✓</div>
+                                    <div class="task-info">
+                                        <div class="task-name">布管</div>
+                                        <div class="task-meta">执行人：李四 · 确认人：张三、王五</div>
+                                    </div>
+                                    <div class="task-status-text completed"><span class="status-icon">✓</span>已完成</div>
+                                </div>
+                                <div class="task-item" data-type="contract" data-status="executing" data-priority="normal" data-task-index="2" data-participant="true" onclick="goToTaskDetail(this)">
+                                    <div class="task-status executing">▶</div>
+                                    <div class="task-info">
+                                        <div class="task-name">穿线</div>
+                                        <div class="task-meta">执行人：李四 · 进行中</div>
+                                    </div>
+                                    <div class="task-status-text executing"><span class="status-icon">▶</span>执行中</div>
+                                </div>
+                                <div class="task-item" data-type="contract" data-status="confirming" data-priority="important" data-task-index="3" data-participant="false" onclick="goToTaskDetail(this)">
+                                    <div class="task-status confirming">⏳</div>
+                                    <div class="task-info">
+                                        <div class="task-name">穿线验收</div>
+                                        <div class="task-meta">执行人：李四</div>
+                                        <div class="confirm-progress">
+                                            <div class="confirm-progress-bar"><div class="confirm-progress-fill" style="width: 33%;"></div></div>
+                                            <div class="confirm-progress-text">1/3 已确认</div>
+                                        </div>
+                                    </div>
+                                    <div class="task-status-text confirming"><span class="status-icon">⏳</span>确认中</div>
+                                </div>
+                                <div class="task-item" data-type="contract" data-status="pending" data-priority="normal" data-task-index="4" data-participant="true" onclick="goToTaskDetail(this)">
+                                    <div class="task-status pending">○</div>
+                                    <div class="task-info">
+                                        <div class="task-name">阶段确认</div>
+                                        <div class="task-meta">执行人：李四 · 确认人：张三、王五</div>
+                                    </div>
+                                    <div class="task-status-text pending"><span class="status-icon">⏸</span>待开始</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="stage-item" data-sequential="true">
+                            <div class="stage-header" onclick="toggleStage(this)">
+                                <div class="stage-dot"></div>
+                                <div class="stage-name">安装阶段</div>
+                                <div class="sequential-icon" title="按序执行"></div>
+                                <div class="stage-count">0/3 待开始</div>
+                                <div class="arrow">▼</div>
+                            </div>
+                            <div class="task-list">
+                                <div class="task-item" data-type="contract" data-status="pending" data-priority="normal" data-task-index="0" data-participant="true" onclick="goToTaskDetail(this)">
+                                    <div class="task-status pending">○</div>
+                                    <div class="task-info">
+                                        <div class="task-name">开关插座安装</div>
+                                        <div class="task-meta">执行人：王五 · 确认人：张三、李四</div>
+                                    </div>
+                                    <div class="task-status-text pending"><span class="status-icon">⏸</span>待开始</div>
+                                </div>
+                                <div class="task-item" data-type="contract" data-status="pending" data-priority="normal" data-task-index="1" data-participant="true" onclick="goToTaskDetail(this)">
+                                    <div class="task-status pending">○</div>
+                                    <div class="task-info">
+                                        <div class="task-name">灯具安装</div>
+                                        <div class="task-meta">执行人：王五 · 确认人：张三、李四</div>
+                                    </div>
+                                    <div class="task-status-text pending"><span class="status-icon">⏸</span>待开始</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="stage-item">
+                            <div class="stage-header" onclick="toggleStage(this)">
+                                <div class="stage-dot"></div>
+                                <div class="stage-name">收尾阶段</div>
+                                <div class="stage-count">0/2 待开始</div>
+                                <div class="arrow">▼</div>
+                            </div>
+                            <div class="task-list">
+                                <div class="task-item" data-type="contract" data-status="pending" data-priority="normal" data-participant="true" onclick="goToTaskDetail(this)">
+                                    <div class="task-status pending">○</div>
+                                    <div class="task-info">
+                                        <div class="task-name">清理现场</div>
+                                        <div class="task-meta">执行人：李四 · 确认人：张三、王五</div>
+                                    </div>
+                                    <div class="task-status-text pending"><span class="status-icon">⏸</span>待开始</div>
+                                </div>
+                                <div class="task-item" data-type="contract" data-status="pending" data-priority="normal" data-participant="true" onclick="goToTaskDetail(this)">
+                                    <div class="task-status pending">○</div>
+                                    <div class="task-info">
+                                        <div class="task-name">最终确认</div>
+                                        <div class="task-meta">执行人：李四 · 确认人：张三、王五、赵六、钱七、孙八</div>
+                                    </div>
+                                    <div class="task-status-text pending"><span class="status-icon">⏸</span>待开始</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="contract-section" data-contract="contract-2">
+                    <div class="contract-header" onclick="toggleContract(this)">
+                        <div class="contract-icon" style="background: linear-gradient(135deg, #52C41A 0%, #73D13D 100%);">📄</div>
+                        <div class="contract-info">
+                            <div class="contract-name">泥瓦分包合同</div>
+                            <div class="contract-meta">泥瓦工作组 · 3个阶段 · 8个任务</div>
+                        </div>
+                        <div class="contract-stats">
+                            <span class="stat-badge pending">待开始 2</span>
+                            <span class="stat-badge confirming">确认中 1</span>
+                        </div>
+                        <div class="arrow">▼</div>
+                    </div>
+                    <div class="stage-group">
+                        <div class="stage-item">
+                            <div class="stage-header" onclick="toggleStage(this)">
+                                <div class="stage-dot completed"></div>
+                                <div class="stage-name">防水阶段</div>
+                                <div class="stage-count">2/2 已完成</div>
+                                <div class="arrow">▼</div>
+                            </div>
+                            <div class="task-list">
+                                <div class="task-item" data-type="contract" data-status="completed" data-priority="normal" data-participant="true" onclick="goToTaskDetail(this)">
+                                    <div class="task-status completed">✓</div>
+                                    <div class="task-info">
+                                        <div class="task-name">防水施工</div>
+                                        <div class="task-meta">执行人：王五 · 确认人：张三、李四</div>
+                                    </div>
+                                    <div class="task-status-text completed"><span class="status-icon">✓</span>已完成</div>
+                                </div>
+                                <div class="task-item" data-type="contract" data-status="completed" data-priority="normal" data-participant="true" onclick="goToTaskDetail(this)">
+                                    <div class="task-status completed">✓</div>
+                                    <div class="task-info">
+                                        <div class="task-name">防水确认</div>
+                                        <div class="task-meta">执行人：王五 · 确认人：张三、李四</div>
+                                    </div>
+                                    <div class="task-status-text completed"><span class="status-icon">✓</span>已完成</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="stage-item">
+                            <div class="stage-header" onclick="toggleStage(this)">
+                                <div class="stage-dot confirming"></div>
+                                <div class="stage-name">贴砖阶段</div>
+                                <div class="stage-count">1/3 进行中</div>
+                                <div class="arrow">▼</div>
+                            </div>
+                            <div class="task-list">
+                                <div class="task-item" data-type="contract" data-status="confirming" data-priority="urgent" data-participant="false" onclick="goToTaskDetail(this)">
+                                    <div class="task-status confirming">⏳</div>
+                                    <div class="task-info">
+                                        <div class="task-name">墙面贴砖</div>
+                                        <div class="task-meta">执行人：王五</div>
+                                        <div class="confirm-progress">
+                                            <div class="confirm-progress-bar"><div class="confirm-progress-fill" style="width: 67%;"></div></div>
+                                            <div class="confirm-progress-text">2/3 已确认</div>
+                                        </div>
+                                    </div>
+                                    <div class="task-status-text confirming"><span class="status-icon">⏳</span>确认中</div>
+                                </div>
+                                <div class="task-item" data-type="contract" data-status="pending" data-priority="normal" data-participant="true" onclick="goToTaskDetail(this)">
+                                    <div class="task-status pending">○</div>
+                                    <div class="task-info">
+                                        <div class="task-name">地面铺砖</div>
+                                        <div class="task-meta">执行人：王五 · 确认人：张三、李四</div>
+                                    </div>
+                                    <div class="task-status-text pending"><span class="status-icon">⏸</span>待开始</div>
+                                    </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="contract-section" data-contract="contract-3">
+                    <div class="contract-header" onclick="toggleContract(this)">
+                        <div class="contract-icon" style="background: linear-gradient(135deg, #FA8C16 0%, #FFA940 100%);">📄</div>
+                        <div class="contract-info">
+                            <div class="contract-name">木工分包合同</div>
+                            <div class="contract-meta">木工工作组 · 2个阶段 · 4个任务</div>
+                        </div>
+                        <div class="contract-stats">
+                            <span class="stat-badge pending">待开始 4</span>
+                        </div>
+                        <div class="arrow">▼</div>
+                    </div>
+                    <div class="stage-group">
+                        <div class="stage-item">
+                            <div class="stage-header" onclick="toggleStage(this)">
+                                <div class="stage-dot"></div>
+                                <div class="stage-name">吊顶阶段</div>
+                                <div class="stage-count">0/2 待开始</div>
+                                <div class="arrow">▼</div>
+                            </div>
+                            <div class="task-list">
+                                <div class="task-item" data-type="contract" data-status="pending" data-priority="normal" data-participant="true" onclick="goToTaskDetail(this)">
+                                    <div class="task-status pending">○</div>
+                                    <div class="task-info">
+                                        <div class="task-name">吊顶施工</div>
+                                        <div class="task-meta">执行人：赵六 · 确认人：张三、李四</div>
+                                    </div>
+                                    <div class="task-status-text pending"><span class="status-icon">⏸</span>待开始</div>
+                                </div>
+                                <div class="task-item" data-type="contract" data-status="pending" data-priority="normal" data-participant="true" onclick="goToTaskDetail(this)">
+                                    <div class="task-status pending">○</div>
+                                    <div class="task-info">
+                                        <div class="task-name">吊顶确认</div>
+                                        <div class="task-meta">执行人：赵六 · 确认人：张三、李四</div>
+                                    </div>
+                                    <div class="task-status-text pending"><span class="status-icon">⏸</span>待开始</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="contract-section" data-contract="contract-4">
+                    <div class="contract-header" onclick="toggleContract(this)">
+                        <div class="contract-icon" style="background: linear-gradient(135deg, #722ED1 0%, #9254DE 100%);">📄</div>
+                        <div class="contract-info">
+                            <div class="contract-name">油漆分包合同</div>
+                            <div class="contract-meta">油漆工作组 · 2个阶段 · 4个任务</div>
+                        </div>
+                        <div class="contract-stats">
+                            <span class="stat-badge pending">待开始 4</span>
+                        </div>
+                        <div class="arrow">▼</div>
+                    </div>
+                    <div class="stage-group">
+                        <div class="stage-item">
+                            <div class="stage-header" onclick="toggleStage(this)">
+                                <div class="stage-dot"></div>
+                                <div class="stage-name">批刮阶段</div>
+                                <div class="stage-count">0/2 待开始</div>
+                                <div class="arrow">▼</div>
+                            </div>
+                            <div class="task-list">
+                                <div class="task-item" data-type="contract" data-status="pending" data-participant="true" onclick="goToTaskDetail(this)">
+                                    <div class="task-status pending">○</div>
+                                    <div class="task-info">
+                                        <div class="task-name">墙面批刮</div>
+                                        <div class="task-meta">执行人：钱七 · 确认人：张三、李四</div>
+                                    </div>
+                                    <div class="task-status-text pending">待开始</div>
+                                </div>
+                                <div class="task-item" data-type="contract" data-status="pending" data-participant="true" onclick="goToTaskDetail(this)">
+                                    <div class="task-status pending">○</div>
+                                    <div class="task-info">
+                                        <div class="task-name">批刮确认</div>
+                                        <div class="task-meta">执行人：钱七 · 确认人：张三、李四</div>
+                                    </div>
+                                    <div class="task-status-text pending">待开始</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="empty-state" id="emptyState" style="display: none;">
+                <div class="icon">📋</div>
+                <div class="text">暂无符合条件的任务</div>
+            </div>
+
+            <div class="flat-task-list" id="flatTaskList">
+                <div class="flat-task-item" data-status="completed" onclick="goToTaskDetail(this)">
+                    <div class="task-status completed">✓</div>
+                    <div class="task-info">
+                        <div class="task-name">材料采购</div>
+                        <div class="task-meta">
+                            <span class="contract-name">水电分包合同</span>
+                            <span>执行人：张三</span>
+                        </div>
+                    </div>
+                    <div class="task-status-text completed">已完成</div>
+                </div>
+                <div class="flat-task-item" data-status="confirming" onclick="goToTaskDetail(this)">
+                    <div class="task-status confirming">⏳</div>
+                    <div class="task-info">
+                        <div class="task-name">穿线</div>
+                        <div class="task-meta">
+                            <span class="contract-name">水电分包合同</span>
+                            <span>执行人：李四</span>
+                            <span>确认中 1/3</span>
+                        </div>
+                    </div>
+                    <div class="task-status-text confirming">确认中</div>
+                </div>
+                <div class="flat-task-item" data-status="confirming" onclick="goToTaskDetail(this)">
+                    <div class="task-status confirming">⏳</div>
+                    <div class="task-info">
+                        <div class="task-name">墙面贴砖</div>
+                        <div class="task-meta">
+                            <span class="contract-name">泥瓦分包合同</span>
+                            <span>执行人：王五</span>
+                            <span>确认中 2/3</span>
+                        </div>
+                    </div>
+                    <div class="task-status-text confirming">确认中</div>
+                </div>
+                <div class="flat-task-item" data-status="pending" onclick="goToTaskDetail(this)">
+                    <div class="task-status pending">○</div>
+                    <div class="task-info">
+                        <div class="task-name">吊顶施工</div>
+                        <div class="task-meta">
+                            <span class="contract-name">木工分包合同</span>
+                            <span>执行人：赵六</span>
+                        </div>
+                    </div>
+                    <div class="task-status-text pending">待开始</div>
+                </div>
+                <div class="flat-task-item" data-status="pending" onclick="goToTaskDetail(this)">
+                    <div class="task-status pending">○</div>
+                    <div class="task-info">
+                        <div class="task-name">墙面批刮</div>
+                        <div class="task-meta">
+                            <span class="contract-name">油漆分包合同</span>
+                            <span>执行人：钱七</span>
+                        </div>
+                    </div>
+                    <div class="task-status-text pending">待开始</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="page-nav">
+        <div class="page-nav-title">原型导航</div>
+        <a href="home.html" class="page-nav-item">首页</a>
+        <a href="project-list.html" class="page-nav-item">项目列表</a>
+        <a href="project-detail.html" class="page-nav-item">项目详情</a>
+        <a href="task-list.html" class="page-nav-item active">任务列表</a>
+        <a href="contract-detail.html" class="page-nav-item">合同详情</a>
+        <a href="task-detail.html" class="page-nav-item">任务详情</a>
+    </div>
+    
+    <script>
+        let currentFilters = {
+            contract: 'all',
+            contractText: '全部合同',
+            type: 'all',
+            typeText: '全部类型',
+            status: 'all',
+            statusText: '全部状态',
+            mine: false
+        };
+        
+        let allExpanded = true;
+        
+        function showToast(message, duration = 2500) {
+            const existingToast = document.querySelector('.app-toast');
+            if (existingToast) {
+                existingToast.remove();
+            }
+            
+            const toast = document.createElement('div');
+            toast.className = 'app-toast';
+            toast.innerHTML = message.replace(/\n/g, '<br>');
+            toast.style.cssText = `
+                position: absolute;
+                bottom: 80px;
+                left: 50%;
+                transform: translateX(-50%);
+                background-color: rgba(0, 0, 0, 0.7);
+                color: #FFFFFF;
+                padding: 10px 20px;
+                border-radius: 8px;
+                font-size: 13px;
+                z-index: 1000;
+                white-space: pre-wrap;
+                max-width: 90%;
+                text-align: center;
+                line-height: 1.5;
+            `;
+            const phoneFrame = document.querySelector('.phone-frame');
+            if (phoneFrame) {
+                phoneFrame.appendChild(toast);
+            }
+            
+            setTimeout(() => {
+                toast.remove();
+            }, duration);
+        }
+        
+        function toggleFilterDropdown() {
+            const dropdown = document.getElementById('filterDropdown');
+            const filterBtn = document.getElementById('filterBtn');
+            dropdown.classList.toggle('show');
+            filterBtn.classList.toggle('active');
+        }
+        
+        function closeFilterDropdown() {
+            document.getElementById('filterDropdown').classList.remove('show');
+            document.getElementById('filterBtn').classList.remove('active');
+        }
+        
+        function selectContract(element, value, text) {
+            currentFilters.contract = value;
+            currentFilters.contractText = text;
+            updateFilterOptions('contractOptions', value);
+            updateFilterTags();
+            filterTasks();
+        }
+        
+        function selectType(element, value, text) {
+            currentFilters.type = value;
+            currentFilters.typeText = text;
+            updateFilterOptions('typeOptions', value);
+            updateFilterTags();
+            filterTasks();
+        }
+        
+        function selectStatus(element, value, text) {
+            currentFilters.status = value;
+            currentFilters.statusText = text;
+            updateFilterOptions('statusOptions', value);
+            updateFilterTags();
+            filterTasks();
+        }
+        
+        function updateFilterOptions(containerId, activeValue) {
+            const container = document.getElementById(containerId);
+            const options = container.querySelectorAll('.filter-option');
+            options.forEach(option => {
+                if (option.dataset.value === activeValue) {
+                    option.classList.add('active');
+                } else {
+                    option.classList.remove('active');
+                }
+            });
+        }
+        
+        function updateFilterTags() {
+            const filterTags = document.getElementById('filterTags');
+            const tags = [];
+            
+            if (currentFilters.contract !== 'all') {
+                tags.push({ type: 'contract', text: currentFilters.contractText });
+            }
+            if (currentFilters.type !== 'all') {
+                tags.push({ type: 'type', text: currentFilters.typeText });
+            }
+            if (currentFilters.status !== 'all') {
+                tags.push({ type: 'status', text: currentFilters.statusText });
+            }
+            
+            if (tags.length > 0) {
+                filterTags.style.display = 'flex';
+                filterTags.innerHTML = tags.map(tag => `
+                    <div class="filter-tag">
+                        <span>${tag.text}</span>
+                        <span class="remove" onclick="removeFilter('${tag.type}')">×</span>
+                    </div>
+                `).join('');
+            } else {
+                filterTags.style.display = 'none';
+            }
+            
+            const filterBtn = document.getElementById('filterBtn');
+            if (tags.length > 0) {
+                filterBtn.classList.add('active');
+            } else {
+                filterBtn.classList.remove('active');
+            }
+        }
+        
+        function removeFilter(type) {
+            if (type === 'contract') {
+                currentFilters.contract = 'all';
+                currentFilters.contractText = '全部合同';
+                updateFilterOptions('contractOptions', 'all');
+            } else if (type === 'type') {
+                currentFilters.type = 'all';
+                currentFilters.typeText = '全部类型';
+                updateFilterOptions('typeOptions', 'all');
+            } else if (type === 'status') {
+                currentFilters.status = 'all';
+                currentFilters.statusText = '全部状态';
+                updateFilterOptions('statusOptions', 'all');
+            }
+            updateFilterTags();
+            filterTasks();
+        }
+        
+        function goToTaskDetail(element) {
+            const taskType = element.dataset.type;
+            const taskStatus = element.dataset.status;
+            
+            if (taskType === 'temp') {
+                location.href = `temp-task-detail.html?status=${taskStatus}`;
+            } else {
+                location.href = `task-detail.html?status=${taskStatus}`;
+            }
+        }
+        
+        function toggleContract(header) {
+            const stageGroup = header.nextElementSibling;
+            const arrow = header.querySelector('.arrow');
+            
+            if (stageGroup.classList.contains('show')) {
+                stageGroup.classList.remove('show');
+                arrow.classList.remove('expanded');
+            } else {
+                stageGroup.classList.add('show');
+                arrow.classList.add('expanded');
+            }
+        }
+        
+        function toggleStage(header) {
+            const taskList = header.nextElementSibling;
+            const arrow = header.querySelector('.arrow');
+            
+            if (taskList.classList.contains('show')) {
+                taskList.classList.remove('show');
+                arrow.classList.remove('expanded');
+            } else {
+                taskList.classList.add('show');
+                arrow.classList.add('expanded');
+            }
+        }
+        
+        function toggleTempTasks(header) {
+            const taskList = header.nextElementSibling;
+            const arrow = header.querySelector('.arrow');
+            
+            if (taskList.classList.contains('show')) {
+                taskList.classList.remove('show');
+                arrow.classList.remove('expanded');
+            } else {
+                taskList.classList.add('show');
+                arrow.classList.add('expanded');
+            }
+        }
+        
+        function expandAllContracts() {
+            const btn = document.querySelector('.expand-all-btn');
+            const contractSections = document.querySelectorAll('.contract-section');
+            
+            if (allExpanded) {
+                contractSections.forEach(section => {
+                    const stageGroup = section.querySelector('.stage-group');
+                    const arrow = section.querySelector('.contract-header .arrow');
+                    stageGroup.classList.remove('show');
+                    arrow.classList.remove('expanded');
+                    
+                    section.querySelectorAll('.task-list').forEach(list => list.classList.remove('show'));
+                    section.querySelectorAll('.stage-header .arrow').forEach(a => a.classList.remove('expanded'));
+                });
+                btn.textContent = '展开全部';
+                allExpanded = false;
+            } else {
+                contractSections.forEach(section => {
+                    const stageGroup = section.querySelector('.stage-group');
+                    const arrow = section.querySelector('.contract-header .arrow');
+                    stageGroup.classList.add('show');
+                    arrow.classList.add('expanded');
+                    
+                    section.querySelectorAll('.task-list').forEach(list => list.classList.add('show'));
+                    section.querySelectorAll('.stage-header .arrow').forEach(a => a.classList.add('expanded'));
+                });
+                btn.textContent = '收起全部';
+                allExpanded = true;
+            }
+        }
+        
+        function filterTasks() {
+            const searchText = document.getElementById('searchInput').value.toLowerCase();
+            const contractSections = document.querySelectorAll('.contract-section');
+            let totalVisible = 0;
+            let pendingCount = 0;
+            let confirmingCount = 0;
+            let completedCount = 0;
+            
+            contractSections.forEach(section => {
+                const contractId = section.dataset.contract;
+                const stages = section.querySelectorAll('.stage-item');
+                const tempTasksSection = section.querySelector('.temp-tasks-section');
+                let contractVisibleCount = 0;
+                
+                stages.forEach(stage => {
+                    const tasks = stage.querySelectorAll('.task-item');
+                    let stageVisibleCount = 0;
+                    
+                    tasks.forEach(task => {
+                        const taskType = task.dataset.type;
+                        const taskStatus = task.dataset.status;
+                        const taskParticipant = task.dataset.participant === 'true';
+                        const taskName = task.querySelector('.task-name').textContent.toLowerCase();
+                        
+                        let visible = true;
+                        
+                        if (currentFilters.contract !== 'all' && contractId !== currentFilters.contract) {
+                            visible = false;
+                        }
+                        
+                        if (currentFilters.type !== 'all' && taskType !== currentFilters.type) {
+                            visible = false;
+                        }
+                        
+                        if (currentFilters.status !== 'all' && taskStatus !== currentFilters.status) {
+                            visible = false;
+                        }
+                        
+                        if (currentFilters.mine && !taskParticipant) {
+                            visible = false;
+                        }
+                        
+                        if (searchText && !taskName.includes(searchText)) {
+                            visible = false;
+                        }
+                        
+                        task.style.display = visible ? 'flex' : 'none';
+                        
+                        if (visible) {
+                            stageVisibleCount++;
+                            contractVisibleCount++;
+                            totalVisible++;
+                            if (taskStatus === 'pending') pendingCount++;
+                            if (taskStatus === 'confirming') confirmingCount++;
+                            if (taskStatus === 'completed') completedCount++;
+                        }
+                    });
+                    
+                    if (stageVisibleCount > 0) {
+                        stage.style.display = 'block';
+                    } else {
+                        stage.style.display = 'none';
+                    }
+                });
+                
+                if (tempTasksSection) {
+                    const tempTasks = tempTasksSection.querySelectorAll('.task-item');
+                    let tempVisibleCount = 0;
+                    
+                    tempTasks.forEach(task => {
+                        const taskType = task.dataset.type;
+                        const taskStatus = task.dataset.status;
+                        const taskName = task.querySelector('.task-name').textContent.toLowerCase();
+                        
+                        let visible = true;
+                        
+                        if (currentFilters.contract !== 'all' && contractId !== currentFilters.contract) {
+                            visible = false;
+                        }
+                        
+                        if (currentFilters.type !== 'all' && taskType !== currentFilters.type) {
+                            visible = false;
+                        }
+                        
+                        if (currentFilters.status !== 'all' && taskStatus !== currentFilters.status) {
+                            visible = false;
+                        }
+                        
+                        if (searchText && !taskName.includes(searchText)) {
+                            visible = false;
+                        }
+                        
+                        task.style.display = visible ? 'flex' : 'none';
+                        
+                        if (visible) {
+                            tempVisibleCount++;
+                            contractVisibleCount++;
+                            totalVisible++;
+                            if (taskStatus === 'pending') pendingCount++;
+                            if (taskStatus === 'confirming') confirmingCount++;
+                            if (taskStatus === 'completed') completedCount++;
+                        }
+                    });
+                    
+                    if (tempVisibleCount > 0) {
+                        tempTasksSection.style.display = 'block';
+                        const countEl = tempTasksSection.querySelector('.temp-tasks-count');
+                        if (countEl) countEl.textContent = tempVisibleCount + '个任务';
+                    } else {
+                        tempTasksSection.style.display = 'none';
+                    }
+                }
+                
+                if (contractVisibleCount > 0) {
+                    section.style.display = 'block';
+                } else {
+                    section.style.display = 'none';
+                }
+            });
+            
+            document.getElementById('resultCount').textContent = '共 ' + totalVisible + ' 个任务';
+            document.getElementById('totalCount').textContent = totalVisible;
+            document.getElementById('pendingCount').textContent = pendingCount;
+            document.getElementById('confirmingCount').textContent = confirmingCount;
+            document.getElementById('completedCount').textContent = completedCount;
+            
+            const emptyState = document.getElementById('emptyState');
+            if (totalVisible === 0) {
+                emptyState.style.display = 'flex';
+            } else {
+                emptyState.style.display = 'none';
+            }
+        }
+        
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('.search-filter-bar')) {
+                const dropdown = document.getElementById('filterDropdown');
+                if (dropdown) dropdown.classList.remove('show');
+            }
+            
+            const filterPanel = document.getElementById('filterPanel');
+            const filterOverlay = document.getElementById('filterPanelOverlay');
+            if (filterPanel && filterPanel.classList.contains('show')) {
+                if (e.target === filterOverlay) {
+                    closeFilterPanel();
+                }
+            }
+        });
+
+        function openFilterPanel() {
+            const panel = document.getElementById('filterPanel');
+            const overlay = document.getElementById('filterPanelOverlay');
+            if (panel && overlay) {
+                panel.classList.add('show');
+                overlay.classList.add('show');
+            }
+        }
+
+        function closeFilterPanel() {
+            const panel = document.getElementById('filterPanel');
+            const overlay = document.getElementById('filterPanelOverlay');
+            if (panel && overlay) {
+                panel.classList.remove('show');
+                overlay.classList.remove('show');
+            }
+        }
+
+        function toggleMultiOption(element) {
+            element.classList.toggle('selected');
+        }
+
+        function quickFilter(type, btn) {
+            document.querySelectorAll('.quick-filter-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            
+            if (type === 'all') {
+                currentFilters.status = 'all';
+                currentFilters.type = 'all';
+                currentFilters.mine = false;
+            } else if (type === 'mine') {
+                currentFilters.status = 'all';
+                currentFilters.type = 'all';
+                currentFilters.mine = true;
+            } else {
+                currentFilters.status = type;
+                currentFilters.type = 'all';
+                currentFilters.mine = false;
+            }
+            
+            filterTasks();
+        }
+
+        function handleParticipantClick(type, btn) {
+            document.querySelectorAll('.filter-option').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            
+            currentFilters.mine = type === 'mine';
+            filterTasks();
+        }
+
+        function saveFilterScheme() {
+            showToast('筛选方案已保存');
+        }
+
+        let currentView = 'grouped';
+        let currentGroupBy = 'contract';
+
+        function switchView(view, tab) {
+            currentView = view;
+            
+            document.querySelectorAll('.view-switch-tab').forEach(t => t.classList.remove('active'));
+            tab.classList.add('active');
+            
+            const taskContainer = document.getElementById('taskContainer');
+            const flatList = document.getElementById('flatTaskList');
+            const groupBySelector = document.getElementById('groupBySelector');
+            const resultBar = document.querySelector('.result-bar');
+            
+            if (view === 'flat') {
+                taskContainer.style.display = 'none';
+                flatList.classList.add('show');
+                groupBySelector.style.display = 'none';
+                resultBar.style.display = 'none';
+            } else {
+                taskContainer.style.display = 'block';
+                flatList.classList.remove('show');
+                groupBySelector.style.display = 'flex';
+                resultBar.style.display = 'flex';
+            }
+        }
+
+        function changeGroupBy(value) {
+            currentGroupBy = value;
+            
+            const taskContainer = document.getElementById('taskContainer');
+            const contractSections = taskContainer.querySelectorAll('.contract-section');
+            
+            if (value === 'stage') {
+                contractSections.forEach(section => {
+                    const stages = section.querySelectorAll('.stage-item');
+                    stages.forEach(stage => {
+                        const stageName = stage.querySelector('.stage-name').textContent;
+                        const stageDot = stage.querySelector('.stage-dot');
+                        const stageHeader = stage.querySelector('.stage-header');
+                        
+                        if (stageName.includes('材料') || stageName.includes('防水')) {
+                            stageDot.className = 'stage-dot completed';
+                            stageHeader.style.borderLeft = '3px solid var(--success-color)';
+                        } else if (stageName.includes('布管') || stageName.includes('贴砖')) {
+                            stageDot.className = 'stage-dot confirming';
+                            stageHeader.style.borderLeft = '3px solid var(--warning-color)';
+                        } else {
+                            stageDot.className = 'stage-dot';
+                            stageHeader.style.borderLeft = '3px solid var(--primary-color)';
+                        }
+                    });
+                });
+                
+                showToast('已按阶段分组显示');
+            } else if (value === 'status') {
+                contractSections.forEach(section => {
+                    const stages = section.querySelectorAll('.stage-item');
+                    stages.forEach(stage => {
+                        const tasks = stage.querySelectorAll('.task-item');
+                        let hasConfirming = false;
+                        let hasPending = false;
+                        let allCompleted = true;
+                        
+                        tasks.forEach(task => {
+                            const status = task.dataset.status;
+                            if (status === 'confirming') hasConfirming = true;
+                            if (status === 'pending') hasPending = true;
+                            if (status !== 'completed') allCompleted = false;
+                        });
+                        
+                        const stageDot = stage.querySelector('.stage-dot');
+                        const stageHeader = stage.querySelector('.stage-header');
+                        
+                        if (allCompleted && tasks.length > 0) {
+                            stageDot.className = 'stage-dot completed';
+                            stageHeader.style.borderLeft = '3px solid var(--success-color)';
+                        } else if (hasConfirming) {
+                            stageDot.className = 'stage-dot confirming';
+                            stageHeader.style.borderLeft = '3px solid var(--warning-color)';
+                        } else {
+                            stageDot.className = 'stage-dot';
+                            stageHeader.style.borderLeft = '3px solid var(--primary-color)';
+                        }
+                    });
+                });
+                
+                showToast('已按状态分组显示');
+            } else {
+                contractSections.forEach(section => {
+                    const stages = section.querySelectorAll('.stage-item');
+                    stages.forEach(stage => {
+                        const stageDot = stage.querySelector('.stage-dot');
+                        const stageHeader = stage.querySelector('.stage-header');
+                        stageDot.className = 'stage-dot';
+                        stageHeader.style.borderLeft = 'none';
+                    });
+                });
+                
+                showToast('已按合同分组显示');
+            }
+        }
+
+        function goToTaskDetail(element) {
+            const taskType = element.dataset.type;
+            const taskStatus = element.dataset.status;
+            
+            if (element.classList.contains('disabled')) {
+                showToast('当前阶段内任务为按序执行，存在未完成的前置任务，当前任务无法执行');
+                return;
+            }
+            
+            if (taskType === 'temp') {
+                location.href = `temp-task-detail.html?status=${taskStatus}`;
+            } else {
+                location.href = `task-detail.html?status=${taskStatus}`;
+            }
+        }
+
+        function checkSequentialTasks() {
+            const contractSections = document.querySelectorAll('.contract-section');
+            
+            contractSections.forEach(section => {
+                const stages = section.querySelectorAll('.stage-item');
+                
+                stages.forEach(stage => {
+                    const isSequential = stage.dataset.sequential === 'true';
+                    if (!isSequential) return;
+                    
+                    const tasks = stage.querySelectorAll('.task-item');
+                    let prevTaskCompleted = true;
+                    
+                    tasks.forEach((task, index) => {
+                        const taskStatus = task.dataset.status;
+                        
+                        if (index > 0 && isSequential) {
+                            const prevTask = tasks[index - 1];
+                            const prevTaskStatus = prevTask.dataset.status;
+                            prevTaskCompleted = prevTaskStatus === 'completed';
+                            
+                            if (!prevTaskCompleted && taskStatus !== 'completed') {
+                                task.classList.add('disabled');
+                                task.removeAttribute('onclick');
+                                task.setAttribute('onclick', 'goToTaskDetail(this)');
+                            } else {
+                                task.classList.remove('disabled');
+                            }
+                        }
+                    });
+                });
+            });
+        }
+
+        function showToast(message, duration = 2500) {
+            const existingToast = document.querySelector('.app-toast');
+            if (existingToast) {
+                existingToast.remove();
+            }
+            
+            const toast = document.createElement('div');
+            toast.className = 'app-toast';
+            toast.textContent = message;
+            toast.style.cssText = `
+                position: fixed;
+                bottom: 80px;
+                left: 50%;
+                transform: translateX(-50%);
+                background-color: rgba(0, 0, 0, 0.75);
+                color: #FFFFFF;
+                padding: 12px 20px;
+                border-radius: 8px;
+                font-size: 13px;
+                z-index: 10000;
+                white-space: nowrap;
+                max-width: 90%;
+                text-align: center;
+                line-height: 1.5;
+            `;
+            document.body.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.remove();
+            }, duration);
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            checkSequentialTasks();
+            
+            const participantOptions = document.querySelectorAll('.filter-option');
+            participantOptions.forEach(function(option) {
+                option.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    participantOptions.forEach(function(o) { o.classList.remove('active'); });
+                    option.classList.add('active');
+                    
+                    const type = option.dataset.filter;
+                    currentFilters.mine = type === 'mine';
+                    filterTasks();
+                });
+            });
+            
+            const dropdown = document.getElementById('statusDropdownMenu');
+            const selectBtn = document.getElementById('statusSelectBtn');
+            
+            if (dropdown && selectBtn) {
+                selectBtn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    dropdown.classList.toggle('show');
+                    selectBtn.classList.toggle('active');
+                    
+                    if (dropdown.classList.contains('show')) {
+                        setTimeout(function() {
+                            document.addEventListener('click', function handleDocClick(e) {
+                                if (!dropdown.contains(e.target) && !selectBtn.contains(e.target)) {
+                                    dropdown.classList.remove('show');
+                                    selectBtn.classList.remove('active');
+                                    document.removeEventListener('click', handleDocClick);
+                                }
+                            });
+                        }, 0);
+                    }
+                });
+                
+                const items = dropdown.querySelectorAll('.status-dropdown-item');
+                items.forEach(function(item) {
+                    item.addEventListener('click', function(e) {
+                        e.stopPropagation();
+                        const status = item.dataset.status;
+                        const text = item.textContent;
+                        
+                        items.forEach(function(i) { i.classList.remove('active'); });
+                        item.classList.add('active');
+                        
+                        selectBtn.textContent = text;
+                        dropdown.classList.remove('show');
+                        selectBtn.classList.remove('active');
+                        
+                        currentFilters.status = status;
+                        filterTasks();
+                    });
+                });
+            }
+        });
+        
+        function toggleActionMenu() {
+            const actionMenu = document.getElementById('actionMenu');
+            if (actionMenu) {
+                actionMenu.classList.toggle('show');
+            }
+        }
+        
+        function closeActionMenu() {
+            const actionMenu = document.getElementById('actionMenu');
+            if (actionMenu) {
+                actionMenu.classList.remove('show');
+            }
+        }
+        
+        function shareToFriend() {
+            showToast('分享给朋友');
+            closeActionMenu();
+        }
+    </script>
+</body>
+</html>
+

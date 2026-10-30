@@ -1,0 +1,1036 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-page-node-id="r9ibJ1MOOLYuCIBSbdhIRk">
+<head data-page-node-id="7GVIkhovmVOjKdQjyKLdCG">
+    <meta charset="UTF-8" data-page-node-id="lmUb5yuXmHX2ESA45ElhsR">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" data-page-node-id="FeIpACD9pjrKKPRtH54mUW">
+    <title>良造家管理平台 - PC端其他模块详细PRD规格</title>
+    <style>
+        :root {
+            --primary-color: #1890FF;
+            --success-color: #52C41A;
+            --warning-color: #FA8C16;
+            --error-color: #FF4D4F;
+            --text-primary: #262626;
+            --text-secondary: #595959;
+            --text-tertiary: #8C8C8C;
+            --border-color: #E8E8E8;
+            --bg-primary: #FFFFFF;
+            --bg-secondary: #FAFAFA;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+            color: var(--text-primary);
+            background-color: var(--bg-secondary);
+        }
+
+        /* 左右布局 */
+        .page-wrapper {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* 左侧目录 */
+        .sidebar-toc {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 280px;
+            height: 100vh;
+            background: var(--bg-primary);
+            border-right: 1px solid var(--border-color);
+            overflow-y: auto;
+            z-index: 100;
+            flex-shrink: 0;
+        }
+
+        .sidebar-toc::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .sidebar-toc::-webkit-scrollbar-thumb {
+            background: var(--border-color);
+            border-radius: 3px;
+        }
+
+        .sidebar-toc::-webkit-scrollbar-track {
+            background: var(--bg-secondary);
+        }
+
+        .sidebar-toc-title {
+            padding: 24px 24px 16px;
+            font-size: 18px;
+            font-weight: 600;
+            border-bottom: 1px solid var(--border-color);
+            position: sticky;
+            top: 0;
+            background: var(--bg-primary);
+            z-index: 1;
+        }
+
+        .sidebar-toc-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .sidebar-toc-list li {
+            border-bottom: none;
+        }
+
+        .sidebar-toc-list a {
+            display: block;
+            padding: 12px 24px;
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 13px;
+            transition: all 0.2s ease;
+            border-left: 3px solid transparent;
+        }
+
+        .sidebar-toc-list a:hover {
+            background: var(--bg-secondary);
+            color: var(--warning-color);
+            text-decoration: none;
+        }
+
+        .sidebar-toc-list a.active {
+            background: #FFF7E6;
+            color: var(--warning-color);
+            border-left-color: var(--warning-color);
+            font-weight: 500;
+        }
+
+        /* 目录二级嵌套（章节子项） */
+        .sidebar-toc-sub {
+            list-style: none;
+            padding: 0 0 4px 0;
+            margin: 0;
+            background: rgba(0,0,0,0.015);
+        }
+        .sidebar-toc-sub li { border-bottom: none; }
+        .sidebar-toc-sub a {
+            padding: 8px 24px 8px 40px;
+            font-size: 13px;
+            color: var(--text-secondary);
+            border-left: 3px solid transparent;
+        }
+        .sidebar-toc-sub a:hover {
+            background: var(--bg-secondary);
+            color: var(--warning-color);
+        }
+        .sidebar-toc-sub a.active {
+            background: #FFF7E6;
+            color: var(--warning-color);
+            border-left-color: var(--warning-color);
+        }
+        .sidebar-toc-list li.toc-parent > a {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        /* 主内容区域 */
+        .main-content {
+            flex: 1;
+            margin-left: 280px;
+            background: var(--bg-secondary);
+        }
+
+        .container { max-width: 1400px; margin: 0 auto; padding: 24px; }
+        .header {
+            background: linear-gradient(135deg, #FA8C16 0%, #FAAD14 100%);
+            color: white;
+            padding: 48px 24px;
+            margin-bottom: 32px;
+        }
+        .header h1 { font-size: 32px; margin-bottom: 8px; }
+        .section {
+            background: var(--bg-primary);
+            border-radius: 8px;
+            padding: 32px;
+            margin-bottom: 24px;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+        }
+        .section-title {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 2px solid var(--warning-color);
+        }
+        .subsection { margin-bottom: 32px; }
+        .subsection-title { font-size: 18px; font-weight: 600; margin-bottom: 16px; }
+        table { width: 100%; border-collapse: collapse; margin-bottom: 24px; }
+        table th, table td { padding: 12px 16px; text-align: left; border-bottom: 1px solid var(--border-color); font-size: 13px; }
+        table th { background: var(--bg-secondary); font-weight: 600; color: var(--text-secondary); }
+        .info-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 24px; }
+        .info-item { padding: 16px; background: var(--bg-secondary); border-radius: 6px; }
+        .info-label { font-size: 12px; color: var(--text-tertiary); margin-bottom: 4px; }
+        .info-value { font-size: 14px; font-weight: 500; }
+        .code-block {
+            background: #1E1E1E;
+            color: #D4D4D4;
+            padding: 16px;
+            border-radius: 6px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            overflow-x: auto;
+            margin-bottom: 24px;
+        }
+        .note {
+            background: #FFFBE6;
+            border-left: 4px solid var(--warning-color);
+            padding: 12px 16px;
+            margin-bottom: 24px;
+            border-radius: 0 6px 6px 0;
+        }
+        .note-title { font-weight: 600; color: var(--warning-color); margin-bottom: 4px; }
+        .tag { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 12px; font-weight: 500; }
+        .tag-required { background: #FFF1F0; color: var(--error-color); }
+        .tag-optional { background: #F0F5FF; color: var(--primary-color); }
+        .file-link {
+            color: var(--primary-color);
+            text-decoration: none;
+            border-bottom: 1px dashed var(--primary-color);
+            cursor: pointer;
+            font-weight: 500;
+        }
+        .file-link:hover { color: var(--warning-color); border-bottom-color: var(--warning-color); }
+        .proto-ref {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            margin: 0 0 16px 0;
+            padding: 4px 10px;
+            background: #F0F5FF;
+            border: 1px solid #D6E4FF;
+            border-radius: 4px;
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+        .proto-ref .proto-ref-label { color: var(--primary-color); font-weight: 500; }
+
+        .list-field-table th:nth-child(1) { width: 16%; }
+        .list-field-table th:nth-child(2) { width: 22%; }
+        .list-field-table th:nth-child(3) { width: 62%; }
+    </style>
+</head>
+<body data-page-node-id="UgGSnIhyrLPSFDDTgjraud">
+    <!-- 左侧目录 -->
+    <nav class="sidebar-toc" id="sidebarToc" data-page-node-id="v5hYd0O5JHYD2JNuIsNtyE">
+        <div class="sidebar-toc-title" data-page-node-id="8Wt9aWwcQ2V9yvYs0v5fkc">页面导航</div>
+        <ul class="sidebar-toc-list" data-page-node-id="TpzQlPpVI7fkxhD10f6ZJb">
+            <li class="toc-parent" data-page-node-id="x9CBCzeZB0kYp4HS3E49rb"><a href="#page-contract-template" data-page-node-id="1aOYkKFpMa3eQ8mTua5sdn">一、合同文本模板页</a>
+                <ul class="sidebar-toc-sub" data-page-node-id="wRpw6afHeEWS9zhV4AlzFK">
+                    <li data-page-node-id="k3BrwMP9tlfV9jYFuSdh4D"><a href="#s1-1" data-page-node-id="ut9xlgDXA1jHyvPprdqx1H">1.1 页面概述</a></li>
+                    <li data-page-node-id="5UWn1wubBpznJdYD0hFEKu"><a href="#s1-2" data-page-node-id="MNFjLeU71sG7UIRlEtxsRJ">1.2 页面结构</a></li>
+                    <li data-page-node-id="PxZuTLQtOtkAHQBI2MrBT9"><a href="#s1-3" data-page-node-id="YhwNkB7DDICxPRiFdc4CGF">1.3 列表页</a></li>
+                    <li data-page-node-id="JlkKEBRzTnxIqjviMdm545"><a href="#s1-4" data-page-node-id="csN8aE28yXEcXpIwC5ATv4">1.4 新建模板</a></li>
+                    <li data-page-node-id="BG0OGjvLmdWxJ05Ezx3aew"><a href="#s1-5" data-page-node-id="HfvR6r6G0UB2ZMOnTK2zpe">1.5 编辑模板</a></li>
+                    <li data-page-node-id="eRC0LN1CEJMsrXKtgCrSzz"><a href="#s1-6" data-page-node-id="LXdOL0wu9aJ0bcDHiY7pxG">1.6 启用 / 停用</a></li>
+                    <li data-page-node-id="7Bla5IGCHDWFSL64ZcyMRE"><a href="#s1-7" data-page-node-id="3JiFjoTtQDUKnbscRCyWaJ">1.7 权限控制逻辑</a></li>
+                    <li data-page-node-id="MxSoX5keAydKBbLnLokwAG"><a href="#s1-8" data-page-node-id="sHzJk2VyhVA9HiGCUCMcUO">1.8 动画和视觉反馈</a></li>
+                    <li data-page-node-id="mIBEehBjlWzAow6cuCbXF3"><a href="#s1-9" data-page-node-id="GZxtNhnbtBkBpqDZ8ROEOZ">1.9 异常处理逻辑</a></li>
+                </ul>
+            </li>
+            <li class="toc-parent" data-page-node-id="B5F5vNJruyV5vFYCgjn6Qc"><a href="#page-stage-template" data-page-node-id="lDcGyeOmLEHZOP9XiOTVGp">二、阶段任务模板页</a>
+                <ul class="sidebar-toc-sub" data-page-node-id="69XCes8JjjOCfIpZl9dZNd">
+                    <li data-page-node-id="8LJOJr7sfG5zERSlPRBTXO"><a href="#s2-1" data-page-node-id="KZv2GPiDWUazERTXbBBSrw">2.1 页面概述</a></li>
+                    <li data-page-node-id="rTv6v3Uzf15mgRSf7JdBuD"><a href="#s2-2" data-page-node-id="qN9jLCLAysL2xKyuvUwuZD">2.2 页面结构</a></li>
+                    <li data-page-node-id="kLEAjiBd8tHTxoUccdRabJ"><a href="#s2-3" data-page-node-id="9DtyFy2rgcQuK76z8fiAbA">2.3 列表页</a></li>
+                    <li data-page-node-id="mhijKsgEznhB7eIHulALtF"><a href="#s2-4" data-page-node-id="EBJ0dF9Gx1NSrhDiiY83ef">2.4 新建模板</a></li>
+                    <li data-page-node-id="cMq5GzFwa3DFB1rcP5bAqG"><a href="#s2-5" data-page-node-id="KUvhDlROQ7PPAU5dBfudO2">2.5 编辑模板</a></li>
+                    <li data-page-node-id="DPxv3wihaYwedkE7eCos5c"><a href="#s2-6" data-page-node-id="zJwxp93NzvikbLeyHjlDnD">2.6 启用 / 停用</a></li>
+                    <li data-page-node-id="0W6oLb4DmzxOEfx8syMZjP"><a href="#s2-7" data-page-node-id="SBWjO0RYxPYTqvjjpnyU7B">2.7 动画和视觉反馈</a></li>
+                    <li data-page-node-id="qo1FGTXHDRfJtxEI8I1fX3"><a href="#s2-8" data-page-node-id="jfShGDT3CWAoUDTBzUFv8O">2.8 异常处理逻辑</a></li>
+                    <li data-page-node-id="djatxWLWoxATd3Zb2Nc8tp"><a href="#s2-9" data-page-node-id="mCYnqYXeXZ2INW1Ub7bMMp">2.9 任务三段标准规格</a></li>
+                    <li><a href="#s2-9-1">2.9.1 工艺参考示例（任务级）</a></li>
+                </ul>
+            </li>
+            <li data-page-node-id="hca7cPSypmXDHYEK1YZCSg"><a href="#pc-other-api-summary" data-page-node-id="QAD18dx2YBJ82At2meVJtC">三、API接口汇总</a></li>
+        </ul>
+    </nav>
+
+    <!-- 主内容区域 -->
+    <div class="main-content" data-page-node-id="hm4LkedsohDqOASHFcsGIm">
+        <!-- 文档头部 -->
+        <div class="header" data-page-node-id="WaV23G0mxUy787GHv5I4IV">
+            <div class="container" data-page-node-id="5mJeR5w7j7Tu2wW1u4ATKx">
+                <h1 data-page-node-id="eCZwtbI7M5X0yeCMFDL2jw">良造家管理平台 - PC端其他模块详细PRD规格</h1>
+                <div style="font-size: 14px; opacity: 0.9;" data-page-node-id="qWMvcfjETpAH9sRJjZjkQ5">版本：v1.0 | 创建日期：2026-07-17 | 模块：模板管理、用户管理</div>
+            </div>
+        </div>
+
+        <div class="container" data-page-node-id="dqSfHJA2lzY5TJhGgZ1s3D">
+        <!-- ==================== 1. 合同文本模板页 ==================== -->
+        <div class="section" id="page-contract-template" data-page-node-id="yu3NtcC1KtqKKQXfCXnMCD">
+            <div class="section-title" data-page-node-id="0DjqBurbrxn8tGRexGw6ZQ">一、合同文本模板页（PC端）</div>
+
+            <div class="subsection" data-page-node-id="ZSBRte9tcA7ZCATLNmG7aP">
+                <div class="subsection-title" id="s1-1" data-page-node-id="PPZEKmSq9pEY6l7YPkeeY2">1.1 页面概述</div>
+                <div class="info-grid" data-page-node-id="1BtEz2Ccqbh87D77rvAUPd">
+                    <div class="info-item" data-page-node-id="D03FjMAghKsf1oEKaSlVl6"><div class="info-label" data-page-node-id="yPVlHeUiBGnTmmf2jcMNC9">页面名称</div><div class="info-value" data-page-node-id="ovlvclCCB2iQnjCnpiJjRP">合同文本模板页</div></div>
+                    <div class="info-item" data-page-node-id="2ZgfAj3htussDVPZK9bHXm"><div class="info-label" data-page-node-id="YYzGpK4mAk50s8KLnhdAFo">页面文件</div><div class="info-value" data-page-node-id="BhnHhlraDNHAW0uG0CVbk3"><a class="file-link" href="pc/pc-contract-template.html" target="_blank" data-page-node-id="nAjatdbSYD1L0QzZeZ7IVa">pc-contract-template.html</a></div></div>
+                    <div class="info-item" data-page-node-id="Mer2fBISTOuW3wyxRBIpzA"><div class="info-label" data-page-node-id="kiPIxea1JS5Nm77TRR77I6">适用角色</div><div class="info-value" data-page-node-id="d07EDa0U0z1JNFfnyXFzDI">运营角色</div></div>
+                    <div class="info-item" data-page-node-id="7wW2mvCqqqBbEJKc1NexJN"><div class="info-label" data-page-node-id="6RqsK41cOE4oOQ6noxNTUp">页面入口</div><div class="info-value" data-page-node-id="aoXtytRiqyUBdApOGlqbZH">侧边栏导航"模板管理"</div></div>
+                    <div class="info-item" data-page-node-id="O6VP2GnuFcFpPrx71EmIHy"><div class="info-label" data-page-node-id="lWy4aClyQXIZMKmN34f5GV">页面类型</div><div class="info-value" data-page-node-id="xeWPv5vvsAO8VkSmnnjRXV">管理页</div></div>
+                    <div class="info-item" data-page-node-id="4Qnc23TTDF7uZVMfNeRtw7"><div class="info-label" data-page-node-id="t50jqLsSnUVBlid7Gpz8jK">业务目标</div><div class="info-value" data-page-node-id="Vx8cZSRCZTvLeWEXrBmsHB">管理合同文本模板供编辑时使用</div></div>
+                </div>
+            </div>
+
+            <div class="subsection" data-page-node-id="TTMsqhWoKV4SEJnGzOeyNv">
+                <div class="subsection-title" id="s1-2" data-page-node-id="WGBUeRDy5SA4wUDR0PlWG3">1.2 页面结构</div>
+                <div class="code-block" data-page-node-id="6XiaR5UXf0TWYRfAE6OOE6">
+┌─────────────────────────────────────────────────────────────────────┐
+│  侧边栏（220px）                                                     │
+│  - Logo + 平台名称                                                   │
+│  - 导航菜单：合同审核管理                                             │
+│  - 模板管理分组                                                      │
+│    * 合同文本模板（激活）                                             │
+│    * 阶段任务模板                                                    │
+├─────────────────────────────────────────────────────────────────────┤
+│  主内容区                                                            │
+│  ├─ Header（56px）                                                  │
+│  │  - 面包屑：模板管理 / 合同文本模板                                 │
+│  │  - 用户信息：运营人员                                              │
+│  │  - 用户下拉菜单（退出登录）                                        │
+│  ├─ 内容头                                                          │
+│  │  - 页面标题"合同文本模板"                                          │
+│  │  - 右上"新建模板"按钮                                             │
+│  └─ 模板容器（左右两栏）                                              │
+│     ├─ 左侧：模板类型树（240px）                                      │
+│     │   - 全部模板 / 基础施工服务合同 / 设计服务合同 / 拆除班组服务合同 / 水电班组服务合同 / 木作班组服务合同 / 泥瓦工班组服务合同 / 油漆工班组服务合同 / 小零工服务合同 │
+│     └─ 右侧：工具栏 + 列表表格 + 分页                                 │
+│        - 工具栏：名称搜索框 + 城市下拉 + 状态下拉                      │
+│        - 列表列：模板名称/城市/模板类型/版本/状态/更新时间/操作            │
+│        - 操作：编辑 / 版本 / 停用·启用                                │
+│        - 底部分页条：共 N 条 / 页码                                   │
+└─────────────────────────────────────────────────────────────────────┘
+                </div>
+            </div>
+
+            <div class="subsection" data-page-node-id="CzcUwx0v9MHTbEs5Fl7Zwo">
+                <div class="subsection-title" id="s1-3" data-page-node-id="wrxTG7L39I2zzVUQUNtcgE">1.3 列表页</div>
+                <div class="proto-ref" data-page-node-id="5wL7wHdzOqh2Sne2M5B5BJ"><span class="proto-ref-label" data-page-node-id="0obH6CVFscP0FtQWvGaEqG">关联原型页面：</span><a class="file-link" href="pc/pc-contract-template.html" target="_blank" data-page-node-id="Wz1TJ7MJG8LXmiiJPcRFeN">pc/pc-contract-template.html</a></div>
+
+                <div class="note" data-page-node-id="NVTweOhiYOUluwMAw0b0mI">
+                    <div class="note-title" data-page-node-id="91gnZSyxwOU3KfAO68LNCn">交互说明</div>
+                    <div data-page-node-id="7AtD5QCbZLNOMCmpvoDchW">以下筛选、搜索、排序规则已在原型（pc-contract-template.html）中落地：顶部工具栏「搜索 / 重置」按钮可实时过滤右侧表格；左侧模板类型树点击可即时筛选对应类型；两类筛选之间及与顶部城市/状态条件均为 <b data-page-node-id="yRcYVlTz09NFPKKXdRZ5oA">与</b> 叠加；分页「共 N 条」随筛选结果实时刷新。原型列表为演示数据（6 条静态行 + 静态 count），筛选按实际渲染行生效。</div>
+                </div>
+
+                <div class="subsection-title" style="font-size: 16px;" data-page-node-id="WPPAuXHlKEsMEPfWO5app5">1.3.1 列表页布局与组成</div>
+                <div class="code-block" data-page-node-id="39lsJgrq48tTFEysT9bV4Z">
++-----------------------------------------------------------------------+
+|  主内容区                                                            |
+|  +- 内容头（页面标题"合同文本模板" + 右上"新建模板"按钮）              |
+|  +- 模板容器（左右两栏）                                              |
+|     +- 左侧：模板类型树（240px 固定）                                 |
+|     |   - 全部模板 / 基础施工服务合同 / 设计服务合同 / 拆除班组服务合同 / 水电班组服务合同 / 木作班组服务合同 / 泥瓦工班组服务合同 / 油漆工班组服务合同 / 小零工服务合同 |
+|     |   - 每项右侧显示该分类模板数量 count                            |
+|     +- 右侧：主区                                                     |
+|         +- 工具栏（搜索框 + 城市下拉 + 状态下拉 + 搜索/重置按钮）                      |
+|         +- 模板列表表格（七列）                                       |
+|         +- 分页条（共 N 条 / 页码）                                   |
++-----------------------------------------------------------------------+
+                </div>
+
+                <div class="subsection-title" style="font-size: 16px;" data-page-node-id="PY3RpD7CYltSuK4J4Pp5hE">1.3.2 列表字段说明</div>
+                <table class="list-field-table" data-page-node-id="c6Wl1n7CMRN0m9S7AAs18z">
+                    <thead data-page-node-id="Chyu0ZoBa44mo1vghRTnmp"><tr data-page-node-id="QeKDQ9shCAFt6iU05ICP3G"><th data-page-node-id="IHcYvsRPCfDmEnstk7M9vZ">列名</th><th data-page-node-id="yIbBsHQLZFpFh8YlajIhpz">字段来源 / 取值</th><th data-page-node-id="HMDHIZ5FuqYsYHweiYVige">渲染样式与交互</th></tr></thead>
+                    <tbody data-page-node-id="Zxb1raC4DoHeVUa2iqNr4J">
+                        <tr data-page-node-id="6TdLKJk6PE3H0747FcaFNy"><td data-page-node-id="K9wEi8NQeZaEAVRE5qgM4Q">模板名称</td><td data-page-node-id="MMBBeyiVVfOfweY8kmX8Yn">模板名称字段</td><td data-page-node-id="58S5ID8Yeaeim1xuOmBRzr">可点击文本（class template-name），点击右侧滑出预览面板（previewTemplate）</td></tr>
+                        <tr data-page-node-id="gcyO18pozE4E1cRpGTizAf"><td data-page-node-id="iUoZMbwNxRhwR3QlKqOuWF">城市</td><td data-page-node-id="xjOyqeJqFizROih8V0LaBK">适用城市字段</td><td data-page-node-id="FyIgd1alMGjlkAJxOHBCcH">纯文本（北京市 / 南阳市 / 西安市）</td></tr>
+                        <tr data-page-node-id="oihi8t92tAjj60vkjxpewx"><td data-page-node-id="Bgr1AJaRiYfVA9nPzmWNKU">模板类型</td><td data-page-node-id="BB8RWoqwHHcAFwGzV9DqnZ">模板类型字段</td><td data-page-node-id="7VFqn05lSjhmCDLzSm2iXz">标签（class template-category-tag），取值同左侧模板类型树；与模板类型树强关联</td></tr>
+                        <tr data-page-node-id="4YRBTktvk8yDl92DosPBdD"><td data-page-node-id="r16zRGG2uvZHlEhywEADa5">版本</td><td data-page-node-id="Ku3mnm3u1SHC6FnQsA79Jj">版本字段</td><td data-page-node-id="Y3n45oWzYGHE5Cn1eHICGm">版本徽标（class template-version），如 v2.0 / v1.5；点击"版本"按钮查看版本历史</td></tr>
+                        <tr data-page-node-id="G4kMSN5KMz3wkCRdM5wpD6"><td data-page-node-id="Zplj9KUHxNv0E34UAzEvBM">状态</td><td data-page-node-id="qLEC1a9DuzVTBwPfgODJUK">状态字段</td><td data-page-node-id="MivF7iWQ5qJ0COAYkDNg0R">状态徽标（class template-status）：启用=绿底绿字带圆点（active）；停用=灰底灰字带圆点（inactive）。停用行整体加 .disabled（opacity 0.6、名称转灰）</td></tr>
+                        <tr data-page-node-id="XUhDYTZ6LujYgmMbbOFprl"><td data-page-node-id="g6Jvk9UHApyikr2LPU2tIw">更新时间</td><td data-page-node-id="5KEBXZw7VSBqFgY9pb0W2C">更新时间字段</td><td data-page-node-id="HhDeynsYuRrgo3Fe0Wu3Z3">文本，格式 YYYY-MM-DD HH:mm（如 2024-01-10 14:30）</td></tr>
+                        <tr data-page-node-id="Fc84SFbtDANtj3qnoMTZEl"><td data-page-node-id="rsqmLlfjJCPhw0rPe2i2Fx">操作</td><td data-page-node-id="Cbi4mkyXVzwBnH8ipQdasB">—</td><td data-page-node-id="Uj1fkTpVbekL3r4X2YF1Fl">编辑（打开编辑弹窗）/ 版本（右侧滑出版本历史面板）/ 停用·启用（状态切换，见 1.6）</td></tr>
+                    </tbody>
+                </table>
+
+                <div class="subsection-title" style="font-size: 16px;" data-page-node-id="czJqQBtuXel8FycZqlEblY">1.3.3 左侧模板类型筛选（与列表字段的关联关系）</div>
+                <table data-page-node-id="FH9FE3s0bgSpNLOmkddGpA">
+                    <thead data-page-node-id="5paphQPIDVMYOi4HRAmq46"><tr data-page-node-id="nWJtHErIBxNs85LFENtXTE"><th data-page-node-id="qw8iu7STioyiNF8s4J1WAw">模板类型树节点</th><th data-page-node-id="wxs80NdwNtRKyB9GiAVJ9G">演示 count</th><th data-page-node-id="OkobX6eVfXbqH5pHogCINo">关联规则</th></tr></thead>
+                    <tbody data-page-node-id="KgywKqNiYaOJpdJXFsMbzO">
+                        <tr data-page-node-id="2gEbaOEgxEcA5oekCeNT8R"><td data-page-node-id="SATpikhkE23lJiiIlA2xS0">全部模板</td><td data-page-node-id="HUw07KMQaYpLh1YfIu5t17">24</td><td data-page-node-id="i1SnsXNbKC8lsjmK3kC1Xm">不限模板类型，展示所有模板</td></tr>
+                        <tr data-page-node-id="xaSmlgVKmGuJujKSO023Bv"><td data-page-node-id="3OlOutZyTiQqBJLHeeFuCE">基础施工服务合同</td><td data-page-node-id="C5DHGvbAgOyTd1wvAXKjsa">4</td><td data-page-node-id="cl9YCkIYbUsgothqiah7GO">按列表「模板类型」字段 = "基础施工服务合同" 精确过滤</td></tr>
+                        <tr data-page-node-id="UG6PpwlF0WfVSd9NrmTepK"><td data-page-node-id="lDkrBFOvbKzxlJbnaUnFik">设计服务合同</td><td data-page-node-id="bPkJnCVO5Ug14sZdPn3BM7">3</td><td data-page-node-id="Ph3AHbIF7ll2n881AY7tEU">按列表「模板类型」字段 = "设计服务合同" 精确过滤</td></tr>
+                        <tr data-page-node-id="pJIFjT9zFoSeLzCGrc8Zzw"><td data-page-node-id="PSholqHswfzAJrnKDxb3A6">拆除班组服务合同</td><td data-page-node-id="1tPygLbpRFSyP1KM3z56LJ">3</td><td data-page-node-id="okXcdxOXAZegLqZjMK8tZa">按列表「模板类型」字段 = "拆除班组服务合同" 精确过滤</td></tr>
+                        <tr data-page-node-id="q0eWHfpGirGelI7403dpKu"><td data-page-node-id="AxkKIVr907AvfnwuJ1kFH6">水电班组服务合同</td><td data-page-node-id="xmm2U6W5gdS8NHQfd5kkB1">5</td><td data-page-node-id="JM9r3aesYDGsjLJRO1CeMK">按列表「模板类型」字段 = "水电班组服务合同" 精确过滤</td></tr>
+                        <tr data-page-node-id="pgbzbGEk5ftCZ5ZoFsbINN"><td data-page-node-id="Fr92fnit7Mpa9BSiB34xTf">木作班组服务合同</td><td data-page-node-id="fyIMpLqZvSJjtYBB5IZx2w">2</td><td data-page-node-id="SPOznAcgKziQZSPDWEnprI">按列表「模板类型」字段 = "木作班组服务合同" 精确过滤</td></tr>
+                        <tr data-page-node-id="8FP2AFyaOgLNIMsLrQd9Ht"><td data-page-node-id="4zkiom3So0LgHR2IT8aC21">泥瓦工班组服务合同</td><td data-page-node-id="Oe5IWboBJSExyYpYhGfEJS">3</td><td data-page-node-id="R9vhu7gBvpFO3BN6Ub831F">按列表「模板类型」字段 = "泥瓦工班组服务合同" 精确过滤</td></tr>
+                        <tr data-page-node-id="fWwuvZj7kSLzlw1llVyihW"><td data-page-node-id="Vpw6dTJTduppJmDEoWd8PF">油漆工班组服务合同</td><td data-page-node-id="TvoKgMrKK2xnL5OtC1cF4T">2</td><td data-page-node-id="Vbe7asmDzTsdC7Gde0TLvH">按列表「模板类型」字段 = "油漆工班组服务合同" 精确过滤</td></tr>
+                        <tr data-page-node-id="hGQt8AJrCRuPRxDRmdl8Ct"><td data-page-node-id="dt5B20FRocPuduoDZwgg9W">小零工服务合同</td><td data-page-node-id="3EawhTHCPwAFBZ51ynl1h8">2</td><td data-page-node-id="1YEoZEDSlRnFF1bDpNtPVD">按列表「模板类型」字段 = "小零工服务合同" 精确过滤</td></tr>
+                    </tbody>
+                </table>
+                <ul style="margin: 0 0 24px 20px; color: var(--text-secondary); font-size: 13px; line-height: 1.9;" data-page-node-id="gR8tDfBJm64NBYr9in8tlW">
+                    <li data-page-node-id="lIoGNDwgAAhJE5YZJEHk4X"><strong data-page-node-id="lTZ0YauyV2Zh6tpTQcooHc">取值同源：</strong>模板类型树节点的名称与列表「模板类型」列的标签取值完全一致（同一枚举：基础施工服务合同 / 设计服务合同 / 拆除班组服务合同 / 水电班组服务合同 / 木作班组服务合同 / 泥瓦工班组服务合同 / 油漆工班组服务合同 / 小零工服务合同），二者强关联。</li>
+                    <li data-page-node-id="3gnZbA0sKPBvCeziucCylG"><strong data-page-node-id="75Y9e9I4pAZ4Zd1BWBaWRH">count 含义：</strong>节点右侧数字为该分类下模板数量，由列表数据实时统计得出（原型中为演示值，新增/发布/停用时同步刷新）；点击节点即按该类型精确过滤右侧列表。</li>
+                    <li data-page-node-id="4yNsLML01GjoWvzlVxosxS"><strong data-page-node-id="gpfughx73E3pE9Dj5FpFzi">互斥单选：</strong>模板类型树为单选，点击节点高亮 active（蓝底蓝字），其余节点取消高亮；"全部模板" 等价于"不按模板类型过滤"。</li>
+                    <li data-page-node-id="9DepbiFvRViL0wD6TOU7LS"><strong data-page-node-id="ARF4CcQ6LkePRwnbEVqDUH">叠加关系：</strong>左侧模板类型筛选与右侧顶部工具栏的搜索/城市/状态筛选为 <strong data-page-node-id="rjgniLFPBIrGM6UVOHEvEI">与（同时满足）</strong> 叠加。</li>
+                </ul>
+
+                <div class="subsection-title" style="font-size: 16px;" data-page-node-id="HxDobaRghpPgCIDtbRcH0C">1.3.4 顶部搜索与筛选条件匹配规则</div>
+                <table data-page-node-id="yITy68kM1IrixSTdssgzWF">
+                    <thead data-page-node-id="czgnnxISgH4VOCnpd890eM"><tr data-page-node-id="13GTkQgEWzWLc0YGECA2Ib"><th data-page-node-id="nwXjtN4z8Yews31So7qD3z">控件</th><th data-page-node-id="pKBBulNpE34O07i5rgYPos">匹配字段</th><th data-page-node-id="4twbOCciMHETH0u5p6IhUx">匹配方式</th><th data-page-node-id="FDjdUCW3Lc55GcQ6o6UB0f">空 / "全部" 取值行为</th></tr></thead>
+                    <tbody data-page-node-id="hwQddNWp2eqEDHKOF0DM6C">
+                        <tr data-page-node-id="V1CXkSotLof62J37WoHZGW"><td data-page-node-id="xTJwxNG8tmA1fkONCgi6ZY">模板名称搜索框</td><td data-page-node-id="MDgmHnRbeFZILhPHmEIRZv">模板名称</td><td data-page-node-id="fUEfyy8qv2TkfZW5vbRlVa">模糊匹配：包含输入关键字即命中；忽略大小写、忽略首尾空格</td><td data-page-node-id="LNWL28XkhdHBsRsZOv23EU">为空 = 不限名称</td></tr>
+                        <tr data-page-node-id="OXG9Uo6vGjB7mgmFVcUQDf"><td data-page-node-id="6wutZDoqAqn23yVKi7jgj0">城市下拉</td><td data-page-node-id="aM6h34hUcHRF5EkfgjG7bh">城市</td><td data-page-node-id="WCk19DNbs9A8c93uFB2n0Y">精确匹配：选项值 = 字段值</td><td data-page-node-id="fO4fGoMjPrMt1EqYDcbtzY">"全部城市" = 不限；选项值与模板「适用城市」字段一致（北京市 / 南阳市 / 西安市），精确匹配</td></tr>
+                        <tr data-page-node-id="i4EXWImaUALM5KSt51wCNB"><td data-page-node-id="QjD8dNllUEZRUw22pppzc6">状态下拉</td><td data-page-node-id="uH0ooLXIgrS5Qf1AElYZvj">状态</td><td data-page-node-id="qgQN2wHCMwt2ruExoScEH3">精确匹配：启用=active / 停用=inactive</td><td data-page-node-id="93SBAEDTu9OBCFMxJDLvBG">"全部状态" = 不限</td></tr>
+                    </tbody>
+                </table>
+                <ul style="margin: 0 0 24px 20px; color: var(--text-secondary); font-size: 13px; line-height: 1.9;" data-page-node-id="Rl2veAZRdf1OEDEVMHz0IT">
+                    <li data-page-node-id="TsZ9a6Xj4u0nfW0SwfkjJ2">三个顶部控件之间为 <strong data-page-node-id="AbUqzsPSxox0bJGywxn77P">与</strong> 关系：需同时满足名称模糊命中、城市精确相等、状态精确相等。</li>
+                    <li data-page-node-id="Q294h80lrbYimteCNbc7kf">顶部筛选再与左侧模板类型树叠加，仍为 与（四类条件全部命中才出现在列表）。</li>
+                    <li data-page-node-id="fUbwWV9km4qEFcFnW2yFbo">「搜索」按钮触发按上述条件过滤；「重置」按钮清空名称/城市/状态并恢复“全部模板”选中，列表与类型树 count 同步刷新。</li>
+                </ul>
+
+                <div class="subsection-title" style="font-size: 16px;" data-page-node-id="Jb0QpNRQ8iPFi9OgJOXHLC">1.3.5 列表排序与分页</div>
+                <table data-page-node-id="9DjZu7aKih0G5aDiZoZzIa">
+                    <thead data-page-node-id="l6Y3heNURWyHvtTemAmDbc"><tr data-page-node-id="hpsCxHRvUqMW035tC1wYC5"><th data-page-node-id="McIV29I9XkftCAEdYJlz4t">项</th><th data-page-node-id="Rkzw5W2v2ub8P6jNar1HDc">规则</th></tr></thead>
+                    <tbody data-page-node-id="4Y8thkd3yCkGCW5qgavL0H">
+                        <tr data-page-node-id="hCECvPyk9tpsFOEKq6aB6f"><td data-page-node-id="DHzMwKE4GvH0tW0XxK8xVj">默认排序</td><td data-page-node-id="hFQe9Di0iVpZMZIJHF3Oqa">按「更新时间」倒序（最新在前）；<b data-page-node-id="ucSwNe5GumjF9fyqjI4Gkh">新建保存的模板（保存草稿 / 保存并发布）直接插入列表最上方</b>（创建 / 更新时间倒序），保证最新创建的模板置顶，修正此前新增模板排在列表末尾的问题；演示数据顺序即：2024-01-10 → 2024-01-08 → 2024-01-05 → 2024-01-03 → 2024-01-01 → 2023-12-15</td></tr>
+                        <tr data-page-node-id="ZMqdNTlr9U45PjG4ZksxXT"><td data-page-node-id="ml7tiuU0m5R3WtGRokQLlK">列头排序</td><td data-page-node-id="A1M4ytiL5CF9m89tMUHh0j">当前原型列头不可点击排序（无排序交互）；如需扩展，建议支持按「更新时间」「模板名称」升/降序切换</td></tr>
+                        <tr data-page-node-id="hHA6MvHftZNlJLcCL8pel6"><td data-page-node-id="aEWzdJgOJ1P3dGDbW6ZYnY">分页</td><td data-page-node-id="ohZ9m8LhqWUdEPMiaBAvxZ">底部分页条显示"共 N 条"；默认每页 10 条（演示 24 条 → 3 页），页码 1 / 2 / 3；首末页禁用翻页箭头（‹ ›）</td></tr>
+                        <tr data-page-node-id="kK2N8E1oePmDzaXuaaePqB"><td data-page-node-id="DZ79vZsKh27uwGxWgBCCRh">筛选后分页</td><td data-page-node-id="YQy1TmYrNlCHhR8XIKocMQ">count 与页码随筛选结果实时重算（演示为静态，仅展示样式）</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="subsection" data-page-node-id="Dc86HONxdRl5va1meNnzHL">
+                <div class="subsection-title" id="s1-4" data-page-node-id="ksTeA6VDN76MWYdbhyllNN">1.4 新建模板</div>
+                <div class="proto-ref" data-page-node-id="EHB8dIxxHDH5vqzJQ5Fgm6"><span class="proto-ref-label" data-page-node-id="sGldErmgWCsku7cjJCCEWR">关联原型页面：</span><a class="file-link" href="pc/pc-contract-template.html#modal-create" target="_blank" data-page-node-id="aUaXLYlH2oVPISHWnIJMHp">pc/pc-contract-template.html#modal-create</a></div>
+
+                <div class="subsection-title" style="font-size: 16px;" data-page-node-id="jaP1QNfFZTflAGQ6Uk41ea">1.4.1 入口与弹窗布局</div>
+                <ul style="margin: 0 0 24px 20px; color: var(--text-secondary); font-size: 13px; line-height: 1.9;" data-page-node-id="9GToWu6V91jyi4Atu8kGbX">
+                    <li data-page-node-id="g8Hf133alWcziRlU34dmkO"><strong data-page-node-id="PfNSvN6KggWk55sO60U2QU">入口：</strong>列表页内容头右上角"新建模板"按钮→ 弹出大型弹窗（pc-modal-xl），标题"新建合同文本模板"。</li>
+                    <li data-page-node-id="ZmHA7zZBo4GAWETwiyYkjB"><strong data-page-node-id="YG11E3eAZ0keeUhuJvRfQ3">弹窗结构：</strong>基本信息区（模板名称 / 模板类型 / 适用城市 / 模板描述）+ <strong data-page-node-id="U3hAX3K9oblkR7AiXSOX09">合同文本区（按模板类型二选一切换）</strong>——
+                    ① <strong data-page-node-id="Tw3vk2UlutqVEWTKPh4jaV">基础施工 / 设计服务合同</strong>：单一「合同正文」区（富文本编辑器，含工具栏）；
+                    ② <strong data-page-node-id="GBBtBKkxdUw9BDOFCziAr6">工人合同（六类班组服务合同）</strong>：「合同文本（工人合同）」区，拆分为<strong data-page-node-id="pmkMRXZT9yCm2UtEOWgQ9N">「违约责任」（引用后可编辑）</strong>与<strong data-page-node-id="JKzENLBUsvmtvOvXc8Dhtm">「固定详细条款」（引用后不可编辑）</strong>两个独立字段（各带必填校验与字段提示，其中「固定详细条款」为富文本编辑器、效果与「合同正文」一致，其余不改变），字段区底部不再附「口径同步」注记。底部操作：取消 / 保存草稿 / 保存并发布。预览通过点击列表模板名称滑出右侧面板（600px）。</li>
+                </ul>
+
+                <div class="subsection-title" style="font-size: 16px;" data-page-node-id="KZxuKDaheRLyeBlVAZODrs">1.4.2 字段说明与规格</div>
+                <table data-page-node-id="yuwn7KvIofGHnamsHZN6cL">
+                    <thead data-page-node-id="JjgOjYChdEoiWKZ9TyTdRl"><tr data-page-node-id="QSsGOgTma0TidDP1qh61zy"><th data-page-node-id="OQ4SqGFJBoQ8CO4ai9FmQU">字段</th><th data-page-node-id="YBLp1PC8ZDmJVaspqFYhwB">必填</th><th data-page-node-id="IkBeHsq7eY5jOvjMmcjmGK">类型 / 取值</th><th data-page-node-id="sZdloPoSCwOrxWQ9OCGm5a">规格</th><th data-page-node-id="bxq9lNXKTfW0b20Qw0UrGn">默认值</th></tr></thead>
+                    <tbody data-page-node-id="tAmimcMSflGXF2TA3RhNMV">
+                        <tr data-page-node-id="hobO4ptgYDsO3l4KTyO1mu"><td data-page-node-id="EDm2bu1eo7ozyKb2yKNz4I">模板名称</td><td data-page-node-id="jPVCaqJKSSILInyNaI9k19"><span class="tag tag-required" data-page-node-id="zIoz9VO7I6pGVPAuMgOKsR">必填</span></td><td data-page-node-id="bbpuwJXSLSVnJfbvVbJEfe">文本</td><td data-page-node-id="pS8v2ySoQWVgGIeIKdBBJx">1-50 字符</td><td data-page-node-id="y9RLFZqXtl6aTtj9nSHlEE">空</td></tr>
+                        <tr data-page-node-id="LHwV0uT2IroGAmggygv3FJ"><td data-page-node-id="XqDDzeBzExWPEN62Kx92xO">模板类型</td><td data-page-node-id="aBqSAnIg06df16LUWZoisq"><span class="tag tag-required" data-page-node-id="zf28scCespQ9fiC5EnqYX7">必填</span></td><td data-page-node-id="lmJ0eijBgi0sBnWa3zNdLs">单选</td><td data-page-node-id="YJhKtzytC1xuZ17cFNlkP4">基础施工服务合同 / 设计服务合同 / 拆除班组服务合同 / 水电班组服务合同 / 木作班组服务合同 / 泥瓦工班组服务合同 / 油漆工班组服务合同 / 小零工服务合同</td><td data-page-node-id="BcuXKdHEVtqW9BEvQPwmTE">空（请选择）</td></tr>
+                        <tr data-page-node-id="hTRDJDop528hSi5kLEeA9g"><td data-page-node-id="DZa5uXau0v05lm4fI9dFqZ">适用城市</td><td data-page-node-id="U5S91AJt9Je2auUp5pbEOq"><span class="tag tag-required" data-page-node-id="8ISVYSIiCbTfYnFYrPhnzq">必填</span></td><td data-page-node-id="sL4UD5AdNhKqWAt1eHDooh">单选</td><td data-page-node-id="6DwHXXiRuBNRBkPGKkwLmC">北京市 / 南阳市 / 西安市</td><td data-page-node-id="0e4oy2zGITTKtAA9Hv93Nt">北京市</td></tr>
+                        <tr data-page-node-id="EY8g1Lgrg3OSuAPGe3FcKB"><td data-page-node-id="BsYvChXRw8WvS0ZAxaWGcA">模板描述</td><td data-page-node-id="3kgYzLWGrdD1DI5HigckN1"><span class="tag tag-optional" data-page-node-id="CEYTRzuRYYFBaPsWEaP99w">选填</span></td><td data-page-node-id="hDWl6nuWkbh3oDTPDA4dWp">文本</td><td data-page-node-id="iswHFRDPaspOvpEYKpBY00">1-200 字符（建议）</td><td data-page-node-id="F1yCakqDcZ7XdXAeYeapE9">空</td></tr>
+                        <tr data-page-node-id="HwhMnad2HaNO5CJpqW1QA2"><td data-page-node-id="afMxA0qMy0z2GHhHwoxDRY">合同正文（仅基础施工 / 设计服务合同）</td><td data-page-node-id="DuwVRBEafut2D1hK9ezmeL"><span class="tag tag-required" data-page-node-id="kYiggef2p8tSxnZ0vyHkB9">必填</span></td><td data-page-node-id="h0ju8thInvNPelgSt2RVJN">富文本</td><td data-page-node-id="DX60UszzOD5RV4jAA2p1UD">1-50000 字符，支持加粗/斜体/下划线/对齐/列表/表格/图片/链接</td><td data-page-node-id="YpEHxpFgiwTR8WnfYBOMU0">"在此输入合同正文内容..."（占位）</td></tr>
+                        <tr data-page-node-id="9i7WAcnWu1mykqpeLzmvYl"><td data-page-node-id="wgZl9FBIiJ8tV1m7oz39qU">违约责任（仅工人合同类型）</td><td data-page-node-id="b5bTvS0CPssZGXNOKk6dId"><span class="tag tag-required" data-page-node-id="zmV0yaguDVBNhYrEazkKxf">必填</span></td><td data-page-node-id="cSdiV9lXHTttlEizpYLCyp">多行文本</td><td data-page-node-id="aEG3RwgOlJtUnfJvCXDtIO">非空；字段旁带绿色徽标「<b data-page-node-id="yUEAJ5X76HgKXDBC6Eiwq6">引用后可编辑</b>」——工人合同引用模板后，发起方可在「拟定中」直接编辑违约责任条款</td><td data-page-node-id="sqtYqtHVWFfdKSsTDFWQuy">空</td></tr>
+                        <tr data-page-node-id="Ct4LSBSrKjWe37KgffHpeX"><td data-page-node-id="jwta9EopS2cz2giHBkMnEx">固定详细条款（仅工人合同类型）</td><td data-page-node-id="U5MMnq37ErAtQYD0o1ZlwO"><span class="tag tag-required" data-page-node-id="BtPHq5PNuaE3YNlMQ8Ghld">必填</span></td><td data-page-node-id="mkHHPPpX9P9gU20iOUthG1">富文本</td><td data-page-node-id="rMTyRmpXfAQk2EAh407bAA">非空（去除占位文本后）；富文本编辑器（工具栏与「合同正文」一致，支持加粗/斜体/下划线/对齐/列表/表格/图片/链接）；字段旁带红色徽标「<b data-page-node-id="rbxtdtJjJDzXkgBd1Gcxly">引用后不可编辑</b>」——工人合同引用模板后固定详细条款只读展示，仅可通过「更换模板」整体替换；甲乙方 / 合同金额 / 工期等基础信息由合同主信息填写，不在固定条款内</td><td data-page-node-id="TwqVNiohAALma15c5FiEFE">"请输入固定详细条款内容（标准条款）"（占位）</td></tr>
+                    </tbody>
+                </table>
+
+                <div class="subsection-title" style="font-size: 16px;" data-page-node-id="eMYVKCcDWNDQTUSIyGN3eV">1.4.3 校验规则</div>
+                <table data-page-node-id="LKONgpKn8QjmRdbmokF7oA">
+                    <thead data-page-node-id="X4sNpjZ5zDGmbjvYwe5Lx5"><tr data-page-node-id="CgiAjDzkQh8Zmd2B90v4vk"><th data-page-node-id="QAO0LkR0yEzdA7ab3KK9E5">字段</th><th data-page-node-id="h9Ihky2HMpQxuDK6GzvJpk">校验时机</th><th data-page-node-id="z0MtcujdDc6DnmYaPhZwEN">规则</th><th data-page-node-id="RwtJI9DCDJoRh7T0tEfHxb">错误提示</th><th data-page-node-id="w4MO3l5zClNconqg3BpcoI">是否阻断提交</th></tr></thead>
+                    <tbody data-page-node-id="iPVZ7TV1a1JCN6dOfGiclx">
+                        <tr data-page-node-id="gOr2kN2voBdOltUfAUCTx9"><td data-page-node-id="e7YKvJG1WLqqqsIxDL7hgG">模板名称</td><td data-page-node-id="UfT4vu1yFJpG9WYjWq4i19">失焦 + 提交</td><td data-page-node-id="pOxDxgpoe0xdJ5K0XrRfQU">非空且 1-50 字符；<b data-page-node-id="9qpfGn5WJ81viI5tmER0yB">同一适用城市下、且已存在状态为「启用」的其他模板时不允许重名</b>（草稿态不校验，仅在发布/启用时校验；编辑自身不计入）</td><td data-page-node-id="fsDmhMYctcGtm6OxYod2Nv">"请输入模板名称" / "该城市下已存在同名的启用中模板，请勿重复创建"</td><td data-page-node-id="W4djroYzDIcL4V5cbtiSq8">是</td></tr>
+                        <tr data-page-node-id="adWaLaIN5x6xEDrXKG8jLP"><td data-page-node-id="ZBxxFCJeWZKKEdrxP5EaAv">模板类型</td><td data-page-node-id="AnvOjhs77aWMfCPhDfxKKc">提交</td><td data-page-node-id="o7Ni6NDhK9pMXmRfc6vtvv">必选一项</td><td data-page-node-id="OZXEIgOIFv1XZFEIiSBOKo">"请选择模板类型"</td><td data-page-node-id="ZYXAgbtzM88vQnDgUtPy5V">是</td></tr>
+                        <tr data-page-node-id="hD6S83wqpmUyq1Tz9m06e7"><td data-page-node-id="gAvrGAWquCo0mjykLVMufQ">适用城市</td><td data-page-node-id="wAL1XuhuNOcdgHT0LUOl5L">提交</td><td data-page-node-id="AIMqxA2I8CzyVGR6lXtt5K">必选一项（默认北京市）</td><td data-page-node-id="DMK2kwk0wlEk9vAPQsRMSk">"请选择适用城市"</td><td data-page-node-id="1pR2lMUHRl9vZjH6bAPfrA">是</td></tr>
+                        <tr data-page-node-id="8TTxfpFTUFwrEJNWhdHn90"><td data-page-node-id="MbZ3xC99gPbM7gtJtqGShE">合同正文（仅基础施工 / 设计服务合同）</td><td data-page-node-id="nCOKNBuXgY32MvE49UY5iT">提交</td><td data-page-node-id="dEugxuZDUhl2UowZqU8Qjs">非空且 ≥1 字符（去除占位文本后）</td><td data-page-node-id="3Ml8aI4WeGWZIY9fSqaVdK">"请输入合同正文"</td><td data-page-node-id="GMNw9HHCHirFRZB4y8tGa3">是</td></tr>
+                        <tr data-page-node-id="e11SHSGmyyOmwiW0WT4aAm"><td data-page-node-id="wbft6jL57cVDMGpWhoDytR">违约责任（仅工人合同类型）</td><td data-page-node-id="x3XHdtQhC6bDjzyoxB9Arb">提交</td><td data-page-node-id="8jwT0WM9MWunj3WVWrw41F">非空</td><td data-page-node-id="ytyQGqU95JqXA7FJSVVFPI">"请输入违约责任"</td><td data-page-node-id="KdAUvWVQ6DSG3SzWuxrtrH">是</td></tr>
+                        <tr data-page-node-id="AJMhzW1QZpj6OawadFMWah"><td data-page-node-id="P3wvH6ZwCvHb0jwNi2yClJ">固定详细条款（仅工人合同类型）</td><td data-page-node-id="Cld1HMoHHgszra5gmels2p">提交</td><td data-page-node-id="lRRHlzM9vNFUXNUCFEI13e">非空</td><td data-page-node-id="ntvq8Z8Llb5WeCq0OScSOv">"请输入固定详细条款"</td><td data-page-node-id="pcbOqMimc5yE1A6HtmBY6d">是</td></tr>
+                    </tbody>
+                </table>
+
+                <div class="subsection-title" style="font-size: 16px;" data-page-node-id="ePkj8nDgrEN9E6vVQPpYXF">1.4.4 交互效果</div>
+                <table data-page-node-id="Smm3WpValAQsSXJmajFvTH">
+                    <thead data-page-node-id="BTvau98N0P52G3r8WgK4yo"><tr data-page-node-id="AySmoBBpDWiTKdYpo1njko"><th data-page-node-id="d6HRFRXWU3qhg9LfDyj651">交互场景</th><th data-page-node-id="ewq2BuTbKB3ORB60rS5NYR">效果</th></tr></thead>
+                    <tbody data-page-node-id="M4lDzoy0jvFFKOgiBjHmUC">
+                        <tr data-page-node-id="XrsuvYOBghIZ75fPoaPdXB"><td data-page-node-id="OyAuiIfMjvMK325mQXv6nE">打开新建弹窗</td><td data-page-node-id="CeK3d0V3QiXu2g9nR2EKEI">标题置"新建合同文本模板"；表单全部清空；正文重置为占位文本；工人合同「违约责任」清空、「固定详细条款」富文本区重置为占位文本；城市默认"北京市"；遮罩淡入</td></tr>
+                        <tr data-page-node-id="BYpSZ0ArdA7pP8CRvugKnv"><td data-page-node-id="74iIBG9SMKQqMd5vrEdPiY">切换「模板类型」</td><td data-page-node-id="RGr3WbhU4fH6uMwFCWb0Ce">实时切换合同文本区：选六类班组服务合同（工人合同）→ 显示「合同文本（工人合同）」双字段区、隐藏单一合同正文区；选基础施工 / 设计服务合同 → 恢复单一合同正文富文本区</td></tr>
+                        <tr data-page-node-id="UlxivoLLgldfYNxEoFFXgt"><td data-page-node-id="fjwNVfZIAvHIC6pvyM0mJ9">富文本工具栏</td><td data-page-node-id="B3dSYFR36yK2QWABpYBz14">加粗(B)/斜体(I)/下划线(U)/左中右对齐/有序·无序列表/插入表格/图片/链接；激活态按钮蓝底白字。页面存在两处编辑器（合同正文 / 固定详细条款），工具栏操作作用于<b data-page-node-id="zpmvzz3OG2K2OBFyEbb1CG">当前聚焦的编辑器</b></td></tr>
+                        <tr data-page-node-id="BHktmCloJ6gUX5CGFpTYmK"><td data-page-node-id="BGiwcM2c5EydoIqrhF98nf">插入表格 / 图片 / 链接</td><td data-page-node-id="p6NRFpqwvrkK9z5VCJJsHR">弹 prompt 输入行数/列数/URL/描述，确认后以 HTML 插入光标处</td></tr>
+                        <tr data-page-node-id="K4VauOX7Fpcdcbuktvo0Pi"><td data-page-node-id="RW19IKVSgc4k0aPmzQeeZg">保存草稿</td><td data-page-node-id="zNkmJooGMW6MmL06pjdHen">存为草稿（不发布），关闭弹窗，列表<b data-page-node-id="TZei76H6usWrMKWA76MCAv">最上方</b>新增一行（状态「草稿」），提示"已保存草稿"</td></tr>
+                        <tr data-page-node-id="vmcTA9W0PVAf7otumwrGB3"><td data-page-node-id="g5skJvNoTR8Rh7IxdsyxpQ">保存并发布</td><td data-page-node-id="mGNOamEwE9S5ugFXH6dCDX">先执行 1.4.3 校验（含同城市启用模板重名校验），通过则关闭弹窗并 轻提示"模板已保存并发布"；列表<b data-page-node-id="Hs1zpVpIT2UIUtK3AaXCUB">最上方</b>新增一行（状态默认启用）并按当前筛选条件重算列表</td></tr>
+                        <tr data-page-node-id="sHPZ3jph6G7qweGSqbKwPU"><td data-page-node-id="OWxMiXtNBdmEQDhZMMusgj">取消</td><td data-page-node-id="hVnigzf6gPYjDFfDBA4D2o">关闭弹窗，不保存任何内容</td></tr>
+                        <tr data-page-node-id="pbYpx888IfVnXIyiLVA37i"><td data-page-node-id="P97mlbmneqPcWIDcE0KSdH">点击列表模板名称</td><td data-page-node-id="j8AQxInaDP7THO0uCVWA2e">右侧滑出预览面板（600px，previewPanel），按模板类型动态渲染：<b data-page-node-id="eayG9X4A5GeqXFKBXfIGm0">工人合同类型</b>展示「违约责任」（分节标题带绿色徽标「引用后可编辑」）+「固定详细条款」（分节标题带红色徽标「引用后不可编辑」）两个分节及「甲乙方 / 合同金额 / 工期等基础信息由合同主信息填写，不在固定条款内」口径说明；<b data-page-node-id="POcurwJZrNoDhqdbJTbYgs">基础施工 / 设计服务合同</b>展示单一合同正文。两类型底部均附版本历史；可关闭</td></tr>
+                    </tbody>
+                </table>
+
+                <div class="subsection-title" style="font-size: 16px;" data-page-node-id="xYBoUgyoY4ElhkLbBmpw2y">1.4.5 保存流程与状态流转</div>
+                <div class="note" data-page-node-id="5ASdwDOPCPouHpD0j8QQGA">
+                    <div class="note-title" data-page-node-id="rTvHYO1OrImHg3dXscwCSf">两种保存动作的差异</div>
+                    <div data-page-node-id="DjYwwP5XnF2nxTzOD3zkn1">新建 / 编辑弹窗底部提供「保存草稿」与「保存并发布」两个动作，二者在<b data-page-node-id="SWd4ET6FTeIn0MG5pM1bfu">校验强度</b>与<b data-page-node-id="haY96Vu4X36wYTzOKelKaH">生成的状态</b>上不同，对应实现分别为「保存草稿」动作与「保存并发布」动作（状态=启用）。</div>
+                </div>
+                <table data-page-node-id="tY59q1hEe75PnBuxuvmap6">
+                    <thead data-page-node-id="ym34iTl7z62I8WBtH6qup1"><tr data-page-node-id="rBzImPvB1wRaxF3OfsPJAh"><th data-page-node-id="KtfQ1wSlit7myzDWw2GyaQ">维度</th><th data-page-node-id="LEkzVnaeHuhpcpoXMXDJYO">保存草稿</th><th data-page-node-id="dp7xK5gVRrbvPgbRY0q0lT">保存并发布</th></tr></thead>
+                    <tbody data-page-node-id="Hx3mHEL1H8GRqqNNfMRggW">
+                        <tr data-page-node-id="yqWIXk2PHQn3BMt9DVtIkf"><td data-page-node-id="XMcrrE6vjW259m0BLRnB91">触发按钮</td><td data-page-node-id="48oEauVE7UujHH92ow1tLV">保存草稿</td><td data-page-node-id="E9B7mj8j9CPnEBAEESDsE2">保存并发布</td></tr>
+                        <tr data-page-node-id="rTvYwjhYsm9vjWj3xBt3CR"><td data-page-node-id="GDIVliZdBdfqVDFaSIKej4">校验时机</td><td data-page-node-id="fONv9OnjpLPWHvEEUbpt5M">提交时</td><td data-page-node-id="eUNk2F7dmGgZ7a4ejmVwGa">提交时</td></tr>
+                        <tr data-page-node-id="hiCQ1mFi4E0iyQEZ47pA1D"><td data-page-node-id="h8tmCt7oduZ7p9jw3GlgKQ">校验强度</td><td data-page-node-id="7p3r9c84aO31qMYjXc0UVG">仅校验「模板名称」非空</td><td data-page-node-id="DDgC00D7spJJ91VCj3fqAF">校验「模板名称 / 模板类型 / 适用城市」+ 按类型：基础施工 / 设计服务合同校验「合同正文」，工人合同类型校验「违约责任 / 固定详细条款」全部必填（规则见 1.4.3）</td></tr>
+                        <tr data-page-node-id="RbfGdKNZDsIA0qC7ilew12"><td data-page-node-id="VnzJB8dE7h1SId2EsMGFAt">生成状态</td><td data-page-node-id="VdDOz10REa707mjZSoJBxh">草稿（橙色「草稿」徽标，列表可一键「发布」转为启用）</td><td data-page-node-id="TeOB2EgRtW7pfGztWqcS7I">启用（绿色「启用」徽标，可直接被新建合同选用）</td></tr>
+                        <tr data-page-node-id="b7HO0VxugpbR1RHol4eUNC"><td data-page-node-id="1CEHmv6SnTIBqjLQGSurtt">列表联动</td><td data-page-node-id="DWxZOLeYEUiuzol1CAkJN0">新增一行（状态=草稿），「全部模板」计数与对应类型计数 +1</td><td data-page-node-id="AFGgV6yHbDMEG9vE0yGvPO">新增 / 覆盖一行（状态=启用），计数同步刷新</td></tr>
+                        <tr data-page-node-id="elNTD2FbniquCbsQUjX8BF"><td data-page-node-id="PM8HBN8DK4N7xuftlzcPLS">提示</td><td data-page-node-id="WzRNlUNbskyQgslybVF1Ck">轻提示 中部「已保存草稿」</td><td data-page-node-id="Zm1Z4VbclNZsTDOq1mZOfD">轻提示 中部「模板已保存并发布」</td></tr>
+                        <tr data-page-node-id="2Dq7mZmQmETVGb70JH7zLr"><td data-page-node-id="U0aeAOziWW1NYR05rtAzdB">失败处理</td><td data-page-node-id="Qw0NqmyY6bNwEj1c5wCE4B">名称为空则阻止并聚焦输入框、红框提示</td><td data-page-node-id="RHVd1VrICpHzhiNRLVNzqP">任一必填缺失则阻止并红框高亮+弹窗汇总；若<b data-page-node-id="Lr188eoElNjQuweLmgnLCT">同城市下已存在同名启用模板</b>亦阻止（提示“该城市下已存在同名的启用中模板，请勿重复创建”）</td></tr>
+                    </tbody>
+                </table>
+
+                <div class="subsection-title" style="font-size: 15px; margin-top: 20px;" data-page-node-id="Gw1dQyFwqJutIeidHisJrO">状态流转（草稿 / 启用 / 停用）</div>
+                <div class="code-block" data-page-node-id="qFZ0HM7FG9ZRpSHpPmIDa9">
+草稿 ──(列表行「发布」按钮)──▶ 启用 ──(列表行「停用」)──▶ 停用
+  ▲                                                  │                                      │
+  └────────(编辑后点「保存草稿」回退)─────────────────┘                                      │
+                                                                 停用 ──(列表行「启用」)──▶ 启用
+                </div>
+                <ul style="margin: 0 0 24px 20px; color: var(--text-secondary); font-size: 13px; line-height: 1.9;" data-page-node-id="rO8PMV51PBJH8OOzpQg7vw">
+                    <li data-page-node-id="Xkd9LU2S45tqhGJshrV81X"><b data-page-node-id="YLVJCZDsoQd1NybDnb07Jg">草稿 → 启用</b>：草稿行操作区提供「发布」按钮，点击后状态徽标转「启用」、按钮转为「停用」，模板立即进入可选用范围。</li>
+                    <li data-page-node-id="dfN5KDMrgANtckcTXXGp8m"><b data-page-node-id="1XeYmS8Zx1rlffMGAHs7uv">启用 ↔ 停用</b>：见 1.6 启用 / 停用，状态仅影响新建合同可选用范围，不影响已签署或已生成合同。</li>
+                    <li data-page-node-id="okeAA2c6Fe70mQ1SNLoxAH"><b data-page-node-id="yhcuRn9JPi7iv8X4WSG2oo">启用 / 停用 → 草稿</b>：已发布模板在编辑后点击「保存草稿」可回退为草稿态（保留内容、退出选用范围），后续可再次发布。</li>
+                </ul>
+            </div>
+
+            <div class="subsection" data-page-node-id="8iYiC7PdNKyppJkF93pwcM">
+                <div class="subsection-title" id="s1-5" data-page-node-id="nfGPWAqEKi6kJnFb6a0r4C">1.5 编辑模板</div>
+                <div class="proto-ref" data-page-node-id="wpAJBYSKBA0YMnaAxpOPtI"><span class="proto-ref-label" data-page-node-id="LfEU7U3yWsFToXVXT33Mxw">关联原型页面：</span><a class="file-link" href="pc/pc-contract-template.html#modal-edit" target="_blank" data-page-node-id="0YGRQSvHVEw0bKAfMBxUUY">pc/pc-contract-template.html#modal-edit</a></div>
+
+                <div class="subsection-title" style="font-size: 16px;" data-page-node-id="NeERxpDpkCInUOmRecl27l">1.5.1 入口</div>
+                <ul style="margin: 0 0 24px 20px; color: var(--text-secondary); font-size: 13px; line-height: 1.9;" data-page-node-id="hUi3XERdEVzA3KRML0PVYh">
+                    <li data-page-node-id="LB2YEOBgFrOP2FWK3cXiWM">列表"操作"列点击"编辑"→ 打开同一大型弹窗，标题变为"编辑合同文本模板"。</li>
+                </ul>
+
+                <div class="subsection-title" style="font-size: 16px;" data-page-node-id="jyjnGXQTy06o62oIkFVHSJ">1.5.2 与新建模板的差异</div>
+                <table data-page-node-id="JVfQIy6lA8SvueBe9uItqG">
+                    <thead data-page-node-id="BwY0EozXaw21ZP8RWF45Dv"><tr data-page-node-id="DHFZOU3t1twicIx6ra4Q8w"><th data-page-node-id="9GixEguiu0IXAouXPF057w">维度</th><th data-page-node-id="fVSr3TWKt1no0gTt1xr8jF">新建模板</th><th data-page-node-id="C9HFA4lZGyjZDysEmGIBah">编辑模板</th></tr></thead>
+                    <tbody data-page-node-id="uGyxIWPhCRygPf4c5W9F1P">
+                        <tr data-page-node-id="E6SIBPlAz92BbIl3oTIp5O"><td data-page-node-id="MgoK4RCCNiJl5fx0nOF4gC">弹窗标题</td><td data-page-node-id="KRFsDnSv0ycbWxJk0dgdAW">新建合同文本模板</td><td data-page-node-id="sYQCBWQgrCDp5mJEeWAcME">编辑合同文本模板</td></tr>
+                        <tr data-page-node-id="HK45mRi42qmhISn1ECH5Oa"><td data-page-node-id="F992sTHB3NyOIbwj9uxXqB">表单初始值</td><td data-page-node-id="ThSABHvWv9NAyYnTvPbTzA">全部清空 / 默认值</td><td data-page-node-id="oot0OEHz3DpXbezIh57vK6">回显所选模板的名称 / 分类 / 城市 / 描述 + 按类型回显合同文本：工人合同类型回显「违约责任 / 固定详细条款」，基础施工 / 设计服务合同回显「合同正文」</td></tr>
+                        <tr data-page-node-id="AWxEfr9CIhqd7DFFAid7n6"><td data-page-node-id="S4sEKsp8cGGTAvornkstWP">版本处理</td><td data-page-node-id="HIDJDFyDYwrRZXPXUGE3TG">初始版本 v1.0</td><td data-page-node-id="QyjSFtXxiAxXvStOVVP2Sd">保存后版本号递增（如 v2.0），并写入版本历史</td></tr>
+                        <tr data-page-node-id="AVefZCcETuAvchOV82zSWJ"><td data-page-node-id="yxIckSMeCKD0Ed1ljoNv2Z">字段规格与校验</td><td colspan="2" data-page-node-id="WbC6HEzszGfmRAOpkcYyBk">完全一致（见 1.4.2 / 1.4.3）</td></tr>
+                    </tbody>
+                </table>
+
+                <div class="subsection-title" style="font-size: 16px;" data-page-node-id="wRHGz5yRkGAGHnLp6CGexo">1.5.3 交互效果</div>
+                <table data-page-node-id="DEKTTTy9fCghX578cJog4D">
+                    <thead data-page-node-id="jlyPBpecMrFQyOPdR0q8MC"><tr data-page-node-id="uBzhYCCtZ7cAPs70aCRjeY"><th data-page-node-id="okrpaZ1JH6j7oruxDd8fA8">交互场景</th><th data-page-node-id="il1MRklOrT8lA3AmEvTEyl">效果</th></tr></thead>
+                    <tbody data-page-node-id="nAHkeiPd3gOkgvllaKCKc9">
+                        <tr data-page-node-id="0fxFsERxfbBUXmaMX2FiN7"><td data-page-node-id="YI7FrTweuWs5B10DLpg4BU">打开编辑弹窗</td><td data-page-node-id="Nk9DXi7ISPAPPhT2ZsKHlv">按所选模板 id 取数据回显；按类型切换合同文本区并回显——工人合同类型回显违约责任（纯文本）/ 固定详细条款（富文本 HTML 回显，旧纯文本数据自动转换），基础施工 / 设计服务合同正文区渲染已保存 HTML；遮罩淡入</td></tr>
+                        <tr data-page-node-id="1hPSG3P2M9GMYxnCQj4Wle"><td data-page-node-id="KTgKcXKiF2Vj7CyH3asAQL">保存并发布</td><td data-page-node-id="oOmyZn5ZDxnoG6corGaGN9">覆盖原模板；版本递增；关闭弹窗 轻提示"模板已保存并发布"；列表对应行更新（名称/分类/城市/更新时间）</td></tr>
+                        <tr data-page-node-id="HwMadBPk4s1xR88ESulF7p"><td data-page-node-id="nPkMcGVyjSWp380iuCqYCq">保存草稿</td><td data-page-node-id="fA0X0D26JyaOE59LJ98gbA">覆盖草稿内容，不影响已发布版本</td></tr>
+                        <tr data-page-node-id="EADMdq0ZnidAigJuSQ3HNK"><td data-page-node-id="PWrml9UAomDLi79pJTpxB4">取消</td><td data-page-node-id="gF92HAdxlxaYSV6UuxIvwb">关闭弹窗，放弃本次修改</td></tr>
+                    </tbody>
+                </table>
+
+                <div class="note" data-page-node-id="FiG8wjgCP3RXBpepqjJhrG">
+                    <div class="note-title" data-page-node-id="0GrgdlGKAsku513grMeDdq">版本说明</div>
+                    <div data-page-node-id="zd3L9fdN6z8asugqiYBfXD">编辑保存后生成新版本（如 v1.5 → v2.0），旧版本保留在"版本历史"中，可查看 / 恢复（showVersionHistory(id) 滑出预览面板展示版本列表）。</div>
+                </div>
+            </div>
+
+            <div class="subsection" data-page-node-id="O2PaXW683seTWKrncwsOLI">
+                <div class="subsection-title" id="s1-6" data-page-node-id="sRBijs9mWWJvEVDE4fs2BM">1.6 启用 / 停用</div>
+
+                <div class="subsection-title" style="font-size: 16px;" data-page-node-id="dTrYQ9EKVpX1yF1GIfnLkb">1.6.1 入口</div>
+                <ul style="margin: 0 0 24px 20px; color: var(--text-secondary); font-size: 13px; line-height: 1.9;" data-page-node-id="9XBWcHLSnWJBqR916U8D5R">
+                    <li data-page-node-id="Q3P7gM5KCcUav6s2cUiiVL">列表"操作"列的"停用 / 启用"按钮，依据当前行状态显示相反操作。</li>
+                </ul>
+
+                <div class="subsection-title" style="font-size: 16px;" data-page-node-id="IvAjUu8Fzed8SJhPFC3zJf">1.6.2 停用交互流程</div>
+                <table data-page-node-id="dY552RFSIXRAC0kECzoACR">
+                    <thead data-page-node-id="lsp4Wg327752OUB1G7mqsp"><tr data-page-node-id="L7R7EoENse02qYbVzOTeHc"><th data-page-node-id="Nsquk7HzmyTzrJGUEOJvfZ">步骤</th><th data-page-node-id="gi3oQ1pfYzBPpVHW0iT5FB">行为</th></tr></thead>
+                    <tbody data-page-node-id="HCQaEhIatncEAJLTaMg6yp">
+                        <tr data-page-node-id="tXnCTASGNo2CZOAvyAC60S"><td data-page-node-id="lVjHJXb2jlG4CFp3M61KLz">1. 点击"停用"</td><td data-page-node-id="z5xKkdnqzAw8BPBDRh0vmP">弹出二次确认："确定要停用此模板吗？停用后新建合同将无法选择此模板。"</td></tr>
+                        <tr data-page-node-id="taVHIgTwGe4V6zS1RTmRLa"><td data-page-node-id="3BneP0W0zaD1OZ6HeuD8ru">2. 取消</td><td data-page-node-id="gSFF9Q9obMjE0Z8E5fCHZ7">关闭确认框，不执行任何变更</td></tr>
+                        <tr data-page-node-id="A31KWtvlpCn45tZ5f2UDcM"><td data-page-node-id="PfNGM8hFfagfFkpBB8Wcnm">3. 确认</td><td data-page-node-id="yUb7FFQU4bZYV2EKdnYECT">执行停用：行加 .disabled、状态徽标转"停用"（灰）、按钮文案"停用"→"启用"；提示"模板已停用，新建合同将无法选择此模板"</td></tr>
+                    </tbody>
+                </table>
+
+                <div class="subsection-title" style="font-size: 16px;" data-page-node-id="r8eI6ieeAbQYNyznE7Uhum">1.6.3 启用交互流程</div>
+                <table data-page-node-id="KpAeNPNEMXcQNYMHdVPCf9">
+                    <thead data-page-node-id="LqpdqBdMjxVbVFSPddEsn3"><tr data-page-node-id="deBQqMaL7BDToNjAHmxFda"><th data-page-node-id="Mb7bWXLL5QsklI7ugklPsT">步骤</th><th data-page-node-id="D6pJyGmDnCUVAchgvgfdTQ">行为</th></tr></thead>
+                    <tbody data-page-node-id="61HELyI5UFM8lRan7079Ai">
+                        <tr data-page-node-id="UNGyGkXAtOWGBB03Jp9uWM"><td data-page-node-id="7ypRESdFPbSJWoi3RU3O4o">1. 点击"启用"</td><td data-page-node-id="wqd0haMOBz9bxauxLgCqzp">无需确认，直接执行</td></tr>
+                        <tr data-page-node-id="EbOjjFHNxahTsf0vE7LMqu"><td data-page-node-id="sR7VRfP9FUNnnwhdSslzBF">2. 执行</td><td data-page-node-id="gYwzZfWid6V3luzs7mAion">行移除 .disabled、状态徽标转"启用"（绿）、按钮文案"启用"→"停用"；提示"模板已启用，新建合同可选择此模板"</td></tr>
+                    </tbody>
+                </table>
+
+                <div class="subsection-title" style="font-size: 16px;" data-page-node-id="CDE3C3gqGtQ2Czhh8vDcJK">1.6.4 行联动效果</div>
+                <table data-page-node-id="dLKPlMzxaWhYDjzn4FIc5i">
+                    <thead data-page-node-id="vJiZviXiTgHd2PNHob7ODv"><tr data-page-node-id="Fy8kIDy6UHPh0kVCFN0Owd"><th data-page-node-id="KiLMVsGof0AqBxHKacLKRz">状态变化</th><th data-page-node-id="5el97xFIDg5reMfq2HBXm6">视觉联动</th></tr></thead>
+                    <tbody data-page-node-id="ATzDJhwF5CG0vMoeXfdYRP">
+                        <tr data-page-node-id="MOA46dPgkWyJu9bJDZQDr0"><td data-page-node-id="VfhPdZQ5M2WT0PzDUgNC2f">启用 → 停用</td><td data-page-node-id="YPXqaZFfsmp9C3bLF8CqiL">整行 opacity 0.6（.disabled）；状态徽标绿→灰；操作按钮"停用"→"启用"；模板名称转灰</td></tr>
+                        <tr data-page-node-id="Dm2JXhaGmgyK3P3BXk3wQL"><td data-page-node-id="J8vU9ngg55IxCmSZT4GB2W">停用 → 启用</td><td data-page-node-id="MMaHR4ltDR0vkivVfQxMlD">整行恢复不透明；状态徽标灰→绿；按钮"启用"→"停用"；名称恢复主色</td></tr>
+                    </tbody>
+                </table>
+
+                <div class="subsection-title" style="font-size: 16px;" data-page-node-id="ueW4JQAyJec5YV1PA5Gozq">1.6.5 影响范围</div>
+                <ul style="margin: 0 0 24px 20px; color: var(--text-secondary); font-size: 13px; line-height: 1.9;" data-page-node-id="vq7mjRyEoWRGkGarJvXrBS">
+                    <li data-page-node-id="AGRAbt1i4J3TkPtrYPIBUJ">停用仅影响"新建合同 / 发起变更时可选用模板的范围"，已签署或已生成的合同不受影响。</li>
+                    <li data-page-node-id="W5O8eIUiGbMFAqsIy4tsOk">模板类型树 count 同步（停用模板仍计入总数，仅状态变化，不减少总条数）。</li>
+                </ul>
+            </div>
+
+            <div class="subsection" data-page-node-id="4dV3waOjZy9hzo9gCCa3L7">
+                <div class="subsection-title" id="s1-7" data-page-node-id="CvcTMCWUwjDWtbVBGX61hr">1.7 权限控制逻辑</div>
+                <table data-page-node-id="LbG5mv1L4FsFVUhOg7CLJ2">
+                    <thead data-page-node-id="b9C1FT1ZmfO1PSifGweLkg"><tr data-page-node-id="VdL08WrfvDG9sR0YeWZAcQ"><th data-page-node-id="m8lx7L3BknAt8jm3euiuCD">操作</th><th data-page-node-id="B9H6xzLusWo8SkcYUoHAY2">运营角色</th></tr></thead>
+                    <tbody data-page-node-id="M08NHV9dYnBWg1KgA5jKms">
+                        <tr data-page-node-id="qzmyz3D4r0Rpu9DGOJrnpB"><td data-page-node-id="wE8Keeq7vZd7NRQroPpNXw">查看模板列表</td><td data-page-node-id="NkwspjwlQf1kkBKopUWG8u">✅</td></tr>
+                        <tr data-page-node-id="WP0ITW7WGmbWjUMB4Hr3Jx"><td data-page-node-id="gwnsycBnsi574F39jdswjq">创建模板</td><td data-page-node-id="LrAWoYnCDI8HIIyF6WWbC6">✅</td></tr>
+                        <tr data-page-node-id="k7BBxaxKPQj8f8QGTMFy4D"><td data-page-node-id="niQuWVR9Af3wjEFiP3oHYC">编辑模板</td><td data-page-node-id="RRLTI3WLjmlM3fDmstGuq2">✅</td></tr>
+                        <tr data-page-node-id="KblfCzTEZNST6Bx4I7BEXU"><td data-page-node-id="g3il3jlpUMHRbm6CDwJCut">启用 / 停用模板</td><td data-page-node-id="NZFa09s3ewXWYFPhJtJkWi">✅</td></tr>
+                        <tr data-page-node-id="QZiyriVLHJR9iFCeHOTsSo"><td data-page-node-id="v0CE05JWsfW4gXUrDsWlXG">预览模板</td><td data-page-node-id="3texUZKGFjzKlqTGsP8FZt">✅</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="subsection" data-page-node-id="r3swbgTr2pfvWZIs1mdfbN">
+                <div class="subsection-title" id="s1-8" data-page-node-id="PNwWgBCiLyczQiHFDQYX3v">1.8 动画和视觉反馈</div>
+                <table data-page-node-id="2NCoGy0h7khPMvTWwBrXOP">
+                    <thead data-page-node-id="3PfHSPXsZa6YXtiwkr27q1"><tr data-page-node-id="ne3oJSwqT6ls26voYPnPo5"><th data-page-node-id="ULfscuLSIKK7FWZUJQNEYK">交互场景</th><th data-page-node-id="tIHXKCBXQlwmf2EqeRnQlv">动画效果</th></tr></thead>
+                    <tbody data-page-node-id="l52e3qsndigJGfrPa6WWvB">
+                        <tr data-page-node-id="HofNlWSIzyp0PDA3nvQ5t1"><td data-page-node-id="DBayCvwocIlLm6GgF8p2c7">新建/编辑弹窗打开</td><td data-page-node-id="VU0gTKLnDDXlXkvR05EZ0n">遮罩层渐显 0.3 秒，弹窗淡入</td></tr>
+                        <tr data-page-node-id="kp86xS1GTaLaX5RhpOmpBI"><td data-page-node-id="7RY6UHYh5rwAb8QF8Yetif">新建模板按钮悬停</td><td data-page-node-id="7jCJJXoyTb0h2dwNbLu1w8">背景色从 #1890FF 变为 #40A9FF，阴影 0 4px 12px rgba(24,144,255,0.3)</td></tr>
+                        <tr data-page-node-id="LoFKslJGTPdTJgRX1H1t0U"><td data-page-node-id="fJmOfeiLNToSGHcJZ48NXh">模板行悬停</td><td data-page-node-id="yDzTcOqlul6zGAfeetJDvs">背景色变为 #FAFAFA</td></tr>
+                        <tr data-page-node-id="fMDNp2ng66hJf3UT8p47vn"><td data-page-node-id="OFHhLiPXZC2gVAHemDHVNk">模板名称点击（预览）</td><td data-page-node-id="xpt6Drcd8Gt6x9LXHYxOH6">右侧预览面板从 right:-600px 滑入至 right:0，过渡 0.3 秒</td></tr>
+                        <tr data-page-node-id="ACaAx6uys61uhoTP4n4s97"><td data-page-node-id="2ESnWDLavO0xvfjOOZYOW1">模板类型树节点点击</td><td data-page-node-id="p4rzNSrkMCYrZFWPhEB6LF">节点背景与文字切换为蓝底蓝字（active），无动画过渡</td></tr>
+                        <tr data-page-node-id="jFDSj8mFM120TsRT9njJ6y"><td data-page-node-id="WzjtggnGyTTbQt49BcEdnu">保存成功</td><td data-page-node-id="JPYMzrll5KuEerBAgSxfeQ">轻提示 中部显示"模板已保存并发布"，持续 2 秒</td></tr>
+                        <tr data-page-node-id="UBqHhidTiKStQEpK4sgjlN"><td data-page-node-id="Dgynr9SSHToJpmYFAQbOPu">富文本工具栏按钮激活</td><td data-page-node-id="mOOFmfOifdRG4jYPoF5phT">按钮背景变蓝、文字变白</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="subsection" data-page-node-id="Ph1TQ9QQw5FW7IPs9Yg7TF">
+                <div class="subsection-title" id="s1-9" data-page-node-id="zmfNC8WHMkbz7nL0nD1sFW">1.9 异常处理逻辑</div>
+                <table data-page-node-id="CAx7in9w3gBcshelSF6wAr">
+                    <thead data-page-node-id="B0LnKrNT1VMqPe5v47jTZE"><tr data-page-node-id="nigl6fbZ7E8d6XuRME3kWn"><th data-page-node-id="DXMzc46yNnqBTyDHDcO6xa">异常场景</th><th data-page-node-id="TPm0dnUSyNU7DDU84ODnLf">处理方式</th><th data-page-node-id="J5FsQ0EY6KQMSFNLu98H1H">用户提示</th></tr></thead>
+                    <tbody data-page-node-id="aT9LFpi0x1UnbEwShKax9C">
+                        <tr data-page-node-id="k8Vs4E97nW0r4CVS4F4hC1"><td data-page-node-id="eAZmoAgaAhEJ3gOQYotno4">模板名称为空</td><td data-page-node-id="PmUznePAnYqzu4CiP0Ljp3">阻止提交，聚焦输入框</td><td data-page-node-id="22ZA5XXR1qR4uLUbEyrTHo">轻提示 中部显示"请输入模板名称"</td></tr>
+                        <tr data-page-node-id="lksxR5H0nuXCDJ8bwapAbT"><td data-page-node-id="0xHJM06wWXxX4DD3KNowgu">模板名称重复</td><td data-page-node-id="lugIHdXROnDuGh3jJKSz7y">阻止提交</td><td data-page-node-id="G2sznMPe5muyFrELNMWlSt">轻提示 中部显示"模板名称已存在"</td></tr>
+                        <tr data-page-node-id="n3IRqAv8FheiDqeTTuXTqQ"><td data-page-node-id="d4W4OnpEbPdTrEi8T8a4ia">模板类型 / 城市未选</td><td data-page-node-id="0NHzw5JdUzDHKkZsEQxhcp">阻止提交</td><td data-page-node-id="JCkirmyVLlsz2JSGmyP8yX">轻提示 中部显示"请选择模板类型" / "请选择适用城市"</td></tr>
+                        <tr data-page-node-id="gbBM2NLlWwx1dZ2vZOOW2T"><td data-page-node-id="5aTrwj3jKJzygSlztQgGAY">合同正文为空</td><td data-page-node-id="IDcKDHTGNbpFnYB5HlRBzs">阻止提交</td><td data-page-node-id="Y1CfDCmLCzG2REcXXngK9z">轻提示 中部显示"请输入模板内容"</td></tr>
+                        <tr data-page-node-id="6vbg6DOBcsOknDGVVYo9jF"><td data-page-node-id="xGIBccxKI8bSdK07oiR18f">网络错误</td><td data-page-node-id="2Kwhhf0fGYpnB6Cbtqpa3R">显示错误状态</td><td data-page-node-id="KexOt1IZ5HKWDJMVjt0700">轻提示 中部显示"操作失败，请稍后重试"</td></tr>
+                        <tr data-page-node-id="2cRc8Nlt0p3XCU9stJeggP"><td data-page-node-id="hNHR8V8qGzsTuhuSnChsbF">无模板数据</td><td data-page-node-id="BZ5eJPiEnQ52orKA4YCohC">显示空状态</td><td data-page-node-id="FtQes9AL0F9GrAbEt3HsvJ">页面中央显示"暂无模板，点击创建"</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- ==================== 2. 阶段任务模板页 ==================== -->
+        <div class="section" id="page-stage-template" data-page-node-id="sJP4cpLNXjtwvnN7x0Gjtq">
+            <div class="section-title" data-page-node-id="e3HQO3Hp2BFX3uGZ3nkNSw">二、阶段任务模板页（PC端）</div>
+
+            <div class="subsection" data-page-node-id="QR0ruRR5bH3pAfOhvHc2cH">
+                <div class="subsection-title" id="s2-1" data-page-node-id="WnpG7dQEbiMoXUcItsFKro">2.1 页面概述</div>
+                <div class="info-grid" data-page-node-id="du3svOIM7uFkGR5R4enA5I">
+                    <div class="info-item" data-page-node-id="ZoCl0LlVA7w4NPkjIAmDAl"><div class="info-label" data-page-node-id="YMNt4SRrfPvvfxXvMJXxXv">页面名称</div><div class="info-value" data-page-node-id="y5Ob8Q5KjpD3MHkugE18NE">阶段任务模板页</div></div>
+                    <div class="info-item" data-page-node-id="9KdlGiHmd5uLLEo55KB3Al"><div class="info-label" data-page-node-id="7mTDok6BEJUpvbHgbSPmd5">页面文件</div><div class="info-value" data-page-node-id="yCUhmfEqwHvsEgwBGyYkAo"><a class="file-link" href="pc/pc-stage-template.html" target="_blank" data-page-node-id="j1EOu837epouRq5zd1yQGF">pc-stage-template.html</a></div></div>
+                    <div class="info-item" data-page-node-id="fSU0bQ5uHZpvXs1TOhUTR8"><div class="info-label" data-page-node-id="ZJznJWjkQNHpjzvk3bxCFz">适用角色</div><div class="info-value" data-page-node-id="1CThluOMtTfvwb3Djl1uMV">运营角色</div></div>
+                    <div class="info-item" data-page-node-id="MogQ18lFMIKKEhGgARAm4c"><div class="info-label" data-page-node-id="8S9HrnCCjXZn2y3aPYUkKF">页面入口</div><div class="info-value" data-page-node-id="ipmLNVIlUKuSEnJKaSwGOQ">侧边栏"阶段任务模板"</div></div>
+                    <div class="info-item" data-page-node-id="BUGuAuBNSwqU8lOskoQ1IW"><div class="info-label" data-page-node-id="guROdHQWbT1mKYCV2UDHqg">业务目标</div><div class="info-value" data-page-node-id="cK1VehOf599FaeRJUmFg7A">管理阶段任务模板，按城市和模板类型划分</div></div>
+                </div>
+            </div>
+
+            <div class="subsection" data-page-node-id="zdQNx4zHNGyemOSkz85E1V">
+                <div class="subsection-title" id="s2-2" data-page-node-id="sNsLNa5WTolhWaS8qQTzZv">2.2 页面结构</div>
+                <div class="code-block" data-page-node-id="UwDKgiN0pqisIgAbQLP0us">
+┌─────────────────────────────────────────────────────────────────────┐
+│  Header + 操作栏（同合同文本模板页）                                  │
+├─────────────────────────────────────────────────────────────────────┤
+│  筛选栏                                                              │
+│  - 城市选择下拉框                                                    │
+│  - 模板类型下拉框                                                    │
+│  - 搜索框                                                            │
+├─────────────────────────────────────────────────────────────────────┤
+│  模板卡片列表                                                         │
+│  - 模板名称 + 适用城市 + 模板类型                                     │
+│  - 阶段数量统计                                                       │
+│  - 操作：预览、编辑、删除                                             │
+├─────────────────────────────────────────────────────────────────────┤
+│  创建/编辑弹窗                                                        │
+│  - 基本信息：模板名称、适用城市、模板类型                              │
+│  - 阶段列表：阶段名称 + 任务列表                                       │
+│  - 添加阶段、添加任务                                                 │
+└─────────────────────────────────────────────────────────────────────┘
+                </div>
+                <div class="note" data-page-node-id="3uG5TgC7o0JMDuQ7rF3kc0">
+                    <div class="note-title" data-page-node-id="muhzNTjjToudlu6iYpucIk">列表页详细规则</div>
+                    <div data-page-node-id="LnisbeojhXDRbFJ3FvbuSu">阶段任务模板页的列表布局、卡片字段、左侧模板类型筛选、顶部搜索 / 筛选匹配规则与排序分页，详见 <b data-page-node-id="j75nYnKnQzLT7HiPGkeLGu">2.3 列表页</b>。</div>
+                </div>
+            </div>
+
+                <div class="subsection" data-page-node-id="gP16uEga7CYlBr8KG5iWH6">
+                <div class="subsection-title" id="s2-3" data-page-node-id="OfB45rekDVdRflT9TmxFaq">2.3 列表页</div>
+                <div class="proto-ref" data-page-node-id="8Nk7qikn3H1lLzCAsfJHxl"><span class="proto-ref-label" data-page-node-id="MgB2J2uvpKcrIZQdwE9jmY">关联原型页面：</span><a class="file-link" href="pc/pc-stage-template.html" target="_blank" data-page-node-id="aZIcV7gdyj0QKNZ6fJlOL8">pc/pc-stage-template.html</a></div>
+
+                <div class="note" data-page-node-id="vg1owQTpIILAuyqRaLYQ5j">
+                    <div class="note-title" data-page-node-id="qcnNt9OHtPCjAZbjiPPQtg">交互说明</div>
+                    <div data-page-node-id="PO2Oh3TbHaJjFhgynOdBs5">以下筛选、搜索、排序规则已在原型（pc-stage-template.html）中落地：顶部工具栏「搜索 / 重置」按钮可实时过滤右侧卡片；左侧模板类型树点击可即时筛选对应类型；两类筛选之间及与顶部城市/状态条件均为 <b data-page-node-id="cjzSw7FLqPAnFUEOxFgPQ5">与</b> 叠加；分页「共 N 条」随筛选结果实时刷新。原型列表为演示数据（4 张静态卡片 + 静态 count），筛选按实际渲染卡片生效。</div>
+                </div>
+
+                <div class="subsection-title" style="font-size: 16px;" data-page-node-id="izYwHGoaD1H3GEGB0gOVPL">2.3.1 列表页布局与组成</div>
+                <div class="code-block" data-page-node-id="tGCGJuumR6kHCSPrU3c7yD">
++-----------------------------------------------------------------------+
+|  主内容区                                                            |
+|  +- 内容头（页面标题"阶段任务模板" + 右上"新建模板"按钮）              |
+|  +- 模板容器（左右两栏）                                              |
+|     +- 左侧：模板类型树（240px 固定）                                 |
+|     |   - 全部模板 / 基础施工服务合同 / 设计服务合同 / 拆除班组服务合同 / 水电班组服务合同 / 木作班组服务合同 / 泥瓦工班组服务合同 / 油漆工班组服务合同 / 小零工服务合同 |
+|     |   - 每项右侧显示该分类模板数量 count                            |
+|     +- 右侧：主区                                                     |
+|         +- 工具栏（名称搜索框 + 城市下拉 + 状态下拉 + 搜索/重置按钮）  |
+|         +- 模板卡片列表（每张卡片展示：名称 + 类型 + 城市 + 状态 + 阶段/任务统计 + 操作） |
+|         +- 分页条（共 N 条 / 页码）                                   |
++-----------------------------------------------------------------------+
+                </div>
+
+                <div class="subsection-title" style="font-size: 16px;" data-page-node-id="DOCfm9ipd8s4kHVql1VyyU">2.3.2 卡片字段说明</div>
+                <table class="list-field-table" data-page-node-id="mJBRyu16dEkleP2RAUjFe6">
+                    <thead data-page-node-id="lYyM24xIzGxQsz6WsQvH5F"><tr data-page-node-id="JCr2ECfdac5sbERLsfPHjr"><th data-page-node-id="mNhyj8wcQF2ee6cZooeIff">卡片字段</th><th data-page-node-id="pge6BuYKiPrBrg6JdYNGDk">字段来源 / 取值</th><th data-page-node-id="94uUFB8avbtbjUfQB9tWik">渲染样式与交互</th></tr></thead>
+                    <tbody data-page-node-id="JBkrEujHFhQEN82zx5ZBnn">
+                        <tr data-page-node-id="m7y9jgNFZL4RbsWBw4Bas3"><td data-page-node-id="GhSKTz8y9KfPMkNVyNxp2G">模板名称</td><td data-page-node-id="4XgvNo7IhM8saC58JSLdjq">模板名称字段</td><td data-page-node-id="taks5XGA3KEqgi57TAjscz">卡片标题文本（class template-card-name）；点击卡片头展开/收起阶段详情</td></tr>
+                        <tr data-page-node-id="D2F27QTiQZi83qYaKCl0n8"><td data-page-node-id="A8j6JvjW8ASV6m5HAbAU0T">模板类型</td><td data-page-node-id="TmFP3O9J7snBdou2wuVf5t">模板类型字段</td><td data-page-node-id="CdhEE4oAuEALb0vwb4BT5z">卡片 meta「类型：」标签，取值同左侧模板类型树八类枚举；与类型树强关联</td></tr>
+                        <tr data-page-node-id="N6H3bgAGePxYwM3XExMM1o"><td data-page-node-id="U4geu9konGA8A8fUWjJIct">适用城市</td><td data-page-node-id="Nk6WQFhZ9JX94VrFT3wPZr">适用城市字段</td><td data-page-node-id="9fLzReOrPD8kqFdjGqdZYw">卡片 meta「城市：」文本（全国 / 北京市 / 南阳市 / 西安市）</td></tr>
+                        <tr data-page-node-id="coPSJKa6tkKUsKSrn1Mvou"><td data-page-node-id="yJZGs7cu4KZmEy2KbA5gXG">状态</td><td data-page-node-id="nEPAz8XA5w71jaTf9aGCDK">状态字段</td><td data-page-node-id="kCXDA0QpMyWTDFQMM5UHGS">状态徽标（class template-status）：启用中=绿底绿字带圆点（active）；已禁用=灰底灰字带圆点（disabled）；草稿=橙底橙字（draft）。已禁用卡片整体加 .disabled（opacity 0.6、名称转灰）</td></tr>
+                        <tr data-page-node-id="REVIPRnFHezPESoKRpbcVz"><td data-page-node-id="Nz6VqufCjzrjXVfp5Daq7l">阶段 / 任务统计</td><td data-page-node-id="6wE7VCiOZ3GCpfOE8A5y91">阶段数 / 任务数</td><td data-page-node-id="1aBFsp8twn8GFO9CJgNyWy">卡片展示「共 N 个阶段 / M 个任务」（data-stage-count / data-task-count）</td></tr>
+                        <tr data-page-node-id="CSkjjzOyDaSoZr1uh9yDGX"><td data-page-node-id="IdBCUvFJw3ASxk0sk8JldM">更新时间</td><td data-page-node-id="TsVy3KWUcLgpN0fbrICrRi">更新时间字段</td><td data-page-node-id="QaV8KWmLRtP2ZYtKigR5s4">文本，格式 YYYY-MM-DD HH:mm</td></tr>
+                        <tr data-page-node-id="GV2HzKdXZEzZCZKCnwk3iP"><td data-page-node-id="MqNLu2cnrPGLfOMAY0qqRb">操作</td><td data-page-node-id="4vim5d2ekpDr2hdmLZY0MH">—</td><td data-page-node-id="GUpbS1JSYEQDulQODbjmBf">预览（展开卡片查看阶段详情）/ 编辑（打开编辑弹窗）/ 发布·禁用·启用（状态切换，见 2.6）</td></tr>
+                    </tbody>
+                </table>
+
+                <div class="subsection-title" style="font-size: 16px;" data-page-node-id="wvc0dfb1UusWe5JIvJU3vs">2.3.3 左侧模板类型筛选（与卡片字段的关联关系）</div>
+                <table data-page-node-id="7guZ6Qu4nmFEh5Ozvotp8O">
+                    <thead data-page-node-id="HZr1YJen5k7mxlaMUVBo86"><tr data-page-node-id="3iUqHQnkaKTnBgVzR0j96t"><th data-page-node-id="UmZVexgKzvCNBMFl25kdGG">模板类型树节点</th><th data-page-node-id="bUASeTbXhC3USrgvYPDE4Q">演示 count</th><th data-page-node-id="1P6HULbzKQsp1kGDlPes3V">关联规则</th></tr></thead>
+                    <tbody data-page-node-id="NbX1qMICH9hdJAhqpAThyM">
+                        <tr data-page-node-id="vpMGSW2tbAwZ4vpKiCGr5V"><td data-page-node-id="zWDxPCzEEmcd7G8NJbCDX2">全部模板</td><td data-page-node-id="dYH38U0F1fzmIz6SKBv3EW">18</td><td data-page-node-id="rdRskF0h9JDmk3GRIBZuSi">不限模板类型，展示所有模板</td></tr>
+                        <tr data-page-node-id="DG4BjVc84HXh2M52l2IjNc"><td data-page-node-id="oA56wsDjbjCuhuIBVT1qrJ">基础施工服务合同</td><td data-page-node-id="HC7aGwCMJFgxi1sdLojdj4">3</td><td data-page-node-id="5apRUlMvYak4gN6VXMJYfv">按卡片「类型：」字段 = "基础施工服务合同" 精确过滤</td></tr>
+                        <tr data-page-node-id="2ZpUFzaIFUYOdAP0jTgaOe"><td data-page-node-id="ntXf1JM293KHETb6GG5U42">设计服务合同</td><td data-page-node-id="6l3EQexuTZgQn4guKlDkDB">2</td><td data-page-node-id="spkZD949NwlzkMHcvF08Yj">按卡片「类型：」字段 = "设计服务合同" 精确过滤</td></tr>
+                        <tr data-page-node-id="w54WMf7fJtGCVk3PqVRN0Y"><td data-page-node-id="PJ8lJwleZ2ZyYLxbhripQR">拆除班组服务合同</td><td data-page-node-id="NegqsZrsC2MHANIBlCxI4X">2</td><td data-page-node-id="VKYXGvMZjPUgiG4ytFEs4D">按卡片「类型：」字段 = "拆除班组服务合同" 精确过滤</td></tr>
+                        <tr data-page-node-id="NYtbZdu7HH9P56gE53nOry"><td data-page-node-id="SJoGQkUhEWYTUWVe1sfulL">水电班组服务合同</td><td data-page-node-id="gCIqdfsN9Aszw6GAcFasUC">3</td><td data-page-node-id="be3aVfxUjtegJujENQ05Nq">按卡片「类型：」字段 = "水电班组服务合同" 精确过滤</td></tr>
+                        <tr data-page-node-id="6wVDBMPtJduYUZifuVqbYz"><td data-page-node-id="JZFItHJD6BE8QOJyeqIEKS">木作班组服务合同</td><td data-page-node-id="2ftyC8ks3HVlrg5lI6Rb3b">2</td><td data-page-node-id="Dm9yqIAoTEvC1nDwkMPgj8">按卡片「类型：」字段 = "木作班组服务合同" 精确过滤</td></tr>
+                        <tr data-page-node-id="pFXBj285WIHnr8NCWsICCL"><td data-page-node-id="OA4By9eapCSdcp2zHQXEWx">泥瓦工班组服务合同</td><td data-page-node-id="ltA4rzFl7FnKjukzU5pKAw">2</td><td data-page-node-id="aayTvGWgClTlSCEsZnJAQ0">按卡片「类型：」字段 = "泥瓦工班组服务合同" 精确过滤</td></tr>
+                        <tr data-page-node-id="evhoEAueCWnRlO4A4drs3D"><td data-page-node-id="UGHwXUssQvDpbAvYxHql4L">油漆工班组服务合同</td><td data-page-node-id="zeJKKcJEsJagw3URlKFD58">2</td><td data-page-node-id="cqBIybGGuE3maehNYC5QF9">按卡片「类型：」字段 = "油漆工班组服务合同" 精确过滤</td></tr>
+                        <tr data-page-node-id="hu4syig42O6tEBwQcKAoNt"><td data-page-node-id="lZZSqmfKGg99L6h0DUCs09">小零工服务合同</td><td data-page-node-id="tGkZ0SiCUMPiGZb2gUmaP1">2</td><td data-page-node-id="Z7K1vMirtUTGpyfTUzNKhX">按卡片「类型：」字段 = "小零工服务合同" 精确过滤</td></tr>
+                    </tbody>
+                </table>
+                <ul style="margin: 0 0 24px 20px; color: var(--text-secondary); font-size: 13px; line-height: 1.9;" data-page-node-id="9WcF1so0NyRHCGv4dONb3O">
+                    <li data-page-node-id="bLlAlku1TLCAiTExVioXin"><strong data-page-node-id="G48d1asqGq7TCxBaw6RFDm">取值同源：</strong>模板类型树节点名称与卡片「类型：」标签取值完全一致（同一枚举：基础施工服务合同 / 设计服务合同 / 拆除班组服务合同 / 水电班组服务合同 / 木作班组服务合同 / 泥瓦工班组服务合同 / 油漆工班组服务合同 / 小零工服务合同），二者强关联。</li>
+                    <li data-page-node-id="vA7wpVDYq7rGPCYmP9qKk3"><strong data-page-node-id="0Co1Vg6HyI7F3QGhykOxi3">count 含义：</strong>节点右侧数字为该分类下模板数量，由卡片数据实时统计得出（原型中为演示值，新增/发布/禁用时同步刷新，见左侧类型树计数同步刷新）；点击节点即按该类型精确过滤右侧卡片。</li>
+                    <li data-page-node-id="Eo9Jg4ZuaNFjFbc8nZJtKF"><strong data-page-node-id="yVmI4DlPcE33kXHBpg5Bm1">互斥单选：</strong>模板类型树为单选，点击节点高亮 active（蓝底蓝字），其余节点取消高亮；"全部模板" 等价于"不按模板类型过滤"。</li>
+                    <li data-page-node-id="ErsGUn8f2JWjv8Mjgt2pXr"><strong data-page-node-id="v7GVw0hwwGLsoYsNtw4reH">叠加关系：</strong>左侧模板类型筛选与右侧顶部工具栏的搜索/城市/状态筛选为 <strong data-page-node-id="3nmVfdv9nBanDTnLW7sfuZ">与（同时满足）</strong> 叠加。</li>
+                </ul>
+
+                <div class="subsection-title" style="font-size: 16px;" data-page-node-id="9rDvQHtxHTkOLa8qkWL9G7">2.3.4 顶部搜索与筛选条件匹配规则</div>
+                <table data-page-node-id="NjSAmxZffeQNHjgu5aDJxr">
+                    <thead data-page-node-id="omP5ix3BcD0eXZfxLPiOq9"><tr data-page-node-id="akZwm5iKOcGhi23TbFT99V"><th data-page-node-id="nWjXT9XEGZOtIsVSfpPUCF">控件</th><th data-page-node-id="a6jxQ0TKzoncw2XQ2VYRbd">匹配字段</th><th data-page-node-id="ctt6pUSYc8zEsxNPnw6mzQ">匹配方式</th><th data-page-node-id="jLGm3ND3LJSdiADDtbZubo">空 / "全部" 取值行为</th></tr></thead>
+                    <tbody data-page-node-id="uCrIovW7eCpWL4fWPyjS6I">
+                        <tr data-page-node-id="Fl5mPlHuAhYVbNb8Sj5qtO"><td data-page-node-id="BD3qIsmEr4r2nUNtAoUzcN">模板名称搜索框</td><td data-page-node-id="6qgFxA1UpZTJmloLdxBepk">模板名称</td><td data-page-node-id="cswsYpTZYR2gHbve3qsTGs">模糊匹配：包含输入关键字即命中；忽略大小写、忽略首尾空格</td><td data-page-node-id="vxMVFVKrpCBnJk6C8vgnsR">为空 = 不限名称</td></tr>
+                        <tr data-page-node-id="P8aESWSAjuUiBkPHEgLtzd"><td data-page-node-id="7IIYqe01lJleJbtGLTwirv">城市下拉</td><td data-page-node-id="mdaqh07SvQJ1toPCA0zFdU">城市</td><td data-page-node-id="zLqUAyUHfvcrXUtrtNF0jD">精确匹配：选项值 = 字段值</td><td data-page-node-id="rOjUjOXWyCgeF2zeKZHYCP">"全部城市" = 不限；选项值与卡片「城市：」字段一致（全国 / 北京市 / 南阳市 / 西安市），精确匹配</td></tr>
+                        <tr data-page-node-id="x2056qLaHkwHIcD4EBHyMV"><td data-page-node-id="g7SW9nZSyGD1sZcoNY4jwz">状态下拉</td><td data-page-node-id="GC8u7zsh90pL3PgEWGXhLP">状态</td><td data-page-node-id="I51xqzo1QRA91lUQCjRxgy">精确匹配：状态下拉显示"启用 / 停用"，分别对应数据状态 active / disabled（卡片徽标文案为"启用中 / 已禁用"）</td><td data-page-node-id="6BreP9hUhnctgd7S13ja8m">"全部状态" = 不限</td></tr>
+                    </tbody>
+                </table>
+                <ul style="margin: 0 0 24px 20px; color: var(--text-secondary); font-size: 13px; line-height: 1.9;" data-page-node-id="PKqMIHGxvfdkkociDt8Qtq">
+                    <li data-page-node-id="jN0MrUtBKhclj8f1OXj9ht">三个顶部控件之间为 <strong data-page-node-id="xKjurJOnAAGErAxEbvXqY9">与</strong> 关系：需同时满足名称模糊命中、城市精确相等、状态精确相等。</li>
+                    <li data-page-node-id="zuyxizCmZ5PP7ogL30b0Ze">顶部筛选再与左侧模板类型树叠加，仍为 与（四类条件全部命中才出现在列表）。</li>
+                    <li data-page-node-id="QKXyA2z4s40GVbhNHqYhFR">「搜索」按钮触发按上述条件过滤；「重置」按钮清空名称/城市/状态并恢复"全部模板"选中，列表与类型树 count 同步刷新。</li>
+                </ul>
+
+                <div class="subsection-title" style="font-size: 16px;" data-page-node-id="vG0enbCTb1AoYNILqkmljx">2.3.5 列表排序与分页</div>
+                <table data-page-node-id="fG3XEP2B2zuYovOBNDq0xd">
+                    <thead data-page-node-id="k6TaRWDU0HDATqC5VWVuda"><tr data-page-node-id="ONrdQnRPuRt5oWcJHx3tNH"><th data-page-node-id="kNqYFATkH1xxWGf02BxBz2">项</th><th data-page-node-id="b9sBuv3OVfGT3E8gFJ0r1E">规则</th></tr></thead>
+                    <tbody data-page-node-id="bR4WLBqe7nCzbB78TomF9U">
+                        <tr data-page-node-id="B6vAuoUmKwxx447DAZKzdF"><td data-page-node-id="t2rcF5g68ILBQ2Kq1asFg5">默认排序</td><td data-page-node-id="M5fUxogDtOWUXuAvXzDg9s">卡片按「创建 / 更新时间」倒序（最新在前）；<b data-page-node-id="DjlYR1N7f914LY7XNr6fca">新建或编辑保存后的模板直接插入列表最上方</b>（创建时间倒序），确保最新模板置顶，修正此前新增模板排在列表末尾的问题；演示数据顺序即创建 / 更新先后</td></tr>
+                        <tr data-page-node-id="dThEQjhx6hgMG7UTbhAsc9"><td data-page-node-id="VOYf6akojLBbip0GCjOnog">列头排序</td><td data-page-node-id="3AZTUkK8nngQ4QojkdJEJv">当前原型卡片无列头排序交互；如需扩展，建议支持按「更新时间」「模板名称」升 / 降序切换</td></tr>
+                        <tr data-page-node-id="FF9vRJIkJI5OCvwVYOH2kr"><td data-page-node-id="OxDuhAChiTcGEjRiOCPS5H">分页</td><td data-page-node-id="woTKOGamCdeRYm7FZfa3od">底部分页条显示"共 N 条"；默认每页 10 条（演示 4 张 → 1 页），超出则分页码 1 / 2 / 3…</td></tr>
+                        <tr data-page-node-id="TfKPmTNHTZcR63rrzNZUMu"><td data-page-node-id="8gP9RS8ms7pAGw6OKBmDSc">筛选后分页</td><td data-page-node-id="iq12SoiEMlM3VsbruzBpEA">count 与页码随筛选结果实时重算（演示为静态，仅展示样式）；重置后恢复全部计数</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+<div class="subsection-title" id="s2-4" data-page-node-id="w0U9uARCJjmIZUZsfnLHz5">2.4 新建模板</div>
+                <div class="proto-ref" data-page-node-id="Qbu6NYhhqTERpbRD7b9WfN"><span class="proto-ref-label" data-page-node-id="noEZ3vtAgkWQJchCAt12CP">关联原型页面：</span><a class="file-link" href="pc/pc-stage-template.html#modal-create" target="_blank" data-page-node-id="Of8xYnXrqU4kOoDFNrxgCK">pc/pc-stage-template.html#modal-create</a></div>
+
+                <div class="subsection-title" style="font-size: 16px;" data-page-node-id="X0A2S9lsYnKApb6wW3OBYN">2.4.1 入口与弹窗布局</div>
+                <ul style="margin: 0 0 24px 20px; color: var(--text-secondary); font-size: 13px; line-height: 1.9;" data-page-node-id="FL8ovDF5qHpaiyLmpxvHO0">
+                    <li data-page-node-id="WzWcMEEShrGywWT4Y6Mwa6"><strong data-page-node-id="UoS2mfE7CBBOdciSAjcPbq">入口：</strong>列表页内容头右上角"+ 新建模板"按钮→ 弹出大型弹窗，标题"新建阶段任务模板"。</li>
+                    <li data-page-node-id="lPFepW23E4Xng8irfuz3ho"><strong data-page-node-id="ZXTt7q34M8VKG74W02RA9n">弹窗结构：</strong>基本信息区（模板名称 / 模板类型 / 适用城市 / 模板描述）+ 阶段任务区（阶段列表：阶段名称 + 按序执行开关 + 任务列表；支持添加阶段 / 添加任务）+ 底部操作：取消 / 保存草稿 / 保存并发布。</li>
+                </ul>
+
+                <div class="subsection-title" style="font-size: 16px;" data-page-node-id="zkX1PcmWlGQPU89jAgwkG7">2.4.2 字段说明与规格</div>
+                <table data-page-node-id="aeLzGqCUksYPawQNEw8U2F">
+                    <thead data-page-node-id="mfx206K8PbWVXxfRhXItJA"><tr data-page-node-id="I4BAyg007YDWLynV7VkkGJ"><th data-page-node-id="hlqOOC3SL5BiasyznmG3J0">字段</th><th data-page-node-id="cWeQMXRQWaC10P7EOSAV7c">类型</th><th data-page-node-id="UuFGgnIh28fy5V3wC7XQKX">必填</th><th data-page-node-id="W7Q0pyI8vVGV4lTUijDBIc">校验规则</th><th data-page-node-id="IZQAfWyDVIlhZ0lLuhg5Ne">错误提示</th></tr></thead>
+                    <tbody data-page-node-id="hQrjQsS76pHs1kRV8uE14S">
+                        <tr data-page-node-id="4SLHXpDAoU1dG8Tli2P3In"><td data-page-node-id="AMSuMNtsmdHcXjQ0nNwqTC">模板名称</td><td data-page-node-id="ZTxiWBKFPXzrA0sAQNIUU4">String(50)</td><td data-page-node-id="hCrEIATknttwAWJy1QNQ4v"><span class="tag tag-required" data-page-node-id="BakcubXsykTrz6QBzuYg2O">必填</span></td><td data-page-node-id="hXDel13mqNqaJNfGBkaD6j">1-50 字符，非空</td><td data-page-node-id="AbNYCMaqN6FlAXC6hZoOZc">请输入模板名称</td></tr>
+                        <tr data-page-node-id="ePZzP2PlY4pCuuiKrtd4w6"><td data-page-node-id="dHBWc0LAdlvAngdmJVhLBi">模板类型</td><td data-page-node-id="DjGk0JTs6M7IyVkdj5R8mM">Enum</td><td data-page-node-id="FjmcsQHMqdi6qdFnQOFvUA"><span class="tag tag-required" data-page-node-id="QmAVZrWfQT973WwjHtUfJv">必填</span></td><td data-page-node-id="YZreWhFIrDCiaKI9CjUJ1B">枚举值：基础施工服务合同 / 设计服务合同 / 拆除班组服务合同 / 水电班组服务合同 / 木作班组服务合同 / 泥瓦工班组服务合同 / 油漆工班组服务合同 / 小零工服务合同</td><td data-page-node-id="8aexp1xLx44POLbcBBpPVW">请选择模板类型</td></tr>
+                        <tr data-page-node-id="dx0DVpfZiipUpxMTEpeYQb"><td data-page-node-id="zC97UH2NYGvn5IEQGxVPYb">适用城市</td><td data-page-node-id="gZ8hb7fbQV6nOVNXMTdzaP">Enum</td><td data-page-node-id="isqwdGymYoEY5HWRl6xPTq"><span class="tag tag-required" data-page-node-id="jA0Yub9GrISf1ndmPatrUG">必填</span></td><td data-page-node-id="5vpXwizhWWYboNpjxZbyu9">枚举值：全国 / 北京市 / 南阳市 / 西安市</td><td data-page-node-id="v9MtCYXPRMG9InQO9n8VYV">请选择适用城市</td></tr>
+                        <tr data-page-node-id="S13wHAjfhiZzAZ9dCL7iGT"><td data-page-node-id="sI6TNLqcE7gYt5RF4MFegR">模板描述</td><td data-page-node-id="KDhx8AGsBxHTjGEGdMrmjn">String(200)</td><td data-page-node-id="rIQqxGVZLgOeeEnk93dY68"><span class="tag tag-optional" data-page-node-id="NnBRLO6tZfjwoqdOTQRRBk">选填</span></td><td data-page-node-id="mRRnnit0g7978GhfnuT0Rj">1-200 字符（建议填写）</td><td data-page-node-id="s8nWn6nLhCJQ0yQx4BqvFF">—</td></tr>
+                        <tr data-page-node-id="hP6TD5a3IuhKmRGiZIA7ov"><td data-page-node-id="DX5h7pI7ZfWnDrr5r8gZua">阶段任务</td><td data-page-node-id="InKX3wN1dAHkNiSL314nJj">复合（阶段 + 任务）</td><td data-page-node-id="vvhJDvd7j9BPLJvKxL4uDg"><span class="tag tag-required" data-page-node-id="CcZEs6EKocJpGxzQI4EKNg">必填</span></td><td data-page-node-id="E90xHPLSHU7HFsBsjzoDQJ">至少包含 <b data-page-node-id="nmBCG882jLm02UJN9Ldx3u">1 个阶段</b>；阶段含：阶段名称、是否按序执行；任务含：任务名称、执行标准、确认标准、担责标准（见 2.9）</td><td data-page-node-id="eVo3itNep2RMXOLlFg4hI0">请至少添加一个阶段信息</td></tr>
+                        <tr><td>工艺参考示例</td><td>图片列表（任务级）</td><td><span class="tag tag-optional">选填</span></td><td>挂在任务的执行标准 / 确认标准下，各一组、每组最多 9 张、仅图片（见 2.9.1）；不影响模板保存与发布校验</td><td>最多添加 9 张工艺参考示例</td></tr>
+                    </tbody>
+                </table>
+
+                <div class="subsection-title" style="font-size: 16px;" data-page-node-id="d1ua3Z8oCAAupT7wXv3Yz5">2.4.3 校验规则</div>
+                <table data-page-node-id="gfnlGmJW6hXOeuE7hDzSLI">
+                    <thead data-page-node-id="VD72Ina78Eg9buyCS2H3HB"><tr data-page-node-id="P1vGJQBNOm7Gg3pWbkzvH5"><th data-page-node-id="xas56bbxQxHfmkUOd14aqW">保存动作</th><th data-page-node-id="iiGlXXd82iZbC4pSBYwKEd">校验时机</th><th data-page-node-id="9M9N2dkSnoynMLeU8SeTg7">规则</th><th data-page-node-id="5UUduL4YBES4tlAiTVVW3s">错误提示</th><th data-page-node-id="O8HDiKCatIfGr1hxNBAlGk">是否阻断提交</th></tr></thead>
+                    <tbody data-page-node-id="0PW8yGymbdEBimcVzePc6T">
+                        <tr data-page-node-id="2Pk2NaXCXfq9t49X7b0RjS"><td data-page-node-id="S4pXNlTgwIgtg7qtdn0wuT">保存草稿</td><td data-page-node-id="bRMTI0URAU4dtgCgCbJCLs">提交</td><td data-page-node-id="GzaheC4aLeEusVe0Xgxhkp">校验「模板名称」非空 <b data-page-node-id="C1aAYSMTawcLqTCX912GdM">且至少 1 个阶段</b></td><td data-page-node-id="biVUhrcvgGvV3mLfRZQtF4">请输入模板名称 / 请至少添加一个阶段信息</td><td data-page-node-id="rFwu5JS0nrQNbhxAFywxXe">是</td></tr>
+                        <tr data-page-node-id="W4wDgxboV6dM7hHEIHABoo"><td data-page-node-id="rKcFYCeBpl4DTTgmAhdMCa">保存并发布</td><td data-page-node-id="lTnwASHT3VW9930Iin4qjc">提交</td><td data-page-node-id="LcHcMXGjaEkH5eQuq6HH7Z">「模板名称 / 模板类型 / 适用城市」必填 <b data-page-node-id="sMO1mxAeUJZztdTgG3DRGH">且至少 1 个阶段（必备）</b>；<b data-page-node-id="t4G6dFvMsfFcxKeEVB8t72">同一适用城市下已存在状态为「启用中」的其他模板时，不允许同名</b>（草稿态不校验，仅在发布/启用时校验；编辑自身不计入）</td><td data-page-node-id="SxXYO5xMHZceplFDhmKonI">请输入模板名称 / 请选择模板类型 / 请选择适用城市（汇总弹窗）/ 请至少添加一个阶段信息；“该城市下已存在同名的启用中模板，请勿重复创建”</td><td data-page-node-id="miEO9BcKu9hbvAdF99DQnq">是</td></tr>
+                    </tbody>
+                </table>
+
+                <div class="subsection-title" style="font-size: 16px;" data-page-node-id="wdlHMN50Kc3M8F6EumNKH4">2.4.4 交互效果</div>
+                <table data-page-node-id="6lU24fxSVtqYTorUzH1peN">
+                    <thead data-page-node-id="oYGmo8ztmWFvtw5ugDEcv5"><tr data-page-node-id="zAaOoeHCENE8tATrSans9h"><th data-page-node-id="vydArCkzEpvh5IOeas6YhA">交互场景</th><th data-page-node-id="IT9GTlY061jP8a6CmL9W3V">效果</th></tr></thead>
+                    <tbody data-page-node-id="FDqotxV71n5GDbAp86G1tP">
+                        <tr data-page-node-id="In5zfCYv6sViNUMB0GcYTk"><td data-page-node-id="hqiZnsWzF2naF4h8Da4Yri">打开新建弹窗</td><td data-page-node-id="KVWnIppAEAL2H0XJDP7NyG">标题置"新建阶段任务模板"；表单清空；适用城市默认空（需选择）；阶段列表清空；遮罩淡入</td></tr>
+                        <tr data-page-node-id="0MuFqQ5e03j4UIZnerXpGE"><td data-page-node-id="Pdkf6z7IG2bUAlBlMZDEQs">添加阶段 / 任务</td><td data-page-node-id="jN1TEj7BgOjrNqmfd7TzKa">阶段以 prompt 录入名称后插入阶段列表；任务通过「添加任务」弹窗录入名称与三段标准（执行/确认/担责），可编辑、删除</td></tr>
+                        <tr data-page-node-id="gwRjhab9N7snKhWqup8D9p"><td data-page-node-id="qujal8C5ACnn7BaxMNLFbQ">保存草稿</td><td data-page-node-id="hMGoEFO1saDj2OcBNSPHHX">校验「模板名称」非空且至少 1 个阶段，通过后关闭弹窗，列表<b data-page-node-id="8z1BDFz8nitNDSDJBR2Dnq">最上方</b>新增卡片（状态「草稿」），计数 +1，轻提示「已保存草稿」；阶段与任务随模板一并持久化</td></tr>
+                        <tr data-page-node-id="AZx94C7vSSq4IYHoTeUg0q"><td data-page-node-id="eb45cyGZaNeFkFA42ed3EQ">保存并发布</td><td data-page-node-id="UJHofaOSMj4cKILkzhTIgI">校验通过后关闭弹窗，列表<b data-page-node-id="uGGCh8n5JD3gHS4a417UE5">最上方</b>新增卡片（状态「启用中」），计数 +1，轻提示「模板已保存并发布」；对应类型与「全部模板」计数同步刷新；发布后自动按当前筛选条件重算列表；阶段与任务随模板一并持久化并体现在卡片预览</td></tr>
+                        <tr data-page-node-id="0ErDCoPMGIdxvoBAx7HAec"><td data-page-node-id="ZtaWWzVcDXkEJ8OVR6C1TX">阶段不足校验</td><td data-page-node-id="szlYpWX4FYVQuqTJWQqEwr">提交时若阶段列表为空，阻断保存并提示「请至少添加一个阶段信息（阶段任务模板必须包含至少一个阶段）」，无论草稿或发布</td></tr>
+                        <tr data-page-node-id="kXaWA4AqcPk42oz405qNaA"><td data-page-node-id="VWDKtPf5vMXiDKG7mGHGfh">发布校验失败</td><td data-page-node-id="Ub1JLVYNI2NSxNfAJOyfrv">必填缺失则阻止并汇总弹窗；若<b data-page-node-id="Zgua6JuJeHxsGFPhwDMQcG">同城市已存在同名「启用中」模板</b>亦阻止，提示“该城市下已存在同名的启用中模板，请勿重复创建”</td></tr>
+                        <tr data-page-node-id="VzhabE6ZnvV6gnlZFBAs1b"><td data-page-node-id="etFDawsFRABNQQaECDugW0">取消</td><td data-page-node-id="eApviow7c77ZCCxiuKYMZd">关闭弹窗，不保存</td></tr>
+                    </tbody>
+                </table>
+
+                <div class="subsection-title" style="font-size: 15px; margin-top: 20px;" data-page-node-id="1xqSsksB3l3mVHMBf76uRu"><div class="subsection-title" style="font-size: 16px;" data-page-node-id="Jj3B4BXgku0A03YM6GghVf">2.4.5 保存流程与状态流转</div>
+                <div class="note" data-page-node-id="UFfLsG8faKVJKCBozB208l">
+                    <div class="note-title" data-page-node-id="7ZfQ4irlZCth5epjpxtmDm">两种保存动作的差异</div>
+                    <div data-page-node-id="TZBA5wtTuGy2xSFWVBgsgJ">新建 / 编辑弹窗底部提供「保存草稿」与「保存并发布」两个动作，二者在<b data-page-node-id="hu0yf9MNuXHiReDh7zivHm">校验强度</b>与<b data-page-node-id="ovk20rLEf7mXZnYWljDAol">生成的状态</b>上不同，对应实现分别为「保存草稿」动作与「保存并发布」动作（状态=启用）。</div>
+                </div>
+                <table data-page-node-id="qF7q4b4CYSKzKBKXR9V6lB">
+                    <thead data-page-node-id="UT3GS3TLiyl3o7GaHcP56w"><tr data-page-node-id="r5QJBG8hQWe7Wx0mdXsUis"><th data-page-node-id="XZfI4yARvVGzzUNN0gIGWB">维度</th><th data-page-node-id="HGeRTAq70qXx4CJjBh2GKC">保存草稿</th><th data-page-node-id="7CzyVhHi3HZYrWNcrBniv8">保存并发布</th></tr></thead>
+                    <tbody data-page-node-id="K2zlOoBuvuzbNnlkpWeyfZ">
+                        <tr data-page-node-id="CjUac94ZAkE4vMowkkRFTG"><td data-page-node-id="duXNMDs7nJXIfaSiJ0IYgt">触发按钮</td><td data-page-node-id="KX7IlgmBOxxfa1l40qfKbd">保存草稿</td><td data-page-node-id="uKfZOcfH77A2gE424r53UA">保存并发布</td></tr>
+                        <tr data-page-node-id="SQcMWudTHcvQHDvqulPCx8"><td data-page-node-id="RNkE10oUBKzhy26z5YNGC5">校验时机</td><td data-page-node-id="UrCtqyYDzb1EGAEJBnU51C">提交时</td><td data-page-node-id="RG9Ffehvg3oqLVDtV46o2O">提交时</td></tr>
+                        <tr data-page-node-id="6QrdKUOXtKrEYijHX49j2V"><td data-page-node-id="w8dXx2G3SEDtt1Vfbc1nOu">校验强度</td><td data-page-node-id="mmRtDvwCj4aHGua4dSo5IV">校验「模板名称」非空 <b data-page-node-id="2BYKC6Z2kzcfQke9m6kpUR">且至少 1 个阶段</b></td><td data-page-node-id="mqIHNpOjjgUIyp3SFOw3PW">校验「模板名称 / 模板类型 / 适用城市」必填（规则见 2.3.3）<b data-page-node-id="26vYcurgBbkCKb1aFcnLDf">且至少 1 个阶段（必备）</b></td></tr>
+                        <tr data-page-node-id="OSqoMCIdMkwPDoxQ7Jd2IB"><td data-page-node-id="UxcCIOcBYV2S1W1EZxBafq">生成状态</td><td data-page-node-id="TkGr9O2tGr4aIq5Veym4C6">草稿（橙色「草稿」徽标，卡片可一键「发布」转为启用中）</td><td data-page-node-id="TP7TOn5ti7s7zn05zNJLIq">启用中（绿色「启用中」徽标，可直接被新建合同选用）</td></tr>
+                        <tr data-page-node-id="fT3iNoR5shyHaYya0KMhS2"><td data-page-node-id="6CRTRyVYXnj5PPvVcE6klG">列表联动</td><td data-page-node-id="uF7TV9Z1wkfcnT8Vec8CVp">新增一张卡片（状态=草稿），「全部模板」计数与对应类型计数 +1</td><td data-page-node-id="jaSlAAHtW7Up9Z1PTlRD4w">新增 / 覆盖一张卡片（状态=启用中），计数同步刷新</td></tr>
+                        <tr data-page-node-id="99hKp87iU0DaEHK81iwHE2"><td data-page-node-id="CvDE2r5jnF8qyuBbsjfulm">提示</td><td data-page-node-id="F6iDo6bdFitr70Oe7D3obm">轻提示 中部「已保存草稿」</td><td data-page-node-id="7kVOuV89ojMsHAlFFtyAQ7">轻提示 中部「模板已保存并发布」</td></tr>
+                        <tr data-page-node-id="c6RcVrutfPkTeOpcORuHJM"><td data-page-node-id="3YFi9chDQZStkNTISz7Lio">失败处理</td><td data-page-node-id="jUvab5vu34M87D7ugS0vDv">名称为空或阶段为空则阻止并提示（聚焦输入框 / "请至少添加一个阶段信息"）</td><td data-page-node-id="4v5e0dslMWubf0UjGzM22C">任一必填缺失或阶段为空则阻止并红框高亮+弹窗汇总；若<b data-page-node-id="4ruiF0O63E0tMHUZZBBdoM">同城市下已存在同名启用中模板</b>亦阻止（提示"该城市下已存在同名的启用中模板，请勿重复创建"）</td></tr>
+                    </tbody>
+                </table>
+
+                <div class="subsection-title" style="font-size: 15px; margin-top: 20px;" data-page-node-id="wAV93fhm3RqTWyOCNGLuy5">状态流转（草稿 / 启用中 / 已禁用）</div>
+<div class="code-block" data-page-node-id="dsUDPe1ME8eiGyd6H2lm4K">
+草稿 ──(卡片「发布」按钮 / publishStageDraft)──▶ 启用中 ──(卡片「禁用」/ toggleTemplateStatus)──▶ 已禁用
+  ▲                                                       │                                      │
+  └─────────(编辑后点「保存草稿」回退)──────────────────────┘                                      │
+                                                                  已禁用 ──(卡片「启用」/ toggleTemplateStatus)──▶ 启用中
+                </div>
+                <ul style="margin: 0 0 24px 20px; color: var(--text-secondary); font-size: 13px; line-height: 1.9;" data-page-node-id="shO4WD3Y31fHHgtK2PlYCg">
+                    <li data-page-node-id="Hj6aHbtGUSENyFWdq3qQTc"><b data-page-node-id="7Q2FANgVUdTkpiKTWqpLhF">草稿 → 启用中</b>：草稿卡片操作区提供「发布」按钮（publishStageDraft(id)），点击后状态徽标转「启用中」、按钮转为「禁用」，模板立即进入可选用范围。</li>
+                    <li data-page-node-id="64kEBAURbUEkaJnl5AnFnx"><b data-page-node-id="HmiclEoAC1tCCmamuDNsUw">启用中 ↔ 已禁用</b>：见 2.6 启用 / 停用，状态仅影响新建合同可选用范围，不影响已签署或已生成合同。</li>
+                    <li data-page-node-id="qhchC4pzMmyztVoSVboQRG"><b data-page-node-id="cKSjHoHEqn2KfMuTlkxRHo">启用中 / 已禁用 → 草稿</b>：已发布模板在编辑后点击「保存草稿」可回退为草稿态（保留内容、退出选用范围），后续可再次发布。</li>
+                </ul>
+            </div>
+
+            <div class="subsection" data-page-node-id="MrJiiRe45QLy1BJ5sA8wPr">
+                <div class="subsection-title" id="s2-5" data-page-node-id="hCwjifvwBZMA8PG4IR4ale">2.5 编辑模板</div>
+                <div class="proto-ref" data-page-node-id="ctYII0AMPZEw1nBUwFOlc2"><span class="proto-ref-label" data-page-node-id="44KIfCEi9UnemcIbCMFfXV">关联原型页面：</span><a class="file-link" href="pc/pc-stage-template.html#modal-edit" target="_blank" data-page-node-id="1NJqH1BsVcDw7775lduWKw">pc/pc-stage-template.html#modal-edit</a></div>
+
+                <div class="subsection-title" style="font-size: 16px;" data-page-node-id="MStfVpatuKIOcTW20hAq5D">2.5.1 入口</div>
+                <ul style="margin: 0 0 24px 20px; color: var(--text-secondary); font-size: 13px; line-height: 1.9;" data-page-node-id="iL1cMRhb7jcfvOvp5Xyq0O">
+                    <li data-page-node-id="ovqXUI4BgZwkP26QVcwGvO">卡片操作区"编辑"→ 打开同一弹窗，标题变为"编辑阶段任务模板"，并重置 currentEditId 以确保保存时覆盖原卡片而非新增。</li>
+                </ul>
+
+                <div class="subsection-title" style="font-size: 16px;" data-page-node-id="CenqzZ7GZp9eABj8m9Awil">2.5.2 与新建模板的差异</div>
+                <table data-page-node-id="Rln8X8A2Y0PDhb9FWWiYQx">
+                    <thead data-page-node-id="yAJlUzjH3dND6bhPiPsagA"><tr data-page-node-id="XkxMkpUGy5fUtEObaApXqx"><th data-page-node-id="E6QDw5eDIL5snnlO6eczQq">维度</th><th data-page-node-id="rljz0vqwrpfq8yfQclzk1f">新建模板</th><th data-page-node-id="G1YmFowXrz0IHtEKQUvrx7">编辑模板</th></tr></thead>
+                    <tbody data-page-node-id="TNdEvMfE0Dgb9CA1a2PKey">
+                        <tr data-page-node-id="6ovrn91Cg3mGaonlYyTIJx"><td data-page-node-id="sKakjonImVPShAepn0gpmj">弹窗标题</td><td data-page-node-id="ndKn1yvLlInQJQa4EHmOFG">新建阶段任务模板</td><td data-page-node-id="6Rb36Jmd1aGFfO1fhXroWC">编辑阶段任务模板</td></tr>
+                        <tr data-page-node-id="XYgdovA2DjeXbhb3CIQucp"><td data-page-node-id="tlF1yuiuYLJOJzcOqVOuDh">表单初始值</td><td data-page-node-id="BraczPRpH4PCWymb0ZbYCF">全部清空 / 默认值</td><td data-page-node-id="5OmPIIW26P1DCpY8HQBzbf">回显所选模板的名称 / 类型 / 城市 / 描述（新建模板以 stageTemplateMeta 存储）</td></tr>
+                        <tr data-page-node-id="WiFCHG4xVRkIrOAzxw9qmP"><td data-page-node-id="ETCchq17VgyEumyA6vq0AL">保存结果</td><td data-page-node-id="sqRtCCGrC60ruxYSNDIDTQ">新增卡片（id 自增）</td><td data-page-node-id="2DUfxgSqrN9oSBWPbxkn8Q">覆盖原卡片（id 不变）</td></tr>
+                        <tr data-page-node-id="kdTALRuk9t0y1XvlQj2vto"><td data-page-node-id="aXBZeBwEOSEqrAqWaQLiXH">字段规格与校验</td><td colspan="2" data-page-node-id="YXIxuBZW2Cssq1ccle9lwC">完全一致（见 2.4.2 / 2.4.3）</td></tr>
+                    </tbody>
+                </table>
+
+                <div class="subsection-title" style="font-size: 16px;" data-page-node-id="3Zs9CFcm3VtGgihyjHCPbt">2.5.3 交互效果</div>
+                <table data-page-node-id="gA8YQYX1s2LyF7LOIOABv8">
+                    <thead data-page-node-id="e3JomY2bhGlmTdUF8zgAQc"><tr data-page-node-id="ApGXCJULrR9u8nTYWo9DQH"><th data-page-node-id="l7HbfmZpU2p9bxzkrJL5DB">交互场景</th><th data-page-node-id="hcgHGGTLaftEWtN8h5eVhR">效果</th></tr></thead>
+                    <tbody data-page-node-id="r1puDRzY5bafRFWjPsEBAg">
+                        <tr data-page-node-id="utnU5aM3ozznfUBcwvSSm3"><td data-page-node-id="zYIgvSDmsXbRmTYzes2Yy5">打开编辑弹窗</td><td data-page-node-id="YCluv0Os7fMBTaCqQFvhpH">按所选卡片 id 取 stageTemplateMeta 回显名称 / 类型 / 城市 / 描述；<b data-page-node-id="uHPeDahZ4AVV2PJZfbAg8D">阶段列表由 meta.stages 重建并回显已保存的阶段与任务</b>（currentStages），可继续编辑、增删阶段与任务</td></tr>
+                        <tr data-page-node-id="SKfIzNBFAA49GgJ1UApxRc"><td data-page-node-id="1kNJbClxea7978GxH5ZIov">保存并发布</td><td data-page-node-id="q1ybaGF8cCHEBDK0w87vmD">覆盖原卡片（状态置「启用中」），计数不变，轻提示「模板已保存并发布」</td></tr>
+                        <tr data-page-node-id="bX4A8Wsnu3NRuEKS6PfTL3"><td data-page-node-id="mprzAWckthfZZ3yYaM7LVz">保存草稿</td><td data-page-node-id="ggcmuIIT7QkRA7EUrQjyyX">覆盖原卡片内容为草稿态（状态「草稿」），轻提示「已保存草稿」</td></tr>
+                        <tr data-page-node-id="c8oHbld7NEhBOZ8obNJEng"><td data-page-node-id="SxFpKKhjxH83dI1bnDqTqg">取消</td><td data-page-node-id="Sjos5d7VIMUDIibM75Qp6j">关闭弹窗，放弃修改</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="subsection" data-page-node-id="C4zsM5rGCgp8fIUjhcj665">
+                <div class="subsection-title" id="s2-6" data-page-node-id="DqMKopFajkhIUy6jgIkQJ6">2.6 启用 / 停用</div>
+
+                <div class="subsection-title" style="font-size: 16px;" data-page-node-id="P4sTwYMCSw1Ey4GusYIGjd">2.6.1 入口</div>
+                <ul style="margin: 0 0 24px 20px; color: var(--text-secondary); font-size: 13px; line-height: 1.9;" data-page-node-id="RZub3cSH5Q6ByIs9Al7c9W">
+                    <li data-page-node-id="mP3dvOdHlqbAaJKAlOpMKr">卡片操作区"禁用 / 启用"按钮（toggleTemplateStatus(id)），依据当前卡片状态显示相反操作；草稿卡片显示「发布」而非禁用/启用。</li>
+                </ul>
+
+                <div class="subsection-title" style="font-size: 16px;" data-page-node-id="xk0Z89kjAwHKgz1WipbkXf">2.6.2 禁用交互流程</div>
+                <table data-page-node-id="IC0Hw6BAHOC1A0ul5GNbHq">
+                    <thead data-page-node-id="1Yv6KKyJ3XX458vUwpF5GG"><tr data-page-node-id="SgaP1xHzsgHsGmy9CGUTZC"><th data-page-node-id="lKwN4y21x6PxOYwu5Kr7IC">步骤</th><th data-page-node-id="LMAxFNDJVdLpWxyX7A2hlo">行为</th></tr></thead>
+                    <tbody data-page-node-id="5ccB50LaBFKrkonMNSXAX0">
+                        <tr data-page-node-id="Z75TmekyHs2EVHwNLuqm9d"><td data-page-node-id="WYFoA1sJABSx8kSJVb2Q04">1. 点击"禁用"</td><td data-page-node-id="BfFZ3TlOAQUboPeA5zZTp2">若该模板被引用（data-refs &gt; 0），弹二次确认："该模板已被引用 N 次，禁用后新建合同将无法选择此模板。确定要禁用吗？"；未被引用则直接执行。</td></tr>
+                        <tr data-page-node-id="KOl37i9UYNmDdseWHbo0zO"><td data-page-node-id="WZaew9ZZkFH5Ef86xZDY1g">2. 确认</td><td data-page-node-id="IOHAix4j64BelWB7cvPsAv">卡片加 .disabled（opacity 0.6）、状态徽标转"已禁用"（灰）、按钮"禁用"→"启用"；提示"模板已禁用，新建合同将无法选择此模板"</td></tr>
+                    </tbody>
+                </table>
+
+                <div class="subsection-title" style="font-size: 16px;" data-page-node-id="Cj3wefDqfJHa5wEA7FTD6v">2.6.3 启用交互流程</div>
+                <table data-page-node-id="OLzXsdqVL8J2p71Mdv0tYZ">
+                    <thead data-page-node-id="nP45CeTM1vVJFr9xIev90j"><tr data-page-node-id="9IQfqu58SbPQOBpSXTvRTU"><th data-page-node-id="bGR05r9yek2VaqrKPgYANX">步骤</th><th data-page-node-id="6GK4SHZ18xUd53FrvADffI">行为</th></tr></thead>
+                    <tbody data-page-node-id="v9ekP5mEMWHGPNSxIbBmZC">
+                        <tr data-page-node-id="3RscqAUQjBCnCRdxOKNNsp"><td data-page-node-id="myv7MJLXAYNahmoFggHfn3">1. 点击"启用"</td><td data-page-node-id="kcNpsiw2iz1jtGPIk20ROf">无需确认，直接执行</td></tr>
+                        <tr data-page-node-id="iK8KZpbxZGWYocRsOEFTsy"><td data-page-node-id="T9pqHHSv64YNIHa4cuFV7y">2. 执行</td><td data-page-node-id="EWdpDUNdmc4cAHL7xcCsxt">卡片移除 .disabled、状态徽标转"启用中"（绿）、按钮"启用"→"禁用"；提示"模板已启用，新建合同可选择此模板"</td></tr>
+                    </tbody>
+                </table>
+
+                <div class="subsection-title" style="font-size: 16px;" data-page-node-id="ZmdoaZSKKhuflsdg3TXfDs">2.6.4 卡片联动效果</div>
+                <table data-page-node-id="aWK5xFCafUPYuxUjl5WZ3g">
+                    <thead data-page-node-id="QBWZ9WUObZukvKV5vZ1atY"><tr data-page-node-id="M5E9qZMTTqlbcYUVymQvim"><th data-page-node-id="rkIE6jWx3lfJy9qsned4vb">状态变化</th><th data-page-node-id="4ECBow0GdnJESHBfpdZFP1">视觉联动</th></tr></thead>
+                    <tbody data-page-node-id="Nqvyolr5SOExzGXtBeycEu">
+                        <tr data-page-node-id="Xou2gGeUuDvJiOFqYWnu3R"><td data-page-node-id="jxKuI3i2J21SUaNpV63gMa">启用中 → 已禁用</td><td data-page-node-id="nPqWAozBfrGFxLg8inXYA4">整卡 opacity 0.6；状态徽标绿→灰；操作按钮"禁用"→"启用"；模板名称转灰</td></tr>
+                        <tr data-page-node-id="wRsL9YfqJMwxtkypAywFJT"><td data-page-node-id="3GGrOceQley8rOLK1cmwxj">已禁用 → 启用中</td><td data-page-node-id="bY1A6Db1ZnRYYQhrQio5YA">整卡恢复不透明；状态徽标灰→绿；按钮"启用"→"禁用"；名称恢复主色</td></tr>
+                        <tr data-page-node-id="ZPQJNqftTUOOnvUOYI8HH4"><td data-page-node-id="CY6lANKH75EnCwKPaC2C4M">草稿 → 启用中</td><td data-page-node-id="7TtKYc5qQ3dqmpAeybwdgy">草稿卡片"发布"按钮（publishStageDraft）点击后，状态徽标转"启用中"、按钮转为"禁用"</td></tr>
+                    </tbody>
+                </table>
+
+                <div class="subsection-title" style="font-size: 16px;" data-page-node-id="j8pZRsz1EnJ0cLR7k4EveQ">2.6.5 影响范围</div>
+                <ul style="margin: 0 0 24px 20px; color: var(--text-secondary); font-size: 13px; line-height: 1.9;" data-page-node-id="fniZDMSZYUAj4NkSQ6OM9S">
+                    <li data-page-node-id="gt0mNAaPPa6gBzic8XvJt2">禁用 / 草稿仅影响"新建合同 / 发起变更时可选用模板的范围"，已签署或已生成的合同不受影响。</li>
+                    <li data-page-node-id="dLSDpUiFsBSDZ7GQYMbARk">模板类型树计数同步：总数与对应类型计数随卡片增删实时刷新。</li>
+                </ul>
+            </div>
+
+            <div class="subsection" data-page-node-id="l66YVDTLg5cXXsmzOuPzA3">
+                <div class="subsection-title" id="s2-7" data-page-node-id="Pc6J9Ij8L7rAiwt4Nku7HX">2.7 动画和视觉反馈</div>
+                <table data-page-node-id="rzfRNusKdXs93ALQHXxE9f">
+                    <thead data-page-node-id="XfAFHfTHlZ81CbaHHvjbeE"><tr data-page-node-id="SDMD5YKTVUxDCkjCmpyR17"><th data-page-node-id="hjxhv45D7r6txQNlNSJQyi">交互场景</th><th data-page-node-id="GBXxONAdw3xjVmnvD9qi0n">动画效果</th></tr></thead>
+                    <tbody data-page-node-id="OsP4ApCAA5mOFtWX2J4yNB">
+                        <tr data-page-node-id="IQDb7ElSEihDKVKiujF3bp"><td data-page-node-id="3DygsqHVbm3DhS8KBrVJ7d">筛选条件切换</td><td data-page-node-id="0OPNRLgKhaoX8DiTymuXZ3">列表淡出淡入，显示加载骨架屏0.3秒</td></tr>
+                        <tr data-page-node-id="uzupKTfwjChAOFzic8X0fN"><td data-page-node-id="bEKINoJYHEejaywmGZClGc">模板卡片悬停</td><td data-page-node-id="o4BJIxdmWoPp7z4xxrlc8x">卡片上浮2px，阴影加深</td></tr>
+                        <tr data-page-node-id="VgWpKM4Qhef4RnQkCLFVEq"><td data-page-node-id="qZi3sBPowlDQMNLLBfQjXw">阶段展开/收起</td><td data-page-node-id="nbwp4gIXDDXEeSlR9iGiNB">内容区域高度动画过渡0.2秒</td></tr>
+                        <tr data-page-node-id="TaYIDfeJrieAhjXsB1CR1k"><td data-page-node-id="ILB3WOI0R25p1K95DW6yOO">拖拽调整阶段顺序</td><td data-page-node-id="YveA31tIGgJuTcZ1igGGOi">阶段卡片跟随鼠标移动，松手后其他卡片动画调整位置</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="subsection" data-page-node-id="sXJAo90zbw7lPrPxQEkv2K">
+                <div class="subsection-title" id="s2-8" data-page-node-id="TVSEujmBmgMwgUdDWdQe0v">2.8 异常处理逻辑</div>
+                <table data-page-node-id="1YDe1rVufBRxa3LtlSGdyd">
+                    <thead data-page-node-id="hJcu57Ps4gAAgd59l1gLE8"><tr data-page-node-id="xKyMHM8OIeU1GGxCEuEO2N"><th data-page-node-id="aeA30sKP9qvqyADjTNEzWw">异常场景</th><th data-page-node-id="czAfPjlrXbDLg1DxTSloJV">处理方式</th><th data-page-node-id="3Lszmia1aAnXPHsbuxTTcW">用户提示</th></tr></thead>
+                    <tbody data-page-node-id="BNTA14CVqDQo1F3SlX7jWV">
+                        <tr data-page-node-id="cyDtgqnN5sAMs8rwoJMsPY"><td data-page-node-id="Eo1qOJSZgYm3KgiUqxC8W3">阶段名称为空</td><td data-page-node-id="l2gWcHrozxLJ85xQLYDIoH">阻止添加</td><td data-page-node-id="HLQqoT8Hz3oXItuoBgVouf">轻提示中部显示"请输入阶段名称"</td></tr>
+                        <tr data-page-node-id="yg5ejc0yw6GbBHJUKUsD8d"><td data-page-node-id="kE3ALDSglXDyMcbWZhZcQJ">任务名称为空</td><td data-page-node-id="iO0BtFzTUgWKKrYAGRGguy">阻止添加</td><td data-page-node-id="YJgsJ6aruPAEBZXGrvTjhW">轻提示中部显示"请输入任务名称"</td></tr>
+                        <tr data-page-node-id="MOr3rf3Q4dx2QWjoKYhhMl"><td data-page-node-id="trCJGbkhLNgPY3EKaKHOSA">三段标准为空</td><td data-page-node-id="GRXy1UiqpYEVySsr2mmkWF">阻止保存</td><td data-page-node-id="0tljGqjeZ5NnpwWZvHgwPD">轻提示中部显示"请填写任务的标准内容"</td></tr>
+                        <tr data-page-node-id="0nCla9kYYOEILP7ghsDM5p"><td data-page-node-id="KduNwzakRqipCP97BjGDOf">删除正在使用的模板</td><td data-page-node-id="WtWuzYXvSccCzPfKGvcuab">阻止删除</td><td data-page-node-id="A2xy6SVhb8x8NLeYdz0uen">轻提示中部显示"该模板正在使用中"</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="subsection" data-page-node-id="LnBuxWFRWauPBpy6yjeBZt">
+                <div class="subsection-title" id="s2-9" data-page-node-id="f7GrlbnnbXfwKBe5TqPNeO">2.9 任务三段标准规格</div>
+                <table data-page-node-id="3NVVFEptgfnjFxPvnmSouQ">
+                    <thead data-page-node-id="xuC3kj4XkEjTyHxbd43m8E"><tr data-page-node-id="lvSMCCB1RbRU4HgkBnh7hS"><th data-page-node-id="FTwwgAf1ZVHaU4WcDXeWPf">标准类型</th><th data-page-node-id="p3ADNpjf5Lo1FW8pYAvR3i">必填</th><th data-page-node-id="Alt8EbOlBytz4HF5nfGpmE">字数限制</th></tr></thead>
+                    <tbody data-page-node-id="wSBOGJuerDAakZRvETvhBA">
+                        <tr data-page-node-id="I4W6A4crqazHBI6ePlQ5ic"><td data-page-node-id="wk1T21vwZeYcfAEVhJ05GF">执行标准</td><td data-page-node-id="eLj76VJPFjI4Zt2AP40oPg"><span class="tag tag-required" data-page-node-id="1YgY63OUN9xgRXGtDeoW86">必填</span></td><td data-page-node-id="TiuBPoGgWrRRCNOIdf4zxc">1-2000字符</td></tr>
+                        <tr data-page-node-id="ePhQGFSszwPsFjmFeAvqQ5"><td data-page-node-id="GzYHdV6Wkxu4HGLLcvvO99">确认标准</td><td data-page-node-id="SqLPYHPly9U286kUgIVBLW"><span class="tag tag-required" data-page-node-id="Sl8SIJJ1h0MjlWs06yJjKH">必填</span></td><td data-page-node-id="qu7hEOZ2IL7D39a8KOV6wf">1-2000字符</td></tr>
+                        <tr data-page-node-id="JYlTvaDpeldYAna0PyMB48"><td data-page-node-id="Z0pw2roP1e52myQzaNlkyJ">担责标准</td><td data-page-node-id="ZRRfm4VwCmozBegRwZvC6e"><span class="tag tag-required" data-page-node-id="CIQFDDXGfICRFzC8CwLUMM">必填</span></td><td data-page-node-id="W9uGzXBuAzZ0xF0BYbfO8c">1-2000字符</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="subsection" data-page-node-id="craft-ref-pc-stage">
+                <div class="subsection-title" id="s2-9-1" data-page-node-id="craft-ref-pc-stage-title">2.9.1 工艺参考示例（任务级）</div>
+                <div class="proto-ref"><span class="proto-ref-label">关联原型页面：</span><a class="file-link" href="pc/pc-stage-template.html" target="_blank">pc/pc-stage-template.html</a></div>
+
+                <p>阶段任务模板的任务可挂「工艺参考示例」——任务<strong>「执行标准」</strong>与<strong>「确认标准」</strong>下方各一组参考图片，用于把文字标准可视化。示例随模板保存到任务数据（<code>execRefs</code> / <code>confirmRefs</code>），合同套用该模板后在小程序端 / PC 端任务详情中只读展示。仅支持<strong>图片</strong>（本版不支持视频），每组最多 <strong>9 张</strong>。</p>
+
+                <div class="subsection-title" style="font-size: 16px; margin-top: 16px;">（1）配置（新建 / 编辑模板 → 添加 / 编辑任务弹窗）</div>
+                <ul style="margin: 0 0 16px 20px; color: var(--text-secondary); font-size: 13px; line-height: 1.9;">
+                    <li><strong>入口：</strong>「添加任务」「编辑任务」弹窗内，执行标准 textarea 之后、确认标准 textarea 之后各一处「工艺参考示例」配置区。</li>
+                    <li><strong>配置区内容：</strong>3 列方形缩略图 + 单张标题（可编辑）+ 单张删除（×）+「＋ 添加」；顶部计数「已选 X / 9 张（仅支持图片）」。</li>
+                    <li><strong>上传：</strong>支持<strong>一次多选上传多张</strong>；超出剩余额度按额度截断并轻提示「最多添加 9 张工艺参考示例」；已满 9 张隐藏上传入口。</li>
+                    <li><strong>回显：</strong>打开「编辑任务」时按已存数据回显；未配置时显示空态提示，不隐藏配置区。</li>
+                    <li><strong>落库：</strong>保存任务时与任务名称 / 三段标准一并写入模板，随「保存草稿 / 保存并发布」持久化，并在卡片预览的任务列表中体现。</li>
+                    <li><strong>非必填：</strong>两组均可留空，不影响任务保存、模板校验（必填规则仍见 2.4.3）与状态流转。</li>
+                </ul>
+
+                <div class="subsection-title" style="font-size: 16px;">（2）查看（模板列表 → 展开模板 → 任务列表）</div>
+                <ul style="margin: 0 0 16px 20px; color: var(--text-secondary); font-size: 13px; line-height: 1.9;">
+                    <li>任务行任务名后展示<strong>两组小图条</strong>（前缀标签「执行」/「确认」）；该组无图片时不展示对应小图条。</li>
+                    <li><strong>点击放大：</strong>点击缩略图在页面上层打开固定定位查看器显示大图，点击任意处关闭；不改变模板内容与状态。</li>
+                    <li>查看为只读，<strong>不提供</strong>增 / 删 / 改入口。</li>
+                </ul>
+
+                <div class="note" data-page-node-id="craft-ref-pc-stage-note">
+                    <div class="note-title" data-page-node-id="craft-ref-pc-stage-note-title">跨端一致</div>
+                    <div data-page-node-id="craft-ref-pc-stage-note-body">数据模型、数量上限、空数据隐藏规则与展示排序位置等跨端通用规则，见《PRD-合同模块详细规格》<a href="PRD-合同模块详细规格.html#craft-ref-spec" target="_blank">十一、工艺参考示例规格（跨端通用）</a>；PC 端合同详情（查看合同 / 审核合同）任务详情弹窗内的只读展示见该文档 <a href="PRD-合同模块详细规格.html#sec-2-11" target="_blank">§2.11</a>。</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- API接口汇总 -->
+        <div class="section" id="pc-other-api-summary" data-page-node-id="RYMA5ZUUmtFMXLnBQHnmfd">
+            <div class="section-title" data-page-node-id="FSq6emfEcJGDKGtXiTNIYv">三、API接口汇总</div>
+            <table data-page-node-id="EeTTiKyd8Ds1WEKXiz6P6q">
+                <thead data-page-node-id="LsncM80UoEQhqsGdpzpsE7"><tr data-page-node-id="3h7EBoY6Olgd6sScpXMp8g"><th data-page-node-id="QT4gw8jO1DiKrkp2Cfctz3">模块</th><th data-page-node-id="8NyWF6kwOeZAWiq43Z4JDv">接口</th><th data-page-node-id="XzbESDB73ZfzjTt3CAzIKL">方法</th><th data-page-node-id="Fg4lCHbGNDB5VXx8lBDD47">说明</th></tr></thead>
+                <tbody data-page-node-id="aeNTaN5IMYqlm0WsvE1ddK">
+                    <tr data-page-node-id="caqa0tBTCF9WkCzGZquOUe"><td data-page-node-id="iv4KVU3inY2jWXX37KicCK">合同模板</td><td data-page-node-id="4SjmNIE8DC6BaC9M2qdc4i">/api/v1/contract-templates</td><td data-page-node-id="oANF8NBtifXGCDHUXwWdXL">GET</td><td data-page-node-id="ghHx38odcmGIlykurmR9qY">获取合同模板列表</td></tr>
+                    <tr data-page-node-id="FloTO83EoOqCBGyrzaL5UJ"><td data-page-node-id="VPXoQwYZ85HACxRpAQjTK1">合同模板</td><td data-page-node-id="F8xgtwNZQENg3ICumYjti7">/api/v1/contract-templates</td><td data-page-node-id="TughGZocnTE1S1T5i6MihF">POST</td><td data-page-node-id="yUWQDTrY9zhIXrFl8TEtzB">创建合同模板</td></tr>
+                    <tr data-page-node-id="s8gFUU7mHOokuVc791BCyy"><td data-page-node-id="qQXQa98fWcPFCAkbxBlgRg">合同模板</td><td data-page-node-id="ciWsN1ecTVCKPgCpCKtG0T">/api/v1/contract-templates/:id</td><td data-page-node-id="inm0Vlkn3RXwrXPtFOuKsp">GET</td><td data-page-node-id="om1HnK37Se59GX0sQHreFI">获取合同模板详情</td></tr>
+                    <tr data-page-node-id="PDeBLXDdmStsy94iiHDQTD"><td data-page-node-id="jB1w9EHh0W89PtCAqJvTMM">合同模板</td><td data-page-node-id="Mu6md9tJSbJm6eGTItm1KJ">/api/v1/contract-templates/:id</td><td data-page-node-id="Lr50I6SYENOyUWN8BOpjhu">PUT</td><td data-page-node-id="STMqRzclMZ70aBcBm2LVEK">更新合同模板</td></tr>
+                    <tr data-page-node-id="JrkEJ1wqO0TzAttJXcpSt5"><td data-page-node-id="oGmGOEEckw68X8QzlAr9jE">合同模板</td><td data-page-node-id="OxHrlycTkGNcj8f2FOjBQs">/api/v1/contract-templates/:id</td><td data-page-node-id="ljy9sVFSn7pbE6FVY3YZnk">DELETE</td><td data-page-node-id="ffUGBdknpZj7npXkU4Uyan">删除合同模板</td></tr>
+                    <tr data-page-node-id="oJcCQlqs4pJOKYrIX5lJ0m"><td data-page-node-id="5hk10j88YkMnGn6sNY0GGj">阶段模板</td><td data-page-node-id="jJKkm940OZHGyueEkK8ghM">/api/v1/stage-templates</td><td data-page-node-id="7QFQCWcpBlXuopCnpdORc2">GET</td><td data-page-node-id="uMSG2CBp7lB0sUxLDfKGxM">获取阶段任务模板列表</td></tr>
+                    <tr data-page-node-id="obcAvQ0JFIa1soYeFBAefw"><td data-page-node-id="t9RyaLHk3th8Kyqk7P2MI0">阶段模板</td><td data-page-node-id="fJIoV82lGhjoDJ4SEbkFPB">/api/v1/stage-templates</td><td data-page-node-id="AQWYfYjKre2UYBajGuq7nX">POST</td><td data-page-node-id="5sTPclWgGoVZeDHywG0HKn">创建阶段任务模板</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- 文档结束 -->
+        <div style="text-align: center; padding: 48px 0; color: var(--text-tertiary);" data-page-node-id="9YBxOtud333ckwFkPBrljM">
+            <p data-page-node-id="MzDXeiZYel8DX4ePYkb6vP">— PC端其他模块规格结束 —</p>
+            <p style="font-size: 12px; margin-top: 8px;" data-page-node-id="AAOEpIiVTl4NXYyGFjopuX">返回 <a href="PRD-完整文档.html" style="color: var(--warning-color);" data-page-node-id="py5zT0kDdhL61e4aJtFgQF">完整文档</a></p>
+        </div>
+        </div>
+    </div>
+
+    <!-- 滚动高亮脚本 -->
+    <script>
+        const tocLinks = Array.from(document.querySelectorAll('.sidebar-toc-list a'));
+        // 收集所有目录锚点对应的目标元素（含章节与嵌套小节）
+        const anchorTargets = tocLinks
+            .map(link => {
+                const id = link.getAttribute('href').substring(1);
+                const el = document.getElementById(id);
+                return el ? { link, id, top: el.offsetTop } : null;
+            })
+            .filter(Boolean)
+            .sort((a, b) => a.top - b.top);
+
+        window.addEventListener('scroll', function() {
+            const scrollPos = window.scrollY || window.pageYOffset;
+            let currentId = anchorTargets.length ? anchorTargets[0].id : '';
+            for (let i = 0; i < anchorTargets.length; i++) {
+                if (scrollPos + 120 >= anchorTargets[i].top) {
+                    currentId = anchorTargets[i].id;
+                } else {
+                    break;
+                }
+            }
+            tocLinks.forEach(link => {
+                link.classList.toggle('active', link.getAttribute('href') === '#' + currentId);
+            });
+        });
+        
+        tocLinks.forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                const targetId = this.getAttribute('href').substring(1);
+                const targetElement = document.getElementById(targetId);
+                
+                if (targetElement) {
+                    const offsetTop = targetElement.offsetTop - 20;
+                    window.scrollTo({
+                        top: offsetTop,
+                        behavior: 'smooth'
+                    });
+                }
+            });
+        });
+        
+        window.dispatchEvent(new Event('scroll'));
+    </script>
+</body>
+</html>

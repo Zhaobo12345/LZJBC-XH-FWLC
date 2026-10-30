@@ -1,0 +1,2506 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>家装平台小程序原型 - 合同详情（导航栏合规版）</title>
+    <link rel="stylesheet" href="common.css">
+    <link rel="stylesheet" href="css/contract-detail.css">
+
+    <style>
+        /* ============================================================
+           导航栏合规改造（v2 示范页，样式仅作用于本页面）
+           目标：不自绘模仿微信胶囊的 ⋯/✕，原菜单功能全部平移到页内合规位置
+           原页面 contract-detail.html / task-report.html 保持原样，未做任何改动
+           ============================================================ */
+
+/* 微信原生胶囊占位（样式参考真机效果，由微信客户端实际渲染） */
+.nav-bar .native-capsule {
+    display: inline-flex;
+    align-items: center;
+    justify-content: space-between;
+    min-width: 56px;
+    height: 28px;
+    padding: 0 10px;
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    border-radius: 14px;
+    background: rgba(255, 255, 255, 0.7);
+    color: rgba(0, 0, 0, 0.6);
+    font-size: 12px;
+    line-height: 1;
+    user-select: none;
+    box-sizing: border-box;
+}
+.nav-bar .native-capsule .nc-left,
+.nav-bar .native-capsule .nc-right {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: 1;
+    min-width: 16px;
+}
+.nav-bar .native-capsule .nc-right {
+    font-size: 10px;
+}
+.nav-bar .native-capsule .nc-divider {
+    width: 1px;
+    height: 14px;
+    background: rgba(0, 0, 0, 0.1);
+    margin: 0 4px;
+}
+        .nav-bar .native-capsule .nc-left,
+        .nav-bar .native-capsule .nc-right {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            flex: 1;
+            min-width: 16px;
+        }
+        .nav-bar .native-capsule .nc-right {
+            font-size: 10px;
+        }
+        .nav-bar .native-capsule .nc-divider {
+            width: 1px;
+            height: 14px;
+            background: rgba(0, 0, 0, 0.1);
+            margin: 0 4px;
+        }
+
+        /* 页内文字版「更多」按钮 —— 位于内容区，不在导航栏，避开仿冒界面风险 */
+        .content-toolbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 4px 0;
+        }
+
+        .content-toolbar .tb-hint {
+            font-size: 12px;
+            color: var(--text-tertiary, #C0C4CC);
+        }
+
+        .text-more-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 13px;
+            color: var(--primary-color, #1677FF);
+            padding: 4px 8px;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        .text-more-btn:active { background-color: var(--bg-secondary, #F7F8FA); }
+
+        .text-more-btn .caret {
+            font-size: 10px;
+            transition: transform 0.2s;
+        }
+
+        .text-more-btn.open .caret { transform: rotate(180deg); }
+
+        .more-ops-panel {
+            display: none;
+            margin-top: 8px;
+            background-color: var(--bg-primary, #FFFFFF);
+            border: 1px solid var(--border-color, #E5E6EB);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .more-ops-panel.show { display: block; }
+
+        .more-ops-panel .op-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 11px 14px;
+            font-size: 14px;
+            color: var(--text-primary, #1D2129);
+            border-bottom: 1px solid var(--border-color, #F2F3F5);
+            cursor: pointer;
+        }
+
+        .more-ops-panel .op-item:last-child { border-bottom: none; }
+
+        .more-ops-panel .op-item:active { background-color: var(--bg-secondary, #F7F8FA); }
+
+        .more-ops-panel .op-item .op-icon { font-size: 15px; }
+
+        .more-ops-panel .op-item .op-tag {
+            margin-left: auto;
+            font-size: 10px;
+            color: var(--text-tertiary, #C0C4CC);
+            border: 1px solid var(--border-color, #E5E6EB);
+            border-radius: 4px;
+            padding: 1px 5px;
+        }
+    </style>
+
+    <style>
+        /* 底部操作坞：把「预览合同」提到底部操作栏，与状态操作按钮共存 */
+        .bottom-dock {
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: var(--bg-primary, #FFFFFF);
+            box-shadow: 0 -2px 10px var(--shadow-md, rgba(0, 0, 0, 0.06));
+            z-index: 20;
+        }
+
+        .bottom-dock .preview-bar { padding: 10px 16px 0; }
+
+        .bottom-dock .preview-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            height: 38px;
+            border: 1px solid var(--primary-color, #1677FF);
+            color: var(--primary-color, #1677FF);
+            border-radius: 8px;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        .bottom-dock .preview-btn:active { background-color: var(--status-primary-bg, #E8F3FF); }
+
+        /* 动态状态操作栏改为文档流，避免与操作坞重叠（JS 仍按原逻辑控制显隐） */
+        .bottom-dock .bottom-actions {
+            position: static;
+            box-shadow: none;
+            padding: 12px 16px;
+        }
+
+        .page-content { padding-bottom: 150px; }
+    </style>
+
+    <style>
+        /* 工人合同（方案 B）邀请名单卡片 */
+        .worker-invite-card .worker-contract-meta {
+            font-size: 13px;
+            color: var(--text-secondary, #4E5969);
+            line-height: 1.8;
+            margin-bottom: 12px;
+        }
+        .worker-invite-card .worker-contract-meta .meta-row {
+            display: flex;
+        }
+        .worker-invite-card .worker-contract-meta .meta-label {
+            width: 76px;
+            flex-shrink: 0;
+            color: var(--text-tertiary, #86909C);
+        }
+        .worker-invite-card .worker-contract-meta .meta-value {
+            flex: 1;
+            color: var(--text-primary, #1D2129);
+        }
+        .invite-list {
+            border-top: 1px solid var(--border-color, #E5E6EB);
+            margin-top: 4px;
+        }
+        .invite-row {
+            display: flex;
+            align-items: center;
+            padding: 11px 2px;
+            border-bottom: 1px solid var(--border-color, #F2F3F5);
+        }
+        .invite-row:last-child { border-bottom: none; }
+        .invite-avatar {
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary-color, #1677FF) 0%, var(--primary-light, #4096FF) 100%);
+            color: #fff;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 10px;
+            flex-shrink: 0;
+        }
+        .invite-row.is-me .invite-avatar {
+            background: linear-gradient(135deg, #FA8C16 0%, #FFC069 100%);
+        }
+        .invite-info { flex: 1; }
+        .invite-name { font-size: 14px; color: var(--text-primary, #1D2129); }
+        .invite-role { font-size: 12px; color: var(--text-tertiary, #86909C); margin-top: 2px; }
+        .invite-status {
+            font-size: 12px;
+            padding: 2px 10px;
+            border-radius: 10px;
+            flex-shrink: 0;
+        }
+        .invite-status.pending { background: #E6F7FF; color: #0050B3; }
+        .invite-status.confirmed { background: #E8FFEA; color: #00875A; }
+        .invite-status.rejected { background: #FFF1F0; color: #CF1322; }
+        .invite-status.taken { background: #F2F3F5; color: #86909C; }
+        .arch-note {
+            margin-top: 12px;
+            padding: 10px 12px;
+            background: var(--status-success-bg, #E8FFEA);
+            color: var(--success-color, #00875A);
+            border-radius: 8px;
+            font-size: 13px;
+            line-height: 1.5;
+        }
+        /* 工人合同流程条（覆盖默认状态流程） */
+        .worker-flow {
+            display: flex;
+            align-items: center;
+            margin-top: 6px;
+        }
+        .worker-flow .wf-step {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            flex: 1;
+        }
+        .worker-flow .wf-circle {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: var(--bg-secondary, #F2F3F5);
+            color: var(--text-tertiary, #86909C);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+        }
+        .worker-flow .wf-step.current .wf-circle {
+            background: var(--primary-color, #1677FF);
+            color: #fff;
+        }
+        .worker-flow .wf-step.done .wf-circle {
+            background: var(--success-color, #00875A);
+            color: #fff;
+        }
+        .worker-flow .wf-label { font-size: 11px; margin-top: 4px; color: var(--text-secondary, #4E5969); }
+        .worker-flow .wf-line { flex: 1; height: 2px; background: var(--border-color, #E5E6EB); margin: 0 4px 16px; }
+        .worker-flow .wf-line.done { background: var(--success-color, #00875A); }
+    </style>
+</head>
+<body>
+    <div class="phone-frame">
+        <div class="status-bar">
+            <div class="time">9:41</div>
+            <div class="icons">📶 🔋</div>
+        </div>
+        
+        <div class="nav-bar">
+            <div class="back" onclick="history.back()">← 返回</div>
+            <div class="title centered">合同详情</div>
+            
+        
+            <div class="actions"><div class="native-capsule" title="微信原生胶囊：由微信客户端渲染，开发者不可自定义其内容"><span class="nc-left">⋯</span><span class="nc-divider"></span><span class="nc-right">○</span></div></div>
+        </div>
+        
+        <div class="page-content">
+                <div class="content-toolbar">
+                    <span class="tb-hint">合同辅助操作</span>
+                    <span class="text-more-btn" id="moreOpsBtn" onclick="toggleMoreOps()">更多<span class="caret">▾</span></span>
+                </div>
+                <div class="more-ops-panel" id="moreOpsPanel">
+                    <div class="op-item" onclick="showVersionModal(); closeMoreOps();"><span class="op-icon">📋</span><span>版本记录</span></div>
+                    <div class="op-item" onclick="showChangeRecordModal(); closeMoreOps();"><span class="op-icon">📜</span><span>变更记录</span></div>
+                    <div class="op-item" id="exportContractBtn" style="display: none;" onclick="exportContract(); closeMoreOps();"><span class="op-icon">📄</span><span>导出合同文件</span></div>
+                </div>
+
+            <div class="card status-banner draft" id="statusBanner">
+                <div class="status-text" id="statusText">拟定中</div>
+                <div class="status-desc" id="statusDesc">合同正在编辑中，编辑完成后可提交确认</div>
+                <div class="reject-reason-box" id="rejectReasonBox" style="display: none;">
+                    <div class="reject-reason-title">⚠️ 驳回原因</div>
+                    <div class="reject-reason-content" id="rejectReasonContent"></div>
+                    <div class="reject-reason-tip">请根据以上原因修改合同内容后重新提交</div>
+                </div>
+                <div class="edit-guide-box" id="editGuideBox" style="display: none;">
+                    <div class="edit-guide-title">📝 修改引导</div>
+                    <div class="edit-guide-content">
+                        请按以下步骤修改合同内容：
+                        <ol>
+                            <li>在电脑浏览器打开平台官网</li>
+                            <li>使用手机扫码授权登录</li>
+                            <li>进入合同管理，找到此合同</li>
+                            <li>根据驳回原因修改对应内容</li>
+                            <li>保存后返回小程序重新提交</li>
+                        </ol>
+                        <div class="edit-guide-btn" onclick="copyEditLink()">
+                            <span>📋</span>
+                            <span>复制电脑端编辑链接</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="change-reason-display" id="changeReasonDisplay" style="display: none;">
+                <div class="reason-title">
+                    <span>📝</span>
+                    <span>变更原因</span>
+                </div>
+                <div class="reason-content" id="changeReasonText">
+                    因业主需求变更，需要增加部分水电点位。新增卫生间水电点位5个，厨房水电点位3个，阳台水电点位2个。
+                </div>
+            </div>
+
+            <div class="change-summary-card" id="changeSummaryDisplay" style="display: none;">
+                <div class="summary-header">
+                    <span>📊</span>
+                    <span>变更内容摘要</span>
+                </div>
+                <div class="summary-list" id="changeSummaryList">
+                    <div class="summary-item">
+                        <div class="dot"></div>
+                        <div>合同金额：<span class="deleted">¥80,000.00</span> → <span class="added">¥95,000.00</span></div>
+                    </div>
+                    <div class="summary-item">
+                        <div class="dot"></div>
+                        <div>新增阶段：<span class="added">阶段三 - 新增点位安装</span></div>
+                    </div>
+                    <div class="summary-item">
+                        <div class="dot"></div>
+                        <div>新增任务：<span class="added">新增点位布线、新增点位验收</span></div>
+                    </div>
+                    <div class="summary-item">
+                        <div class="dot"></div>
+                        <div>修改任务：穿线（修改执行标准）</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="change-highlight-banner" id="changeHighlightBanner" style="display: none;">
+                <div class="banner-title">
+                    <span>🔄</span>
+                    <span>变更提示</span>
+                </div>
+                <div class="banner-desc">
+                    以下内容为变更后的最新内容，变更部分已高亮标识。请仔细核对变更内容后确认。
+                </div>
+            </div>
+
+            <div class="status-flow-card" id="statusFlowCard">
+                <div class="status-flow-title">
+                    <span>合同状态流程</span>
+                </div>
+                <div class="status-flow-diagram">
+                    <div class="status-flow-step current">
+                        <div class="step-circle">📝</div>
+                        <div class="step-label">拟定中</div>
+                    </div>
+                    <div class="status-flow-line"></div>
+                    <div class="status-flow-step">
+                        <div class="step-circle"></div>
+                        <div class="step-label">平台审核</div>
+                    </div>
+                    <div class="status-flow-line"></div>
+                    <div class="status-flow-step">
+                        <div class="step-circle"></div>
+                        <div class="step-label">确认中</div>
+                    </div>
+                    <div class="status-flow-line"></div>
+                    <div class="status-flow-step">
+                        <div class="step-circle"></div>
+                        <div class="step-label">已确认</div>
+                    </div>
+                    <div class="status-flow-line"></div>
+                    <div class="status-flow-step">
+                        <div class="step-circle"></div>
+                        <div class="step-label">已签约</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 工人合同：邀请名单 / 自动入架构（默认隐藏，仅方案 B 工人合同显示） -->
+            <div class="card worker-invite-card" id="invitationCard" style="display: none;">
+                <div class="card-title">
+                    <span>🤝 合同邀约与乙方</span>
+                </div>
+                <div class="worker-contract-meta" id="workerContractMeta"></div>
+                <div class="invite-list" id="inviteListBox"></div>
+                <div class="arch-note" id="workerArchNote" style="display: none;"></div>
+            </div>
+
+            <div class="pc-edit-guide" id="pcEditGuide" style="display: none;">
+                <div class="guide-header">
+                    <div class="guide-icon">💻</div>
+                    <div>
+                        <div class="guide-title">推荐使用电脑端编辑</div>
+                        <div class="guide-subtitle">合同内容较多，电脑端编辑体验更佳</div>
+                    </div>
+                </div>
+                <div class="guide-content">
+                    合同内容包含多个条款和附件，建议在电脑端进行编辑，操作更便捷、效率更高。
+                </div>
+                <div class="guide-steps">
+                    <div class="step-item">
+                        <div class="step-num">1</div>
+                        <div class="step-text">在电脑浏览器打开平台官网</div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-num">2</div>
+                        <div class="step-text">使用手机扫码授权登录</div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-num">3</div>
+                        <div class="step-text">进入合同管理进行编辑</div>
+                    </div>
+                </div>
+                <div class="guide-actions">
+                    <div class="guide-btn primary" onclick="copyEditLink()">
+                        <span>🔗</span>
+                        <span>复制链接到电脑端编辑</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 拟定中状态编辑表单 -->
+            <div class="draft-edit-form" id="draftEditForm" style="display: none;">
+                <div class="card">
+                    <div class="card-title">
+                        <span>📋 合同基本信息</span>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">合同类型</label>
+                        <div class="readonly-field">
+                            <span class="readonly-value" id="editContractType">分包合同</span>
+                            <span class="readonly-tag">不可编辑</span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">合同编号</label>
+                        <div class="readonly-field">
+                            <span class="readonly-value" id="editContractNo">HT-2024-001234</span>
+                            <span class="readonly-tag">系统生成</span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label"><span class="required">*</span> 合同名称</label>
+                        <input type="text" class="form-input" id="editContractName" placeholder="请输入合同名称" value="水电分包合同">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label"><span class="required">*</span> 合同金额</label>
+                        <div class="amount-input-wrap">
+                            <span class="currency">¥</span>
+                            <input type="number" class="form-input amount-input" id="editContractAmount" placeholder="0.00" value="80000">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">
+                        <span>👥 签约双方</span>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">甲方（发包方）</label>
+                        <select class="form-select" id="editPartyA">
+                            <option value="">请选择甲方</option>
+                            <option value="zhangsan" selected>张三（业主）</option>
+                            <option value="owner_rep">李四（业主代表）</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">乙方（承包方）</label>
+                        <select class="form-select" id="editPartyB">
+                            <option value="">请选择乙方</option>
+                            <option value="lisi" selected>李四（水电组长）</option>
+                            <option value="wangwu">王五（强电组长）</option>
+                            <option value="sunba">孙八（弱电组长）</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="card contract-content-card">
+                    <div class="card-title">
+                        <span>📄 合同内容</span>
+                        <span class="more" id="draftTemplateBtn" onclick="showDraftTemplatePicker()">📄 更换模板</span>
+                    </div>
+                    <div class="content-tabs">
+                        <div class="content-tab active" onclick="switchDraftContentTab(this, 'contract-text')">合同正文</div>
+                        <div class="content-tab" onclick="switchDraftContentTab(this, 'stage-task')">阶段任务</div>
+                        <div class="content-tab" onclick="switchDraftContentTab(this, 'attachment')">附件</div>
+                    </div>
+                    
+                    <!-- 合同正文Tab内容 -->
+                    <div class="content-tab-pane active" id="contract-text">
+                        <div class="template-info" id="contractTemplateInfo" style="display: none;">
+                            <div class="template-tag">已选择模板：标准水电服务合同</div>
+                            <div class="template-hint">模板内容不可编辑，如需修改请重新选择模板</div>
+                        </div>
+                        <div class="form-group">
+                            <div class="form-label-row">
+                                <label class="form-label">合同正文</label>
+                                <span class="view-full-link" onclick="showFullText()">查看全文 ></span>
+                            </div>
+                            <div class="contract-text-preview" id="contractTextPreview">
+                                <p>根据《中华人民共和国民法典》及相关法律法规的规定，甲乙双方本着平等、自愿、公平、诚实信用的原则，就水电工程分包事宜协商一致，订立本合同。</p>
+                                <p class="text-title">一、工程概况</p>
+                                <p>工程名称：XX小区整体装修水电工程</p>
+                                <p>工程地点：XX市XX区XX路XX号</p>
+                                <p>工程内容：强电、弱电、给排水等水电工程...</p>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">补充条款</label>
+                            <textarea class="form-textarea" id="editContractExtra" rows="3" placeholder="可输入补充条款内容"></textarea>
+                        </div>
+                    </div>
+                    
+                    <!-- 阶段任务Tab内容 -->
+                    <div class="content-tab-pane" id="draft-stage-task">
+                        <div class="template-info" id="stageTemplateInfo" style="display: none;">
+                            <div class="template-tag">已选择模板：水电工程标准阶段</div>
+                            <div class="template-hint">模板内容可编辑调整</div>
+                        </div>
+                        <div id="editStageList">
+                            <div class="stage-card">
+                                <div class="stage-card-header">
+                                    <div class="stage-card-header-row">
+                                        <input type="text" class="stage-name-input" value="材料进场阶段" placeholder="请输入阶段名称">
+                                        <div class="stage-sequential">
+                                            <span>按序执行</span>
+                                            <div class="switch" onclick="toggleStageSequential(this)"></div>
+                                        </div>
+                                    </div>
+                                    <div class="stage-card-header-row">
+                                        <div class="stage-actions">
+                                            <div class="stage-action-btn add" onclick="addTaskToStage(this)">+ 添加任务</div>
+                                            <div class="stage-action-btn delete" onclick="deleteStage(this)">× 删除阶段</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="task-edit-list">
+                                    <div class="task-edit-item" data-executor="李四" data-confirmers="张三,王五">
+                                        <input type="text" class="task-input" value="材料采购" placeholder="任务名称">
+                                        <div class="task-action-btn edit" onclick="editTaskDetail(this)" title="编辑详情">✎</div>
+                                        <div class="task-action-btn" onclick="deleteTask(this)">×</div>
+                                    </div>
+                                    <div class="task-edit-item" data-executor="李四" data-confirmers="张三">
+                                        <input type="text" class="task-input" value="材料运输" placeholder="任务名称">
+                                        <div class="task-action-btn edit" onclick="editTaskDetail(this)" title="编辑详情">✎</div>
+                                        <div class="task-action-btn" onclick="deleteTask(this)">×</div>
+                                    </div>
+                                    <div class="task-edit-item" data-executor="张三" data-confirmers="王五,赵六">
+                                        <input type="text" class="task-input" value="材料确认" placeholder="任务名称">
+                                        <div class="task-action-btn edit" onclick="editTaskDetail(this)" title="编辑详情">✎</div>
+                                        <div class="task-action-btn" onclick="deleteTask(this)">×</div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="stage-card">
+                                <div class="stage-card-header">
+                                    <div class="stage-card-header-row">
+                                        <input type="text" class="stage-name-input" value="布管布线阶段" placeholder="请输入阶段名称">
+                                        <div class="stage-sequential">
+                                            <span>按序执行</span>
+                                            <div class="switch active" onclick="toggleStageSequential(this)"></div>
+                                        </div>
+                                    </div>
+                                    <div class="stage-card-header-row">
+                                        <div class="stage-actions">
+                                            <div class="stage-action-btn add" onclick="addTaskToStage(this)">+ 添加任务</div>
+                                            <div class="stage-action-btn delete" onclick="deleteStage(this)">× 删除阶段</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="task-edit-list">
+                                    <div class="task-edit-item" data-executor="李四" data-confirmers="张三,王五">
+                                        <input type="text" class="task-input" value="开槽" placeholder="任务名称">
+                                        <div class="task-action-btn edit" onclick="editTaskDetail(this)" title="编辑详情">✎</div>
+                                        <div class="task-action-btn" onclick="deleteTask(this)">×</div>
+                                    </div>
+                                    <div class="task-edit-item" data-executor="李四" data-confirmers="张三,王五">
+                                        <input type="text" class="task-input" value="布管" placeholder="任务名称">
+                                        <div class="task-action-btn edit" onclick="editTaskDetail(this)" title="编辑详情">✎</div>
+                                        <div class="task-action-btn" onclick="deleteTask(this)">×</div>
+                                    </div>
+                                    <div class="task-edit-item" data-executor="李四" data-confirmers="张三,王五">
+                                        <input type="text" class="task-input" value="穿线" placeholder="任务名称">
+                                        <div class="task-action-btn edit" onclick="editTaskDetail(this)" title="编辑详情">✎</div>
+                                        <div class="task-action-btn" onclick="deleteTask(this)">×</div>
+                                    </div>
+                                    <div class="task-edit-item" data-executor="张三" data-confirmers="王五,赵六">
+                                        <input type="text" class="task-input" value="阶段确认" placeholder="任务名称">
+                                        <div class="task-action-btn edit" onclick="editTaskDetail(this)" title="编辑详情">✎</div>
+                                        <div class="task-action-btn" onclick="deleteTask(this)">×</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="add-stage-btn" onclick="addNewStage()">
+                            <span>+ 添加新阶段</span>
+                        </div>
+                    </div>
+                    
+                    <!-- 附件Tab内容 -->
+                    <div class="content-tab-pane" id="draft-attachment">
+                        <div class="attachment-upload-area" onclick="uploadAttachment()">
+                            <div class="upload-icon">📁</div>
+                            <div class="upload-text">点击上传附件</div>
+                            <div class="upload-hint">支持 PDF、图片、Word、Excel 等格式</div>
+                        </div>
+                        <div class="attachment-list" id="editAttachmentList">
+                            <div class="attachment-item">
+                                <div class="attachment-icon">📄</div>
+                                <div class="attachment-info">
+                                    <div class="attachment-name">户型图.pdf</div>
+                                    <div class="attachment-meta">上传于 2024-02-15 · 2.3MB</div>
+                                </div>
+                                <div class="attachment-action" onclick="previewAttachment('户型图.pdf')">预览</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 原有内容区域（非编辑状态显示） -->
+            <div class="draft-view-content" id="draftViewContent">
+            <div class="card">
+                <div class="card-title">
+                    <span>📋 合同信息</span>
+                </div>
+                <div class="info-row">
+                    <div class="label">合同名称</div>
+                    <div class="value">水电分包合同</div>
+                </div>
+                <div class="info-row">
+                    <div class="label">合同类型</div>
+                    <div class="value"><span class="contract-category-tag">水电服务合同</span></div>
+                </div>
+                <div class="info-row">
+                    <div class="label">合同编号</div>
+                    <div class="value">BJSDSWHT000001</div>
+                </div>
+                <div class="info-row">
+                    <div class="label">合同金额</div>
+                    <div class="value highlight" id="contractAmountRow">¥80,000.00</div>
+                </div>
+                <div class="info-row change-highlight" id="contractAmountChange" style="display: none;">
+                    <div class="label">合同金额</div>
+                    <div class="value"><span class="old-value">¥80,000.00</span><span class="new-value">¥95,000.00</span></div>
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-title">
+                    <span>👥 签约双方</span>
+                </div>
+                <div class="party-card">
+                    <div class="avatar">甲</div>
+                    <div class="info">
+                        <div class="name">张三</div>
+                        <div class="role">发包方（甲方）· 业主</div>
+                    </div>
+                    <div class="tag" id="partyATag" style="display: none;">拟定中</div>
+                </div>
+                <div class="party-card">
+                    <div class="avatar party-b">乙</div>
+                    <div class="info">
+                        <div class="name">李四</div>
+                        <div class="role">承包方（乙方）· 施工方</div>
+                    </div>
+                    <div class="tag" id="partyBTag" style="display: none;">拟定中</div>
+                </div>
+            </div>
+            
+            <div class="section-tabs">
+                <div class="section-tab active" onclick="switchSection(this, 'content')">合同内容</div>
+                <div class="section-tab" onclick="switchSection(this, 'stages')">阶段任务</div>
+                <div class="section-tab" onclick="switchSection(this, 'attachments')">附件</div>
+            </div>
+            
+            <div class="section-content show" id="contentSection">
+                <div class="card">
+                    <div class="card-title">
+                        <span>📄 合同正文</span>
+                        <span class="more" onclick="showFullText()">查看全文 ></span>
+                    </div>
+                    <div class="text-content">
+                        根据《中华人民共和国民法典》及相关法律法规的规定，甲乙双方本着平等、自愿、公平、诚实信用的原则，就水电工程分包事宜协商一致，订立本合同。<br><br>
+                        一、工程概况<br>
+                        工程名称：XX小区整体装修水电工程<br>
+                        工程地点：XX市XX区XX路XX号<br>
+                        工程内容：强电、弱电、给排水等水电工程...<br><br>
+                        <span class="change-highlight-text" id="changeHighlightText" style="display: none;"><strong>第四条 变更条款（新增）</strong><br>
+                        因业主需求变更，新增水电点位安装工程，具体内容详见变更附件。本条款经双方确认后生效。</span>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-title">
+                        <span>📝 补充条款</span>
+                    </div>
+                    <div class="text-content" id="supplementaryTerms">
+                        1. 乙方应严格按照施工图纸进行施工，如有变更需经甲方书面确认。<br>
+                        2. 材料进场需经甲方或监理方验收合格后方可使用。<br>
+                        3. 隐蔽工程验收合格后方可进行下一道工序。
+                    </div>
+                </div>
+            </div>
+            
+            <div class="section-content" id="stagesSection">
+                <div class="card">
+                    <div class="card-title">
+                        <span>📊 阶段任务 (4个阶段)</span>
+                    </div>
+                    
+                    <div class="stage-item">
+                        <div class="stage-header" onclick="toggleStage(this)">
+                            <div class="stage-icon">1</div>
+                            <div class="stage-info">
+                                <div class="stage-name">材料进场阶段</div>
+                                <div class="stage-meta">5个任务 · 已完成</div>
+                                <div class="stage-order-tag" style="background-color: #FFF7E6; color: #FA8C16;">并行执行</div>
+                            </div>
+                            <div class="stage-progress" style="display: none;">
+                                <div class="percent">100%</div>
+                            </div>
+                            <div class="arrow expanded">▼</div>
+                        </div>
+                        <div class="stage-tasks show">
+                            <div class="task-item" onclick="location.href='task-detail.html'">
+                                <div class="task-status completed" style="display: none;">✓</div>
+                                <div class="task-info">
+                                    <div class="task-name">材料采购</div>
+                                    <div class="task-meta-row">
+                                        <span class="task-meta-item"><span class="role-tag executor">执行</span> 张三</span>
+                                        <span class="task-meta-item"><span class="role-tag confirmer">确认</span> 李四、王五</span>
+                                    </div>
+                                    <div class="task-desc">已完成 · 2024-01-12</div>
+                                </div>
+                            </div>
+                            <div class="task-item" onclick="location.href='task-detail.html'">
+                                <div class="task-status completed" style="display: none;">✓</div>
+                                <div class="task-info">
+                                    <div class="task-name">材料运输</div>
+                                    <div class="task-meta-row">
+                                        <span class="task-meta-item"><span class="role-tag executor">执行</span> 张三</span>
+                                        <span class="task-meta-item"><span class="role-tag confirmer">确认</span> 李四</span>
+                                    </div>
+                                    <div class="task-desc">已完成 · 2024-01-13</div>
+                                </div>
+                            </div>
+                            <div class="task-item" onclick="location.href='task-detail.html'">
+                                <div class="task-status completed" style="display: none;">✓</div>
+                                <div class="task-info">
+                                    <div class="task-name">材料确认</div>
+                                    <div class="task-meta-row">
+                                        <span class="task-meta-item"><span class="role-tag executor">执行</span> 张三</span>
+                                        <span class="task-meta-item"><span class="role-tag confirmer">确认</span> 李四、王五、赵六</span>
+                                    </div>
+                                    <div class="task-desc">已完成 · 2024-01-13</div>
+                                </div>
+                            </div>
+                            <div class="task-item" onclick="location.href='task-detail.html'">
+                                <div class="task-status completed" style="display: none;">✓</div>
+                                <div class="task-info">
+                                    <div class="task-name">材料入库</div>
+                                    <div class="task-meta-row">
+                                        <span class="task-meta-item"><span class="role-tag executor">执行</span> 李四</span>
+                                        <span class="task-meta-item"><span class="role-tag confirmer">确认</span> 张三</span>
+                                    </div>
+                                    <div class="task-desc">已完成 · 2024-01-14</div>
+                                </div>
+                            </div>
+                            <div class="task-item" onclick="location.href='task-detail.html'">
+                                <div class="task-status completed" style="display: none;">✓</div>
+                                <div class="task-info">
+                                    <div class="task-name">材料报验</div>
+                                    <div class="task-meta-row">
+                                        <span class="task-meta-item"><span class="role-tag executor">执行</span> 王五</span>
+                                        <span class="task-meta-item"><span class="role-tag confirmer">确认</span> 张三、业主</span>
+                                    </div>
+                                    <div class="task-desc">已完成 · 2024-01-15</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="stage-item">
+                        <div class="stage-header" onclick="toggleStage(this)">
+                            <div class="stage-icon" style="background: linear-gradient(135deg, #52C41A 0%, #73D13D 100%);">2</div>
+                            <div class="stage-info">
+                                <div class="stage-name">布管布线阶段</div>
+                                <div class="stage-meta">6个任务 · 确认中</div>
+                                <div class="stage-order-tag">按序执行</div>
+                            </div>
+                            <div class="stage-progress" style="display: none;">
+                                <div class="percent" style="color: #52C41A;">67%</div>
+                            </div>
+                            <div class="arrow">▼</div>
+                        </div>
+                        <div class="stage-tasks">
+                            <div class="task-item" onclick="location.href='task-detail.html'">
+                                <div class="task-status completed" style="display: none;">✓</div>
+                                <div class="task-info">
+                                    <div class="task-name">开槽</div>
+                                    <div class="task-meta-row">
+                                        <span class="task-meta-item"><span class="role-tag executor">执行</span> 李四</span>
+                                        <span class="task-meta-item"><span class="role-tag confirmer">确认</span> 张三、王五</span>
+                                    </div>
+                                    <div class="task-desc">已完成 · 2024-01-18</div>
+                                </div>
+                            </div>
+                            <div class="task-item" onclick="location.href='task-detail.html'">
+                                <div class="task-status completed" style="display: none;">✓</div>
+                                <div class="task-info">
+                                    <div class="task-name">布管</div>
+                                    <div class="task-meta-row">
+                                        <span class="task-meta-item"><span class="role-tag executor">执行</span> 李四</span>
+                                        <span class="task-meta-item"><span class="role-tag confirmer">确认</span> 张三、王五</span>
+                                    </div>
+                                    <div class="task-desc">已完成 · 2024-01-22</div>
+                                </div>
+                            </div>
+                            <div class="task-item task-modified" id="modifiedTaskItem" onclick="location.href='task-detail.html'">
+                                <div class="task-status in-progress" style="display: none;">⋯</div>
+                                <div class="task-info">
+                                    <div class="task-name">穿线 <span class="task-change-tag modified" id="modifiedTaskTag" style="display: none;">已修改</span></div>
+                                    <div class="task-meta-row">
+                                        <span class="task-meta-item"><span class="role-tag executor">执行</span> 李四</span>
+                                        <span class="task-meta-item"><span class="role-tag confirmer">确认</span> 张三、王五、赵六</span>
+                                    </div>
+                                    <div class="task-desc">确认中 · 已提交执行记录</div>
+                                </div>
+                            </div>
+                            <div class="task-item" onclick="location.href='task-detail.html'">
+                                <div class="task-status completed" style="display: none;">✓</div>
+                                <div class="task-info">
+                                    <div class="task-name">线路测试</div>
+                                    <div class="task-meta-row">
+                                        <span class="task-meta-item"><span class="role-tag executor">执行</span> 王五</span>
+                                        <span class="task-meta-item"><span class="role-tag confirmer">确认</span> 张三</span>
+                                    </div>
+                                    <div class="task-desc">已完成 · 2024-01-25</div>
+                                </div>
+                            </div>
+                            <div class="task-item" onclick="location.href='task-detail.html'">
+                                <div class="task-status pending" style="display: none;">○</div>
+                                <div class="task-info">
+                                    <div class="task-name">隐蔽工程验收</div>
+                                    <div class="task-meta-row">
+                                        <span class="task-meta-item"><span class="role-tag executor">执行</span> 张三</span>
+                                        <span class="task-meta-item"><span class="role-tag confirmer">确认</span> 业主、监理</span>
+                                    </div>
+                                    <div class="task-desc">待开始</div>
+                                </div>
+                            </div>
+                            <div class="task-item" onclick="location.href='task-detail.html'">
+                                <div class="task-status pending" style="display: none;">○</div>
+                                <div class="task-info">
+                                    <div class="task-name">阶段确认</div>
+                                    <div class="task-meta-row">
+                                        <span class="task-meta-item"><span class="role-tag executor">执行</span> 李四</span>
+                                        <span class="task-meta-item"><span class="role-tag confirmer">确认</span> 张三、王五、业主</span>
+                                    </div>
+                                    <div class="task-desc">待开始</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="stage-item">
+                        <div class="stage-header" onclick="toggleStage(this)">
+                            <div class="stage-icon" style="background: linear-gradient(135deg, #FA8C16 0%, #FFA940 100%);">3</div>
+                            <div class="stage-info">
+                                <div class="stage-name">安装阶段</div>
+                                <div class="stage-meta">5个任务 · 待开始</div>
+                                <div class="stage-order-tag">按序执行</div>
+                            </div>
+                            <div class="stage-progress" style="display: none;">
+                                <div class="percent" style="color: #FA8C16;">0%</div>
+                            </div>
+                            <div class="arrow">▼</div>
+                        </div>
+                        <div class="stage-tasks">
+                            <div class="task-item" onclick="location.href='task-detail.html'">
+                                <div class="task-status pending" style="display: none;">○</div>
+                                <div class="task-info">
+                                    <div class="task-name">开关插座安装</div>
+                                    <div class="task-meta-row">
+                                        <span class="task-meta-item"><span class="role-tag executor">执行</span> 王五</span>
+                                        <span class="task-meta-item"><span class="role-tag confirmer">确认</span> 张三、李四</span>
+                                    </div>
+                                    <div class="task-desc">待开始</div>
+                                </div>
+                            </div>
+                            <div class="task-item" onclick="location.href='task-detail.html'">
+                                <div class="task-status pending" style="display: none;">○</div>
+                                <div class="task-info">
+                                    <div class="task-name">灯具安装</div>
+                                    <div class="task-meta-row">
+                                        <span class="task-meta-item"><span class="role-tag executor">执行</span> 王五</span>
+                                        <span class="task-meta-item"><span class="role-tag confirmer">确认</span> 张三、李四</span>
+                                    </div>
+                                    <div class="task-desc">待开始</div>
+                                </div>
+                            </div>
+                            <div class="task-item" onclick="location.href='task-detail.html'">
+                                <div class="task-status pending" style="display: none;">○</div>
+                                <div class="task-info">
+                                    <div class="task-name">配电箱安装</div>
+                                    <div class="task-meta-row">
+                                        <span class="task-meta-item"><span class="role-tag executor">执行</span> 王五</span>
+                                        <span class="task-meta-item"><span class="role-tag confirmer">确认</span> 张三、监理</span>
+                                    </div>
+                                    <div class="task-desc">待开始</div>
+                                </div>
+                            </div>
+                            <div class="task-item" onclick="location.href='task-detail.html'">
+                                <div class="task-status pending" style="display: none;">○</div>
+                                <div class="task-info">
+                                    <div class="task-name">设备调试</div>
+                                    <div class="task-meta-row">
+                                        <span class="task-meta-item"><span class="role-tag executor">执行</span> 赵六</span>
+                                        <span class="task-meta-item"><span class="role-tag confirmer">确认</span> 张三、王五</span>
+                                    </div>
+                                    <div class="task-desc">待开始</div>
+                                </div>
+                            </div>
+                            <div class="task-item" onclick="location.href='task-detail.html'">
+                                <div class="task-status pending" style="display: none;">○</div>
+                                <div class="task-info">
+                                    <div class="task-name">阶段确认</div>
+                                    <div class="task-meta-row">
+                                        <span class="task-meta-item"><span class="role-tag executor">执行</span> 王五</span>
+                                        <span class="task-meta-item"><span class="role-tag confirmer">确认</span> 张三、李四、赵六、业主</span>
+                                    </div>
+                                    <div class="task-desc">待开始</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="stage-item stage-added" id="newStageItem" style="display: none;">
+                        <div class="stage-header" onclick="toggleStage(this)">
+                            <div class="stage-icon" style="background: linear-gradient(135deg, #52C41A 0%, #73D13D 100%);">+</div>
+                            <div class="stage-info">
+                                <div class="stage-name">新增点位安装</div>
+                                <span class="stage-change-tag added">新增</span>
+                                <div class="stage-meta">2个任务 · 待开始</div>
+                                <div class="stage-order-tag" style="background-color: #FFF7E6; color: #FA8C16;">并行执行</div>
+                            </div>
+                            <div class="stage-progress" style="display: none;">
+                                <div class="percent" style="color: #52C41A;">0%</div>
+                            </div>
+                            <div class="arrow expanded">▼</div>
+                        </div>
+                        <div class="stage-tasks show">
+                            <div class="task-item task-added" onclick="location.href='task-detail.html'">
+                                <div class="task-status pending" style="display: none;">○</div>
+                                <div class="task-info">
+                                    <div class="task-name">新增点位布线 <span class="task-change-tag added">新增</span></div>
+                                    <div class="task-meta-row">
+                                        <span class="task-meta-item"><span class="role-tag executor">执行</span> 李四</span>
+                                        <span class="task-meta-item"><span class="role-tag confirmer">确认</span> 张三、业主</span>
+                                    </div>
+                                    <div class="task-desc">待开始</div>
+                                </div>
+                            </div>
+                            <div class="task-item task-added" onclick="location.href='task-detail.html'">
+                                <div class="task-status pending" style="display: none;">○</div>
+                                <div class="task-info">
+                                    <div class="task-name">新增点位验收 <span class="task-change-tag added">新增</span></div>
+                                    <div class="task-meta-row">
+                                        <span class="task-meta-item"><span class="role-tag executor">执行</span> 王五</span>
+                                        <span class="task-meta-item"><span class="role-tag confirmer">确认</span> 张三、业主</span>
+                                    </div>
+                                    <div class="task-desc">待开始</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="stage-item">
+                        <div class="stage-header" onclick="toggleStage(this)">
+                            <div class="stage-icon" style="background: linear-gradient(135deg, #722ED1 0%, #9254DE 100%);">4</div>
+                            <div class="stage-info">
+                                <div class="stage-name">收尾阶段</div>
+                                <div class="stage-meta">5个任务 · 待开始</div>
+                                <div class="stage-order-tag">按序执行</div>
+                            </div>
+                            <div class="stage-progress" style="display: none;">
+                                <div class="percent" style="color: #722ED1;">0%</div>
+                            </div>
+                            <div class="arrow">▼</div>
+                        </div>
+                        <div class="stage-tasks">
+                            <div class="task-item" onclick="location.href='task-detail.html'">
+                                <div class="task-status pending" style="display: none;">○</div>
+                                <div class="task-info">
+                                    <div class="task-name">清理现场</div>
+                                    <div class="task-meta-row">
+                                        <span class="task-meta-item"><span class="role-tag executor">执行</span> 李四</span>
+                                        <span class="task-meta-item"><span class="role-tag confirmer">确认</span> 张三、王五</span>
+                                    </div>
+                                    <div class="task-desc">待开始</div>
+                                </div>
+                            </div>
+                            <div class="task-item" onclick="location.href='task-detail.html'">
+                                <div class="task-status pending" style="display: none;">○</div>
+                                <div class="task-info">
+                                    <div class="task-name">竣工验收</div>
+                                    <div class="task-meta-row">
+                                        <span class="task-meta-item"><span class="role-tag executor">执行</span> 张三</span>
+                                        <span class="task-meta-item"><span class="role-tag confirmer">确认</span> 业主、监理</span>
+                                    </div>
+                                    <div class="task-desc">待开始</div>
+                                </div>
+                            </div>
+                            <div class="task-item" onclick="location.href='task-detail.html'">
+                                <div class="task-status pending" style="display: none;">○</div>
+                                <div class="task-info">
+                                    <div class="task-name">资料整理</div>
+                                    <div class="task-meta-row">
+                                        <span class="task-meta-item"><span class="role-tag executor">执行</span> 王五</span>
+                                        <span class="task-meta-item"><span class="role-tag confirmer">确认</span> 张三</span>
+                                    </div>
+                                    <div class="task-desc">待开始</div>
+                                </div>
+                            </div>
+                            <div class="task-item" onclick="location.href='task-detail.html'">
+                                <div class="task-status pending" style="display: none;">○</div>
+                                <div class="task-info">
+                                    <div class="task-name">培训使用</div>
+                                    <div class="task-meta-row">
+                                        <span class="task-meta-item"><span class="role-tag executor">执行</span> 赵六</span>
+                                        <span class="task-meta-item"><span class="role-tag confirmer">确认</span> 业主</span>
+                                    </div>
+                                    <div class="task-desc">待开始</div>
+                                </div>
+                            </div>
+                            <div class="task-item" onclick="location.href='task-detail.html'">
+                                <div class="task-status pending" style="display: none;">○</div>
+                                <div class="task-info">
+                                    <div class="task-name">最终确认</div>
+                                    <div class="task-meta-row">
+                                        <span class="task-meta-item"><span class="role-tag executor">执行</span> 李四</span>
+                                        <span class="task-meta-item"><span class="role-tag confirmer">确认</span> 张三、王五、赵六、钱七、孙八、业主</span>
+                                    </div>
+                                    <div class="task-desc">待开始</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="section-content" id="attachmentsSection">
+                <div class="card" id="signFileCard" style="display: none;">
+                    <div class="card-title">
+                        <span>📝 签约文件</span>
+                        <span class="more" id="signFileUploadBtn" onclick="showSignUploadPage()">+ 上传</span>
+                    </div>
+                    <div id="signFileListContainer">
+                        <div class="attachment-item">
+                            <div class="file-icon">📄</div>
+                            <div class="file-info">
+                                <div class="file-name">水电分包合同_签约文件.pdf</div>
+                                <div class="file-meta">张三上传 · 2024-01-15 10:30</div>
+                            </div>
+                            <div class="download-btn" onclick="showCustomToast('预览文件')">👁️</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-title">
+                        <span>📎 合同附件</span>
+                    </div>
+                    <div class="attachment-item">
+                        <div class="file-icon">📄</div>
+                        <div class="file-info">
+                            <div class="file-name">水电分包合同.pdf</div>
+                            <div class="file-meta">2.3MB · 2024-01-10上传</div>
+                        </div>
+                        <div class="download-btn" onclick="showCustomToast('下载文件')">⬇</div>
+                    </div>
+                    <div class="attachment-item">
+                        <div class="file-icon">🖼️</div>
+                        <div class="file-info">
+                            <div class="file-name">量房照片.jpg</div>
+                            <div class="file-meta">1.5MB · 2024-01-10上传</div>
+                        </div>
+                        <div class="download-btn" onclick="showCustomToast('预览图片')">👁️</div>
+                    </div>
+                    <div class="attachment-item">
+                        <div class="file-icon">📊</div>
+                        <div class="file-info">
+                            <div class="file-name">材料清单.xlsx</div>
+                            <div class="file-meta">156KB · 2024-01-12上传</div>
+                        </div>
+                        <div class="download-btn" onclick="showCustomToast('下载文件')">⬇</div>
+                    </div>
+                    <div class="attachment-item">
+                        <div class="file-icon">📐</div>
+                        <div class="file-info">
+                            <div class="file-name">施工图纸.dwg</div>
+                            <div class="file-meta">5.8MB · 2024-01-12上传</div>
+                        </div>
+                        <div class="download-btn" onclick="showCustomToast('下载文件')">⬇</div>
+                    </div>
+                </div>
+                
+            </div>
+        </div>
+        
+        <div class="bottom-dock">
+            <div class="preview-bar">
+                <div class="preview-btn" id="previewContractBtn" onclick="previewContract()">
+                    <span>👁️</span><span>预览合同</span>
+                </div>
+            </div>
+            <div class="bottom-actions" id="bottomActions" style="display: none;">
+            </div>
+        </div>
+        
+        <div class="change-modal" id="changeModal">
+            <div class="status-bar">
+                <div class="time">9:41</div>
+                <div class="icons">📶 🔋</div>
+            </div>
+            <div class="nav-bar">
+                <div class="back" onclick="closeChangeModal()">← 返回</div>
+                <div class="title">发起变更</div>
+                <div class="actions">
+                    <div class="nav-action-btn" onclick="closeChangeModal()">✕</div>
+                </div>
+            </div>
+            <div class="change-content">
+                <div class="content-toolbar">
+                    <span class="tb-hint">变更辅助操作</span>
+                    <span class="text-more-btn" id="changeMoreOpsBtn" onclick="toggleChangeMoreOps()">更多<span class="caret">▾</span></span>
+                </div>
+                <div class="more-ops-panel" id="changeMoreOpsPanel">
+                    <div class="op-item" onclick="showVersionModal(); closeChangeMoreOps();"><span class="op-icon">📋</span><span>版本记录</span></div>
+                    <div class="op-item" onclick="showChangeRecordModal(); closeChangeMoreOps();"><span class="op-icon">📜</span><span>变更记录</span></div>
+                </div>
+
+                <div class="change-notice">
+                    <div class="notice-title">
+                        <span class="icon">⚠️</span>
+                        <span>变更须知</span>
+                    </div>
+                    <ul class="notice-list">
+                        <li>发起变更后需要双方确认后生效</li>
+                        <li>如果涉及到阶段任务变更，双方确认前阶段任务将停止流转</li>
+                        <li>变更生效后将生成新的版本记录</li>
+                    </ul>
+                </div>
+                
+                
+                <div class="change-section">
+                    <div class="section-title">
+                        <span class="icon">📝</span>
+                        <span>变更原因 <span style="color: var(--error-color);">*</span></span>
+                    </div>
+                    <textarea class="change-reason-input" id="changeReasonInput" placeholder="请详细说明变更原因，如：因业主需求变更、现场实际情况调整等..." oninput="checkChangeReason()"></textarea>
+                    <div class="change-reason-tip">
+                        <span>变更原因将展示给对方和平台审核人员</span>
+                        <span id="changeReasonCount">0/500</span>
+                    </div>
+                </div>
+                
+                <div class="change-section">
+                    <div class="section-title">
+                        <span class="icon">📄</span>
+                        <span>合同基本信息</span>
+                    </div>
+                    <div class="change-info-grid">
+                        <div class="change-info-item">
+                            <div class="info-label">合同名称</div>
+                            <div class="info-value">水电分包合同</div>
+                        </div>
+                        <div class="change-info-item">
+                            <div class="info-label">合同编号</div>
+                            <div class="info-value">HT-2024-001</div>
+                        </div>
+                        <div class="change-info-item">
+                            <div class="info-label">甲方（发包方）</div>
+                            <div class="info-value">张三（业主）</div>
+                        </div>
+                        <div class="change-info-item">
+                            <div class="info-label">乙方（承包方）</div>
+                            <div class="info-value">李四（水电组长）</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="change-section">
+                    <div class="section-title">
+                        <span class="icon">💰</span>
+                        <span>合同金额变更</span>
+                    </div>
+                    <div class="change-item">
+                        <div class="item-label">当前合同金额</div>
+                        <div class="item-value">¥80,000.00</div>
+                    </div>
+                    <div class="change-item highlight">
+                        <div class="item-label">变更后金额</div>
+                        <div class="item-value" style="color: var(--primary-color);">¥85,000.00 <span style="font-size: 12px; color: var(--success-color);">(+¥5,000.00)</span></div>
+                    </div>
+                </div>
+                
+                <div class="change-section">
+                    <div class="section-title">
+                        <span class="icon">📋</span>
+                        <span>合同内容</span>
+                        <span class="edit-btn" id="changeTemplateBtn" onclick="showChangeTemplatePicker()">📄 更换模板</span>
+                    </div>
+                    <div class="change-tabs">
+                        <div class="change-tab active" onclick="switchChangeTab(this, 'contract-content')">合同正文</div>
+                        <div class="change-tab" onclick="switchChangeTab(this, 'stage-task')">阶段任务</div>
+                        <div class="change-tab" onclick="switchChangeTab(this, 'attachment')">合同附件</div>
+                    </div>
+                    <div class="change-tab-content active" id="contract-content">
+                        <div class="change-contract-content">
+                            <div class="content-preview" id="changeContractContentPreview">
+                                根据《中华人民共和国民法典》及相关法律法规的规定，甲乙双方本着平等、自愿、公平、诚实信用的原则，就水电工程分包事宜协商一致，订立本合同。
+
+一、工程概况
+工程名称：XX小区整体装修水电工程
+工程地点：杭州市XX区XX路XX号
+工程内容：强电、弱电、给排水等水电工程
+
+二、合同金额
+合同总金额为人民币（大写）捌万元整（¥80,000.00）
+
+三、工期
+计划开工日期：2024年3月1日
+计划竣工日期：2024年4月30日
+总工期：60日历天...
+                            </div>
+                            <div class="content-toggle" onclick="toggleContractContent(this)">
+                                <span class="toggle-text">展开全文</span>
+                                <span class="toggle-icon">▼</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="change-tab-content" id="stage-task">
+                        <div id="stageEditContainer">
+                            <div class="stage-edit-item" data-stage="1" data-sequential="false">
+                                <div class="stage-header-row">
+                                    <input type="text" class="stage-name-input" value="材料进场阶段" placeholder="请输入阶段名称">
+                                    <div class="stage-sequential" onclick="toggleStageSequential(this)">
+                                        <span>按序执行</span>
+                                        <div class="switch"></div>
+                                    </div>
+                                    <div class="stage-actions">
+                                        <div class="stage-action-btn add" onclick="addTaskToStage(this)"><span class="btn-icon">+</span> 添加任务</div>
+                                        <div class="stage-action-btn delete" onclick="deleteStage(this)"><span class="btn-icon">×</span> 删除阶段</div>
+                                    </div>
+                                </div>
+                                <div class="task-edit-list">
+                                    <div class="task-edit-item" data-executor="李四" data-confirmers="张三,王五" data-exec-standard="按照设计图纸要求采购符合国家标准的电线、线管材料，并提供合格证明" data-confirm-standard="材料品牌、规格符合设计要求，质量合格证明齐全" data-liable-standard="材料质量问题导致返工，由采购人承担费用">
+                                        <input type="text" class="task-input" value="材料采购" placeholder="任务名称" onclick="viewTaskDetail(this)" readonly>
+                                        <div class="task-action-btn edit" onclick="editTaskDetail(this)" title="编辑详情">✎</div>
+                                        <div class="task-action-btn" onclick="deleteTask(this)">×</div>
+                                    </div>
+                                    <div class="task-edit-item" data-executor="李四" data-confirmers="张三" data-exec-standard="确保材料安全运输至施工现场，运输过程中不得有损坏" data-confirm-standard="材料外包装完好，数量准确" data-liable-standard="运输过程中材料损坏，由运输方承担责任">
+                                        <input type="text" class="task-input" value="材料运输" placeholder="任务名称" onclick="viewTaskDetail(this)" readonly>
+                                        <div class="task-action-btn edit" onclick="editTaskDetail(this)" title="编辑详情">✎</div>
+                                        <div class="task-action-btn" onclick="deleteTask(this)">×</div>
+                                    </div>
+                                    <div class="task-edit-item" data-executor="张三" data-confirmers="王五,赵六" data-exec-standard="核对材料数量、规格、品牌是否与合同一致" data-confirm-standard="材料与合同约定一致，签字确认" data-liable-standard="材料与合同不符，由供应商承担责任">
+                                        <input type="text" class="task-input" value="材料确认" placeholder="任务名称" onclick="viewTaskDetail(this)" readonly>
+                                        <div class="task-action-btn edit" onclick="editTaskDetail(this)" title="编辑详情">✎</div>
+                                        <div class="task-action-btn" onclick="deleteTask(this)">×</div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="stage-edit-item" data-stage="2" data-sequential="true">
+                                <div class="stage-header-row">
+                                    <input type="text" class="stage-name-input" value="布管布线阶段" placeholder="请输入阶段名称">
+                                    <div class="stage-sequential" onclick="toggleStageSequential(this)" style="opacity: 0.5; cursor: not-allowed;" title="当前阶段存在已执行的任务，不支持修改按序执行状态">
+                                        <span>按序执行</span>
+                                        <div class="switch active"></div>
+                                    </div>
+                                    <div class="stage-actions">
+                                        <div class="stage-action-btn add" onclick="addTaskToStage(this)"><span class="btn-icon">+</span> 添加任务</div>
+                                        <div class="stage-action-btn delete" onclick="deleteStage(this)" style="opacity: 0.3; cursor: not-allowed;" title="当前阶段存在已完成/进行中的任务，不支持删除"><span class="btn-icon">×</span> 删除阶段</div>
+                                    </div>
+                                </div>
+                                <div class="task-edit-list">
+                                    <div class="task-edit-item" data-executor="李四" data-confirmers="张三,王五" data-exec-standard="按照设计图纸进行开槽，深度和宽度符合规范要求" data-confirm-standard="开槽位置准确，深度宽度符合要求" data-liable-standard="开槽位置错误导致返工，由执行人承担责任" data-completed="true">
+                                        <input type="text" class="task-input" value="✓ 开槽" placeholder="任务名称" onclick="viewTaskDetail(this)" readonly style="color: var(--success-color);">
+                                        <div class="task-action-btn edit" onclick="editTaskDetail(this)" title="编辑详情" style="opacity: 0.3; cursor: not-allowed;">✎</div>
+                                        <div class="task-action-btn" onclick="deleteTask(this)" style="opacity: 0.3; cursor: not-allowed;" title="已完成的任务不支持删除">×</div>
+                                    </div>
+                                    <div class="task-edit-item" data-executor="李四" data-confirmers="张三,王五" data-exec-standard="按照设计图纸布设线管，固定牢固，走向合理" data-confirm-standard="线管布设符合设计要求，固定牢固" data-liable-standard="线管布设不合格导致返工，由执行人承担责任" data-status="confirming">
+                                        <input type="text" class="task-input" value="⏳ 布管" placeholder="任务名称" onclick="viewTaskDetail(this)" readonly style="color: var(--warning-color);">
+                                        <div class="task-action-btn edit" onclick="editTaskDetail(this)" title="编辑详情" style="opacity: 0.3; cursor: not-allowed;">✎</div>
+                                        <div class="task-action-btn" onclick="deleteTask(this)" style="opacity: 0.3; cursor: not-allowed;" title="进行中的任务不支持删除">×</div>
+                                    </div>
+                                    <div class="task-edit-item" data-executor="李四" data-confirmers="张三,王五,赵六" data-exec-standard="按照规范要求穿设电线，确保绝缘良好" data-confirm-standard="电线穿设规范，绝缘测试合格" data-liable-standard="穿线不合格导致返工，由执行人承担责任">
+                                        <input type="text" class="task-input" value="穿线" placeholder="任务名称" onclick="viewTaskDetail(this)" readonly>
+                                        <div class="task-action-btn edit" onclick="editTaskDetail(this)" title="编辑详情">✎</div>
+                                        <div class="task-action-btn" onclick="deleteTask(this)">×</div>
+                                    </div>
+                                    <div class="task-edit-item" data-executor="张三" data-confirmers="王五,赵六,钱七" data-exec-standard="确认布管布线阶段所有任务已完成，质量合格" data-confirm-standard="阶段任务全部完成，质量符合要求" data-liable-standard="阶段确认后发现问题，确认人承担连带责任">
+                                        <input type="text" class="task-input" value="阶段确认" placeholder="任务名称" onclick="viewTaskDetail(this)" readonly>
+                                        <div class="task-action-btn edit" onclick="editTaskDetail(this)" title="编辑详情">✎</div>
+                                        <div class="task-action-btn" onclick="deleteTask(this)">×</div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="stage-edit-item" data-stage="3" data-sequential="false">
+                                <div class="stage-header-row">
+                                    <input type="text" class="stage-name-input" value="安装阶段" placeholder="请输入阶段名称">
+                                    <div class="stage-sequential" onclick="toggleStageSequential(this)">
+                                        <span>按序执行</span>
+                                        <div class="switch"></div>
+                                    </div>
+                                    <div class="stage-actions">
+                                        <div class="stage-action-btn add" onclick="addTaskToStage(this)"><span class="btn-icon">+</span> 添加任务</div>
+                                        <div class="stage-action-btn delete" onclick="deleteStage(this)"><span class="btn-icon">×</span> 删除阶段</div>
+                                </div>
+                            </div>
+                            <div class="task-edit-list">
+                                <div class="task-edit-item" data-executor="赵六" data-confirmers="张三,王五" data-exec-standard="按照设计图纸安装开关插座，接线正确，固定牢固" data-confirm-standard="开关插座安装位置正确，接线规范，固定牢固" data-liable-standard="安装不合格导致返工，由执行人承担责任">
+                                    <input type="text" class="task-input" value="开关插座安装" placeholder="任务名称" onclick="viewTaskDetail(this)" readonly>
+                                    <div class="task-action-btn edit" onclick="editTaskDetail(this)" title="编辑详情">✎</div>
+                                    <div class="task-action-btn" onclick="deleteTask(this)">×</div>
+                                </div>
+                                <div class="task-edit-item" data-executor="赵六" data-confirmers="张三,王五" data-exec-standard="按照设计图纸安装灯具，接线正确，固定牢固" data-confirm-standard="灯具安装位置正确，接线规范，固定牢固" data-liable-standard="安装不合格导致返工，由执行人承担责任">
+                                    <input type="text" class="task-input" value="灯具安装" placeholder="任务名称" onclick="viewTaskDetail(this)" readonly>
+                                    <div class="task-action-btn edit" onclick="editTaskDetail(this)" title="编辑详情">✎</div>
+                                    <div class="task-action-btn" onclick="deleteTask(this)">×</div>
+                                </div>
+                                <div class="task-edit-item" data-executor="张三" data-confirmers="王五,赵六" data-exec-standard="确认安装阶段所有任务已完成，质量合格" data-confirm-standard="阶段任务全部完成，质量符合要求" data-liable-standard="阶段确认后发现问题，确认人承担连带责任">
+                                    <input type="text" class="task-input" value="阶段确认" placeholder="任务名称" onclick="viewTaskDetail(this)" readonly>
+                                    <div class="task-action-btn edit" onclick="editTaskDetail(this)" title="编辑详情">✎</div>
+                                    <div class="task-action-btn" onclick="deleteTask(this)">×</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="stage-edit-item" data-stage="4" data-sequential="false">
+                            <div class="stage-header-row">
+                                <input type="text" class="stage-name-input" value="收尾阶段" placeholder="请输入阶段名称">
+                                <div class="stage-sequential" onclick="toggleStageSequential(this)">
+                                    <span>按序执行</span>
+                                    <div class="switch"></div>
+                                </div>
+                                <div class="stage-actions">
+                                    <div class="stage-action-btn add" onclick="addTaskToStage(this)"><span class="btn-icon">+</span> 添加任务</div>
+                                    <div class="stage-action-btn delete" onclick="deleteStage(this)"><span class="btn-icon">×</span> 删除阶段</div>
+                                </div>
+                            </div>
+                            <div class="task-edit-list">
+                                <div class="task-edit-item" data-executor="钱七" data-confirmers="张三,王五" data-exec-standard="清理施工现场，确保现场整洁" data-confirm-standard="现场清理干净，无垃圾残留" data-liable-standard="清理不合格导致返工，由执行人承担责任">
+                                    <input type="text" class="task-input" value="清理现场" placeholder="任务名称" onclick="viewTaskDetail(this)" readonly>
+                                    <div class="task-action-btn edit" onclick="editTaskDetail(this)" title="编辑详情">✎</div>
+                                    <div class="task-action-btn" onclick="deleteTask(this)">×</div>
+                                </div>
+                                <div class="task-edit-item" data-executor="张三" data-confirmers="王五,赵六,钱七,孙八" data-exec-standard="确认所有阶段任务已完成，质量合格，项目验收" data-confirm-standard="项目验收合格，所有任务完成" data-liable-standard="最终确认后发现问题，确认人承担连带责任">
+                                    <input type="text" class="task-input" value="最终确认" placeholder="任务名称" onclick="viewTaskDetail(this)" readonly>
+                                    <div class="task-action-btn edit" onclick="editTaskDetail(this)" title="编辑详情">✎</div>
+                                    <div class="task-action-btn" onclick="deleteTask(this)">×</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="add-stage-btn" onclick="addNewStage()">
+                        <span>+ 添加新阶段</span>
+                    </div>
+                    </div>
+                    
+                    <div class="change-tab-content" id="attachment">
+                        <div class="change-attachment-list">
+                            <div class="attachment-item">
+                                <div class="attachment-icon">📄</div>
+                                <div class="attachment-info">
+                                    <div class="attachment-name">合同签订通知书.pdf</div>
+                                    <div class="attachment-meta">上传于 2024-02-15 · 156KB</div>
+                                </div>
+                                <div class="attachment-action" onclick="previewAttachment('合同签订通知书.pdf')">预览</div>
+                            </div>
+                            <div class="attachment-item">
+                                <div class="attachment-icon">📄</div>
+                                <div class="attachment-info">
+                                    <div class="attachment-name">水电工程图纸.dwg</div>
+                                    <div class="attachment-meta">上传于 2024-02-15 · 2.3MB</div>
+                                </div>
+                                <div class="attachment-action" onclick="previewAttachment('水电工程图纸.dwg')">预览</div>
+                            </div>
+                            <div class="attachment-item">
+                                <div class="attachment-icon">🖼️</div>
+                                <div class="attachment-info">
+                                    <div class="attachment-name">施工现场照片.jpg</div>
+                                    <div class="attachment-meta">上传于 2024-02-16 · 890KB</div>
+                                </div>
+                                <div class="attachment-action" onclick="previewAttachment('施工现场照片.jpg')">预览</div>
+                            </div>
+                        </div>
+                        <div class="add-attachment-btn" onclick="addNewAttachment()">
+                            <span>+ 添加附件</span>
+                        </div>
+                    </div>
+                </div>
+                
+            </div>
+            <div class="change-footer">
+                <div class="btn cancel" onclick="closeChangeModal()">取消</div>
+                <div class="btn submit disabled" id="submitChangeBtn" onclick="submitChange()">提交变更</div>
+            </div>
+        </div>
+        
+        <div class="add-task-modal" id="addTaskModal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <div class="modal-title">添加新任务</div>
+                    <div class="modal-close" onclick="closeAddTaskModal()">✕</div>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label class="form-label">任务名称 <span class="required">*</span></label>
+                        <input type="text" class="form-input" id="newTaskName" placeholder="请输入任务名称">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">执行人（选填）</label>
+                        <div class="confirm-person-tags" id="newTaskExecutorTags" style="margin-bottom: 8px;"></div>
+                        <div class="search-select">
+                            <div class="search-input-wrap">
+                                <input type="text" class="search-input" id="newTaskExecutorSearch" placeholder="请选择执行人" oninput="filterExecutorList('new')" onfocus="toggleExecutorSearch('new')">
+                                <span class="arrow" onclick="toggleExecutorSearch('new')">▼</span>
+                            </div>
+                            <div class="search-dropdown" id="newTaskExecutorDropdown">
+                                <div class="person-option" onclick="selectExecutor('new', '张三', '项目经理')">
+                                    <div class="avatar">张</div>
+                                    <div class="name">张三</div>
+                                    <div class="role-tag">项目经理</div>
+                                </div>
+                                <div class="person-option" onclick="selectExecutor('new', '李四', '电工')">
+                                    <div class="avatar">李</div>
+                                    <div class="name">李四</div>
+                                    <div class="role-tag">电工</div>
+                                </div>
+                                <div class="person-option" onclick="selectExecutor('new', '王五', '泥瓦工')">
+                                    <div class="avatar">王</div>
+                                    <div class="name">王五</div>
+                                    <div class="role-tag">泥瓦工</div>
+                                </div>
+                                <div class="person-option" onclick="selectExecutor('new', '赵六', '木工')">
+                                    <div class="avatar">赵</div>
+                                    <div class="name">赵六</div>
+                                    <div class="role-tag">木工</div>
+                                </div>
+                                <div class="person-option" onclick="selectExecutor('new', '钱七', '油漆工')">
+                                    <div class="avatar">钱</div>
+                                    <div class="name">钱七</div>
+                                    <div class="role-tag">油漆工</div>
+                                </div>
+                            </div>
+                        </div>
+                        <input type="hidden" id="newTaskExecutor">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">确认人（最多5人）</label>
+                        <div class="confirm-person-tags" id="newTaskConfirmPersons">
+                        </div>
+                        <div class="search-select">
+                            <div class="search-input-wrap">
+                                <input type="text" class="search-input" id="newTaskConfirmerSearch" placeholder="添加确认人" oninput="filterConfirmerList('new')" onfocus="toggleConfirmerSearch('new')">
+                                <span class="arrow" onclick="toggleConfirmerSearch('new')">▼</span>
+                            </div>
+                            <div class="search-dropdown" id="newTaskConfirmerDropdown">
+                                <div class="person-option" onclick="selectConfirmer('new', '张三', '项目经理')">
+                                    <div class="avatar">张</div>
+                                    <div class="name">张三</div>
+                                    <div class="role-tag">项目经理</div>
+                                </div>
+                                <div class="person-option" onclick="selectConfirmer('new', '李四', '电工')">
+                                    <div class="avatar">李</div>
+                                    <div class="name">李四</div>
+                                    <div class="role-tag">电工</div>
+                                </div>
+                                <div class="person-option" onclick="selectConfirmer('new', '王五', '泥瓦工')">
+                                    <div class="avatar">王</div>
+                                    <div class="name">王五</div>
+                                    <div class="role-tag">泥瓦工</div>
+                                </div>
+                                <div class="person-option" onclick="selectConfirmer('new', '赵六', '木工')">
+                                    <div class="avatar">赵</div>
+                                    <div class="name">赵六</div>
+                                    <div class="role-tag">木工</div>
+                                </div>
+                                <div class="person-option" onclick="selectConfirmer('new', '钱七', '油漆工')">
+                                    <div class="avatar">钱</div>
+                                    <div class="name">钱七</div>
+                                    <div class="role-tag">油漆工</div>
+                                </div>
+                                <div class="person-option" onclick="selectConfirmer('new', '孙八', '监理')">
+                                    <div class="avatar">孙</div>
+                                    <div class="name">孙八</div>
+                                    <div class="role-tag">监理</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">执行标准 <span class="required">*</span></label>
+                        <textarea class="form-textarea" id="newTaskExecStandard" placeholder="请输入执行标准"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">确认标准 <span class="required">*</span></label>
+                        <textarea class="form-textarea" id="newTaskConfirmStandard" placeholder="请输入确认标准"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">担责标准 <span class="required">*</span></label>
+                        <textarea class="form-textarea" id="newTaskLiableStandard" placeholder="请输入担责标准"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="submit-btn" onclick="confirmAddTask()">确定添加</button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="task-detail-modal" id="taskDetailModal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <div class="modal-title">任务详情</div>
+                    <div class="modal-close" onclick="closeTaskDetailModal()">✕</div>
+                </div>
+                <div class="modal-body">
+                    <div class="detail-section">
+                        <div class="detail-label">任务名称</div>
+                        <div class="detail-value" id="detailTaskName">材料采购</div>
+                    </div>
+                    <div class="detail-section">
+                        <div class="detail-label">执行人</div>
+                        <div class="detail-value" id="detailExecutor">李四（电工）</div>
+                    </div>
+                    <div class="detail-section">
+                        <div class="detail-label">确认人</div>
+                        <div class="detail-value" id="detailConfirmers">张三、王五</div>
+                    </div>
+                    <div class="detail-section">
+                        <div class="detail-label">执行标准</div>
+                        <div class="detail-value" id="detailExecStandard">按照设计图纸要求采购符合国家标准的电线、线管材料，并提供合格证明</div>
+                    </div>
+                    <div class="detail-section">
+                        <div class="detail-label">确认标准</div>
+                        <div class="detail-value" id="detailConfirmStandard">材料品牌、规格符合设计要求，质量合格证明齐全</div>
+                    </div>
+                    <div class="detail-section">
+                        <div class="detail-label">担责标准</div>
+                        <div class="detail-value" id="detailLiableStandard">材料质量问题导致返工，由采购人承担费用</div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="submit-btn" onclick="closeTaskDetailModal()">关闭</button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="edit-task-modal" id="editTaskModal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <div class="modal-title">编辑任务</div>
+                    <div class="modal-close" onclick="closeEditTaskModal()">✕</div>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label class="form-label">任务名称 <span class="required">*</span></label>
+                        <input type="text" class="form-input" id="editTaskName" placeholder="请输入任务名称">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">执行人（选填）</label>
+                        <div class="confirm-person-tags" id="editTaskExecutorTags" style="margin-bottom: 8px;"></div>
+                        <div class="search-select">
+                            <div class="search-input-wrap">
+                                <input type="text" class="search-input" id="editTaskExecutorSearch" placeholder="请选择执行人" oninput="filterExecutorList('edit')" onfocus="toggleExecutorSearch('edit')">
+                                <span class="arrow" onclick="toggleExecutorSearch('edit')">▼</span>
+                            </div>
+                            <div class="search-dropdown" id="editTaskExecutorDropdown">
+                                <div class="person-option" onclick="selectExecutor('edit', '张三', '项目经理')">
+                                    <div class="avatar">张</div>
+                                    <div class="name">张三</div>
+                                    <div class="role-tag">项目经理</div>
+                                </div>
+                                <div class="person-option" onclick="selectExecutor('edit', '李四', '电工')">
+                                    <div class="avatar">李</div>
+                                    <div class="name">李四</div>
+                                    <div class="role-tag">电工</div>
+                                </div>
+                                <div class="person-option" onclick="selectExecutor('edit', '王五', '泥瓦工')">
+                                    <div class="avatar">王</div>
+                                    <div class="name">王五</div>
+                                    <div class="role-tag">泥瓦工</div>
+                                </div>
+                                <div class="person-option" onclick="selectExecutor('edit', '赵六', '木工')">
+                                    <div class="avatar">赵</div>
+                                    <div class="name">赵六</div>
+                                    <div class="role-tag">木工</div>
+                                </div>
+                                <div class="person-option" onclick="selectExecutor('edit', '钱七', '油漆工')">
+                                    <div class="avatar">钱</div>
+                                    <div class="name">钱七</div>
+                                    <div class="role-tag">油漆工</div>
+                                </div>
+                            </div>
+                        </div>
+                        <input type="hidden" id="editTaskExecutor">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">确认人（最多5人）</label>
+                        <div class="confirm-person-tags" id="editTaskConfirmPersons">
+                        </div>
+                        <div class="search-select">
+                            <div class="search-input-wrap">
+                                <input type="text" class="search-input" id="editTaskConfirmerSearch" placeholder="添加确认人" oninput="filterConfirmerList('edit')" onfocus="toggleConfirmerSearch('edit')">
+                                <span class="arrow" onclick="toggleConfirmerSearch('edit')">▼</span>
+                            </div>
+                            <div class="search-dropdown" id="editTaskConfirmerDropdown">
+                                <div class="person-option" onclick="selectConfirmer('edit', '张三', '项目经理')">
+                                    <div class="avatar">张</div>
+                                    <div class="name">张三</div>
+                                    <div class="role-tag">项目经理</div>
+                                </div>
+                                <div class="person-option" onclick="selectConfirmer('edit', '李四', '电工')">
+                                    <div class="avatar">李</div>
+                                    <div class="name">李四</div>
+                                    <div class="role-tag">电工</div>
+                                </div>
+                                <div class="person-option" onclick="selectConfirmer('edit', '王五', '泥瓦工')">
+                                    <div class="avatar">王</div>
+                                    <div class="name">王五</div>
+                                    <div class="role-tag">泥瓦工</div>
+                                </div>
+                                <div class="person-option" onclick="selectConfirmer('edit', '赵六', '木工')">
+                                    <div class="avatar">赵</div>
+                                    <div class="name">赵六</div>
+                                    <div class="role-tag">木工</div>
+                                </div>
+                                <div class="person-option" onclick="selectConfirmer('edit', '钱七', '油漆工')">
+                                    <div class="avatar">钱</div>
+                                    <div class="name">钱七</div>
+                                    <div class="role-tag">油漆工</div>
+                                </div>
+                                <div class="person-option" onclick="selectConfirmer('edit', '孙八', '监理')">
+                                    <div class="avatar">孙</div>
+                                    <div class="name">孙八</div>
+                                    <div class="role-tag">监理</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">执行标准 <span class="required">*</span></label>
+                        <textarea class="form-textarea" id="editTaskExecStandard" placeholder="请输入执行标准"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">确认标准 <span class="required">*</span></label>
+                        <textarea class="form-textarea" id="editTaskConfirmStandard" placeholder="请输入确认标准"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">担责标准 <span class="required">*</span></label>
+                        <textarea class="form-textarea" id="editTaskLiableStandard" placeholder="请输入担责标准"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="submit-btn" onclick="confirmEditTask()">保存修改</button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="change-confirm-modal" id="changeConfirmModal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <div class="title">变更确认</div>
+                </div>
+                <div class="modal-body">
+                    <div class="change-summary">
+                        <div class="summary-title">变更内容摘要</div>
+                        <div class="summary-item">
+                            <div class="dot"></div>
+                            <div>布管布线阶段新增任务：线路检测</div>
+                        </div>
+                        <div class="summary-item">
+                            <div class="dot"></div>
+                            <div>安装阶段任务金额调整：开关插座安装 ¥8,000 → ¥9,000</div>
+                        </div>
+                        <div class="summary-item">
+                            <div class="dot"></div>
+                            <div>新增阶段：测试阶段</div>
+                        </div>
+                    </div>
+                    <div style="font-size: 13px; color: var(--text-secondary); line-height: 1.6;">
+                        <p style="margin-bottom: 8px;"><strong>发起方：</strong>张三（业主）</p>
+                        <p style="margin-bottom: 8px;"><strong>发起时间：</strong>2024-01-25 14:30</p>
+                        <p><strong>变更说明：</strong>根据现场实际情况，需要增加线路检测任务，并调整部分任务金额。</p>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <div class="btn reject" onclick="rejectChange()">驳回变更</div>
+                    <div class="btn confirm" onclick="confirmChange()">确认变更</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="fulltext-modal" id="fullTextModal">
+            <div class="fulltext-status-bar">
+                <div class="time">9:41</div>
+                <div class="icons">📶 🔋</div>
+            </div>
+            <div class="fulltext-header">
+                <div class="fulltext-back" onclick="closeFullText()">
+                    <span class="back-arrow">←</span>
+                    <span class="back-text">返回</span>
+                </div>
+                <div class="fulltext-title">📄 合同全文</div>
+                <div class="fulltext-close" onclick="closeFullText()">✕</div>
+            </div>
+            <div class="fulltext-content">
+                <div class="contract-article">
+                    <div class="article-title">合同编号：BJSDSWHT000001</div>
+                    <div class="article-content">
+                        <p><strong>合同名称：</strong>水电分包合同</p>
+                        <p><strong>签订日期：</strong>2024年01月10日</p>
+                        <p><strong>合同金额：</strong>人民币捌万元整（¥80,000.00）</p>
+                    </div>
+                </div>
+                
+                <div class="contract-article">
+                    <div class="article-title">第一条 工程概况</div>
+                    <div class="article-content">
+                        <p>1.1 工程名称：XX小区整体装修水电工程</p>
+                        <p>1.2 工程地点：XX市XX区XX路XX号</p>
+                        <p>1.3 工程内容：包括但不限于强电系统、弱电系统、给排水系统、暖通系统等水电工程的施工、安装、调试及验收。</p>
+                        <p>1.4 承包方式：包工包料</p>
+                        <p>1.5 工期：自开工之日起45个日历天内完成全部工程内容。</p>
+                    </div>
+                </div>
+                
+                <div class="contract-article">
+                    <div class="article-title">第二条 合同价款及支付方式</div>
+                    <div class="article-content">
+                        <p>2.1 合同总价：人民币捌万元整（¥80,000.00），该价格为含税价格。</p>
+                        <p>2.2 支付方式：</p>
+                        <p>（1）合同签订后3个工作日内，甲方向乙方支付合同总价的30%作为预付款，即人民币贰万肆千元整（¥24,000.00）；</p>
+                        <p>（2）材料进场验收合格后3个工作日内，甲方向乙方支付合同总价的20%，即人民币壹万陆千元整（¥16,000.00）；</p>
+                        <p>（3）布管布线工程验收合格后3个工作日内，甲方向乙方支付合同总价的30%，即人民币贰万肆千元整（¥24,000.00）；</p>
+                        <p>（4）工程全部完工并通过最终验收后7个工作日内，甲方向乙方支付剩余20%尾款，即人民币壹万陆千元整（¥16,000.00）。</p>
+                    </div>
+                </div>
+                
+                <div class="contract-article">
+                    <div class="article-title">第三条 双方权利义务</div>
+                    <div class="article-content">
+                        <p>3.1 甲方权利义务：</p>
+                        <p>（1）按时支付工程款项；</p>
+                        <p>（2）提供施工所需的水、电等基础设施条件；</p>
+                        <p>（3）协调解决施工过程中遇到的问题；</p>
+                        <p>（4）按约定时间组织工程验收。</p>
+                        <p>3.2 乙方权利义务：</p>
+                        <p>（1）按合同约定及国家相关标准完成工程施工；</p>
+                        <p>（2）保证施工材料符合国家质量标准；</p>
+                        <p>（3）遵守施工现场安全管理规定；</p>
+                        <p>（4）工程完工后提供完整的竣工资料。</p>
+                    </div>
+                </div>
+                
+                <div class="contract-article">
+                    <div class="article-title">第四条 工程质量及验收</div>
+                    <div class="article-content">
+                        <p>4.1 乙方应严格按照国家现行工程施工验收规范及设计图纸要求进行施工，确保工程质量。</p>
+                        <p>4.2 工程验收分为阶段性验收和最终验收：</p>
+                        <p>（1）阶段性验收：每个施工阶段完成后，乙方应通知甲方进行验收；</p>
+                        <p>（2）最终验收：全部工程完工后，乙方应提交竣工验收申请，甲方应在7个工作日内组织验收。</p>
+                        <p>4.3 验收不合格的，乙方应在甲方指定的期限内整改完毕，并重新申请验收。</p>
+                    </div>
+                </div>
+                
+                <div class="contract-article">
+                    <div class="article-title">第五条 违约责任</div>
+                    <div class="article-content">
+                        <p>5.1 甲方违约责任：</p>
+                        <p>（1）未按约定时间支付工程款的，每逾期一日，应按逾期金额的千分之三向乙方支付违约金；</p>
+                        <p>（2）无正当理由拒绝验收或拖延验收超过15日的，视为验收合格。</p>
+                        <p>5.2 乙方违约责任：</p>
+                        <p>（1）未按约定工期完工的，每逾期一日，应按合同总价的千分之三向甲方支付违约金；</p>
+                        <p>（2）工程质量不符合约定的，乙方应无偿返工直至合格，因此造成的工期延误由乙方承担。</p>
+                    </div>
+                </div>
+                
+                <div class="contract-article">
+                    <div class="article-title">第六条 争议解决</div>
+                    <div class="article-content">
+                        <p>6.1 本合同履行过程中发生的争议，双方应首先通过友好协商解决。</p>
+                        <p>6.2 协商不成的，任何一方均可向工程所在地人民法院提起诉讼。</p>
+                    </div>
+                </div>
+                
+                <div class="contract-article">
+                    <div class="article-title">第七条 其他约定</div>
+                    <div class="article-content">
+                        <p>7.1 本合同未尽事宜，双方可另行签订补充协议，补充协议与本合同具有同等法律效力。</p>
+                        <p>7.2 本合同一式两份，甲乙双方各执一份，自双方签字盖章之日起生效。</p>
+                        <p>7.3 本合同附件为本合同不可分割的组成部分，与本合同具有同等法律效力。</p>
+                    </div>
+                </div>
+                
+                <div class="contract-article">
+                    <div class="article-title">补充条款</div>
+                    <div class="article-content">
+                        <p>1. 乙方应严格按照施工图纸进行施工，如有变更需经甲方书面确认。</p>
+                        <p>2. 材料进场需经甲方或监理方验收合格后方可使用。</p>
+                        <p>3. 隐蔽工程验收合格后方可进行下一道工序。</p>
+                    </div>
+                </div>
+                
+                <div class="contract-article">
+                    <div class="article-title">签署信息</div>
+                    <div class="article-content">
+                        <p><strong>甲方（发包方）：</strong>张三（业主）</p>
+                        <p><strong>签署日期：</strong>2024年01月10日</p>
+                        <br>
+                        <p><strong>乙方（承包方）：</strong>李四（施工方）</p>
+                        <p><strong>签署日期：</strong>2024年01月10日</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="modal-overlay" id="confirmModal">
+            <div class="modal">
+                <div class="modal-header">
+                    <div class="title" id="modalTitle">确认操作</div>
+                </div>
+                <div class="modal-body">
+                    <div class="message" id="modalMessage">确定要执行此操作吗？</div>
+                    <div class="reject-reason-input-box" id="rejectReasonInputBox" style="display: none;">
+                        <div class="reject-reason-label">驳回原因 <span style="color: var(--error-color);">*</span></div>
+                        <textarea class="reject-reason-textarea" id="rejectReasonInput" placeholder="请输入驳回原因，将通知对方进行修改..." maxlength="500" oninput="updateRejectReasonCount()"></textarea>
+                        <div class="reject-reason-count"><span id="rejectReasonCount">0</span>/500</div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <div class="btn cancel" onclick="closeModal()">取消</div>
+                    <div class="btn confirm" id="modalConfirmBtn" onclick="confirmAction()">确定</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="modal-overlay" id="versionModal">
+            <div class="modal">
+                <div class="modal-header">
+                    <div class="title">合同版本记录</div>
+                </div>
+                <div class="modal-body" style="max-height: 60vh; overflow-y: auto;">
+                    <div class="version-section">
+                        <div class="version-section-title">版本历史</div>
+                        <div class="version-list" id="versionList">
+                            <div class="version-item">
+                                <div class="version-tag current">V2</div>
+                                <div class="version-info">
+                                    <div class="version-name">变更版本 <span class="current-version-tag">当前版本</span></div>
+                                    <div class="version-desc">变更内容：新增"收尾阶段"，包含2个任务</div>
+                                    <div class="version-date">2024-02-15 变更生效</div>
+                                </div>
+                                <div class="view-btn">查看</div>
+                            </div>
+                            <div class="version-item">
+                                <div class="version-tag">V1</div>
+                                <div class="version-info">
+                                    <div class="version-name">初始版本</div>
+                                    <div class="version-desc">首次签约版本，共4个阶段12个任务</div>
+                                    <div class="version-date">2024-01-10 签约生效</div>
+                                </div>
+                                <div class="view-btn">查看</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="status-flow-section">
+                        <div class="status-flow-section-title">状态流转记录</div>
+                        <div class="status-flow-timeline" id="statusFlowTimeline">
+                            <div class="timeline-item">
+                                <div class="timeline-dot success"></div>
+                                <div class="timeline-content">
+                                    <div class="timeline-title">创建合同</div>
+                                    <div class="timeline-desc">拟定中</div>
+                                    <div class="timeline-time">2024-01-05 10:00</div>
+                                </div>
+                            </div>
+                            <div class="timeline-item">
+                                <div class="timeline-dot success"></div>
+                                <div class="timeline-content">
+                                    <div class="timeline-title">提交确认</div>
+                                    <div class="timeline-desc">进入平台审核</div>
+                                    <div class="timeline-time">2024-01-06 14:30</div>
+                                </div>
+                            </div>
+                            <div class="timeline-item">
+                                <div class="timeline-dot success"></div>
+                                <div class="timeline-content">
+                                    <div class="timeline-title">平台审核通过</div>
+                                    <div class="timeline-desc">审核人：运营专员李华</div>
+                                    <div class="timeline-time">2024-01-07 09:15</div>
+                                </div>
+                            </div>
+                            <div class="timeline-item">
+                                <div class="timeline-dot success"></div>
+                                <div class="timeline-content">
+                                    <div class="timeline-title">乙方确认合同</div>
+                                    <div class="timeline-desc">确认人：李四（施工方）</div>
+                                    <div class="timeline-time">2024-01-08 16:20</div>
+                                </div>
+                            </div>
+                            <div class="timeline-item">
+                                <div class="timeline-dot success"></div>
+                                <div class="timeline-content">
+                                    <div class="timeline-title">上传签约文件</div>
+                                    <div class="timeline-desc">上传人：张三</div>
+                                    <div class="timeline-time">2024-01-10 15:30</div>
+                                </div>
+                            </div>
+                            <div class="timeline-item">
+                                <div class="timeline-dot success"></div>
+                                <div class="timeline-content">
+                                    <div class="timeline-title">确认签约</div>
+                                    <div class="timeline-desc">合同正式生效（V1版本）</div>
+                                    <div class="timeline-time">2024-01-10 17:00</div>
+                                </div>
+                            </div>
+                            <div class="timeline-item">
+                                <div class="timeline-dot primary"></div>
+                                <div class="timeline-content">
+                                    <div class="timeline-title">发起变更</div>
+                                    <div class="timeline-desc">变更类型：仅阶段任务变更</div>
+                                    <div class="timeline-time">2024-02-12 10:00</div>
+                                </div>
+                            </div>
+                            <div class="timeline-item">
+                                <div class="timeline-dot primary"></div>
+                                <div class="timeline-content">
+                                    <div class="timeline-title">变更确认</div>
+                                    <div class="timeline-desc">变更生效（V2版本）</div>
+                                    <div class="timeline-time">2024-02-15 14:30</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <div class="btn confirm" onclick="closeVersionModal()" style="width: 100%;">关闭</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="sign-upload-page" id="signUploadPage">
+            <div class="page-header">
+                <div class="header-back" onclick="closeSignUploadPage()">
+                    <span>← 返回</span>
+                </div>
+                <div class="header-title">上传签约文件</div>
+                <div class="header-placeholder"></div>
+            </div>
+            <div class="page-content">
+                <div class="notice-card">
+                    <div class="notice-title">
+                        <span>📋</span>
+                        <span>上传说明</span>
+                    </div>
+                    <ul class="notice-list">
+                        <li>请上传线下签约后的合同扫描件或照片</li>
+                        <li>支持PDF、JPG、PNG格式，单个文件不超过10MB</li>
+                        <li>上传后需要对方确认，确认后合同正式生效</li>
+                    </ul>
+                </div>
+                
+                <div class="section-card">
+                    <div class="section-title">
+                        <span>📎</span>
+                        <span>签约文件</span>
+                    </div>
+                    <div class="upload-box" onclick="document.getElementById('signFileInput').click()">
+                        <div class="icon">📁</div>
+                        <div class="text">点击上传签约文件</div>
+                        <div class="hint">支持 PDF、JPG、PNG 格式</div>
+                    </div>
+                    <input type="file" id="signFileInput" style="display: none;" accept=".pdf,.jpg,.jpeg,.png" onchange="handleSignFileSelect(this)">
+                    <div id="signFileList"></div>
+                </div>
+                
+
+            </div>
+            <div class="page-footer">
+                <button class="submit-btn" onclick="submitSignFile()">提交签约文件</button>
+            </div>
+        </div>
+        
+        <div class="change-confirm-modal" id="signConfirmModal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <div class="title">确认签约</div>
+                </div>
+                <div class="modal-body">
+                    <div class="sign-file-preview">
+                        <div class="file-icon">📄</div>
+                        <div class="file-info">
+                            <div class="file-name">水电分包合同_签约文件.pdf</div>
+                            <div class="file-meta">上传人：张三 · 2024-01-10 15:30</div>
+                        </div>
+                        <div class="file-action" onclick="previewSignFile()">预览</div>
+                    </div>
+                    <div style="margin-top: 16px; font-size: 13px; color: var(--text-secondary); line-height: 1.6;">
+                        <p style="margin-bottom: 8px;"><strong>上传方：</strong>张三（业主）</p>
+                        <p style="margin-bottom: 8px;"><strong>上传时间：</strong>2024-01-10 15:30</p>
+                        <p><strong>备注：</strong>双方已于2024年1月10日线下签署合同，现上传签约文件供确认。</p>
+                    </div>
+                    <div style="margin-top: 16px; padding: 12px; background-color: #FFF7E6; border-radius: 8px; font-size: 12px; color: #FA8C16;">
+                        ⚠️ 确认签约后合同将正式生效，请仔细核对签约文件内容。
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <div class="btn reject" onclick="rejectSign()">驳回签约</div>
+                    <div class="btn confirm" onclick="confirmSign()">确认签约</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="export-modal" id="exportModal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <div class="modal-title">导出合同文件</div>
+                    <div class="modal-close" onclick="closeExportModal()">✕</div>
+                </div>
+                <div class="export-option" onclick="exportToPDF()">
+                    <div class="icon">📄</div>
+                    <div class="info">
+                        <div class="title">导出为PDF</div>
+                        <div class="desc">生成完整合同文件，保存到手机本地</div>
+                    </div>
+                    <div class="arrow">›</div>
+                </div>
+                <div class="export-option" onclick="shareToWechat()">
+                    <div class="icon">💬</div>
+                    <div class="info">
+                        <div class="title">分享到微信</div>
+                        <div class="desc">生成PDF文件并发送给微信好友</div>
+                    </div>
+                    <div class="arrow">›</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 合同文本模板选择弹窗 -->
+        <div class="template-picker-modal" id="templatePickerModal" style="display: none;">
+            <div class="modal-overlay" onclick="closeTemplatePicker()"></div>
+            <div class="modal-content" style="max-height: 80%;">
+                <div class="modal-header">
+                    <div class="title">📄 选择合同文本模板</div>
+                    <div class="close-btn" onclick="closeTemplatePicker()">✕</div>
+                </div>
+                <div class="template-filter-info">
+                    <div class="filter-row">
+                        <span class="filter-label">当前合同：</span>
+                        <span class="filter-value" id="templateFilterCity">杭州</span>
+                        <span class="filter-sep">·</span>
+                        <span class="filter-value" id="templateFilterType">水电工程</span>
+                    </div>
+                    <div class="filter-tip">
+                        <span class="tip-icon">💡</span>
+                        <span>仅显示与当前合同城市、类型匹配的模板</span>
+                    </div>
+                </div>
+                <div class="modal-body" style="padding: 0 16px 16px;">
+                    <div class="template-select-list" id="templateSelectList">
+                        <!-- 模板列表动态生成 -->
+                    </div>
+                    <div class="template-empty" id="templateEmpty" style="display: none;">
+                        <div class="empty-icon">📭</div>
+                        <div class="empty-text">暂无匹配的模板</div>
+                        <div class="empty-desc">请前往模板管理创建相关模板</div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <div class="modal-btn secondary" onclick="closeTemplatePicker()">取消</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 阶段任务模板选择弹窗 -->
+        <div class="stage-template-modal" id="stageTemplateModal" style="display: none;">
+            <div class="modal-overlay" onclick="closeStageTemplatePicker()"></div>
+            <div class="modal-content" style="max-height: 85%;">
+                <div class="modal-header">
+                    <div class="title">📝 选择阶段任务模板</div>
+                    <div class="close-btn" onclick="closeStageTemplatePicker()">✕</div>
+                </div>
+                <div class="template-filter-info">
+                    <div class="filter-row">
+                        <span class="filter-label">当前合同：</span>
+                        <span class="filter-value" id="stageTemplateFilterCity">杭州</span>
+                        <span class="filter-sep">·</span>
+                        <span class="filter-value" id="stageTemplateFilterType">水电工程</span>
+                    </div>
+                </div>
+                <div class="modal-body" style="padding: 0 16px 16px;">
+                    <div class="stage-template-select-list" id="stageTemplateSelectList">
+                        <!-- 阶段模板列表动态生成 -->
+                    </div>
+                    <div class="template-empty" id="stageTemplateEmpty" style="display: none;">
+                        <div class="empty-icon">📭</div>
+                        <div class="empty-text">暂无匹配的模板</div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <div class="modal-btn secondary" onclick="closeStageTemplatePicker()">取消</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 模板预览弹窗 -->
+        <div class="template-preview-modal" id="templatePreviewModal" style="display: none;">
+            <div class="modal-overlay" onclick="closeTemplatePreviewModal()"></div>
+            <div class="modal-content" style="max-height: 90%;">
+                <div class="modal-header">
+                    <div class="title" id="previewTemplateName">模板名称</div>
+                    <div class="close-btn" onclick="closeTemplatePreviewModal()">✕</div>
+                </div>
+                <div class="preview-meta">
+                    <div class="preview-meta-item">
+                        <span class="meta-label">类型：</span>
+                        <span class="meta-value" id="previewTemplateType">-</span>
+                    </div>
+                    <div class="preview-meta-item">
+                        <span class="meta-label">城市：</span>
+                        <span class="meta-value" id="previewTemplateCity">-</span>
+                    </div>
+                    <div class="preview-meta-item">
+                        <span class="meta-label">更新时间：</span>
+                        <span class="meta-value" id="previewTemplateUpdateTime">-</span>
+                    </div>
+                </div>
+                <div class="modal-body" style="padding: 0 16px;">
+                    <div class="preview-content" id="templatePreviewContent">
+                        <!-- 预览内容动态生成 -->
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <div class="modal-btn secondary" onclick="closeTemplatePreviewModal()">取消</div>
+                    <div class="modal-btn primary" onclick="applyTemplateFromPreview()">使用此模板</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="toast" id="toast"></div>
+        
+        <div class="modal-overlay change-record-modal" id="changeRecordModal">
+            <div class="modal">
+                <div class="modal-header">
+                    <div class="title">变更记录</div>
+                </div>
+                <div class="modal-body">
+                    <div class="version-item">
+                        <div class="version-tag">V3</div>
+                        <div class="version-info">
+                            <div class="version-name">第三次变更<span class="version-status-tag error">变更已驳回</span></div>
+                            <div class="version-date">2024-03-20 驳回</div>
+                        </div>
+                        <div class="view-btn" onclick="viewChangeVersion('v3')">查看</div>
+                    </div>
+                    <div class="version-item">
+                        <div class="version-tag current">V2</div>
+                        <div class="version-info">
+                            <div class="version-name">第二次变更<span class="version-status-tag success">变更成功</span></div>
+                            <div class="version-date">2024-03-15 生效</div>
+                            <div class="version-current">当前版本</div>
+                        </div>
+                        <div class="view-btn" onclick="viewChangeVersion('v2')">查看</div>
+                    </div>
+                    <div class="version-item">
+                        <div class="version-tag">V1</div>
+                        <div class="version-info">
+                            <div class="version-name">第一次变更<span class="version-status-tag success">变更成功</span></div>
+                            <div class="version-date">2024-02-20 生效</div>
+                        </div>
+                        <div class="view-btn" onclick="viewChangeVersion('v1')">查看</div>
+                    </div>
+                    <div class="version-item">
+                        <div class="version-tag">V0</div>
+                        <div class="version-info">
+                            <div class="version-name">初始版本</div>
+                            <div class="version-date">2024-01-15 生效</div>
+                        </div>
+                        <div class="view-btn" onclick="viewChangeVersion('v0')">查看</div>
+                    </div>
+                    <div style="margin-top: 16px; padding-top: 16px; border-top: 1px solid #E8E8E8;">
+                        <div style="font-size: 12px; color: #8C8C8C; margin-bottom: 12px;">变更历史</div>
+                        <div style="font-size: 12px; color: #595959; line-height: 1.8;">
+                            <div style="display: flex; align-items: flex-start; gap: 8px; margin-bottom: 12px;">
+                                <span style="color: var(--success-color); margin-top: 3px;">●</span>
+                                <div>
+                                    <div style="color: #262626;">2024-03-15 第三次变更生效</div>
+                                    <div style="color: #8C8C8C; font-size: 11px;">变更内容：新增阶段任务，金额调整¥15,000</div>
+                                </div>
+                            </div>
+                            <div style="display: flex; align-items: flex-start; gap: 8px; margin-bottom: 12px;">
+                                <span style="color: var(--primary-color); margin-top: 3px;">●</span>
+                                <div>
+                                    <div style="color: #262626;">2024-03-10 变更确认通过</div>
+                                    <div style="color: #8C8C8C; font-size: 11px;">双方确认同意变更内容</div>
+                                </div>
+                            </div>
+                            <div style="display: flex; align-items: flex-start; gap: 8px; margin-bottom: 12px;">
+                                <span style="color: #13C2C2; margin-top: 3px;">●</span>
+                                <div>
+                                    <div style="color: #262626;">2024-03-08 平台审核通过</div>
+                                    <div style="color: #8C8C8C; font-size: 11px;">运营人员审核通过变更申请</div>
+                                </div>
+                            </div>
+                            <div style="display: flex; align-items: flex-start; gap: 8px; margin-bottom: 12px;">
+                                <span style="color: var(--warning-color); margin-top: 3px;">●</span>
+                                <div>
+                                    <div style="color: #262626;">2024-03-05 发起变更申请</div>
+                                    <div style="color: #8C8C8C; font-size: 11px;">发起人：张三（项目经理）</div>
+                                </div>
+                            </div>
+                            <div style="display: flex; align-items: flex-start; gap: 8px; margin-bottom: 12px; padding-top: 12px; border-top: 1px dashed #E8E8E8;">
+                                <span style="color: var(--success-color); margin-top: 3px;">●</span>
+                                <div>
+                                    <div style="color: #262626;">2024-02-20 第二次变更生效</div>
+                                    <div style="color: #8C8C8C; font-size: 11px;">变更内容：合同金额调整¥10,000</div>
+                                </div>
+                            </div>
+                            <div style="display: flex; align-items: flex-start; gap: 8px; margin-bottom: 12px;">
+                                <span style="color: var(--error-color); margin-top: 3px;">●</span>
+                                <div>
+                                    <div style="color: #262626;">2024-02-10 变更失败</div>
+                                    <div style="color: #8C8C8C; font-size: 11px;">对方驳回变更申请</div>
+                                </div>
+                            </div>
+                            <div style="display: flex; align-items: flex-start; gap: 8px; margin-bottom: 12px; padding-top: 12px; border-top: 1px dashed #E8E8E8;">
+                                <span style="color: var(--success-color); margin-top: 3px;">●</span>
+                                <div>
+                                    <div style="color: #262626;">2024-01-15 合同签约完成</div>
+                                    <div style="color: #8C8C8C; font-size: 11px;">初始版本正式生效</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <div class="btn confirm" onclick="closeChangeRecordModal()" style="width: 100%;">关闭</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="custom-confirm-modal" id="customConfirmModal">
+            <div class="modal-box">
+                <div class="modal-header">
+                    <div class="modal-title" id="customConfirmTitle">确认提示</div>
+                </div>
+                <div class="modal-body" id="customConfirmMessage">
+                    确定要执行此操作吗？
+                </div>
+                <div class="modal-footer">
+                    <div class="modal-btn cancel" id="customConfirmCancel" onclick="closeCustomConfirm()">取消</div>
+                    <div class="modal-btn confirm" id="customConfirmOk" onclick="confirmCustomConfirm()">确定</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="custom-toast-modal" id="customToastModal">
+            <div class="modal-box">
+                <div class="modal-body" id="customToastMessage">
+                    操作成功
+                </div>
+                <div class="modal-footer">
+                    <div class="modal-btn" onclick="closeCustomToast()">知道了</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="pc-open-modal" id="pcOpenModal">
+            <div class="modal-box">
+                <div class="modal-header">
+                    <div class="modal-title">💻 在电脑端打开</div>
+                </div>
+                <div class="modal-body">
+                    <div class="qr-section">
+                        <div class="qr-code">
+                            <svg viewBox="0 0 100 100" width="140" height="140">
+                                <rect x="10" y="10" width="25" height="25" fill="#333"/>
+                                <rect x="65" y="10" width="25" height="25" fill="#333"/>
+                                <rect x="10" y="65" width="25" height="25" fill="#333"/>
+                                <rect x="15" y="15" width="15" height="15" fill="#fff"/>
+                                <rect x="70" y="15" width="15" height="15" fill="#fff"/>
+                                <rect x="15" y="70" width="15" height="15" fill="#fff"/>
+                                <rect x="18" y="18" width="9" height="9" fill="#333"/>
+                                <rect x="73" y="18" width="9" height="9" fill="#333"/>
+                                <rect x="18" y="73" width="9" height="9" fill="#333"/>
+                                <rect x="40" y="10" width="5" height="5" fill="#333"/>
+                                <rect x="50" y="10" width="5" height="5" fill="#333"/>
+                                <rect x="40" y="20" width="5" height="5" fill="#333"/>
+                                <rect x="45" y="25" width="5" height="5" fill="#333"/>
+                                <rect x="55" y="25" width="5" height="5" fill="#333"/>
+                                <rect x="40" y="40" width="20" height="20" fill="#333"/>
+                                <rect x="45" y="45" width="10" height="10" fill="#fff"/>
+                                <rect x="48" y="48" width="4" height="4" fill="#333"/>
+                                <rect x="10" y="40" width="5" height="5" fill="#333"/>
+                                <rect x="20" y="45" width="5" height="5" fill="#333"/>
+                                <rect x="25" y="50" width="5" height="5" fill="#333"/>
+                                <rect x="65" y="40" width="5" height="5" fill="#333"/>
+                                <rect x="75" y="45" width="5" height="5" fill="#333"/>
+                                <rect x="80" y="50" width="5" height="5" fill="#333"/>
+                                <rect x="65" y="65" width="5" height="5" fill="#333"/>
+                                <rect x="75" y="70" width="5" height="5" fill="#333"/>
+                                <rect x="80" y="75" width="5" height="5" fill="#333"/>
+                                <rect x="85" y="80" width="5" height="5" fill="#333"/>
+                            </svg>
+                        </div>
+                        <div class="qr-tip">使用微信扫一扫，在电脑端打开</div>
+                    </div>
+                    <div class="link-section">
+                        <div class="link-label">或复制链接在浏览器中打开：</div>
+                        <div class="link-box">
+                            <div class="link-input" id="pcLink">https://zhaobo12345.github.io/LZJPro/pc-contract-list.html</div>
+                            <div class="copy-btn" onclick="copyPcLink()">复制链接</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <div class="modal-btn" onclick="closePcOpenModal()">取消</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="page-nav">
+        <div class="page-nav-title">原型导航</div>
+        <a href="home.html" class="page-nav-item">首页</a>
+        <a href="project-list.html" class="page-nav-item">项目列表</a>
+        <a href="project-detail.html" class="page-nav-item">项目详情</a>
+        <a href="contract-detail.html" class="page-nav-item">合同详情</a>
+        <a href="task-detail.html" class="page-nav-item">任务详情</a>
+        <a href="contract-detail.html" class="page-nav-item active">合同详情（合规版）</a>
+        <a href="worker-contract-detail.html" class="page-nav-item">工人合同详情（新流程）</a>
+        <div style="margin-top: 16px; padding-top: 12px; border-top: 1px solid #E8E8E8;">
+            <div class="page-nav-title">合同状态切换</div>
+            
+            <!-- 草稿阶段 -->
+            <div class="status-group">
+                <div class="status-group-header" onclick="toggleStatusGroup(this)">
+                    <span class="status-group-icon">▼</span>
+                    <span class="status-group-title">草稿阶段</span>
+                    <span class="status-group-count">3</span>
+                </div>
+                <div class="status-group-content">
+                    <div class="status-switch-item" onclick="ContractDetailPage.updateContractStatus('draft')">拟定中</div>
+                    <div class="status-switch-item" onclick="ContractDetailPage.updateContractStatus('draft_party_a')">拟定中（甲方）</div>
+                    <div class="status-switch-item" onclick="ContractDetailPage.updateContractStatus('draft_submittable')">拟定中(可提交)</div>
+                </div>
+            </div>
+            
+            <!-- 审核阶段 -->
+            <div class="status-group">
+                <div class="status-group-header" onclick="toggleStatusGroup(this)">
+                    <span class="status-group-icon">▶</span>
+                    <span class="status-group-title">审核阶段</span>
+                    <span class="status-group-count">3</span>
+                </div>
+                <div class="status-group-content" style="display: none;">
+                    <div class="status-switch-item" onclick="ContractDetailPage.updateContractStatus('platform_reviewing')">待平台审核</div>
+                    <div class="status-switch-item" onclick="ContractDetailPage.updateContractStatus('platform_rejected')">平台审核驳回</div>
+                    <div class="status-switch-item" onclick="ContractDetailPage.updateContractStatus('platform_rejected_modified')">平台驳回(已修改)</div>
+                </div>
+            </div>
+            
+            <!-- 确认阶段 -->
+            <div class="status-group">
+                <div class="status-group-header" onclick="toggleStatusGroup(this)">
+                    <span class="status-group-icon">▶</span>
+                    <span class="status-group-title">确认阶段</span>
+                    <span class="status-group-count">4</span>
+                </div>
+                <div class="status-group-content" style="display: none;">
+                    <div class="status-switch-item" onclick="ContractDetailPage.updateContractStatus('confirming_sender')">确认中(发起方)</div>
+                    <div class="status-switch-item" onclick="ContractDetailPage.updateContractStatus('confirming_receiver')">确认中(待确认方)</div>
+                    <div class="status-switch-item" onclick="ContractDetailPage.updateContractStatus('confirmed')">已确认</div>
+                    <div class="status-switch-item" onclick="ContractDetailPage.updateContractStatus('confirmed_party_a')">已确认（甲方）</div>
+                </div>
+            </div>
+            
+            <!-- 签约阶段 -->
+            <div class="status-group">
+                <div class="status-group-header" onclick="toggleStatusGroup(this)">
+                    <span class="status-group-icon">▶</span>
+                    <span class="status-group-title">签约阶段</span>
+                    <span class="status-group-count">1</span>
+                </div>
+                <div class="status-group-content" style="display: none;">
+                    <div class="status-switch-item" onclick="ContractDetailPage.updateContractStatus('signed')">已签约</div>
+                </div>
+            </div>
+            
+            <!-- 变更阶段 -->
+            <div class="status-group">
+                <div class="status-group-header" onclick="toggleStatusGroup(this)">
+                    <span class="status-group-icon">▶</span>
+                    <span class="status-group-title">变更阶段</span>
+                    <span class="status-group-count">7</span>
+                </div>
+                <div class="status-group-content" style="display: none;">
+                    <div class="status-switch-item" onclick="ContractDetailPage.updateContractStatus('changing')">变更中(发起方)</div>
+                    <div class="status-switch-item" onclick="ContractDetailPage.updateContractStatus('change_confirming')">变更中(待确认方)</div>
+                    <div class="status-switch-item" onclick="ContractDetailPage.updateContractStatus('change_platform_reviewing')">变更审核中</div>
+                    <div class="status-switch-item" onclick="ContractDetailPage.updateContractStatus('change_platform_rejected')">变更审核驳回</div>
+                    <div class="status-switch-item" onclick="ContractDetailPage.updateContractStatus('change_confirming_sender')">变更确认中(发起方)</div>
+                    <div class="status-switch-item" onclick="ContractDetailPage.updateContractStatus('change_confirming_receiver')">变更确认中(待确认方)</div>
+                    <div class="status-switch-item" onclick="ContractDetailPage.updateContractStatus('change_signing_wait')">变更签约中</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+
+    <script src="contract-store.js"></script>
+    <script src="js/page-nav.js"></script>
+    <script src="js/contract-detail.js"></script>
+    <script>
+        // 页内「更多」面板控制（v2 示范页专用，不写入任何共享 JS 文件）
+        function toggleMoreOps() {
+            var p = document.getElementById('moreOpsPanel');
+            var b = document.getElementById('moreOpsBtn');
+            if (!p) return;
+            p.classList.toggle('show');
+            if (b) b.classList.toggle('open');
+        }
+
+        function closeMoreOps() {
+            var p = document.getElementById('moreOpsPanel');
+            var b = document.getElementById('moreOpsBtn');
+            if (p) p.classList.remove('show');
+            if (b) b.classList.remove('open');
+        }
+
+        function toggleChangeMoreOps() {
+            var p = document.getElementById('changeMoreOpsPanel');
+            var b = document.getElementById('changeMoreOpsBtn');
+            if (!p) return;
+            p.classList.toggle('show');
+            if (b) b.classList.toggle('open');
+        }
+
+        function closeChangeMoreOps() {
+            var p = document.getElementById('changeMoreOpsPanel');
+            var b = document.getElementById('changeMoreOpsBtn');
+            if (p) p.classList.remove('show');
+            if (b) b.classList.remove('open');
+        }
+
+        window.toggleMoreOps = toggleMoreOps;
+        window.closeMoreOps = closeMoreOps;
+        window.toggleChangeMoreOps = toggleChangeMoreOps;
+        window.closeChangeMoreOps = closeChangeMoreOps;
+    </script>
+</body>
+</html>

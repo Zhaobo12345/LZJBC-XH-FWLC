@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>空状态/异常插图组件演示</title>
+    <link rel="stylesheet" href="empty-state.css">
+    <style>
+        :root {
+            --primary-color: #1890FF;
+            --success-color: #52C41A;
+            --warning-color: #FA8C16;
+            --error-color: #FF4D4F;
+            --text-primary: #262626;
+            --text-secondary: #595959;
+            --border-color: #E8E8E8;
+            --bg-primary: #FFFFFF;
+            --bg-secondary: #FAFAFA;
+        }
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', sans-serif;
+            background-color: var(--bg-secondary);
+            padding: 24px;
+        }
+        
+        .demo-header {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+        
+        .demo-header h1 {
+            font-size: 28px;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+        }
+        
+        .demo-header p {
+            color: var(--text-secondary);
+        }
+        
+        .demo-section {
+            background: var(--bg-primary);
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 24px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+        
+        .demo-section h2 {
+            font-size: 18px;
+            color: var(--text-primary);
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .demo-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 24px;
+        }
+        
+        .demo-card {
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        
+        .demo-card-header {
+            padding: 12px 16px;
+            background: var(--bg-secondary);
+            font-size: 14px;
+            color: var(--text-secondary);
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .demo-card-body {
+            min-height: 300px;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .demo-phone-frame {
+            width: 375px;
+            height: 667px;
+            margin: 0 auto;
+            background: var(--bg-primary);
+            border-radius: 24px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.12);
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .demo-phone-header {
+            height: 44px;
+            background: var(--bg-primary);
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            color: var(--text-primary);
+        }
+        
+        .demo-phone-content {
+            height: calc(100% - 44px - 50px);
+            overflow-y: auto;
+        }
+        
+        .demo-phone-tabbar {
+            height: 50px;
+            background: var(--bg-primary);
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-around;
+        }
+        
+        .demo-phone-tabbar .tab-item {
+            text-align: center;
+            color: var(--text-tertiary);
+            font-size: 12px;
+        }
+        
+        .demo-phone-tabbar .tab-item.active {
+            color: var(--primary-color);
+        }
+        
+        .control-bar {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+        }
+        
+        .control-btn {
+            padding: 8px 16px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .control-btn:hover {
+            background: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+        
+        .control-btn.active {
+            background: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+        
+        .code-example {
+            background: #1E1E1E;
+            color: #D4D4D4;
+            padding: 16px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            overflow-x: auto;
+            margin-top: 16px;
+        }
+        
+        .code-example .keyword { color: #569CD6; }
+        .code-example .string { color: #CE9178; }
+        .code-example .comment { color: #6A9955; }
+    </style>
+</head>
+<body>
+    <div class="demo-header">
+        <h1>空状态/异常插图组件演示</h1>
+        <p>用于列表页空状态、加载中、无网络、错误页等场景</p>
+    </div>
+    
+    <!-- 交互演示 -->
+    <div class="demo-section">
+        <h2>📱 交互演示：点击按钮切换状态</h2>
+        
+        <div class="control-bar">
+            <button class="control-btn active" onclick="showState('content')">正常内容</button>
+            <button class="control-btn" onclick="showState('loading')">加载中</button>
+            <button class="control-btn" onclick="showState('empty')">空状态</button>
+            <button class="control-btn" onclick="showState('offline')">无网络</button>
+        </div>
+        
+        <div class="demo-phone-frame">
+            <div class="demo-phone-header">📋 项目列表</div>
+            <div class="demo-phone-content" id="demoContent">
+                <!-- 内容区域：由JS动态切换 -->
+                <div class="project-list-content" id="contentState">
+                    <div style="padding: 16px;">
+                        <div style="background: var(--bg-secondary); border-radius: 8px; padding: 16px; margin-bottom: 12px;">
+                            <div style="font-weight: 600; margin-bottom: 8px;">XX小区整体装修</div>
+                            <div style="color: var(--text-secondary); font-size: 13px;">进行中 · 合同4/5 · 任务18/24</div>
+                        </div>
+                        <div style="background: var(--bg-secondary); border-radius: 8px; padding: 16px; margin-bottom: 12px;">
+                            <div style="font-weight: 600; margin-bottom: 8px;">YY花园精装修</div>
+                            <div style="color: var(--text-secondary); font-size: 13px;">进行中 · 合同2/3 · 任务8/15</div>
+                        </div>
+                        <div style="background: var(--bg-secondary); border-radius: 8px; padding: 16px;">
+                            <div style="font-weight: 600; margin-bottom: 8px;">AA别墅装修</div>
+                            <div style="color: var(--text-secondary); font-size: 13px;">已完工 · 合同6/6 · 任务32/32</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="demo-phone-tabbar">
+                <div class="tab-item">🏠首页</div>
+                <div class="tab-item active">📋项目</div>
+                <div class="tab-item">💬消息</div>
+                <div class="tab-item">👤我的</div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 空状态类型展示 -->
+    <div class="demo-section">
+        <h2>🎨 空状态类型一览</h2>
+        
+        <div class="demo-grid">
+            <div class="demo-card">
+                <div class="demo-card-header">empty-project（项目列表）</div>
+                <div class="demo-card-body" id="emptyProject"></div>
+            </div>
+            
+            <div class="demo-card">
+                <div class="demo-card-header">empty-task（任务列表）</div>
+                <div class="demo-card-body" id="emptyTask"></div>
+            </div>
+            
+            <div class="demo-card">
+                <div class="demo-card-header">empty-contract（合同列表）</div>
+                <div class="demo-card-body" id="emptyContract"></div>
+            </div>
+            
+            <div class="demo-card">
+                <div class="demo-card-header">empty-statement（对账单）</div>
+                <div class="demo-card-body" id="emptyStatement"></div>
+            </div>
+            
+            <div class="demo-card">
+                <div class="demo-card-header">empty-member（成员列表）</div>
+                <div class="demo-card-body" id="emptyMember"></div>
+            </div>
+            
+            <div class="demo-card">
+                <div class="demo-card-header">no-network（无网络）</div>
+                <div class="demo-card-body" id="noNetwork"></div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 使用示例 -->
+    <div class="demo-section">
+        <h2>📝 使用示例</h2>
+        
+        <div class="code-example">
+<span class="comment">// 1. 引入样式和脚本</span>
+&lt;link rel="stylesheet" href="../shared/empty-state.css"&gt;
+&lt;script src="../shared/empty-state.js"&gt;&lt;/script&gt;
+
+<span class="comment">// 2. 显示空状态</span>
+EmptyState.show(<span class="string">'#listContainer'</span>, {
+    type: <span class="string">'empty-project'</span>,
+    title: <span class="string">'暂无项目'</span>,
+    desc: <span class="string">'您还没有创建任何项目'</span>,
+    actionText: <span class="string">'创建项目'</span>,
+    onAction: () => { location.href = <span class="string">'create-project.html'</span>; }
+});
+
+<span class="comment">// 3. 显示加载状态</span>
+EmptyState.showLoading(<span class="string">'#listContainer'</span>, <span class="string">'加载中...'</span>);
+
+<span class="comment">// 4. 显示无网络状态</span>
+EmptyState.showOffline(<span class="string">'#listContainer'</span>, () => {
+    <span class="comment">// 重试逻辑</span>
+    loadData();
+});
+        </div>
+    </div>
+    
+    <!-- 页面集成清单 -->
+    <div class="demo-section">
+        <h2>📋 页面集成清单</h2>
+        
+        <table style="width: 100%; border-collapse: collapse;">
+            <thead>
+                <tr style="background: var(--bg-secondary);">
+                    <th style="padding: 12px; text-align: left; border-bottom: 1px solid var(--border-color);">页面</th>
+                    <th style="padding: 12px; text-align: left; border-bottom: 1px solid var(--border-color);">空状态类型</th>
+                    <th style="padding: 12px; text-align: left; border-bottom: 1px solid var(--border-color);">主题色</th>
+                    <th style="padding: 12px; text-align: left; border-bottom: 1px solid var(--border-color);">状态</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td style="padding: 12px; border-bottom: 1px solid var(--border-color);">project-list.html</td>
+                    <td style="padding: 12px; border-bottom: 1px solid var(--border-color);">empty-project</td>
+                    <td style="padding: 12px; border-bottom: 1px solid var(--border-color);"><span style="color: #1890FF;">●</span> 蓝色</td>
+                    <td style="padding: 12px; border-bottom: 1px solid var(--border-color);">待集成</td>
+                </tr>
+                <tr>
+                    <td style="padding: 12px; border-bottom: 1px solid var(--border-color);">task-list.html</td>
+                    <td style="padding: 12px; border-bottom: 1px solid var(--border-color);">empty-task</td>
+                    <td style="padding: 12px; border-bottom: 1px solid var(--border-color);"><span style="color: #52C41A;">●</span> 绿色</td>
+                    <td style="padding: 12px; border-bottom: 1px solid var(--border-color);">待集成</td>
+                </tr>
+                <tr>
+                    <td style="padding: 12px; border-bottom: 1px solid var(--border-color);">contract-list.html</td>
+                    <td style="padding: 12px; border-bottom: 1px solid var(--border-color);">empty-contract</td>
+                    <td style="padding: 12px; border-bottom: 1px solid var(--border-color);"><span style="color: #1890FF;">●</span> 蓝色</td>
+                    <td style="padding: 12px; border-bottom: 1px solid var(--border-color);">待集成</td>
+                </tr>
+                <tr>
+                    <td style="padding: 12px; border-bottom: 1px solid var(--border-color);">statement-list.html</td>
+                    <td style="padding: 12px; border-bottom: 1px solid var(--border-color);">empty-statement</td>
+                    <td style="padding: 12px; border-bottom: 1px solid var(--border-color);"><span style="color: #FA8C16;">●</span> 橙色</td>
+                    <td style="padding: 12px; border-bottom: 1px solid var(--border-color);">待集成</td>
+                </tr>
+                <tr>
+                    <td style="padding: 12px; border-bottom: 1px solid var(--border-color);">architecture.html</td>
+                    <td style="padding: 12px; border-bottom: 1px solid var(--border-color);">empty-member</td>
+                    <td style="padding: 12px; border-bottom: 1px solid var(--border-color);"><span style="color: #722ED1;">●</span> 紫色</td>
+                    <td style="padding: 12px; border-bottom: 1px solid var(--border-color);">待集成</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    
+    <script src="empty-state.js"></script>
+    <script>
+        // 初始化各空状态展示
+        function initDemos() {
+            // 项目空状态
+            EmptyState.show('emptyProject', {
+                type: 'empty-project',
+                title: '暂无项目',
+                desc: '您还没有创建任何项目',
+                actionText: '创建项目'
+            });
+            
+            // 任务空状态
+            EmptyState.show('emptyTask', {
+                type: 'empty-task',
+                title: '暂无任务',
+                desc: '当前筛选条件下没有任务'
+            });
+            
+            // 合同空状态
+            EmptyState.show('emptyContract', {
+                type: 'empty-contract',
+                title: '暂无合同',
+                desc: '该项目暂未创建合同',
+                actionText: '创建合同'
+            });
+            
+            // 对账单空状态
+            EmptyState.show('emptyStatement', {
+                type: 'empty-statement',
+                title: '暂无对账单',
+                desc: '该项目暂无对账记录'
+            });
+            
+            // 成员空状态
+            EmptyState.show('emptyMember', {
+                type: 'empty-member',
+                title: '暂无成员',
+                desc: '点击下方按钮邀请成员',
+                actionText: '邀请成员'
+            });
+            
+            // 无网络状态
+            EmptyState.showOffline('noNetwork', () => {
+                alert('重试加载...');
+            });
+        }
+        
+        // 状态切换演示
+        let currentState = 'content';
+        const savedContent = document.getElementById('contentState').outerHTML;
+        
+        function showState(state) {
+            currentState = state;
+            
+            // 更新按钮状态
+            document.querySelectorAll('.control-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            const container = document.getElementById('demoContent');
+            
+            switch(state) {
+                case 'content':
+                    container.innerHTML = savedContent;
+                    break;
+                    
+                case 'loading':
+                    EmptyState.showLoading(container, '加载中...');
+                    break;
+                    
+                case 'empty':
+                    EmptyState.show(container, {
+                        type: 'empty-project',
+                        title: '暂无项目',
+                        desc: '您还没有创建任何项目，点击下方按钮开始创建',
+                        actionText: '创建项目',
+                        onAction: () => alert('跳转到创建项目页面')
+                    });
+                    break;
+                    
+                case 'offline':
+                    EmptyState.showOffline(container, () => {
+                        showState('loading');
+                        setTimeout(() => showState('content'), 1500);
+                    });
+                    break;
+            }
+        }
+        
+        // 页面加载完成后初始化
+        initDemos();
+    </script>
+</body>
+</html>

@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>家装平台小程序原型 - 合同全部正文</title>
+    <link rel="stylesheet" href="common.css">
+    <link rel="stylesheet" href="css/contract-detail.css">
+    <style>
+        * { box-sizing: border-box; }
+
+        /* 手机端小程序：隐藏所有滚动条（项目全局约定） */
+        ::-webkit-scrollbar { display: none; }
+        * { scrollbar-width: none; -ms-overflow-style: none; }
+
+        body {
+            margin: 0; background: #e9ebee; min-height: 100vh;
+            font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
+            display: flex; align-items: flex-start; justify-content: center; padding: 24px;
+        }
+        .phone-frame {
+            width: 375px; height: 812px; background: #f2f3f5;
+            border-radius: 40px; overflow: hidden; position: relative; flex-shrink: 0;
+            box-shadow: 0 12px 40px rgba(0,0,0,.25); display: flex; flex-direction: column;
+        }
+        .status-bar {
+            height: 44px; background: #fff; display: flex; align-items: center;
+            justify-content: space-between; padding: 0 22px; font-size: 14px;
+            font-weight: 600; color: #000; flex-shrink: 0;
+        }
+        .nav-bar {
+            height: 48px; background: #fff; display: flex; align-items: center;
+            position: relative; border-bottom: 1px solid #ececec; flex-shrink: 0;
+        }
+        .nav-bar .nb-back {
+            position: absolute; left: 14px; font-size: 26px; line-height: 1;
+            color: #1a1a1a; text-decoration: none; width: 28px;
+        }
+        .nav-bar .title { flex: 1; text-align: center; font-size: 17px; font-weight: 600; color: #1a1a1a; }
+        .receive-scroll { flex: 1; overflow-y: auto; padding: 12px; }
+
+        .flow-card {
+            background: #fff; border-radius: 14px; padding: 5px; margin-top: 3px;
+            box-shadow: 0 1px 6px rgba(0,0,0,.04);
+        }
+        .doc-h { font-size: 18px; font-weight: 700; color: #1a1a1a; text-align: center; }
+        .doc-h-sub { font-size: 12px; color: #999; text-align: center; margin: 1px 0 3px; padding-bottom: 3px; border-bottom: 1px dashed #eee; }
+        .doc-sec { margin: 4px 0; }
+        .doc-sec-title { font-size: 14px; font-weight: 600; color: #222; margin-bottom: 2px; }
+        .doc-p { font-size: 13px; color: #555; line-height: 1.6; margin: 0; }
+        /* 条款排版：小节标题 + 悬挂缩进条目 */
+        .doc-sub { font-size: 13px; font-weight: 600; color: #222; margin: 6px 0 2px; }
+        .doc-line { font-size: 13px; color: #555; line-height: 1.6; margin: 0; padding-left: 16px; text-indent: -16px; }
+        .doc-line2 { padding-left: 32px; text-indent: -32px; }
+        .doc-key { color: #fa541c; font-weight: 600; }
+        .doc-back {
+            display: block; text-align: center; margin: 7px auto 2px; width: max-content;
+            font-size: 13px; color: var(--primary-color, #1677ff); text-decoration: none;
+            padding: 8px 18px; border: 1px solid #91caff; border-radius: 18px; background: #f0f7ff;
+        }
+        .doc-back:active { background: #e6f4ff; }
+    </style>
+</head>
+<body>
+<div class="phone-frame">
+    <div class="status-bar">
+        <div class="time">9:41</div>
+        <div class="icons">📶 🔋</div>
+    </div>
+    <div class="nav-bar">
+        <a class="nb-back" href="worker-contract-receive-confirmed-new.html">&lsaquo;</a>
+        <div class="title">合同全部正文</div>
+    </div>
+
+    <div class="receive-scroll">
+        <div class="flow-card">
+            <div class="doc-h">全屋水电改造合同</div>
+            <div class="doc-h-sub">合同全部正文（完整条款）</div>
+
+            <div class="doc-sec">
+                <div class="doc-sec-title">一、双方权责</div>
+                <p class="doc-sub">1、甲方责任</p>
+                <p class="doc-line">A. 提供施工图纸，协调物业办理施工手续，提供作业面，配合乙方进场施工</p>
+                <p class="doc-line">B. 给乙方进行进场前的交底培训</p>
+                <p class="doc-line">C. 对乙方的施工内容进行验收</p>
+                <p class="doc-line">D. 依据合同款项申请支付乙方</p>
+                <p class="doc-sub">2、甲方权利</p>
+                <p class="doc-line">A. 有权审核乙方的相关证件</p>
+                <p class="doc-line">B. 对不合格的施工项目，有权要求整改或停工</p>
+                <p class="doc-line">C. 乙方施工质量不达标且拒不整改的，甲方有权扣除相应费用</p>
+                <p class="doc-line">D. 对不按合同约定履约的乙方，可随时提出更换</p>
+                <p class="doc-sub">3、乙方责任</p>
+                <p class="doc-line">A. 严格按合同、图纸及规范施工，确保工程质量</p>
+                <p class="doc-line">B. 配合甲方提出的合理的变更事项</p>
+                <p class="doc-line">C. 保修期内免费维修因施工质量导致的问题</p>
+                <p class="doc-sub">4、乙方权利</p>
+                <p class="doc-line">A. 依据合同约定要求甲方支付合同款项</p>
+                <p class="doc-line">B. 发生变更，有权追加合理的费用</p>
+            </div>
+
+            <div class="doc-sec">
+                <div class="doc-sec-title">二、质量验收</div>
+                <p class="doc-line">1、甲方依据《施工工艺标准》进行验收</p>
+                <p class="doc-line">2、验收流程：班组自检-工长预检-业主正式验收-班组交接互检</p>
+                <p class="doc-line">3、验收不合格的，乙方需在2日内整改完毕，经过两次验收仍然不合格的，甲方有权扣除相应的合同金额并终止与乙方的合同。</p>
+            </div>
+
+            <div class="doc-sec">
+                <div class="doc-sec-title">三、安全及文明施工</div>
+                <p class="doc-line">1、乙方必须购买意外保险（提供保单），施工中发生安全事故由乙方承担全部责任</p>
+                <p class="doc-line">2、施工期间若因乙方操作不当导致甲方或第三方财产损失，乙方负责赔偿</p>
+                <p class="doc-line">3、乙方需遵守现场《安全文明施工规定》</p>
+            </div>
+
+            <div class="doc-sec">
+                <div class="doc-sec-title">四、道德承诺</div>
+                <p class="doc-line">1）工人承诺，在整个施工服务过程中不做任何违反道德的事情，如有违反自愿赔偿非法所得。</p>
+                <p class="doc-line doc-line2">1. 搞恶意增项的，自罚30倍。</p>
+                <p class="doc-line doc-line2">2. 恶意虚增费用和费用造假的，自罚30倍。</p>
+                <p class="doc-line doc-line2">3. 商品以次充好和掺假调包的，自罚30倍。</p>
+                <p class="doc-line doc-line2">4. 私下侵吞业主财物的，自罚30倍。</p>
+                <p class="doc-line doc-line2">5. 知劣买劣、知假买假的，自罚30倍。</p>
+                <p class="doc-line doc-line2">6. 私下收取好处费、返佣、回扣等，自罚30倍。</p>
+                <p class="doc-line doc-line2">7. 耍手段胁迫甲方而获取不当利益的，自罚30倍。</p>
+                <p class="doc-line doc-line2">8. 故意使坏妨碍安全、质量、工期造成损失的，自罚10倍。</p>
+                <p class="doc-line doc-line2">9. 无条件接受社会舆论公开谴责。</p>
+                <p class="doc-line">2）取证与执行</p>
+                <p class="doc-line doc-line2">1. 客户或甲方自行取证留存。</p>
+                <p class="doc-line doc-line2">2. 直接按非法所得金额的倍数赔偿客户。</p>
+                <p class="doc-line doc-line2">3. 如果拒绝赔偿，客户或甲方有权扣除乙方已有的项目资金，并提起诉讼。</p>
+            </div>
+
+            <div class="doc-sec">
+                <div class="doc-sec-title">五、其他条款</div>
+                <p class="doc-line">1、如因不可抗力，甲乙双方可协商一致终止合同</p>
+                <p class="doc-line">2、因本合同引起的争议，双方应协商解决，协商不成的，提交项目所在地人民法院诉讼解决</p>
+                <p class="doc-line">3、本合同未尽事宜，可签订补充协议，补充协议与本合同具有同等效力</p>
+                <p class="doc-line">4、本合同一式两份，甲乙双方各执一份，自签字盖章之日起生效</p>
+            </div>
+
+            <a class="doc-back" href="worker-contract-receive-confirmed-new.html">← 返回合同详情</a>
+        </div>
+    </div>
+</div>
+<script src="../shared/doc-viewer/doc-viewer.js"></script>
+</body>
+</html>

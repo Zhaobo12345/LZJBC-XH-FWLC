@@ -1,0 +1,9 @@
+<!-- 空状态：项目列表 -->
+<svg viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect x="24" y="48" width="72" height="56" rx="4" fill="#F0F5FF" stroke="#1890FF" stroke-width="2"/>
+  <path d="M24 64H96" stroke="#1890FF" stroke-width="2"/>
+  <rect x="36" y="56" width="16" height="4" rx="2" fill="#1890FF"/>
+  <polygon points="60,16 96,48 24,48" fill="#E6F7FF" stroke="#1890FF" stroke-width="2" stroke-linejoin="round"/>
+  <rect x="52" y="72" width="16" height="32" rx="2" fill="#1890FF" fill-opacity="0.3"/>
+  <circle cx="78" cy="84" r="8" stroke="#1890FF" stroke-width="2" stroke-dasharray="4 2"/>
+</svg>

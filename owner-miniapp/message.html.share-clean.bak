@@ -1,0 +1,1127 @@
+﻿﻿﻿﻿﻿﻿﻿﻿﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>家装平台小程序原型 - 消息</title>
+    <link rel="stylesheet" href="common.css">
+    <style>
+        .page-content {
+            height: calc(100% - 44px - 50px);
+            background-color: var(--bg-secondary);
+            overflow-y: auto;
+        }
+
+        .message-tabs {
+            display: flex;
+            background-color: var(--bg-primary);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .message-tab {
+            flex: 1;
+            height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            position: relative;
+            transition: all 0.2s;
+        }
+
+        .message-tab.active {
+            color: var(--primary-color);
+            font-weight: 600;
+        }
+
+        .message-tab.active::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 24px;
+            height: 2px;
+            background-color: var(--primary-color);
+            border-radius: 1px;
+        }
+
+        .message-tab .badge {
+            position: absolute;
+            top: 8px;
+            right: calc(50% - 30px);
+            min-width: 16px;
+            height: 16px;
+            background-color: var(--error-color);
+            color: #FFFFFF;
+            font-size: 10px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0 4px;
+        }
+
+        .message-list {
+            padding: 12px 16px;
+        }
+
+        .message-date-group {
+            margin-bottom: 16px;
+        }
+
+        .message-date-label {
+            font-size: 12px;
+            color: var(--text-tertiary);
+            margin-bottom: 8px;
+            text-align: center;
+        }
+
+        .message-card {
+            background-color: var(--bg-primary);
+            border-radius: 12px;
+            margin-bottom: 12px;
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+
+        .message-card:last-child {
+            margin-bottom: 0;
+        }
+
+        .message-card.unread {
+            border-left: 3px solid var(--primary-color);
+        }
+
+        .message-header {
+            display: flex;
+            align-items: center;
+            padding: 12px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .message-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-light) 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #FFFFFF;
+            font-size: 16px;
+            margin-right: 12px;
+            flex-shrink: 0;
+        }
+
+        .message-sender {
+            flex: 1;
+        }
+
+        .message-sender .name {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .message-sender .time {
+            font-size: 11px;
+            color: var(--text-tertiary);
+            margin-top: 2px;
+        }
+
+        .message-type-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+        }
+
+        .message-type-icon.invite {
+            background-color: var(--status-primary-bg);
+        }
+
+        .message-type-icon.task {
+            background-color: var(--status-warning-bg);
+        }
+
+        .message-type-icon.system {
+            background-color: var(--status-success-bg);
+        }
+
+        .message-body {
+            padding: 12px;
+        }
+
+        .message-title {
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+        }
+
+        .message-content {
+            font-size: 13px;
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        .invite-detail {
+            background-color: var(--bg-secondary);
+            border-radius: 8px;
+            padding: 12px;
+            margin-top: 12px;
+        }
+
+        .invite-detail-item {
+            display: flex;
+            align-items: center;
+            padding: 6px 0;
+        }
+
+        .invite-detail-item .label {
+            font-size: 12px;
+            color: var(--text-tertiary);
+            width: 70px;
+            flex-shrink: 0;
+        }
+
+        .invite-detail-item .value {
+            font-size: 13px;
+            color: var(--text-primary);
+            flex: 1;
+        }
+
+        .invite-detail-item .value.highlight {
+            color: var(--primary-color);
+            font-weight: 500;
+        }
+
+        .message-actions {
+            display: flex;
+            gap: 12px;
+            padding: 12px;
+            border-top: 1px solid var(--border-color);
+            background-color: var(--bg-secondary);
+        }
+
+        .message-action-btn {
+            flex: 1;
+            height: 36px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: none;
+            transition: all 0.2s;
+        }
+
+        .message-action-btn.accept {
+            background-color: var(--primary-color);
+            color: #FFFFFF;
+        }
+
+        .message-action-btn.accept:hover {
+            background-color: var(--primary-light);
+        }
+
+        .message-action-btn.reject {
+            background-color: var(--bg-primary);
+            color: var(--text-secondary);
+            border: 1px solid var(--border-color);
+        }
+
+        .message-action-btn.reject:hover {
+            background-color: var(--status-error-bg);
+            color: var(--error-color);
+            border-color: var(--error-color);
+        }
+
+        .message-action-btn.view {
+            background-color: var(--status-primary-bg);
+            color: var(--primary-color);
+        }
+
+        .message-status {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 12px;
+            gap: 6px;
+        }
+
+        .message-status .status-icon {
+            font-size: 16px;
+        }
+
+        .message-status .status-text {
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        .message-status.accepted .status-icon,
+        .message-status.accepted .status-text {
+            color: var(--success-color);
+        }
+
+        .message-status.rejected .status-icon,
+        .message-status.rejected .status-text {
+            color: var(--error-color);
+        }
+
+        .message-status.expired .status-icon,
+        .message-status.expired .status-text {
+            color: var(--text-tertiary);
+        }
+
+        .empty-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 60px 20px;
+            color: var(--text-tertiary);
+        }
+
+        .empty-state .empty-icon {
+            font-size: 64px;
+            margin-bottom: 16px;
+            opacity: 0.6;
+        }
+
+        .empty-state .empty-text {
+            font-size: 14px;
+        }
+
+        .app-modal {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-color: rgba(0,0,0,0.5);
+            z-index: 200;
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .app-modal.show {
+            display: flex;
+        }
+
+        .app-modal .modal-box {
+            width: 85%;
+            max-width: 300px;
+            background-color: var(--bg-primary);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .app-modal .modal-title {
+            font-size: 16px;
+            font-weight: 600;
+            text-align: center;
+            padding: 20px 16px 12px;
+        }
+
+        .app-modal .modal-content {
+            font-size: 14px;
+            color: var(--text-secondary);
+            text-align: center;
+            padding: 0 16px 20px;
+            line-height: 1.5;
+        }
+
+        .app-modal .modal-actions {
+            display: flex;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .app-modal .modal-btn {
+            flex: 1;
+            height: 48px;
+            border-radius: 0;
+            font-size: 16px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-family: inherit;
+        }
+
+        .app-modal .modal-btn:first-child {
+            border-right: 1px solid var(--border-color);
+        }
+
+        .app-modal .modal-btn.cancel {
+            color: var(--text-secondary);
+        }
+
+        .app-modal .modal-btn.confirm {
+            color: var(--primary-color);
+            font-weight: 600;
+        }
+
+        .app-modal .modal-btn.danger {
+            color: var(--error-color);
+            font-weight: 600;
+        }
+
+        .app-toast {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: rgba(0,0,0,0.7);
+            color: #FFFFFF;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-size: 14px;
+            z-index: 300;
+            display: none;
+            text-align: center;
+            max-width: 200px;
+        }
+
+        .app-toast.show {
+            display: block;
+        }
+
+        .invite-project-card {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            background-color: var(--bg-primary);
+            border-radius: 8px;
+            margin-top: 8px;
+            border: 1px solid var(--border-color);
+        }
+
+        .invite-project-card .project-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 6px;
+            background: linear-gradient(135deg, #1890FF 0%, #40A9FF 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #FFFFFF;
+            font-size: 14px;
+            margin-right: 10px;
+        }
+
+        .invite-project-card .project-info {
+            flex: 1;
+        }
+
+        .invite-project-card .project-name {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .invite-project-card .project-address {
+            font-size: 11px;
+            color: var(--text-tertiary);
+            margin-top: 2px;
+        }
+    
+        /* 角色选择弹窗 */
+        .role-select-list {
+            margin: 8px 0 4px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .role-select-item {
+            padding: 12px 14px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            background-color: var(--bg-primary);
+            font-size: 14px;
+            color: var(--text-primary);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .role-select-item:hover,
+        .role-select-item:active {
+            border-color: var(--primary-color);
+            background-color: var(--bg-secondary);
+            color: var(--primary-color);
+        }
+
+        /* 接受邀请演示控制面板（仅原型演示，参考服务端消息页形式） */
+        .demo-control-panel {
+            position: fixed;
+            top: 130px;
+            left: calc(50% + 198px + 16px);
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 16px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+            z-index: 9999;
+            min-width: 190px;
+        }
+        .demo-control-panel .panel-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 12px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .demo-control-panel .demo-extra-nav { margin-top: 0; }
+        .demo-control-panel .extra-nav-title {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+        }
+        .demo-control-panel .extra-nav-item {
+            display: block;
+            padding: 7px 10px;
+            margin-bottom: 6px;
+            background: var(--bg-secondary);
+            border-radius: 6px;
+            font-size: 12px;
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+        .demo-control-panel .extra-nav-item:last-child { margin-bottom: 0; }
+        .demo-control-panel .extra-nav-item:hover {
+            background: var(--primary-color);
+            color: #fff;
+        }
+
+    </style>
+<style>
+    /* v2-native-capsule-style：微信原生胶囊占位（不可自定义，仅演示位置） */
+    .nav-bar .native-capsule {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 5px;
+        min-width: 46px;
+        height: 28px;
+        padding: 0 8px;
+        border: 1px dashed #cfcfcf;
+        border-radius: 14px;
+        color: #b3b3b3;
+        font-size: 13px;
+        line-height: 1;
+        user-select: none;
+        box-sizing: border-box;
+    }
+</style>
+</head>
+<body>
+    <div class="phone-frame">
+        <div class="status-bar">
+            <div class="time">9:41</div>
+            <div class="icons">📶 🔋</div>
+        </div>
+        
+        <div class="nav-bar">
+            <div class="title">消息</div>
+            
+            
+        
+            <div class="actions"><div class="native-capsule" title="微信原生胶囊：由微信客户端渲染，开发者不可自定义其内容"></div></div>
+        </div>
+            
+
+
+        <div class="message-tabs">
+            <div class="message-tab active" onclick="switchTab('invite')">
+                邀请
+                <span class="badge" id="inviteBadge">3</span>
+            </div>
+            <div class="message-tab" onclick="switchTab('task')">
+                任务通知
+            </div>
+            <div class="message-tab" onclick="switchTab('system')">
+                系统消息
+            </div>
+        </div>
+        
+        <div class="page-content">
+            <div class="message-list" id="messageList">
+            </div>
+        </div>
+        
+        <div class="tab-bar">
+            <div class="tab-item" onclick="location.href='home.html'">
+                <div class="icon">🏠</div>
+                <div class="label">首页</div>
+            </div>
+            <div class="tab-item" onclick="location.href='project-detail.html'">
+                <div class="icon">📋</div>
+                <div class="label">我的家</div>
+            </div>
+            <div class="tab-item active">
+                <div class="icon">💬</div>
+                <div class="label">消息</div>
+            </div>
+            <div class="tab-item" onclick="showToast('个人中心开发中')">
+                <div class="icon">👤</div>
+                <div class="label">我的</div>
+            </div>
+        </div>
+
+        <div class="app-modal" id="confirmModal">
+            <div class="modal-box">
+                <div class="modal-title" id="confirmTitle">确认操作</div>
+                <div class="modal-content" id="confirmContent"></div>
+                <div class="modal-actions">
+                    <button class="modal-btn cancel" onclick="closeConfirmModal()">取消</button>
+                    <button class="modal-btn danger" id="confirmBtn" onclick="confirmAction()">确认</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="app-modal" id="alertModal">
+            <div class="modal-box">
+                <div class="modal-title" id="alertTitle">提示</div>
+                <div class="modal-content" id="alertContent"></div>
+                <div class="modal-actions">
+                    <button class="modal-btn confirm" onclick="closeAlertModal()" style="flex: 1;">确定</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="app-modal" id="roleSelectModal">
+            <div class="modal-box">
+                <div class="modal-title">选择加入角色</div>
+                <div class="modal-content">您已认证多个角色，请选择加入该项目时使用的角色：</div>
+                <div class="role-select-list" id="roleSelectList"></div>
+                <div class="modal-actions">
+                    <button class="modal-btn cancel" onclick="closeRoleSelectModal()">取消</button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="app-toast" id="appToast"></div>
+    </div>
+    
+    <div class="page-nav">
+        <div class="page-nav-title">原型导航</div>
+        <a href="home.html" class="page-nav-item">首页</a>
+        <a href="project-detail.html" class="page-nav-item">项目详情</a>
+        <a href="member.html" class="page-nav-item">项目成员</a>
+        <a href="message.html" class="page-nav-item active">消息</a>
+        <a href="architecture.html" class="page-nav-item">项目架构</a>
+        <a href="task-list.html" class="page-nav-item">任务列表</a>
+    </div>
+
+    <div class="demo-control-panel" id="acceptDemoPanel">
+        <div class="panel-title">接受邀请演示控制</div>
+        <div class="demo-extra-nav">
+            <div class="extra-nav-title">扫码 / 卡片邀请演示</div>
+            <a class="extra-nav-item" href="invite-join.html?source=qrcode">二维码邀请加入项目</a>
+            <a class="extra-nav-item" href="invite-join.html?source=wechat">微信好友邀请加入项目</a>
+        </div>
+    </div>
+    
+    <script>
+        const messages = {
+            invite: [
+                {
+                    id: 'invite1',
+                    sender: '张三',
+                    senderAvatar: '张',
+                    type: 'invite',
+                    title: '邀请您加入项目',
+                    content: '张三邀请您加入"XX小区整体装修"项目',
+                    time: '10:30',
+                    date: '今天',
+                    unread: true,
+                    status: 'pending',
+                    project: {
+                        name: 'XX小区整体装修',
+                        address: '北京市朝阳区XX路XX号',
+                        icon: '🏢'
+                    },
+                    group: '水电工作组',
+                    inviter: '张三（项目经理）'
+                },
+                {
+                    id: 'invite2',
+                    sender: '李四',
+                    senderAvatar: '李',
+                    type: 'invite',
+                    title: '邀请您加入项目',
+                    content: '李四邀请您加入"YY花园别墅装修"项目',
+                    time: '昨天 16:45',
+                    date: '昨天',
+                    unread: true,
+                    status: 'pending',
+                    project: {
+                        name: 'YY花园别墅装修',
+                        address: '上海市浦东新区YY路YY号',
+                        icon: '🏠'
+                    },
+                    group: '木工工作组',
+                    inviter: '李四（施工主管）'
+                },
+                {
+                    id: 'invite3',
+                    sender: '王五',
+                    senderAvatar: '王',
+                    type: 'invite',
+                    title: '邀请您加入项目',
+                    content: '王五邀请您加入"ZZ公寓精装改造"项目',
+                    time: '昨天 09:20',
+                    date: '昨天',
+                    unread: true,
+                    status: 'pending',
+                    project: {
+                        name: 'ZZ公寓精装改造',
+                        address: '深圳市南山区ZZ大道ZZ号',
+                        icon: '🏢'
+                    },
+                    group: '项目部',
+                    inviter: '王五（业主代表）'
+                },
+                {
+                    id: 'invite4',
+                    sender: '赵六',
+                    senderAvatar: '赵',
+                    type: 'invite',
+                    title: '邀请您加入项目',
+                    content: '赵六邀请您加入"AA商业空间装修"项目',
+                    time: '2024-01-15',
+                    date: '2024-01-15',
+                    unread: false,
+                    status: 'accepted',
+                    project: {
+                        name: 'AA商业空间装修',
+                        address: '广州市天河区AA路AA号',
+                        icon: '🏪'
+                    },
+                    group: '泥瓦工作组',
+                    inviter: '赵六（组长）'
+                },
+                {
+                    id: 'invite5',
+                    sender: '孙八',
+                    senderAvatar: '孙',
+                    type: 'invite',
+                    title: '邀请您加入项目',
+                    content: '孙八邀请您加入"BB办公室装修"项目',
+                    time: '2024-01-14',
+                    date: '2024-01-14',
+                    unread: false,
+                    status: 'rejected',
+                    project: {
+                        name: 'BB办公室装修',
+                        address: '杭州市西湖区BB路BB号',
+                        icon: '🏢'
+                    },
+                    group: '油漆工作组',
+                    inviter: '孙八（项目经理）'
+                },
+                {
+                    id: 'invite6',
+                    sender: '周十',
+                    senderAvatar: '周',
+                    type: 'invite',
+                    title: '邀请您加入项目',
+                    content: '周十邀请您加入"CC餐厅装修"项目',
+                    time: '2024-01-10',
+                    date: '2024-01-10',
+                    unread: false,
+                    status: 'expired',
+                    project: {
+                        name: 'CC餐厅装修',
+                        address: '成都市锦江区CC路CC号',
+                        icon: '🍽️'
+                    },
+                    group: '水电工作组',
+                    inviter: '周十（组长）'
+                }
+            ],
+            task: [
+                {
+                    id: 'task1',
+                    sender: '系统',
+                    senderAvatar: '🔔',
+                    type: 'task',
+                    title: '任务派发通知',
+                    content: '您有一个新的临时任务待接受："客厅吊顶安装"',
+                    time: '09:15',
+                    date: '今天',
+                    unread: true,
+                    status: 'pending',
+                    project: {
+                        name: 'XX小区整体装修',
+                        icon: '🏢'
+                    }
+                },
+                {
+                    id: 'task2',
+                    sender: '系统',
+                    senderAvatar: '🔔',
+                    type: 'task',
+                    title: '任务确认提醒',
+                    content: '任务"水电验收"已进入确认阶段，请及时确认',
+                    time: '昨天 14:30',
+                    date: '昨天',
+                    unread: false,
+                    status: 'pending'
+                }
+            ],
+            system: [
+                {
+                    id: 'sys1',
+                    sender: '系统',
+                    senderAvatar: '📢',
+                    type: 'system',
+                    title: '系统公告',
+                    content: '平台将于2024年1月20日进行系统升级，届时部分功能可能暂时无法使用，敬请谅解。',
+                    time: '2024-01-18',
+                    date: '2024-01-18',
+                    unread: false
+                },
+                {
+                    id: 'sys2',
+                    sender: '系统',
+                    senderAvatar: '📢',
+                    type: 'system',
+                    title: '功能更新通知',
+                    content: '新增合同变更功能，支持合同执行过程中的变更申请与确认。',
+                    time: '2024-01-15',
+                    date: '2024-01-15',
+                    unread: false
+                }
+            ]
+        };
+
+        let currentTab = 'invite';
+        let currentActionMessageId = '';
+        let currentActionType = '';
+
+        const currentUser = { name: '当前用户', verifiedRoles: [] };
+
+        function renderMessages(tab) {
+            const messageList = document.getElementById('messageList');
+            const tabMessages = messages[tab];
+
+            if (!tabMessages || tabMessages.length === 0) {
+                messageList.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-icon">📭</div>
+                        <div class="empty-text">暂无消息</div>
+                    </div>
+                `;
+                return;
+            }
+
+            const groupedMessages = {};
+            tabMessages.forEach(msg => {
+                if (!groupedMessages[msg.date]) {
+                    groupedMessages[msg.date] = [];
+                }
+                groupedMessages[msg.date].push(msg);
+            });
+
+            let html = '';
+            Object.keys(groupedMessages).forEach(date => {
+                html += `<div class="message-date-group">`;
+                html += `<div class="message-date-label">${date}</div>`;
+                
+                groupedMessages[date].forEach(msg => {
+                    html += renderMessageCard(msg);
+                });
+                
+                html += `</div>`;
+            });
+
+            messageList.innerHTML = html;
+        }
+
+        function renderMessageCard(msg) {
+            let statusHtml = '';
+            let actionsHtml = '';
+
+            if (msg.type === 'invite') {
+                if (msg.status === 'pending') {
+                    actionsHtml = `
+                        <div class="message-actions">
+                            <button class="message-action-btn reject" onclick="handleReject('${msg.id}')">拒绝</button>
+                            <button class="message-action-btn accept" onclick="handleAccept('${msg.id}')">接受邀请</button>
+                        </div>
+                    `;
+                } else if (msg.status === 'accepted') {
+                    statusHtml = `
+                        <div class="message-status accepted">
+                            <span class="status-icon">✓</span>
+                            <span class="status-text">已接受</span>
+                        </div>
+                    `;
+                } else if (msg.status === 'rejected') {
+                    statusHtml = `
+                        <div class="message-status rejected">
+                            <span class="status-icon">✕</span>
+                            <span class="status-text">已拒绝</span>
+                        </div>
+                    `;
+                } else if (msg.status === 'expired') {
+                    statusHtml = `
+                        <div class="message-status expired">
+                            <span class="status-icon">⏰</span>
+                            <span class="status-text">已过期</span>
+                        </div>
+                    `;
+                }
+            } else if (msg.type === 'task') {
+                actionsHtml = `
+                    <div class="message-actions">
+                        <button class="message-action-btn view" onclick="viewTask('${msg.id}')">查看详情</button>
+                    </div>
+                `;
+            } else if (msg.type === 'system') {
+                actionsHtml = `
+                    <div class="message-actions">
+                        <button class="message-action-btn view" onclick="viewDetail('${msg.id}')">查看详情</button>
+                    </div>
+                `;
+            }
+
+            let detailHtml = '';
+            if (msg.type === 'invite' && msg.project) {
+                const projectClickable = msg.status === 'accepted' ? `onclick="goToProject('${msg.project.name}')"` : '';
+                const clickableStyle = msg.status === 'accepted' ? 'cursor: pointer; transition: all 0.2s;' : '';
+                detailHtml = `
+                    <div class="invite-detail">
+                        <div class="invite-project-card" ${projectClickable} style="${clickableStyle}">
+                            <div class="project-icon">${msg.project.icon}</div>
+                            <div class="project-info">
+                                <div class="project-name">${msg.project.name}</div>
+                                <div class="project-address">${msg.project.address}</div>
+                            </div>
+                            ${msg.status === 'accepted' ? '<div style="color: var(--primary-color); font-size: 12px;">进入 ›</div>' : ''}
+                        </div>
+                        <div class="invite-detail-item">
+                            <span class="label">邀请加入</span>
+                            <span class="value highlight">${msg.group}</span>
+                        </div>
+                        <div class="invite-detail-item">
+                            <span class="label">邀请人</span>
+                            <span class="value">${msg.inviter}</span>
+                        </div>
+                    </div>
+                `;
+            }
+
+            return `
+                <div class="message-card ${msg.unread ? 'unread' : ''}" id="msg-${msg.id}">
+                    <div class="message-header">
+                        <div class="message-avatar">${msg.senderAvatar}</div>
+                        <div class="message-sender">
+                            <div class="name">${msg.sender}</div>
+                            <div class="time">${msg.time}</div>
+                        </div>
+                        <div class="message-type-icon ${msg.type}">
+                            ${msg.type === 'invite' ? '✉️' : (msg.type === 'task' ? '📋' : '📢')}
+                        </div>
+                    </div>
+                    <div class="message-body">
+                        <div class="message-title">${msg.title}</div>
+                        <div class="message-content">${msg.content}</div>
+                        ${detailHtml}
+                    </div>
+                    ${statusHtml}
+                    ${actionsHtml}
+                </div>
+            `;
+        }
+
+        function switchTab(tab) {
+            currentTab = tab;
+            
+            document.querySelectorAll('.message-tab').forEach(t => {
+                t.classList.remove('active');
+            });
+            event.currentTarget.classList.add('active');
+            
+            renderMessages(tab);
+        }
+
+        function handleAccept(messageId) {
+            currentActionMessageId = messageId;
+            currentActionType = 'accept';
+            
+            const msg = messages.invite.find(m => m.id === messageId);
+            if (msg) {
+                document.getElementById('confirmTitle').textContent = '确认接受邀请';
+                document.getElementById('confirmContent').textContent = `确定要接受加入"${msg.project.name}"项目的邀请吗？`;
+                document.getElementById('confirmBtn').textContent = '确认接受';
+                document.getElementById('confirmBtn').className = 'modal-btn confirm';
+                document.getElementById('confirmModal').classList.add('show');
+            }
+        }
+
+        function handleReject(messageId) {
+            currentActionMessageId = messageId;
+            currentActionType = 'reject';
+            
+            const msg = messages.invite.find(m => m.id === messageId);
+            if (msg) {
+                document.getElementById('confirmTitle').textContent = '确认拒绝邀请';
+                document.getElementById('confirmContent').textContent = `确定要拒绝加入"${msg.project.name}"项目的邀请吗？`;
+                document.getElementById('confirmBtn').textContent = '确认拒绝';
+                document.getElementById('confirmBtn').className = 'modal-btn danger';
+                document.getElementById('confirmModal').classList.add('show');
+            }
+        }
+
+        function confirmAction() {
+            closeConfirmModal();
+            
+            const msg = messages.invite.find(m => m.id === currentActionMessageId);
+            if (msg) {
+                msg.status = currentActionType === 'accept' ? 'accepted' : 'rejected';
+                msg.unread = false;
+                
+                if (currentActionType === 'accept') {
+                    updateBadge();
+                    renderMessages(currentTab);
+                    if (currentUser.verifiedRoles && currentUser.verifiedRoles.length > 1) {
+                        openRoleSelectModal(msg);
+                    } else {
+                        showToast(`已加入"${msg.project.name}"项目，正在进入...`);
+                        setTimeout(() => { goToProject(msg.project.name); }, 600);
+                    }
+                } else {
+                    showToast('已拒绝邀请');
+                    updateBadge();
+                    renderMessages(currentTab);
+                }
+            }
+        }
+
+        function openRoleSelectModal(msg) {
+            const list = document.getElementById('roleSelectList');
+            list.innerHTML = currentUser.verifiedRoles.map(role =>
+                `<div class="role-select-item" onclick="selectJoinRole('${msg.id}','${role}')">${role}</div>`
+            ).join('');
+            document.getElementById('roleSelectModal').classList.add('show');
+        }
+
+        function selectJoinRole(messageId, role) {
+            closeRoleSelectModal();
+            const msg = messages.invite.find(m => m.id === messageId);
+            const projectName = msg ? msg.project.name : '项目';
+            showToast(`已以「${role}」身份加入，正在进入...`);
+            setTimeout(() => { goToProject(projectName); }, 600);
+        }
+
+        function closeRoleSelectModal() {
+            document.getElementById('roleSelectModal').classList.remove('show');
+        }
+
+        function closeConfirmModal() {
+            document.getElementById('confirmModal').classList.remove('show');
+        }
+
+        function showAlert(title, content) {
+            document.getElementById('alertTitle').textContent = title;
+            document.getElementById('alertContent').textContent = content;
+            document.getElementById('alertModal').classList.add('show');
+        }
+
+        function closeAlertModal() {
+            document.getElementById('alertModal').classList.remove('show');
+        }
+
+        function showToast(message) {
+            const toast = document.getElementById('appToast');
+            toast.textContent = message;
+            toast.classList.add('show');
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 2000);
+        }
+
+        function viewTask(messageId) {
+            location.href = 'task-acceptance.html';
+        }
+
+        function viewDetail(messageId) {
+            showToast('查看详情');
+        }
+
+        function markAllRead() {
+            Object.keys(messages).forEach(type => {
+                messages[type].forEach(msg => {
+                    msg.unread = false;
+                });
+            });
+            updateBadge();
+            renderMessages(currentTab);
+            showToast('已全部标记为已读');
+        }
+
+        function updateBadge() {
+            const unreadCount = messages.invite.filter(m => m.unread).length;
+            const badge = document.getElementById('inviteBadge');
+            if (unreadCount > 0) {
+                badge.textContent = unreadCount;
+                badge.style.display = 'flex';
+            } else {
+                badge.style.display = 'none';
+            }
+        }
+
+        function showProfile() {
+            showToast('个人中心开发中');
+        }
+
+        function goToProject(projectName) {
+            showToast(`正在跳转到"${projectName}"项目详情...`);
+            setTimeout(() => {
+                location.href = 'project-detail.html';
+            }, 500);
+        }
+
+        document.getElementById('confirmModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeConfirmModal();
+            }
+        });
+
+        document.getElementById('alertModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeAlertModal();
+            }
+        });
+
+        renderMessages('invite');
+        
+        function toggleActionMenu() {
+            const actionMenu = document.getElementById('actionMenu');
+            if (actionMenu) {
+                actionMenu.classList.toggle('show');
+            }
+        }
+        
+        function closeActionMenu() {
+            const actionMenu = document.getElementById('actionMenu');
+            if (actionMenu) {
+                actionMenu.classList.remove('show');
+            }
+        }
+        
+        function shareToFriend() {
+            showToast('分享给朋友');
+            closeActionMenu();
+        }
+    </script>
+</body>
+</html>

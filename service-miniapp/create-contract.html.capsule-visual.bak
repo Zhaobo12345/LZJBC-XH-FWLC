@@ -1,0 +1,987 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>家装平台小程序原型 - 创建合同</title>
+    <link rel="stylesheet" href="common.css">
+    <style>
+        .page-content {
+            height: calc(100% - 44px - 44px - 64px);
+            background-color: var(--bg-secondary);
+            overflow-y: auto;
+            box-sizing: border-box;
+        }
+
+        .form-section {
+            background-color: var(--bg-primary);
+            margin-bottom: 12px;
+            padding: 16px;
+        }
+
+        .form-section-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .form-group {
+            margin-bottom: 18px;
+        }
+
+        .form-group:last-child {
+            margin-bottom: 0;
+        }
+
+        .form-label {
+            display: flex;
+            align-items: center;
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+        }
+
+        .form-label .required {
+            color: var(--error-color);
+            margin-right: 4px;
+        }
+
+        /* 只读展示（所属架构层级） */
+        .form-display {
+            width: 100%;
+            height: 44px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 0 12px;
+            font-size: 14px;
+            color: var(--text-primary);
+            background-color: var(--bg-secondary);
+            display: flex;
+            align-items: center;
+            box-sizing: border-box;
+        }
+
+        .form-input, .form-select {
+            width: 100%;
+            height: 44px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 0 12px;
+            font-size: 14px;
+            color: var(--text-primary);
+            outline: none;
+            background-color: var(--bg-primary);
+            box-sizing: border-box;
+            transition: border-color 0.2s;
+        }
+
+        .form-input:focus, .form-select:focus {
+            border-color: var(--primary-color);
+        }
+
+        .form-input.error, .form-select.error {
+            border-color: var(--error-color);
+            background-color: #FFF1F0;
+        }
+
+        .form-input::placeholder {
+            color: var(--text-tertiary);
+        }
+
+        /* 合同类型：下拉单选（复用 .form-select 样式，节省页面空间） */
+
+        .error-message {
+            font-size: 12px;
+            color: #F5222D;
+            margin-top: 6px;
+            padding: 6px 10px;
+            background-color: #FFF1F0;
+            border-radius: 6px;
+            display: none;
+        }
+
+        .error-message.show {
+            display: block;
+        }
+
+        /* 甲乙方可搜索选择框（按姓名或角色模糊匹配） */
+        .member-picker {
+            position: relative;
+        }
+
+        .member-picker-control {
+            width: 100%;
+            min-height: 44px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 0 12px;
+            font-size: 14px;
+            color: var(--text-primary);
+            background-color: var(--bg-primary);
+            box-sizing: border-box;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+            transition: border-color 0.2s;
+        }
+
+        .member-picker.open .member-picker-control {
+            border-color: var(--primary-color);
+        }
+
+        .member-picker-control.error {
+            border-color: var(--error-color);
+            background-color: #FFF1F0;
+        }
+
+        .member-picker-value {
+            color: var(--text-tertiary);
+        }
+
+        .member-picker-value.filled {
+            color: var(--text-primary);
+        }
+
+        .member-picker-arrow {
+            color: var(--text-tertiary);
+            font-size: 12px;
+            flex-shrink: 0;
+            margin-left: 8px;
+        }
+
+        .member-picker-panel {
+            display: none;
+            position: absolute;
+            left: 0;
+            right: 0;
+            top: calc(100% + 4px);
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+            z-index: 60;
+            overflow: hidden;
+        }
+
+        .member-picker-panel.open {
+            display: block;
+        }
+
+        .member-picker-search {
+            width: 100%;
+            height: 40px;
+            border: none;
+            border-bottom: 1px solid var(--border-color);
+            padding: 0 12px;
+            font-size: 14px;
+            outline: none;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            box-sizing: border-box;
+        }
+
+        .member-picker-list {
+            max-height: 220px;
+            overflow-y: auto;
+        }
+
+        .member-picker-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 11px 12px;
+            font-size: 14px;
+            cursor: pointer;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .member-picker-item:last-child {
+            border-bottom: none;
+        }
+
+        .member-picker-item:hover {
+            background-color: var(--bg-secondary);
+        }
+
+        .member-picker-item.selected {
+            background-color: #E6F7FF;
+        }
+
+        .mp-name {
+            color: var(--text-primary);
+        }
+
+        .mp-role {
+            font-size: 12px;
+            color: var(--text-secondary);
+            background-color: var(--bg-secondary);
+            padding: 2px 8px;
+            border-radius: 10px;
+            flex-shrink: 0;
+            margin-left: 8px;
+        }
+
+        .member-picker-empty {
+            padding: 16px 12px;
+            font-size: 13px;
+            color: var(--text-tertiary);
+            text-align: center;
+        }
+
+        /* 邀请人员（工人合同多选） */
+        .invite-chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 8px;
+        }
+
+        .invite-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 10px;
+            background-color: var(--status-primary-bg, #E6F7FF);
+            color: var(--primary-color, #1677FF);
+            border-radius: 12px;
+            font-size: 12px;
+        }
+
+        .invite-chip .x {
+            cursor: pointer;
+            font-weight: 600;
+            margin-left: 2px;
+        }
+
+        .member-picker-item .check {
+            margin-left: auto;
+            color: var(--primary-color, #1677FF);
+            font-weight: 600;
+        }
+
+        .member-picker-item.disabled {
+            opacity: 0.45;
+            cursor: not-allowed;
+        }
+
+        /* 底部提交栏 */
+        .app-bar {
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            height: 64px;
+            background-color: var(--bg-primary);
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            padding: 0 16px;
+            box-sizing: border-box;
+            z-index: 50;
+        }
+
+        .app-bar .submit-btn {
+            flex: 1;
+            height: 44px;
+            border: none;
+            border-radius: 22px;
+            background-color: var(--primary-color);
+            color: #fff;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .app-bar .submit-btn:active {
+            opacity: 0.85;
+        }
+
+        /* 轻提示气泡（复用项目内通用样式） */
+        .light-bubble {
+            position: absolute;
+            top: 96px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.8);
+            color: #fff;
+            font-size: 12px;
+            padding: 8px 12px;
+            border-radius: 8px;
+            max-width: 240px;
+            text-align: center;
+            line-height: 1.4;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            z-index: 10000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s ease;
+        }
+
+        .light-bubble.show {
+            opacity: 1;
+        }
+    </style>
+<style>
+/* 微信原生胶囊占位（样式参考真机效果，由微信客户端实际渲染） */
+    .nav-bar .native-capsule {
+        display: inline-flex;
+        align-items: center;
+        justify-content: space-between;
+        min-width: 56px;
+        height: 28px;
+        padding: 0 10px;
+        border: 1px solid rgba(0, 0, 0, 0.08);
+        border-radius: 14px;
+        background: rgba(255, 255, 255, 0.7);
+        color: rgba(0, 0, 0, 0.6);
+        font-size: 12px;
+        line-height: 1;
+        user-select: none;
+        box-sizing: border-box;
+    }
+    .nav-bar .native-capsule .nc-left,
+    .nav-bar .native-capsule .nc-right {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex: 1;
+        min-width: 16px;
+    }
+    .nav-bar .native-capsule .nc-right {
+        font-size: 10px;
+    }
+    .nav-bar .native-capsule .nc-divider {
+        width: 1px;
+        height: 14px;
+        background: rgba(0, 0, 0, 0.1);
+        margin: 0 4px;
+    }
+</style>
+</head>
+<body>
+    <div class="phone-frame">
+        <div class="status-bar">
+            <span>9:41</span>
+            <span>家装平台</span>
+            <span>100%</span>
+        </div>
+        <div class="nav-bar">
+            <div class="back" onclick="location.href='architecture.html'">‹ 返回</div>
+            <div class="title centered">创建合同</div>
+            <div style="width:32px;"></div>
+        
+            <div class="actions"><div class="native-capsule" title="微信原生胶囊：由微信客户端渲染，开发者不可自定义其内容"><span class="nc-left">⋯</span><span class="nc-divider"></span><span class="nc-right">○</span></div></div>
+        </div>
+            
+
+
+        <div class="page-content">
+            <div class="form-section">
+                <div class="form-section-title">合同基本信息</div>
+
+                <div class="form-group">
+                    <label class="form-label">所属架构层级</label>
+                    <div class="form-display" id="groupDisplay">项目架构</div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">
+                        <span class="required">*</span>
+                        <span>合同类型</span>
+                    </label>
+                    <select class="form-select" id="contractType">
+                        <option value="">请选择合同类型</option>
+                    </select>
+                    <div class="error-message" id="typeError">请选择合同类型</div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">
+                        <span class="required">*</span>
+                        <span>合同名称</span>
+                    </label>
+                    <input type="text" class="form-input" id="contractName" placeholder="请输入合同名称（2-30 个字符）" maxlength="30">
+                    <div class="error-message" id="nameError"></div>
+                </div>
+            </div>
+
+            <div class="form-section">
+                <div class="form-section-title">合同方</div>
+
+                <div class="form-group">
+                    <label class="form-label">
+                        <span>甲方</span>
+                    </label>
+                    <div class="member-picker" id="partyAPicker">
+                        <div class="member-picker-control" id="partyAControl" onclick="toggleMemberPicker('partyA')">
+                            <span class="member-picker-value" id="partyAValue">请选择甲方（选填）</span>
+                            <span class="member-picker-arrow">▾</span>
+                        </div>
+                        <div class="member-picker-panel" id="partyAPanel">
+                            <input type="text" class="member-picker-search" id="partyASearch" placeholder="搜索姓名或角色，如 水电 / 王" oninput="filterMembers('partyA')">
+                            <div class="member-picker-list" id="partyAList"></div>
+                            <div class="member-picker-empty" id="partyAEmpty" style="display:none;">未找到匹配人员</div>
+                        </div>
+                    </div>
+                    <div class="error-message" id="partyAError">甲方与乙方不能相同</div>
+                </div>
+
+                <div class="form-group" id="partyBGroup">
+                    <label class="form-label">
+                        <span>乙方</span>
+                    </label>
+                    <div class="member-picker" id="partyBPicker">
+                        <div class="member-picker-control" id="partyBControl" onclick="toggleMemberPicker('partyB')">
+                            <span class="member-picker-value" id="partyBValue">请选择乙方（选填）</span>
+                            <span class="member-picker-arrow">▾</span>
+                        </div>
+                        <div class="member-picker-panel" id="partyBPanel">
+                            <input type="text" class="member-picker-search" id="partyBSearch" placeholder="搜索姓名或角色，如 水电 / 王" oninput="filterMembers('partyB')">
+                            <div class="member-picker-list" id="partyBList"></div>
+                            <div class="member-picker-empty" id="partyBEmpty" style="display:none;">未找到匹配人员</div>
+                        </div>
+                    </div>
+                    <div class="error-message" id="partyBError">甲方与乙方不能相同</div>
+                </div>
+            </div>
+
+            <div class="form-section" id="inviteSection" style="display:none;">
+                <div class="form-section-title">意向乙方（邀请 1-3 人）</div>
+                <div class="form-group">
+                    <label class="form-label">
+                        <span class="required">*</span>
+                        <span>邀请人员</span>
+                    </label>
+                    <div class="member-picker" id="invitePicker">
+                        <div class="member-picker-control" id="inviteControl" onclick="toggleInvitePanel()">
+                            <span class="member-picker-value" id="inviteValue">请邀请 1-3 名意向乙方</span>
+                            <span class="member-picker-arrow">▾</span>
+                        </div>
+                        <div class="member-picker-panel" id="invitePanel">
+                            <input type="text" class="member-picker-search" id="inviteSearch" placeholder="搜索姓名或角色" oninput="filterInvite()">
+                            <div class="member-picker-list" id="inviteList"></div>
+                            <div class="member-picker-empty" id="inviteEmpty" style="display:none;">未找到匹配人员</div>
+                        </div>
+                    </div>
+                    <div class="invite-chips" id="inviteChips"></div>
+                    <div class="error-message" id="inviteError">请邀请 1-3 名意向乙方</div>
+                </div>
+            </div>
+
+            <div class="form-section">
+                <div class="form-section-title">合同金额</div>
+
+                <div class="form-group">
+                    <label class="form-label">
+                        <span>合同金额（元）</span>
+                    </label>
+                    <input type="text" class="form-input" id="contractAmount" placeholder="请输入合同金额，如 12000.00（选填）">
+                    <div class="error-message" id="amountError"></div>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="app-bar">
+            <button class="submit-btn" onclick="submitCreateContract()">创建合同</button>
+        </div>
+
+        <div class="light-bubble" id="tipBubble"></div>
+    </div>
+
+    <script src="contract-store.js"></script>
+    <script>
+        'use strict';
+
+        // 合同类型：与 PRD-完整文档.html 定义的 8 类保持一致（单选）
+        var CONTRACT_TYPES = [
+            { value: 'base', typeName: '基础施工服务合同', role: '项目总或工长' },
+            { value: 'design', typeName: '设计服务合同', role: '设计师' },
+            { value: 'demolition', typeName: '拆除班组服务合同', role: '拆除工' },
+            { value: 'shuidian', typeName: '水电班组服务合同', role: '水电工' },
+            { value: 'muzuo', typeName: '木作班组服务合同', role: '木作工' },
+            { value: 'niwa', typeName: '泥瓦工班组服务合同', role: '泥瓦工' },
+            { value: 'youqi', typeName: '油漆工班组服务合同', role: '油漆工' },
+            { value: 'xiaolingong', typeName: '小零工服务合同', role: '小零工' }
+        ];
+
+        // 项目内已有人员（角色严格对应 PRD 定义的角色值）
+        var PROJECT_MEMBERS = [
+            { id: 'm-owner', name: '陈业主', role: '业主' },
+            { id: 'm-designer', name: '王设计', role: '设计师' },
+            { id: 'm-pm', name: '刘项目总', role: '项目总' },
+            { id: 'm-lead', name: '孙工长', role: '工长' },
+            { id: 'm-demolition', name: '钱拆除', role: '拆除工' },
+            { id: 'm-shuidian', name: '张水电', role: '水电工' },
+            { id: 'm-muzuo', name: '李木作', role: '木作工' },
+            { id: 'm-niwa', name: '周泥瓦', role: '泥瓦工' },
+            { id: 'm-youqi', name: '吴油漆', role: '油漆工' },
+            { id: 'm-xiaolingong', name: '郑零工', role: '小零工' }
+        ];
+
+        var currentGroup = '';
+        var invitedList = [];   // 工人合同：被邀请的意向乙方（最多 3 人）
+        var editId = '';        // 工人合同：编辑（撤回后重新提交）时的合约库 id
+
+        // 甲乙方选择状态（自定义可搜索选择框）
+        var pickerState = {
+            partyA: { open: false, value: '' },
+            partyB: { open: false, value: '' }
+        };
+
+        function initPage() {
+            var params = new URLSearchParams(window.location.search);
+            currentGroup = params.get('group') || '';
+            if (currentGroup) {
+                document.getElementById('groupDisplay').textContent = currentGroup;
+            }
+            renderTypeOptions();
+            initMemberPicker('partyA');
+            initMemberPicker('partyB');
+
+            // 工人合同：撤回后「重新提交邀约」回到本页预填
+            editId = params.get('editId') || '';
+            if (editId && ContractStore.getContract(editId)) {
+                var c = ContractStore.getContract(editId);
+                document.getElementById('contractName').value = c.name || '';
+                document.getElementById('contractAmount').value = c.amount || '';
+                document.getElementById('contractType').value = c.type || '';
+                if (c.group) {
+                    currentGroup = c.group;
+                    document.getElementById('groupDisplay').textContent = c.group;
+                }
+                if (c.partyA) {
+                    pickerState.partyA.value = c.partyA;
+                    var pa = PROJECT_MEMBERS.filter(function (m) { return m.id === c.partyA; })[0];
+                    if (pa) {
+                        var paVal = document.getElementById('partyAValue');
+                        paVal.textContent = pa.name + '（' + pa.role + '）';
+                        paVal.classList.add('filled');
+                    }
+                }
+                invitedList = (c.invitations || []).map(function (i) {
+                    return { userId: i.userId, name: i.name, role: i.role };
+                });
+                onContractTypeChange();
+                renderInviteChips();
+                return;
+            }
+            onContractTypeChange();
+        }
+
+        function renderTypeOptions() {
+            var sel = document.getElementById('contractType');
+            CONTRACT_TYPES.forEach(function (t) {
+                var opt = document.createElement('option');
+                opt.value = t.value;
+                opt.textContent = t.typeName;
+                sel.appendChild(opt);
+            });
+            sel.addEventListener('change', function () {
+                onContractTypeChange();
+            });
+        }
+
+        function initMemberPicker(pickerId) {
+            pickerState[pickerId].open = false;
+            pickerState[pickerId].value = '';
+            var valueEl = document.getElementById(pickerId + 'Value');
+            valueEl.textContent = (pickerId === 'partyA' ? '请选择甲方' : '请选择乙方') + '（选填）';
+            valueEl.classList.remove('filled');
+        }
+
+        // 渲染可搜索列表：按姓名或角色关键字模糊匹配
+        function renderMemberPicker(pickerId) {
+            var listEl = document.getElementById(pickerId + 'List');
+            var keyword = (document.getElementById(pickerId + 'Search').value || '').trim().toLowerCase();
+            listEl.innerHTML = '';
+            var matched = PROJECT_MEMBERS.filter(function (m) {
+                if (!keyword) return true;
+                return m.name.toLowerCase().indexOf(keyword) > -1 ||
+                    m.role.toLowerCase().indexOf(keyword) > -1;
+            });
+            var emptyEl = document.getElementById(pickerId + 'Empty');
+            if (matched.length === 0) {
+                emptyEl.style.display = 'block';
+                return;
+            }
+            emptyEl.style.display = 'none';
+            matched.forEach(function (m) {
+                var item = document.createElement('div');
+                item.className = 'member-picker-item' + (pickerState[pickerId].value === m.id ? ' selected' : '');
+                item.setAttribute('data-id', m.id);
+                item.innerHTML = '<span class="mp-name">' + escapeHtml(m.name) + '</span>' +
+                    '<span class="mp-role">' + escapeHtml(m.role) + '</span>';
+                item.onclick = function () { selectMember(pickerId, m); };
+                listEl.appendChild(item);
+            });
+        }
+
+        function toggleMemberPicker(pickerId) {
+            var panel = document.getElementById(pickerId + 'Panel');
+            var isOpen = panel.classList.contains('open');
+            closeAllPickers();
+            if (!isOpen) {
+                panel.classList.add('open');
+                pickerState[pickerId].open = true;
+                var search = document.getElementById(pickerId + 'Search');
+                search.value = '';
+                renderMemberPicker(pickerId);
+                search.focus();
+            }
+            clearError(pickerId);
+        }
+
+        function closeAllPickers() {
+            ['partyA', 'partyB'].forEach(function (id) {
+                var panel = document.getElementById(id + 'Panel');
+                if (panel) panel.classList.remove('open');
+                pickerState[id].open = false;
+            });
+        }
+
+        function filterMembers(pickerId) {
+            renderMemberPicker(pickerId);
+        }
+
+        function selectMember(pickerId, m) {
+            pickerState[pickerId].value = m.id;
+            var valueEl = document.getElementById(pickerId + 'Value');
+            valueEl.textContent = m.name + '（' + m.role + '）';
+            valueEl.classList.add('filled');
+            closeAllPickers();
+            clearError(pickerId);
+        }
+
+        // 点击空白处关闭选择面板
+        document.addEventListener('click', function (e) {
+            if (!e.target.closest('.member-picker')) {
+                closeAllPickers();
+            }
+            if (!e.target.closest('#invitePicker')) {
+                var ip = document.getElementById('invitePanel');
+                if (ip) ip.classList.remove('open');
+            }
+        });
+
+        // ============== 工人合同：邀请 1-3 人（意向乙方） ==============
+        function onContractTypeChange() {
+            var typeValue = document.getElementById('contractType').value;
+            var isWorker = ContractStore.isWorkerType(typeValue);
+            var inviteSection = document.getElementById('inviteSection');
+            var partyBGroup = document.getElementById('partyBGroup');
+            if (isWorker) {
+                if (inviteSection) inviteSection.style.display = 'block';
+                if (partyBGroup) partyBGroup.style.display = 'none';
+            } else {
+                if (inviteSection) inviteSection.style.display = 'none';
+                if (partyBGroup) partyBGroup.style.display = 'block';
+            }
+            clearError('type');
+        }
+
+        function toggleInvitePanel() {
+            var panel = document.getElementById('invitePanel');
+            if (!panel) return;
+            var isOpen = panel.classList.contains('open');
+            if (isOpen) {
+                panel.classList.remove('open');
+                return;
+            }
+            closeAllPickers();
+            panel.classList.add('open');
+            var search = document.getElementById('inviteSearch');
+            search.value = '';
+            renderInviteList();
+            search.focus();
+            clearError('invite');
+        }
+
+        function filterInvite() {
+            renderInviteList();
+        }
+
+        function renderInviteList() {
+            var listEl = document.getElementById('inviteList');
+            var keyword = (document.getElementById('inviteSearch').value || '').trim().toLowerCase();
+            listEl.innerHTML = '';
+            var matched = PROJECT_MEMBERS.filter(function (m) {
+                if (!keyword) return true;
+                return m.name.toLowerCase().indexOf(keyword) > -1 ||
+                    m.role.toLowerCase().indexOf(keyword) > -1;
+            });
+            var emptyEl = document.getElementById('inviteEmpty');
+            if (matched.length === 0) {
+                emptyEl.style.display = 'block';
+                return;
+            }
+            emptyEl.style.display = 'none';
+            var full = invitedList.length >= 3;
+            matched.forEach(function (m) {
+                var selected = invitedList.some(function (x) { return x.userId === m.id; });
+                var item = document.createElement('div');
+                item.className = 'member-picker-item' + (selected ? ' selected' : '') + (full && !selected ? ' disabled' : '');
+                item.setAttribute('data-id', m.id);
+                item.innerHTML = '<span class="mp-name">' + escapeHtml(m.name) + '</span>' +
+                    '<span class="mp-role">' + escapeHtml(m.role) + '</span>' +
+                    (selected ? '<span class="check">✓</span>' : '');
+                item.onclick = function () { toggleInvite(m); };
+                listEl.appendChild(item);
+            });
+        }
+
+        function toggleInvite(m) {
+            var idx = invitedList.map(function (x) { return x.userId; }).indexOf(m.id);
+            if (idx > -1) {
+                invitedList.splice(idx, 1);
+            } else {
+                if (invitedList.length >= 3) {
+                    showTip('最多邀请 3 名意向乙方');
+                    return;
+                }
+                invitedList.push({ userId: m.id, name: m.name, role: m.role });
+            }
+            renderInviteList();
+            renderInviteChips();
+            clearError('invite');
+        }
+
+        function renderInviteChips() {
+            var valueEl = document.getElementById('inviteValue');
+            var chipsEl = document.getElementById('inviteChips');
+            if (invitedList.length === 0) {
+                valueEl.textContent = '请邀请 1-3 名意向乙方';
+                valueEl.classList.remove('filled');
+            } else {
+                valueEl.textContent = '已选 ' + invitedList.length + ' / 3 人';
+                valueEl.classList.add('filled');
+            }
+            chipsEl.innerHTML = '';
+            invitedList.forEach(function (m) {
+                var chip = document.createElement('span');
+                chip.className = 'invite-chip';
+                chip.innerHTML = escapeHtml(m.name) + '（' + escapeHtml(m.role) + '）<span class="x" data-id="' + m.id + '">✕</span>';
+                chip.querySelector('.x').onclick = function (ev) {
+                    ev.stopPropagation();
+                    toggleInvite(m);
+                };
+                chipsEl.appendChild(chip);
+            });
+        }
+
+        // 工人合同提交（方案 B）
+        function handleWorkerSubmit(typeValue) {
+            ['invite', 'contractName', 'contractAmount'].forEach(clearError);
+            var nameVal = document.getElementById('contractName').value;
+            var nameErr = validateName(nameVal);
+            if (nameErr) { showError('contractName', nameErr); showTip(nameErr); return; }
+            if (invitedList.length < 1 || invitedList.length > 3) {
+                showError('invite', '请邀请 1-3 名意向乙方');
+                showTip('请邀请 1-3 名意向乙方');
+                return;
+            }
+            var amountVal = document.getElementById('contractAmount').value;
+            var amountErr = '';
+            if (amountVal.trim()) { amountErr = validateAmount(amountVal); }
+            if (amountErr) { showError('contractAmount', amountErr); showTip(amountErr); return; }
+
+            var selectedType = CONTRACT_TYPES.filter(function (t) { return t.value === typeValue; })[0];
+            var partyA = pickerState.partyA.value;
+            var partyAName = '';
+            if (partyA) {
+                var pa = PROJECT_MEMBERS.filter(function (m) { return m.id === partyA; })[0];
+                if (pa) partyAName = pa.name;
+            }
+            var amountNormalized = amountVal.trim() ? amountVal.replace(/,/g, '') : '';
+
+            if (editId) {
+                var existing = ContractStore.getContract(editId);
+                if (existing) {
+                    existing.name = nameVal.trim();
+                    existing.type = selectedType.value;
+                    existing.typeName = selectedType.typeName;
+                    existing.group = currentGroup;
+                    existing.partyA = partyA;
+                    existing.partyAName = partyAName;
+                    existing.amount = amountNormalized;
+                    ContractStore.saveContract(existing);
+                    ContractStore.submitInvite(editId, invitedList);
+                    window.location.href = 'contract-detail.html?worker=1&id=' + encodeURIComponent(editId) + '&viewer=sender';
+                    return;
+                }
+            }
+            var id = 'contract-' + Date.now();
+            ContractStore.createContract({
+                id: id,
+                name: nameVal.trim(),
+                type: selectedType.value,
+                typeName: selectedType.typeName,
+                group: currentGroup,
+                partyA: partyA,
+                partyAName: partyAName,
+                amount: amountNormalized,
+                invited: invitedList
+            });
+            window.location.href = 'contract-detail.html?worker=1&id=' + encodeURIComponent(id) + '&viewer=sender';
+        }
+
+        function escapeHtml(s) {
+            return String(s).replace(/[&<>"']/g, function (c) {
+                return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+            });
+        }
+
+        function showError(field, msg) {
+            var errEl = document.getElementById(field + 'Error');
+            var inputId = field === 'type' ? 'contractType' : (field === 'partyA' || field === 'partyB' ? field + 'Control' : field);
+            var inputEl = document.getElementById(inputId);
+            if (errEl) {
+                if (msg) errEl.textContent = msg;
+                errEl.classList.add('show');
+            }
+            if (inputEl && inputEl.classList) inputEl.classList.add('error');
+        }
+
+        function clearError(field) {
+            var errEl = document.getElementById(field + 'Error');
+            var inputId = field === 'type' ? 'contractType' : (field === 'partyA' || field === 'partyB' ? field + 'Control' : field);
+            var inputEl = document.getElementById(inputId);
+            if (errEl) errEl.classList.remove('show');
+            if (inputEl && inputEl.classList) inputEl.classList.remove('error');
+        }
+
+        function showTip(text) {
+            var bubble = document.getElementById('tipBubble');
+            bubble.textContent = text;
+            bubble.classList.add('show');
+            clearTimeout(window.__tipTimer);
+            window.__tipTimer = setTimeout(function () {
+                bubble.classList.remove('show');
+            }, 1800);
+        }
+
+        // 合同名称校验规则：必填；长度 2-30；仅空白/非法字符（<>{}|\\^` 等）不通过
+        function validateName(name) {
+            var v = (name || '').trim();
+            if (!v) return '请输入合同名称';
+            if (v.length < 2) return '合同名称至少 2 个字符';
+            if (v.length > 30) return '合同名称最多 30 个字符';
+            if (/[<>{}|\\^`]/.test(v)) return '合同名称不能包含特殊字符 < > { } | \\ ^ `';
+            return '';
+        }
+
+        // 合同金额校验规则：必填；正数；最多两位小数；上限 1e12
+        function validateAmount(raw) {
+            var v = (raw || '').trim();
+            if (!v) return '请输入合同金额';
+            var normalized = v.replace(/,/g, '');
+            if (!/^\d+(\.\d{1,2})?$/.test(normalized)) {
+                return '请输入正确的合同金额（正数，最多两位小数）';
+            }
+            var num = parseFloat(normalized);
+            if (!(num > 0)) return '合同金额必须大于 0';
+            if (num > 1e12) return '合同金额超出合理范围';
+            return '';
+        }
+
+        function submitCreateContract() {
+            // 清空旧错误
+            ['type', 'contractName', 'partyA', 'partyB', 'contractAmount'].forEach(clearError);
+
+            var firstError = '';
+
+            // 1. 合同类型（必选，下拉单选）
+            var typeSelect = document.getElementById('contractType');
+            var typeValue = typeSelect.value;
+
+            // 工人合同新流程（方案 B）：创建时邀请 1-3 人，走独立提交分支
+            if (ContractStore.isWorkerType(typeValue)) {
+                handleWorkerSubmit(typeValue);
+                return;
+            }
+
+            if (!typeValue) {
+                showError('type');
+                firstError = firstError || '请选择合同类型';
+            }
+
+            // 2. 合同名称（必填）
+            var nameVal = document.getElementById('contractName').value;
+            var nameErr = validateName(nameVal);
+            if (nameErr) {
+                showError('contractName', nameErr);
+                firstError = firstError || nameErr;
+            }
+
+            // 3. 甲方（选填）
+            var partyA = pickerState.partyA.value;
+
+            // 4. 乙方（选填）
+            var partyB = pickerState.partyB.value;
+
+            // 甲、乙方选填，但若两者都填写则不能为同一人
+            if (partyA && partyB && partyA === partyB) {
+                showError('partyA', '甲方与乙方不能相同');
+                showError('partyB', '甲方与乙方不能相同');
+                firstError = firstError || '甲方与乙方不能相同';
+            }
+
+            // 5. 合同金额（选填，填写后校验格式）
+            var amountVal = document.getElementById('contractAmount').value;
+            var amountErr = '';
+            if (amountVal.trim()) {
+                amountErr = validateAmount(amountVal);
+            }
+            if (amountErr) {
+                showError('contractAmount', amountErr);
+                firstError = firstError || amountErr;
+            }
+
+            if (firstError) {
+                showTip(firstError);
+                return;
+            }
+
+            // 全部通过：组装参数，跳转到拟定中合同详情页
+            var selectedType = CONTRACT_TYPES.filter(function (t) {
+                return t.value === typeValue;
+            })[0];
+
+            var partyAName = '';
+            var partyBName = '';
+            if (partyA) {
+                var pa = PROJECT_MEMBERS.filter(function (m) { return m.id === partyA; })[0];
+                if (pa) partyAName = pa.name;
+            }
+            if (partyB) {
+                var pb = PROJECT_MEMBERS.filter(function (m) { return m.id === partyB; })[0];
+                if (pb) partyBName = pb.name;
+            }
+            var amountNormalized = amountVal.trim() ? amountVal.replace(/,/g, '') : '';
+
+            var params = new URLSearchParams({
+                id: 'contract-new-' + Date.now(),
+                name: nameVal.trim(),
+                type: selectedType.value,
+                typeName: selectedType.typeName,
+                partyA: partyA,
+                partyAName: partyAName,
+                partyB: partyB,
+                partyBName: partyBName,
+                amount: amountNormalized,
+                group: currentGroup,
+                status: 'draft',
+                new: '1'
+            });
+
+            location.href = 'contract-detail.html?' + params.toString();
+        }
+
+        initPage();
+    </script>
+</body>
+</html>

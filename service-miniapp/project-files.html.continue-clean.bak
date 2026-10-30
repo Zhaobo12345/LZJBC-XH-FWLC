@@ -1,0 +1,1137 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>家装平台小程序原型 - 项目资料</title>
+    <link rel="stylesheet" href="common.css">
+    <style>
+        .page-content {
+            height: calc(100% - 44px - 44px);
+            overflow-y: auto;
+            background-color: var(--bg-secondary);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .container {
+            padding: 12px 16px;
+            flex: 1;
+        }
+
+        .search-bar {
+            background-color: #ffffff;
+            border-radius: 16px;
+            padding: 8px 12px;
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+            border: 1px solid #f0f0f0;
+        }
+
+        .search-bar .icon {
+            color: var(--text-tertiary);
+            margin-right: 8px;
+            font-size: 14px;
+        }
+
+        .search-bar input {
+            flex: 1;
+            border: none;
+            background: transparent;
+            outline: none;
+            font-size: 13px;
+        }
+
+        .search-bar input::placeholder {
+            color: var(--text-tertiary);
+        }
+
+        .filter-bar {
+            background-color: #ffffff;
+            padding: 12px 16px;
+            border-bottom: 1px solid #f0f0f0;
+            flex-shrink: 0;
+        }
+
+        .tab-bar {
+            display: flex;
+            background-color: var(--bg-secondary);
+            border-radius: 6px;
+            padding: 3px;
+        }
+
+        .tab-item {
+            flex: 1;
+            padding: 6px 8px;
+            text-align: center;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .tab-item.active {
+            background-color: var(--primary-color);
+            color: white;
+            font-weight: 500;
+        }
+
+        .nav-bar .actions {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .nav-bar .action-icon {
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 14px;
+            color: var(--text-primary);
+        }
+
+        .mini-header-menu {
+            position: absolute;
+            top: 44px;
+            right: 12px;
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            z-index: 200;
+            display: none;
+            min-width: 120px;
+            overflow: hidden;
+        }
+
+        .mini-header-menu.show {
+            display: block;
+        }
+
+        .mini-header-menu .menu-item {
+            padding: 12px 16px;
+            font-size: 13px;
+            color: var(--text-primary);
+            cursor: pointer;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .mini-header-menu .menu-item:last-child {
+            border-bottom: none;
+        }
+
+        .mini-header-menu .menu-item:hover {
+            background-color: var(--bg-secondary);
+        }
+
+        .category-section {
+            margin-bottom: 20px;
+        }
+
+        .category-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 12px;
+        }
+
+        .category-title {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 15px;
+            font-weight: 600;
+        }
+
+        .category-title .icon {
+            font-size: 18px;
+        }
+
+        .category-count {
+            font-size: 12px;
+            color: var(--text-tertiary);
+            background-color: var(--bg-secondary);
+            padding: 2px 8px;
+            border-radius: 10px;
+        }
+
+        .file-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+        }
+
+        .file-item {
+            background-color: #ffffff;
+            border-radius: 8px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .file-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .file-item .preview {
+            aspect-ratio: 1;
+            background-color: var(--bg-secondary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .file-item .preview img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .file-item .preview .file-icon {
+            font-size: 40px;
+        }
+
+        .file-item .preview .video-icon {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 40px;
+            height: 40px;
+            background-color: rgba(0, 0, 0, 0.6);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 16px;
+        }
+
+        .file-item .preview .audio-icon {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 28px;
+        }
+
+        .file-item .preview .doc-icon {
+            width: 60px;
+            height: 70px;
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .file-item .preview .doc-icon .ext {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 2px;
+        }
+
+        .file-item .info {
+            padding: 8px;
+        }
+
+        .file-item .name {
+            font-size: 12px;
+            color: var(--text-primary);
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            margin-bottom: 4px;
+        }
+
+        .file-item .meta {
+            font-size: 11px;
+            color: var(--text-tertiary);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+        }
+
+        .empty-state .icon {
+            font-size: 48px;
+            margin-bottom: 12px;
+            opacity: 0.3;
+        }
+
+        .empty-state .text {
+            color: var(--text-tertiary);
+            font-size: 14px;
+        }
+
+        .permission-tip {
+            position: absolute;
+            bottom: 16px;
+            right: 16px;
+            width: 36px;
+            height: 36px;
+            background-color: var(--warning-color);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+            z-index: 100;
+            font-size: 16px;
+            color: white;
+        }
+
+        .permission-tooltip {
+            position: absolute;
+            bottom: 60px;
+            right: 16px;
+            background-color: #ffffff;
+            border-radius: 8px;
+            padding: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            z-index: 100;
+            max-width: 200px;
+            display: none;
+        }
+
+        .permission-tooltip.show {
+            display: block;
+        }
+
+        .permission-tooltip .tip-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .permission-tooltip .tip-desc {
+            font-size: 12px;
+            color: var(--text-secondary);
+            line-height: 1.5;
+        }
+
+        .search-result-info {
+            font-size: 12px;
+            color: var(--text-tertiary);
+            padding: 8px 0;
+            display: none;
+        }
+
+        .search-result-info.show {
+            display: block;
+        }
+
+        .search-result-info .count {
+            color: var(--primary-color);
+            font-weight: 500;
+        }
+
+        .no-result {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--text-tertiary);
+        }
+
+        .no-result .icon {
+            font-size: 48px;
+            margin-bottom: 12px;
+            opacity: 0.3;
+        }
+
+        .no-result .text {
+            font-size: 14px;
+        }
+
+        .contract-section {
+            background-color: #ffffff;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 16px;
+        }
+
+        .contract-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .contract-name {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 15px;
+            font-weight: 600;
+        }
+
+        .contract-name .badge {
+            background-color: var(--primary-color);
+            color: white;
+            font-size: 11px;
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+
+        .contract-files {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+        }
+
+        .locked-overlay {
+            position: relative;
+        }
+
+        .locked-overlay::after {
+            content: '🔒';
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            font-size: 16px;
+            background-color: rgba(0, 0, 0, 0.5);
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .locked-overlay .file-item {
+            opacity: 0.6;
+            pointer-events: none;
+        }
+    
+
+    
+        /* 标签淡入 */
+        @keyframes tagFadeIn {
+            from { opacity: 0; transform: scale(0.7); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        to { opacity: 0; top: 60px; }
+        }
+
+    
+        /* ===== 搜索行 ===== */
+        .filter-bar { padding: 4px 16px 0; }
+        .search-row { padding: 0 0 4px; }
+        .search-row .search-bar { width: 100%; display: flex; align-items: center; }
+        .search-row .search-bar input { flex: 1; }
+
+        /* ===== 分类网格 ===== */
+        .category-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            padding: 0 0 8px;
+        }
+        .cat-card {
+            background: #f7f8fa;
+            border-radius: 12px;
+            padding: 10px 6px;
+            text-align: center;
+            cursor: pointer;
+            transition: all .2s;
+            border: 1.5px solid transparent;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2px;
+        }
+        .cat-card.active {
+            background: #f0f5ff;
+            border-color: #6366f1;
+        }
+        .cat-card:hover { background: #eef0f8; }
+        .cat-card-icon { font-size: 22px; line-height: 1; }
+        .cat-card-num {
+            font-size: 20px;
+            font-weight: 700;
+            color: #262626;
+            line-height: 1;
+        }
+        .cat-card.active .cat-card-num { color: #6366f1; }
+        .cat-card-label {
+            font-size: 12px;
+            color: #8c8c8c;
+            font-weight: 400;
+        }
+        .cat-card.active .cat-card-label { color: #6366f1; font-weight: 600; }
+
+        /* ===== 文件标签（左侧色条） ===== */
+        .file-category-tag {
+            position: absolute;
+            left: 0; top: 0; bottom: 0;
+            width: 3px;
+            z-index: 2;
+            border-radius: 3px 0 0 3px;
+            font-size: 0;
+        }
+        .file-category-tag.drawing { background: #1677ff; }
+        .file-category-tag.contract { background: #52c41a; }
+        .file-category-tag.acceptance { background: #fa8c16; }
+        .file-category-tag.photo { background: #722ed1; }
+        .file-category-tag.change { background: #ff4d4f; }
+        .file-category-tag.other { background: transparent; }
+        .file-category-tag.low-confidence { opacity: .4; }
+        .file-item.category-hidden { display: none !important; }
+
+        to { opacity: 1; transform: scale(1); }
+        }
+
+    </style>
+<style>
+/* 微信原生胶囊占位（样式参考真机效果，由微信客户端实际渲染） */
+.nav-bar .native-capsule {
+    display: inline-flex;
+    align-items: center;
+    justify-content: space-between;
+    min-width: 56px;
+    height: 28px;
+    padding: 0 10px;
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    border-radius: 14px;
+    background: rgba(255, 255, 255, 0.7);
+    color: rgba(0, 0, 0, 0.6);
+    font-size: 12px;
+    line-height: 1;
+    user-select: none;
+    box-sizing: border-box;
+}
+.nav-bar .native-capsule .nc-left,
+.nav-bar .native-capsule .nc-right {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: 1;
+    min-width: 16px;
+}
+.nav-bar .native-capsule .nc-right {
+    font-size: 10px;
+}
+.nav-bar .native-capsule .nc-divider {
+    width: 1px;
+    height: 14px;
+    background: rgba(0, 0, 0, 0.1);
+    margin: 0 4px;
+}
+    .nav-bar .native-capsule .nc-left,
+    .nav-bar .native-capsule .nc-right {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex: 1;
+        min-width: 16px;
+    }
+    .nav-bar .native-capsule .nc-right {
+        font-size: 10px;
+    }
+    .nav-bar .native-capsule .nc-divider {
+        width: 1px;
+        height: 14px;
+        background: rgba(0, 0, 0, 0.1);
+        margin: 0 4px;
+    }
+</style>
+</head>
+<body>
+    <div class="phone-frame">
+        <div class="status-bar">
+            <div class="time">9:41</div>
+            <div class="icons">📶 🔋</div>
+        </div>
+
+        <div class="nav-bar">
+            <div class="back" onclick="history.back()">←</div>
+            <div class="title centered">项目资料</div>
+            <div class="actions">
+                <div class="action-icon" onclick="toggleMiniMenu()">⋯</div>
+                <div class="action-icon" onclick="closePage()">✕</div>
+            </div>
+        
+            <div class="actions"><div class="native-capsule" title="微信原生胶囊：由微信客户端渲染，开发者不可自定义其内容"><span class="nc-left">⋯</span><span class="nc-divider"></span><span class="nc-right">○</span></div></div>
+        </div>
+            
+
+
+        <div class="mini-header-menu" id="miniHeaderMenu">
+        </div>
+
+        <div class="page-content">
+            <div class="filter-bar">
+                <div class="search-row">
+                    <div class="search-bar">
+                        <span class="icon">🔍</span>
+                        <input type="text" placeholder="搜索文件名称">
+                    </div>
+                </div>
+                <div class="category-grid" id="fileCategoryBar">
+                    <div class="cat-card active" data-category="all" onclick="filterByCategory('all')">
+                        <div class="cat-card-num" id="catCountAll">0</div>
+                        <div class="cat-card-label">全部</div>
+                    </div>
+                    <div class="cat-card" data-category="drawing" onclick="filterByCategory('drawing')">
+                        <div class="cat-card-icon">📐</div>
+                        <div class="cat-card-num" id="catCountDrawing">0</div>
+                        <div class="cat-card-label">图纸</div>
+                    </div>
+                    <div class="cat-card" data-category="contract" onclick="filterByCategory('contract')">
+                        <div class="cat-card-icon">📄</div>
+                        <div class="cat-card-num" id="catCountContract">0</div>
+                        <div class="cat-card-label">合同</div>
+                    </div>
+                    <div class="cat-card" data-category="acceptance" onclick="filterByCategory('acceptance')">
+                        <div class="cat-card-icon">✅</div>
+                        <div class="cat-card-num" id="catCountAcceptance">0</div>
+                        <div class="cat-card-label">验收</div>
+                    </div>
+                    <div class="cat-card" data-category="photo" onclick="filterByCategory('photo')">
+                        <div class="cat-card-icon">📸</div>
+                        <div class="cat-card-num" id="catCountPhoto">0</div>
+                        <div class="cat-card-label">照片</div>
+                    </div>
+                    <div class="cat-card" data-category="change" onclick="filterByCategory('change')">
+                        <div class="cat-card-icon">📝</div>
+                        <div class="cat-card-num" id="catCountChange">0</div>
+                        <div class="cat-card-label">变更</div>
+                    </div>
+                </div>
+                <div class="filter-bottom">
+                    
+                </div>
+            </div>
+
+            <div class="container">
+                <div class="search-result-info" id="searchResultInfo">
+                    找到 <span class="count" id="searchCount">0</span> 个文件
+                </div>
+
+                
+
+            <div id="allContent">
+                    <div class="category-section">
+                        <div class="category-header">
+                            <div class="category-title">
+                                <span class="icon">📁</span>
+                                <span>项目信息附件</span>
+                            </div>
+                            <span class="category-count">3个文件</span>
+                        </div>
+                        <div class="file-grid">
+                            <div class="file-item" onclick="previewFile('image')">
+                                <div class="preview">
+                                    <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100'%3E%3Crect fill='%23E8E8E8' width='100' height='100'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-family='Arial' font-size='12' fill='%238C8C8C'%3E户型图%3C/text%3E%3C/svg%3E" alt="户型图">
+                                </div>
+                                <div class="info">
+                                    <div class="name">户型图.jpg</div>
+                                    <div class="meta">2024-01-15</div>
+                                </div>
+                            </div>
+                            <div class="file-item" onclick="previewFile('doc')">
+                                <div class="preview">
+                                    <div class="doc-icon">
+                                        <div class="ext">PDF</div>
+                                        <div>文档</div>
+                                    </div>
+                                </div>
+                                <div class="info">
+                                    <div class="name">设计说明书.pdf</div>
+                                    <div class="meta">2024-01-15</div>
+                                </div>
+                            </div>
+                            <div class="file-item" onclick="previewFile('doc')">
+                                <div class="preview">
+                                    <div class="doc-icon" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);">
+                                        <div class="ext">DOC</div>
+                                        <div>文档</div>
+                                    </div>
+                                </div>
+                                <div class="info">
+                                    <div class="name">装修合同.docx</div>
+                                    <div class="meta">2024-01-15</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="contract-section">
+                        <div class="contract-header">
+                            <div class="contract-name">
+                                <span>📋</span>
+                                <span>水电合同</span>
+                                <span class="badge">执行中</span>
+                            </div>
+                            <span class="category-count">5个文件</span>
+                        </div>
+                        <div class="contract-files">
+                            <div class="file-item" onclick="previewFile('image')">
+                                <div class="preview">
+                                    <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100'%3E%3Crect fill='%23E8E8E8' width='100' height='100'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-family='Arial' font-size='12' fill='%238C8C8C'%3E现场照片%3C/text%3E%3C/svg%3E" alt="现场照片">
+                                </div>
+                                <div class="info">
+                                    <div class="name">现场照片1.jpg</div>
+                                    <div class="meta">材料进场阶段</div>
+                                </div>
+                            </div>
+                            <div class="file-item" onclick="previewFile('video')">
+                                <div class="preview">
+                                    <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100'%3E%3Crect fill='%23E8E8E8' width='100' height='100'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-family='Arial' font-size='12' fill='%238C8C8C'%3E施工视频%3C/text%3E%3C/svg%3E" alt="施工视频">
+                                    <div class="video-icon">▶</div>
+                                </div>
+                                <div class="info">
+                                    <div class="name">施工过程.mp4</div>
+                                    <div class="meta">布管布线阶段</div>
+                                </div>
+                            </div>
+                            <div class="file-item" onclick="previewFile('audio')">
+                                <div class="preview">
+                                    <div class="audio-icon">🎵</div>
+                                </div>
+                                <div class="info">
+                                    <div class="name">验收说明.mp3</div>
+                                    <div class="meta">布管布线阶段</div>
+                                </div>
+                            </div>
+                            <div class="file-item" onclick="previewFile('image')">
+                                <div class="preview">
+                                    <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100'%3E%3Crect fill='%23E8E8E8' width='100' height='100'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-family='Arial' font-size='12' fill='%238C8C8C'%3E验收照片%3C/text%3E%3C/svg%3E" alt="验收照片">
+                                </div>
+                                <div class="info">
+                                    <div class="name">验收照片.jpg</div>
+                                    <div class="meta">布管布线阶段</div>
+                                </div>
+                            </div>
+                            <div class="file-item" onclick="previewFile('doc')">
+                                <div class="preview">
+                                    <div class="doc-icon" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);">
+                                        <div class="ext">XLS</div>
+                                        <div>表格</div>
+                                    </div>
+                                </div>
+                                <div class="info">
+                                    <div class="name">材料清单.xlsx</div>
+                                    <div class="meta">材料进场阶段</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="contract-section">
+                        <div class="contract-header">
+                            <div class="contract-name">
+                                <span>📋</span>
+                                <span>泥瓦合同</span>
+                                <span class="badge">执行中</span>
+                            </div>
+                            <span class="category-count">2个文件</span>
+                        </div>
+                        <div class="contract-files">
+                            <div class="file-item" onclick="previewFile('image')">
+                                <div class="preview">
+                                    <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100'%3E%3Crect fill='%23E8E8E8' width='100' height='100'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-family='Arial' font-size='12' fill='%238C8C8C'%3E瓷砖照片%3C/text%3E%3C/svg%3E" alt="瓷砖照片">
+                                </div>
+                                <div class="info">
+                                    <div class="name">瓷砖铺贴.jpg</div>
+                                    <div class="meta">铺贴阶段</div>
+                                </div>
+                            </div>
+                            <div class="file-item" onclick="previewFile('video')">
+                                <div class="preview">
+                                    <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100'%3E%3Crect fill='%23E8E8E8' width='100' height='100'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-family='Arial' font-size='12' fill='%238C8C8C'%3E施工视频%3C/text%3E%3C/svg%3E" alt="施工视频">
+                                    <div class="video-icon">▶</div>
+                                </div>
+                                <div class="info">
+                                    <div class="name">施工记录.mp4</div>
+                                    <div class="meta">铺贴阶段</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="contract-section" style="opacity: 0.6;">
+                        <div class="contract-header">
+                            <div class="contract-name">
+                                <span>🔒</span>
+                                <span>木工合同</span>
+                                <span class="badge" style="background-color: var(--text-tertiary);">无权限</span>
+                            </div>
+                            <span class="category-count">3个文件</span>
+                        </div>
+                        <div class="contract-files">
+                            <div class="file-item" style="opacity: 0.5; cursor: not-allowed;" onclick="alert('无权限查看此合同资料')">
+                                <div class="preview">
+                                    <div class="file-icon" style="font-size: 32px; opacity: 0.3;">🔒</div>
+                                </div>
+                                <div class="info">
+                                    <div class="name">文件已加密</div>
+                                    <div class="meta">无权限</div>
+                                </div>
+                            </div>
+                            <div class="file-item" style="opacity: 0.5; cursor: not-allowed;" onclick="alert('无权限查看此合同资料')">
+                                <div class="preview">
+                                    <div class="file-icon" style="font-size: 32px; opacity: 0.3;">🔒</div>
+                                </div>
+                                <div class="info">
+                                    <div class="name">文件已加密</div>
+                                    <div class="meta">无权限</div>
+                                </div>
+                            </div>
+                            <div class="file-item" style="opacity: 0.5; cursor: not-allowed;" onclick="alert('无权限查看此合同资料')">
+                                <div class="preview">
+                                    <div class="file-icon" style="font-size: 32px; opacity: 0.3;">🔒</div>
+                                </div>
+                                <div class="info">
+                                    <div class="name">文件已加密</div>
+                                    <div class="meta">无权限</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="imageContent" style="display: none;">
+                    <div class="category-section">
+                        <div class="category-header">
+                            <div class="category-title">
+                                <span class="icon">🖼️</span>
+                                <span>图片文件</span>
+                            </div>
+                            <span class="category-count">6张</span>
+                        </div>
+                        <div class="file-grid">
+                            <div class="file-item" onclick="previewFile('image')">
+                                <div class="preview">
+                                    <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100'%3E%3Crect fill='%23E8E8E8' width='100' height='100'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-family='Arial' font-size='12' fill='%238C8C8C'%3E户型图%3C/text%3E%3C/svg%3E" alt="户型图">
+                                </div>
+                                <div class="info">
+                                    <div class="name">户型图.jpg</div>
+                                    <div class="meta">项目信息</div>
+                                </div>
+                            </div>
+                            <div class="file-item" onclick="previewFile('image')">
+                                <div class="preview">
+                                    <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100'%3E%3Crect fill='%23E8E8E8' width='100' height='100'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-family='Arial' font-size='12' fill='%238C8C8C'%3E现场照片%3C/text%3E%3C/svg%3E" alt="现场照片">
+                                </div>
+                                <div class="info">
+                                    <div class="name">现场照片1.jpg</div>
+                                    <div class="meta">水电合同</div>
+                                </div>
+                            </div>
+                            <div class="file-item" onclick="previewFile('image')">
+                                <div class="preview">
+                                    <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100'%3E%3Crect fill='%23E8E8E8' width='100' height='100'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-family='Arial' font-size='12' fill='%238C8C8C'%3E验收照片%3C/text%3E%3C/svg%3E" alt="验收照片">
+                                </div>
+                                <div class="info">
+                                    <div class="name">验收照片.jpg</div>
+                                    <div class="meta">水电合同</div>
+                                </div>
+                            </div>
+                            <div class="file-item" onclick="previewFile('image')">
+                                <div class="preview">
+                                    <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100'%3E%3Crect fill='%23E8E8E8' width='100' height='100'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-family='Arial' font-size='12' fill='%238C8C8C'%3E瓷砖照片%3C/text%3E%3C/svg%3E" alt="瓷砖照片">
+                                </div>
+                                <div class="info">
+                                    <div class="name">瓷砖铺贴.jpg</div>
+                                    <div class="meta">泥瓦合同</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="videoContent" style="display: none;">
+                    <div class="category-section">
+                        <div class="category-header">
+                            <div class="category-title">
+                                <span class="icon">🎬</span>
+                                <span>视频文件</span>
+                            </div>
+                            <span class="category-count">2个</span>
+                        </div>
+                        <div class="file-grid">
+                            <div class="file-item" onclick="previewFile('video')">
+                                <div class="preview">
+                                    <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100'%3E%3Crect fill='%23E8E8E8' width='100' height='100'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-family='Arial' font-size='12' fill='%238C8C8C'%3E施工视频%3C/text%3E%3C/svg%3E" alt="施工视频">
+                                    <div class="video-icon">▶</div>
+                                </div>
+                                <div class="info">
+                                    <div class="name">施工过程.mp4</div>
+                                    <div class="meta">水电合同 · 2:30</div>
+                                </div>
+                            </div>
+                            <div class="file-item" onclick="previewFile('video')">
+                                <div class="preview">
+                                    <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100'%3E%3Crect fill='%23E8E8E8' width='100' height='100'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-family='Arial' font-size='12' fill='%238C8C8C'%3E施工视频%3C/text%3E%3C/svg%3E" alt="施工视频">
+                                    <div class="video-icon">▶</div>
+                                </div>
+                                <div class="info">
+                                    <div class="name">施工记录.mp4</div>
+                                    <div class="meta">泥瓦合同 · 1:45</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="audioContent" style="display: none;">
+                    <div class="category-section">
+                        <div class="category-header">
+                            <div class="category-title">
+                                <span class="icon">🎵</span>
+                                <span>音频文件</span>
+                            </div>
+                            <span class="category-count">1个</span>
+                        </div>
+                        <div class="file-grid">
+                            <div class="file-item" onclick="previewFile('audio')">
+                                <div class="preview">
+                                    <div class="audio-icon">🎵</div>
+                                </div>
+                                <div class="info">
+                                    <div class="name">验收说明.mp3</div>
+                                    <div class="meta">水电合同 · 0:45</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="docContent" style="display: none;">
+                    <div class="category-section">
+                        <div class="category-header">
+                            <div class="category-title">
+                                <span class="icon">📄</span>
+                                <span>文档文件</span>
+                            </div>
+                            <span class="category-count">3个</span>
+                        </div>
+                        <div class="file-grid">
+                            <div class="file-item" onclick="previewFile('doc')">
+                                <div class="preview">
+                                    <div class="doc-icon">
+                                        <div class="ext">PDF</div>
+                                        <div>文档</div>
+                                    </div>
+                                </div>
+                                <div class="info">
+                                    <div class="name">设计说明书.pdf</div>
+                                    <div class="meta">项目信息 · 2.5MB</div>
+                                </div>
+                            </div>
+                            <div class="file-item" onclick="previewFile('doc')">
+                                <div class="preview">
+                                    <div class="doc-icon" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);">
+                                        <div class="ext">DOC</div>
+                                        <div>文档</div>
+                                    </div>
+                                </div>
+                                <div class="info">
+                                    <div class="name">装修合同.docx</div>
+                                    <div class="meta">项目信息 · 1.2MB</div>
+                                </div>
+                            </div>
+                            <div class="file-item" onclick="previewFile('doc')">
+                                <div class="preview">
+                                    <div class="doc-icon" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);">
+                                        <div class="ext">XLS</div>
+                                        <div>表格</div>
+                                    </div>
+                                </div>
+                                <div class="info">
+                                    <div class="name">材料清单.xlsx</div>
+                                    <div class="meta">水电合同 · 856KB</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="searchNoResult" class="no-result" style="display: none;">
+                    <div class="icon">🔍</div>
+                    <div class="text">未找到相关文件</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="permission-tip" onclick="togglePermissionTip()">⚠️</div>
+        <div class="permission-tooltip" id="permissionTooltip">
+            <div class="tip-title">⚠️ 权限说明</div>
+            <div class="tip-desc">部分合同资料因权限限制无法查看，请联系项目经理获取权限</div>
+        </div>
+    </div>
+
+    <script>
+        function switchTab(type) {
+            document.querySelectorAll('.tab-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            event.target.classList.add('active');
+
+            document.getElementById('allContent').style.display = 'none';
+            document.getElementById('imageContent').style.display = 'none';
+            document.getElementById('videoContent').style.display = 'none';
+            document.getElementById('audioContent').style.display = 'none';
+            document.getElementById('docContent').style.display = 'none';
+
+            document.getElementById(type + 'Content').style.display = 'block';
+            
+            document.getElementById('searchResultInfo').classList.remove('show');
+            document.getElementById('searchNoResult').style.display = 'none';
+            
+            const searchInput = document.querySelector('.search-bar input');
+            if (searchInput) {
+                searchInput.value = '';
+            }
+        }
+
+        function previewFile(type) {
+            if (type === 'image') {
+                alert('预览图片');
+            } else if (type === 'video') {
+                alert('播放视频');
+            } else if (type === 'audio') {
+                alert('播放音频');
+            } else if (type === 'doc') {
+                alert('预览文档');
+            }
+        }
+
+        function toggleMiniMenu() {
+            const menu = document.getElementById('miniHeaderMenu');
+            menu.classList.toggle('show');
+        }
+
+        function closeMiniMenu() {
+            const menu = document.getElementById('miniHeaderMenu');
+            menu.classList.remove('show');
+        }
+
+        function closePage() {
+            if (confirm('确定要关闭当前页面吗？')) {
+                history.back();
+            }
+        }
+
+        function togglePermissionTip() {
+            const tooltip = document.getElementById('permissionTooltip');
+            tooltip.classList.toggle('show');
+        }
+
+        function searchFiles(keyword) {
+            keyword = keyword.toLowerCase().trim();
+            
+            const allContent = document.getElementById('allContent');
+            const imageContent = document.getElementById('imageContent');
+            const videoContent = document.getElementById('videoContent');
+            const audioContent = document.getElementById('audioContent');
+            const docContent = document.getElementById('docContent');
+            const searchResultInfo = document.getElementById('searchResultInfo');
+            const searchCount = document.getElementById('searchCount');
+            const noResult = document.getElementById('searchNoResult');
+            
+            if (!keyword) {
+                allContent.style.display = 'block';
+                imageContent.style.display = 'none';
+                videoContent.style.display = 'none';
+                audioContent.style.display = 'none';
+                docContent.style.display = 'none';
+                searchResultInfo.classList.remove('show');
+                noResult.style.display = 'none';
+                
+                const allFiles = allContent.querySelectorAll('.file-item');
+                allFiles.forEach(file => {
+                    file.style.display = 'block';
+                });
+                
+                document.querySelectorAll('.tab-item').forEach(item => {
+                    item.classList.remove('active');
+                });
+                document.querySelector('.tab-item').classList.add('active');
+                return;
+            }
+            
+            allContent.style.display = 'block';
+            imageContent.style.display = 'none';
+            videoContent.style.display = 'none';
+            audioContent.style.display = 'none';
+            docContent.style.display = 'none';
+            
+            document.querySelectorAll('.tab-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            
+            let visibleCount = 0;
+            
+            const allFiles = allContent.querySelectorAll('.file-item');
+            allFiles.forEach(file => {
+                const nameElement = file.querySelector('.name');
+                if (nameElement) {
+                    const name = nameElement.textContent.toLowerCase();
+                    if (name.includes(keyword)) {
+                        file.style.display = 'block';
+                        visibleCount++;
+                    } else {
+                        file.style.display = 'none';
+                    }
+                }
+            });
+            
+            if (visibleCount > 0) {
+                searchCount.textContent = visibleCount;
+                searchResultInfo.classList.add('show');
+                noResult.style.display = 'none';
+            } else {
+                searchResultInfo.classList.remove('show');
+                noResult.style.display = 'block';
+            }
+        }
+
+        document.addEventListener('click', function(e) {
+            const menu = document.getElementById('miniHeaderMenu');
+            if (menu && menu.classList.contains('show')) {
+                if (!e.target.closest('.action-icon') && !e.target.closest('.mini-header-menu')) {
+                    menu.classList.remove('show');
+                }
+            }
+            
+            const tooltip = document.getElementById('permissionTooltip');
+            if (tooltip && tooltip.classList.contains('show')) {
+                if (!e.target.closest('.permission-tip') && !e.target.closest('.permission-tooltip')) {
+                    tooltip.classList.remove('show');
+                }
+            }
+        });
+
+        document.querySelector('.search-bar input').addEventListener('input', function(e) {
+            searchFiles(e.target.value);
+        });
+        
+        
+    
+
+</script>
+</body>
+</html>

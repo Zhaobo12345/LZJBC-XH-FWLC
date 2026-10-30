@@ -1,0 +1,773 @@
+﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>家装平台小程序原型 - 项目列表</title>
+    <link rel="stylesheet" href="common.css">
+    <link rel="stylesheet" href="../shared/empty-state.css">
+    <style>
+        /* ── 页面内容区高度（status 44 + nav 44 + tabbar 50） */
+        .page-content {
+            height: calc(100% - 44px - 44px - 50px);
+        }
+
+        /* ── 筛选 Tab 栏 */
+        .filter-tabs {
+            display: flex;
+            background-color: var(--bg-primary);
+            padding: 0 16px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .filter-tab {
+            padding: 12px 16px;
+            font-size: 14px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            position: relative;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+
+        .filter-tab.active {
+            color: var(--primary-color);
+            font-weight: 600;
+        }
+
+        .filter-tab.active::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 16px;
+            right: 16px;
+            height: 2px;
+            background-color: var(--primary-color);
+        }
+
+        /* ── 搜索栏 */
+        .search-bar {
+            padding: 12px 16px;
+            background-color: var(--bg-primary);
+        }
+
+        .search-input {
+            width: 100%;
+            height: 36px;
+            background-color: var(--bg-secondary);
+            border: none;
+            border-radius: 18px;
+            padding: 0 16px;
+            font-size: 14px;
+            outline: none;
+            font-family: inherit;
+        }
+
+        .search-input::placeholder {
+            color: var(--text-tertiary);
+        }
+
+        /* ── 列表页项目卡片（覆盖 common 基础样式） */
+        .project-card {
+            margin: 12px 16px;
+            padding: 16px;
+            box-shadow: 0 1px 3px var(--shadow-color);
+        }
+
+        .project-card:hover {
+            border-color: var(--border-color);
+            box-shadow: 0 4px 12px var(--shadow-md);
+        }
+
+        .project-header {
+            margin-bottom: 12px;
+        }
+
+        .project-info {
+            margin-bottom: 8px;
+        }
+
+        .project-info-item {
+            display: inline-block;
+            margin-right: 16px;
+        }
+
+        .project-stats {
+            display: flex;
+            gap: 16px;
+            margin: 12px 0;
+        }
+
+        .stat-box {
+            flex: 1;
+            background-color: var(--bg-secondary);
+            border-radius: 8px;
+            padding: 10px 12px;
+        }
+
+        .stat-box .stat-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 6px;
+        }
+
+        .stat-box .stat-label {
+            font-size: 11px;
+            color: var(--text-tertiary);
+        }
+
+        .stat-box .stat-value {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .stat-box .stat-progress {
+            height: 4px;
+            background-color: var(--bg-tertiary);
+            border-radius: 2px;
+            overflow: hidden;
+        }
+
+        .stat-box .stat-progress-bar {
+            height: 100%;
+            border-radius: 2px;
+            transition: width 0.3s;
+        }
+
+        .stat-box .stat-progress-bar.contract {
+            background-color: var(--success-color);
+        }
+
+        .stat-box .stat-progress-bar.task {
+            background-color: var(--primary-color);
+        }
+
+        .stat-box .stat-footer {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 4px;
+            font-size: 10px;
+            color: var(--text-tertiary);
+        }
+
+        .pending-task-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 2px 8px;
+            background-color: var(--status-warning-bg);
+            color: var(--warning-color);
+            border-radius: 10px;
+            font-size: 11px;
+            font-weight: 500;
+        }
+
+        /* ── 子项目标签 */
+        .sub-projects {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .sub-project-tag {
+            font-size: 11px;
+            padding: 4px 8px;
+            background-color: var(--bg-secondary);
+            border-radius: 4px;
+            color: var(--text-secondary);
+        }
+
+        /* ── 悬浮创建按钮（FAB） - 在手机框内右下角 */
+        .create-btn {
+            position: absolute;
+            bottom: 66px;
+            right: 16px;
+            width: 56px;
+            height: 56px;
+            background-color: var(--primary-color);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #FFFFFF;
+            font-size: 24px;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(24, 144, 255, 0.4);
+            transition: all 0.2s;
+            z-index: 100;
+            border: none;
+            outline: none;
+        }
+
+        .create-btn:hover {
+            transform: scale(1.1);
+        }
+
+        .create-btn:active {
+            transform: scale(0.95);
+        }
+
+        /* 列表容器 */
+        .list-container {
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        /* 空状态适配 */
+        .empty-state {
+            padding: 48px 24px;
+        }
+
+        .empty-state .illustration {
+            width: 120px;
+            height: 120px;
+        }
+
+        /* 认证状态演示开关（手机框右侧，与创建按钮同行） */
+        .auth-demo-switch {
+            position: fixed;
+            left: calc(50% + 207px);
+            top: calc(50% + 250px);
+            transform: translateY(-50%);
+            background: #FFFFFF;
+            border: 1px solid #FFE7BA;
+            border-radius: 12px;
+            padding: 12px 14px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+            z-index: 100;
+            width: 120px;
+        }
+
+        .auth-demo-switch .switch-title {
+            font-size: 12px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+            text-align: center;
+        }
+
+        .switch-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            margin-bottom: 6px;
+        }
+
+        .switch-status {
+            color: #FA8C16;
+            font-weight: 500;
+            font-size: 12px;
+            white-space: nowrap;
+        }
+
+        .switch-status.certified {
+            color: #52C41A;
+        }
+
+        .switch-hint {
+            font-size: 10px;
+            color: #999;
+            text-align: center;
+            line-height: 1.3;
+        }
+
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 36px;
+            height: 20px;
+        }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-color: #ccc;
+            transition: .3s;
+            border-radius: 20px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 16px;
+            width: 16px;
+            left: 2px;
+            bottom: 2px;
+            background-color: white;
+            transition: .3s;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider {
+            background-color: #52C41A;
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(16px);
+        }
+
+        /* 认证提示弹窗 */
+        .app-modal {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 200;
+        }
+
+        .app-modal.show {
+            display: flex;
+        }
+
+        .modal-box {
+            width: 280px;
+            background-color: #FFFFFF;
+            border-radius: 12px;
+            padding: 24px 20px 16px;
+            text-align: center;
+        }
+
+        .modal-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 16px;
+        }
+
+        .modal-content {
+            font-size: 14px;
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 24px;
+        }
+
+        .modal-content p {
+            margin: 0;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 12px;
+        }
+
+        .modal-btn {
+            flex: 1;
+            height: 40px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            line-height: 1;
+            padding: 0;
+            appearance: none;
+            -webkit-appearance: none;
+            font-family: inherit;
+            font-weight: 500;
+        }
+
+        .modal-btn.cancel {
+            background-color: #F5F5F5;
+            color: #666;
+        }
+
+        .modal-btn.confirm {
+            background-color: #1890FF;
+            color: #FFFFFF !important;
+        }
+    </style>
+<style>
+/* 微信原生胶囊占位（样式参考真机效果，由微信客户端实际渲染） */
+    .nav-bar .native-capsule {
+        display: inline-flex;
+        align-items: center;
+        justify-content: space-between;
+        min-width: 56px;
+        height: 28px;
+        padding: 0 10px;
+        border: 1px solid rgba(0, 0, 0, 0.08);
+        border-radius: 14px;
+        background: rgba(255, 255, 255, 0.7);
+        color: rgba(0, 0, 0, 0.6);
+        font-size: 12px;
+        line-height: 1;
+        user-select: none;
+        box-sizing: border-box;
+    }
+    .nav-bar .native-capsule .nc-left,
+    .nav-bar .native-capsule .nc-right {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex: 1;
+        min-width: 16px;
+    }
+    .nav-bar .native-capsule .nc-right {
+        font-size: 10px;
+    }
+    .nav-bar .native-capsule .nc-divider {
+        width: 1px;
+        height: 14px;
+        background: rgba(0, 0, 0, 0.1);
+        margin: 0 4px;
+    }
+</style>
+</head>
+<body>
+    <div class="page-nav">
+        <h3>页面导航</h3>
+        <a href="home.html">首页（工作台）</a>
+        <a href="project-list.html" class="active">项目列表</a>
+        <a href="project-detail.html">项目详情</a>
+        <a href="task-detail.html">任务详情</a>
+    </div>
+    
+    <div class="phone-frame">
+        <div class="status-bar">
+            <span class="time">9:41</span>
+            <div class="icons">
+                <span>📶</span>
+                <span>WiFi</span>
+                <span>🔋</span>
+            </div>
+        </div>
+        
+        <div class="nav-bar">
+            <div class="title">📋 项目列表</div>
+            
+            
+        
+            <div class="actions"><div class="native-capsule" title="微信原生胶囊：由微信客户端渲染，开发者不可自定义其内容"><span class="nc-left">⋯</span><span class="nc-divider"></span><span class="nc-right">○</span></div></div>
+        </div>
+            
+
+        
+        <div class="page-content">
+            <div class="filter-tabs">
+                <div class="filter-tab active" data-status="all">全部</div>
+                <div class="filter-tab" data-status="in-progress">进行中</div>
+                <div class="filter-tab" data-status="completed">已完工</div>
+            </div>
+            
+            <!-- 列表容器 -->
+            <div class="list-container" id="listContainer">
+            <div class="project-card" data-status="in-progress" onclick="location.href='project-detail.html'">
+                <div class="project-header">
+                    <div class="project-name">XX小区整体装修</div>
+                    <div class="project-status">进行中</div>
+                </div>
+                <div class="project-info">
+                    <span class="project-info-item">📍 XX小区***号***室</span>
+                </div>
+                <div class="project-stats">
+                    <div class="stat-box">
+                        <div class="stat-header">
+                            <span class="stat-label">合同</span>
+                            <span class="stat-value">4/5</span>
+                        </div>
+                        <div class="stat-progress">
+                            <div class="stat-progress-bar contract" style="width: 80%"></div>
+                        </div>
+                        <div class="stat-footer">
+                            <span>已签约4份</span>
+                            <span>共5份</span>
+                        </div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-header">
+                            <span class="stat-label">任务</span>
+                            <span class="stat-value">18/24</span>
+                        </div>
+                        <div class="stat-progress">
+                            <div class="stat-progress-bar task" style="width: 75%"></div>
+                        </div>
+                        <div class="stat-footer">
+                            <span>已完成18项</span>
+                            <span>共24项</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="project-card" data-status="in-progress" onclick="location.href='project-detail.html'">
+                <div class="project-header">
+                    <div class="project-name">YY花园精装修</div>
+                    <div class="project-status">进行中</div>
+                </div>
+                <div class="project-info">
+                    <span class="project-info-item">📍 YY花园***栋***单元</span>
+                </div>
+                <div class="project-stats">
+                    <div class="stat-box">
+                        <div class="stat-header">
+                            <span class="stat-label">合同</span>
+                            <span class="stat-value">2/3</span>
+                        </div>
+                        <div class="stat-progress">
+                            <div class="stat-progress-bar contract" style="width: 66%"></div>
+                        </div>
+                        <div class="stat-footer">
+                            <span>已签约2份</span>
+                            <span>共3份</span>
+                        </div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-header">
+                            <span class="stat-label">任务</span>
+                            <span class="stat-value">8/15</span>
+                        </div>
+                        <div class="stat-progress">
+                            <div class="stat-progress-bar task" style="width: 53%"></div>
+                        </div>
+                        <div class="stat-footer">
+                            <span>已完成8项</span>
+                            <span>共15项</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="project-card" data-status="completed" onclick="location.href='project-detail.html'">
+                <div class="project-header">
+                    <div class="project-name">AA别墅装修</div>
+                    <div class="project-status completed">已完工</div>
+                </div>
+                <div class="project-info">
+                    <span class="project-info-item">📍 AA别墅***号</span>
+                </div>
+                <div class="project-stats">
+                    <div class="stat-box">
+                        <div class="stat-header">
+                            <span class="stat-label">合同</span>
+                            <span class="stat-value">6/6</span>
+                        </div>
+                        <div class="stat-progress">
+                            <div class="stat-progress-bar contract" style="width: 100%"></div>
+                        </div>
+                        <div class="stat-footer">
+                            <span>已签约6份</span>
+                            <span>共6份</span>
+                        </div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-header">
+                            <span class="stat-label">任务</span>
+                            <span class="stat-value">32/32</span>
+                        </div>
+                        <div class="stat-progress">
+                            <div class="stat-progress-bar task" style="width: 100%"></div>
+                        </div>
+                        <div class="stat-footer">
+                            <span>已完成32项</span>
+                            <span>共32项</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            </div><!-- 列表容器结束 -->
+        </div>
+        
+        <button class="create-btn" id="createProjectBtn">+</button>
+        
+        <div class="tab-bar">
+            <div class="tab-item" onclick="location.href='home.html'">
+                <div class="icon">🏠</div>
+                <div class="label">首页</div>
+            </div>
+            <div class="tab-item active">
+                <div class="icon">📋</div>
+                <div class="label">项目</div>
+            </div>
+            <div class="tab-item" onclick="location.href='message.html'">
+                <div class="icon">💬</div>
+                <div class="label">消息</div>
+            </div>
+            <div class="tab-item" onclick="showToast('个人中心开发中')">
+                <div class="icon">👤</div>
+                <div class="label">我的</div>
+            </div>
+        </div>
+
+        <!-- 角色认证提示弹窗 -->
+        <div class="app-modal" id="authRequiredModal">
+            <div class="modal-box">
+                <div class="modal-title">创建项目需先完成认证</div>
+                <div class="modal-content">
+                    <p>当前操作需先完成角色认证；</p>
+                    <p>认证通过后方可继续创建；</p>
+                </div>
+                <div class="modal-actions">
+                    <div class="modal-btn cancel" onclick="closeAuthModal()">取消</div>
+                    <div class="modal-btn confirm" onclick="goToAuthPage()">立即认证</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 认证状态演示开关（手机框右侧，与创建按钮同行） -->
+    <div class="auth-demo-switch">
+        <div class="switch-title">演示开关</div>
+        <div class="switch-item">
+            <span class="switch-status" id="switchStatus">未认证</span>
+            <label class="switch">
+                <input type="checkbox" id="authSwitch" onchange="toggleAuthStatus(this.checked)">
+                <span class="slider"></span>
+            </label>
+        </div>
+        <div class="switch-hint">切换后点击+按钮测试</div>
+    </div>
+    
+    <div class="page-nav">
+        <div class="page-nav-title">原型导航</div>
+        <a href="home.html" class="page-nav-item">首页</a>
+        <a href="project-list.html" class="page-nav-item active">项目列表</a>
+        <a href="project-list-empty-demo.html" class="page-nav-item">项目列表（空状态演示）</a>
+        <a href="project-detail.html" class="page-nav-item">项目详情</a>
+        <a href="project-detail-new.html" class="page-nav-item">初始项目详情页</a>
+        <a href="project-info.html" class="page-nav-item">项目信息</a>
+        <a href="architecture.html" class="page-nav-item">项目架构</a>
+        <a href="create-project.html" class="page-nav-item">创建项目</a>
+        <a href="task-list.html" class="page-nav-item">任务列表</a>
+        <a href="contract-detail.html" class="page-nav-item">合同详情</a>
+    </div>
+    
+    <script src="js/page-nav.js"></script>
+    <script src="../shared/empty-state.js"></script>
+    <script>
+        // 模拟用户认证状态（原型演示：false-未认证，true-已认证）
+        let isUserCertified = false;
+
+        // 筛选Tab切换逻辑
+        document.querySelectorAll('.filter-tab').forEach(tab => {
+            tab.addEventListener('click', function() {
+                document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
+                this.classList.add('active');
+                
+                const status = this.dataset.status;
+                let visibleCount = 0;
+                
+                document.querySelectorAll('.project-card').forEach(card => {
+                    if (status === 'all') {
+                        card.style.display = 'block';
+                        visibleCount++;
+                    } else {
+                        const show = card.dataset.status === status;
+                        card.style.display = show ? 'block' : 'none';
+                        if (show) visibleCount++;
+                    }
+                });
+                
+                // 筛选结果为空时显示空状态
+                if (visibleCount === 0) {
+                    const container = document.getElementById('listContainer');
+                    EmptyState.show(container, {
+                        type: 'empty-project',
+                        title: '暂无相关项目',
+                        desc: status === 'in-progress' 
+                            ? '当前没有进行中的项目' 
+                            : '当前没有已完工的项目'
+                    });
+                }
+            });
+        });
+
+        // 创建项目按钮点击（含认证检查）
+        document.getElementById('createProjectBtn').addEventListener('click', function() {
+            if (isUserCertified) {
+                // 已认证，直接跳转
+                location.href = 'create-project.html';
+            } else {
+                // 未认证，弹出提示
+                document.getElementById('authRequiredModal').classList.add('show');
+            }
+        });
+
+        // 关闭认证提示弹窗
+        function closeAuthModal() {
+            document.getElementById('authRequiredModal').classList.remove('show');
+        }
+
+        // 跳转到认证页面
+        function goToAuthPage() {
+            closeAuthModal();
+            location.href = 'promoter-auth.html';
+        }
+
+        // 切换认证状态（演示用）
+        function toggleAuthStatus(certified) {
+            isUserCertified = certified;
+            const statusEl = document.getElementById('switchStatus');
+            if (certified) {
+                statusEl.textContent = '已认证';
+                statusEl.classList.add('certified');
+            } else {
+                statusEl.textContent = '未认证';
+                statusEl.classList.remove('certified');
+            }
+        }
+
+        function showToast(message, duration = 2000) {
+            const existingToast = document.querySelector('.app-toast');
+            if (existingToast) {
+                existingToast.remove();
+            }
+            
+            const toast = document.createElement('div');
+            toast.className = 'app-toast';
+            toast.textContent = message;
+            toast.style.cssText = `
+                position: fixed;
+                bottom: 80px;
+                left: 50%;
+                transform: translateX(-50%);
+                background-color: rgba(0, 0, 0, 0.7);
+                color: #FFFFFF;
+                padding: 8px 16px;
+                border-radius: 20px;
+                font-size: 13px;
+                z-index: 10000;
+                white-space: nowrap;
+            `;
+            document.body.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.remove();
+            }, duration);
+        }
+        
+        
+        
+        function closeActionMenu() {
+            const actionMenu = document.getElementById('actionMenu');
+            if (actionMenu) {
+                actionMenu.classList.remove('show');
+            }
+        }
+        
+        function shareToFriend() {
+            showToast('分享给朋友');
+            closeActionMenu();
+        }
+        
+        
+    </script>
+</body>
+</html>

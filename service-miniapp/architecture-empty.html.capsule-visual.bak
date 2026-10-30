@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>家装平台小程序原型 - 项目架构（初始状态）</title>
+    <link rel="stylesheet" href="common.css">
+    <style>
+        .page-content {
+            height: calc(100% - 44px);
+            background-color: var(--bg-secondary);
+            overflow-y: auto;
+        }
+
+        .architecture-header {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-light) 100%);
+            padding: 12px 16px;
+            color: #FFFFFF;
+        }
+
+        .header-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .header-left {
+            flex: 1;
+        }
+
+        .project-name {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 2px;
+        }
+
+        .header-stats {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-top: 8px;
+        }
+
+        .stat-item-inline {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 12px;
+        }
+
+        .stat-item-inline .num {
+            font-weight: 600;
+        }
+
+        .create-btn-inline {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            padding: 6px 12px;
+            background-color: rgba(255,255,255,0.2);
+            color: #FFFFFF;
+            border-radius: 14px;
+            font-size: 12px;
+            cursor: pointer;
+            border: 1px solid rgba(255,255,255,0.3);
+            transition: all 0.2s;
+        }
+
+        .create-btn-inline:hover {
+            background-color: rgba(255,255,255,0.3);
+        }
+
+        .architecture-tree {
+            padding: 16px;
+            padding-bottom: 80px;
+        }
+
+        .tree-node {
+            margin-bottom: 8px;
+        }
+
+        .node-card {
+            display: flex;
+            align-items: flex-start;
+            padding: 12px;
+            background-color: var(--bg-primary);
+            border-radius: 8px;
+            border-left: 4px solid var(--primary-color);
+            box-shadow: 0 1px 3px var(--shadow-color);
+        }
+
+        .node-card .node-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            background: linear-gradient(135deg, #E6F7FF 0%, #BAE7FF 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 12px;
+            font-size: 20px;
+            flex-shrink: 0;
+        }
+
+        .node-card .node-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .node-card .node-name {
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 4px;
+        }
+
+        .node-card .node-type {
+            display: inline-flex;
+            align-items: center;
+            padding: 2px 8px;
+            background-color: var(--status-primary-bg);
+            color: var(--primary-color);
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 500;
+            margin-bottom: 6px;
+        }
+
+        .node-card .node-meta {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 12px;
+            color: var(--text-tertiary);
+        }
+
+        .node-card .node-meta .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .node-card .node-meta .meta-icon {
+            font-size: 13px;
+        }
+
+        .node-card .progress-section {
+            margin-top: 8px;
+        }
+
+        .node-card .progress-bar-wrap {
+            height: 4px;
+            background-color: var(--bg-tertiary);
+            border-radius: 2px;
+            overflow: hidden;
+        }
+
+        .node-card .progress-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary-color) 0%, var(--primary-light) 100%);
+            border-radius: 2px;
+            width: 0%;
+            transition: width 0.3s;
+        }
+
+        .node-card .progress-text {
+            font-size: 11px;
+            color: var(--text-tertiary);
+            margin-top: 4px;
+            text-align: right;
+        }
+
+        /* 项目部紧凑样式（初始状态） */
+        .node-subinfo {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
++
+        .node-manager {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
++
+        .manager-name {
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-left: 6px;
+        }
++
+        .meta-count {
+            font-size: 12px;
+            color: var(--text-tertiary);
+        }
+
+        .add-node-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            padding: 10px;
+            background-color: var(--bg-primary);
+            border: 2px dashed var(--border-color);
+            border-radius: 8px;
+            color: var(--text-tertiary);
+            font-size: 13px;
+            cursor: pointer;
+            margin-top: 12px;
+            transition: all 0.2s;
+        }
+
+        .add-node-btn:hover {
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+            background-color: #E6F7FF;
+        }
+
+        .create-modal {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            display: none;
+            align-items: flex-end;
+            justify-content: center;
+            background-color: rgba(0,0,0,0.35);
+            z-index: 10;
+        }
+
+        .create-modal.show {
+            display: flex;
+        }
+
+        .create-modal .modal-content {
+            width: 100%;
+            background-color: #FFFFFF;
+            border-radius: 16px 16px 0 0;
+            padding: 16px;
+            max-height: 70%;
+            overflow-y: auto;
+            box-sizing: border-box;
+        }
+
+        .create-modal .modal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 14px;
+        }
+
+        .create-modal .modal-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .create-modal .modal-close {
+            font-size: 20px;
+            color: var(--text-tertiary);
+            cursor: pointer;
+        }
+
+        .create-modal .form-group {
+            margin-bottom: 14px;
+        }
+
+        .create-modal .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+
+        .create-modal .form-input {
+            width: 100%;
+            height: 44px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 0 12px;
+            font-size: 14px;
+            color: var(--text-primary);
+            box-sizing: border-box;
+        }
+
+        .create-modal .modal-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 16px;
+        }
+
+        .create-modal .modal-btn {
+            flex: 1;
+            height: 44px;
+            border-radius: 8px;
+            border: none;
+            font-size: 15px;
+            cursor: pointer;
+        }
+
+        .create-modal .modal-btn.cancel {
+            background-color: var(--bg-secondary);
+            color: var(--text-secondary);
+        }
+
+        .create-modal .modal-btn.confirm {
+            background-color: var(--primary-color);
+            color: #FFFFFF;
+        }
+    </style>
+<style>
+/* 微信原生胶囊占位（样式参考真机效果，由微信客户端实际渲染） */
+    .nav-bar .native-capsule {
+        display: inline-flex;
+        align-items: center;
+        justify-content: space-between;
+        min-width: 56px;
+        height: 28px;
+        padding: 0 10px;
+        border: 1px solid rgba(0, 0, 0, 0.08);
+        border-radius: 14px;
+        background: rgba(255, 255, 255, 0.7);
+        color: rgba(0, 0, 0, 0.6);
+        font-size: 12px;
+        line-height: 1;
+        user-select: none;
+        box-sizing: border-box;
+    }
+    .nav-bar .native-capsule .nc-left,
+    .nav-bar .native-capsule .nc-right {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex: 1;
+        min-width: 16px;
+    }
+    .nav-bar .native-capsule .nc-right {
+        font-size: 10px;
+    }
+    .nav-bar .native-capsule .nc-divider {
+        width: 1px;
+        height: 14px;
+        background: rgba(0, 0, 0, 0.1);
+        margin: 0 4px;
+    }
+</style>
+</head>
+<body>
+    <div class="phone-frame">
+        <div class="status-bar">
+            <div class="time">9:41</div>
+            <div class="icons">📶 🔋</div>
+        </div>
+
+        <div class="nav-bar">
+            <div class="back" onclick="location.href='project-detail-new.html'">← 返回</div>
+            <div class="title centered">项目架构</div>
+            
+        
+            <div class="actions"><div class="native-capsule" title="微信原生胶囊：由微信客户端渲染，开发者不可自定义其内容"><span class="nc-left">⋯</span><span class="nc-divider"></span><span class="nc-right">○</span></div></div>
+        </div>
+            
+
+
+        <div class="page-content">
+            <div class="architecture-header">
+                <div class="header-top">
+                    <div class="header-left">
+                        <div class="project-name">XX小区整体装修</div>
+                    </div>
+                    <div class="create-btn-inline" onclick="showCreateModal()">
+                        <span>+</span>
+                        <span>创建工作组</span>
+                    </div>
+                </div>
+                <div class="header-stats">
+                    <div class="stat-item-inline">
+                        <span class="num">1</span>
+                        <span>个层级</span>
+                    </div>
+                    <div class="stat-item-inline">
+                        <span class="num">0</span>
+                        <span>个工作组</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="architecture-tree">
+                <div class="tree-node">
+                    <div class="node-card">
+                        <div class="node-icon">🏢</div>
+                        <div class="node-info">
+                            <div class="node-name">项目部</div>
+                            <div class="node-subinfo">
+                                <div class="node-manager">项目经理 <span class="manager-name" id="projectManagerName">张三</span></div>
+                                <div class="meta-count"><span class="meta-icon">👥</span> <span id="projectGroupCount">0个工作组</span></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="add-node-btn" onclick="showCreateModal()">
+                    <span>+</span>
+                    <span>创建工作组</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="create-modal" id="createModal" onclick="if (event.target === this) closeCreateModal()">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <div class="modal-title">创建工作组</div>
+                    <div class="modal-close" onclick="closeCreateModal()">✕</div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">工作组名称</label>
+                    <input type="text" class="form-input" id="createGroupName" placeholder="请输入工作组名称">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">组长</label>
+                    <input type="text" class="form-input" id="createGroupLeader" placeholder="请输入组长姓名">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">备注</label>
+                    <input type="text" class="form-input" id="createGroupNote" placeholder="可选：填写备注信息">
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="modal-btn cancel" onclick="closeCreateModal()">取消</button>
+                    <button type="button" class="modal-btn confirm" onclick="submitCreateGroup()">创建</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function showCreateModal() {
+            document.getElementById('createModal').classList.add('show');
+        }
+
+        function closeCreateModal() {
+            document.getElementById('createModal').classList.remove('show');
+        }
+
+        function submitCreateGroup() {
+            var name = document.getElementById('createGroupName').value.trim();
+            var leader = document.getElementById('createGroupLeader').value.trim();
+            var note = document.getElementById('createGroupNote').value.trim();
+            if (!name) {
+                alert('请输入工作组名称');
+                return;
+            }
+
+            // 准备组对象并持久化到 newProjectData.groups
+            var raw = localStorage.getItem('newProjectData');
+            var project = raw ? JSON.parse(raw) : {};
+            if (!project.groups) project.groups = [];
+            var creatorName = (project.customerName && project.customerName.trim()) ? project.customerName : (project.projectName || '创建人');
+            var group = {
+                id: 'g_' + Date.now(),
+                name: name,
+                leader: leader || '',
+                note: note || '',
+                createdBy: creatorName,
+                createdByRole: '创建人',
+                createdAt: Date.now()
++                
+            };
+            project.groups.push(group);
+            localStorage.setItem('newProjectData', JSON.stringify(project));
+
+            // 在页面中追加显示新工作组卡片
+            var tree = document.querySelector('.architecture-tree');
+            if (tree) {
+                var node = document.createElement('div');
+                node.className = 'tree-node';
+                node.innerHTML = `
+                    <div class="node-card">
+                        <div class="node-icon">👥</div>
+                        <div class="node-info">
+                            <div class="node-name">${escapeHtml(name)}</div>
+                            <div class="node-type">工作组</div>
+                            <div class="node-meta">
+                                <div class="meta-item"><span class="meta-icon">👤</span><span>组长：${escapeHtml(leader || '未设置')}</span></div>
+                                <div class="meta-item"><span class="meta-icon">📝</span><span>${escapeHtml(note || '')}</span></div>
+                            </div>
+                            <div class="progress-section">
+                                <div class="progress-bar-wrap"><div class="progress-bar-fill" style="width:0%"></div></div>
+                                <div class="progress-text">创建人：${escapeHtml(creatorName)} · 角色：创建人</div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                // 插入到 add-node-btn 之前
+                var addBtn = tree.querySelector('.add-node-btn');
+                if (addBtn) tree.insertBefore(node, addBtn);
+            }
+
+            // 更新工作组计数（第二个 stat-item-inline）
+            try {
++                var stats = document.querySelectorAll('.header-stats .stat-item-inline .num');
+                if (stats && stats.length >= 2) {
+                    var groupsCount = project.groups.length;
+                    stats[1].textContent = groupsCount;
+                }
+            } catch (e) { }
+
+            closeCreateModal();
+            showToast('已创建工作组：' + name);
+        }
+
+        function escapeHtml(str) {
+            return String(str).replace(/[&<>"']/g, function(m){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]; });
+        }
+        
+        function showToast(message, duration) {
+            duration = duration || 2000;
+            var t = document.createElement('div');
+            t.className = 'app-toast';
+            t.textContent = message;
+            document.body.appendChild(t);
+            setTimeout(function(){ t.classList.add('show'); }, 10);
+            setTimeout(function(){ t.classList.remove('show'); setTimeout(()=>t.remove(),300); }, duration);
+        }
+        
+        // 页面初始化：填充项目经理与工作组数量（如存在 newProjectData）
+        (function() {
+            try {
+                var raw = localStorage.getItem('newProjectData');
+                if (!raw) return;
+                var project = JSON.parse(raw);
+                var manager = project.customerName || project.projectManager || '';
+                if (manager) {
+                    var el = document.getElementById('projectManagerName');
+                    if (el) el.textContent = manager;
+                }
+                var groups = (project.groups && project.groups.length) ? project.groups.length : 0;
++                var countEl = document.getElementById('projectGroupCount');
+                if (countEl) countEl.textContent = groups + '个工作组';
+            } catch (e) { }
+        })();
+    </script>
+</body>
+</html>

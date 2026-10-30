@@ -1,0 +1,2071 @@
+/* 任务详情页样式 */
+
+/* 页面内容 */
+.page-content {
+    height: calc(100% - 44px - 44px - 60px);
+}
+
+/* 任务头部卡片 */
+.task-header-card {
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-light) 100%);
+    margin: 0;
+    border-radius: 0;
+    padding: 16px;
+    color: #FFFFFF;
+}
+
+.task-header-card.confirming {
+    background: linear-gradient(135deg, var(--warning-color) 0%, #FFA940 100%);
+}
+
+.task-header-card.in-progress {
+    background: linear-gradient(135deg, var(--primary-color) 0%, #40A9FF 100%);
+}
+
+.task-header-card.completed {
+    background: linear-gradient(135deg, var(--success-color) 0%, #73D13D 100%);
+}
+
+.task-header-card .task-name {
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 8px;
+}
+
+.task-header-card .task-stage {
+    font-size: 12px;
+    opacity: 0.9;
+    margin-bottom: 12px;
+}
+
+.task-header-card .task-status-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.task-header-card .status-badge {
+    background-color: rgba(255,255,255,0.2);
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-size: 12px;
+}
+
+.task-header-card .confirm-progress {
+    font-size: 12px;
+    opacity: 0.9;
+}
+
+/* 前置任务阻塞卡片 */
+.pre-task-block-card {
+    background: linear-gradient(135deg, #FFF7E6 0%, #FFE7BA 100%);
+    border: 1px solid #FFD591;
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 12px;
+}
+
+.pre-task-block-card .block-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+}
+
+.pre-task-block-card .block-icon {
+    font-size: 20px;
+}
+
+.pre-task-block-card .block-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: #D46B08;
+}
+
+.pre-task-block-card .block-desc {
+    font-size: 12px;
+    color: #8C8C8C;
+    margin-bottom: 12px;
+}
+
+.pre-task-block-card .pre-task-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 12px;
+}
+
+.pre-task-block-card .pre-task-item {
+    display: flex;
+    align-items: center;
+    background-color: rgba(255, 255, 255, 0.8);
+    border-radius: 8px;
+    padding: 10px 12px;
+    gap: 10px;
+}
+
+.pre-task-block-card .pre-task-status {
+    font-size: 10px;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-weight: 500;
+    white-space: nowrap;
+}
+
+.pre-task-block-card .pre-task-status.pending {
+    background-color: #FFF7E6;
+    color: #FA8C16;
+}
+
+.pre-task-block-card .pre-task-status.in-progress {
+    background-color: #E6F7FF;
+    color: #1890FF;
+}
+
+.pre-task-block-card .pre-task-status.completed {
+    background-color: #F6FFED;
+    color: #52C41A;
+}
+
+.pre-task-block-card .pre-task-info {
+    flex: 1;
+}
+
+.pre-task-block-card .pre-task-name {
+    font-size: 13px;
+    font-weight: 500;
+    color: #262626;
+}
+
+.pre-task-block-card .pre-task-meta {
+    font-size: 11px;
+    color: #8C8C8C;
+    margin-top: 2px;
+}
+
+.pre-task-block-card .pre-task-arrow {
+    font-size: 16px;
+    color: #8C8C8C;
+}
+
+.pre-task-block-card .block-tip {
+    font-size: 11px;
+    color: #8C8C8C;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+/* 人员区块 */
+.people-section {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 12px;
+}
+
+.people-card {
+    background-color: var(--bg-secondary);
+    border-radius: 8px;
+    padding: 10px 12px;
+}
+
+.people-card .card-label {
+    font-size: 12px;
+    color: var(--text-tertiary);
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.people-card .card-label .label-icon {
+    font-size: 14px;
+}
+
+.people-card .card-label .label-tag {
+    font-size: 10px;
+    padding: 1px 6px;
+    border-radius: 4px;
+    background-color: var(--status-primary-bg);
+    color: var(--primary-color);
+}
+
+.people-card .person-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.people-card .no-executor {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 8px;
+    background-color: var(--bg-primary);
+    border-radius: 8px;
+    border: 2px dashed var(--border-color);
+    cursor: pointer;
+    transition: all 0.2s;
+    width: 100%;
+}
+
+.people-card .no-executor:hover {
+    border-color: var(--primary-color);
+    background-color: var(--status-primary-bg);
+}
+
+.people-card .no-executor .icon {
+    font-size: 24px;
+    color: var(--text-tertiary);
+    margin-bottom: 6px;
+}
+
+.people-card .no-executor .text {
+    font-size: 13px;
+    color: var(--text-tertiary);
+}
+
+.people-card .no-executor:hover .icon,
+.people-card .no-executor:hover .text {
+    color: var(--primary-color);
+}
+
+.people-card .add-executor-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 10px;
+    background-color: var(--status-primary-bg);
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s;
+    width: 100%;
+    margin-top: 8px;
+}
+
+.people-card .add-executor-btn:hover {
+    background-color: var(--primary-color);
+}
+
+.people-card .add-executor-btn:hover .icon,
+.people-card .add-executor-btn:hover .text {
+    color: #fff;
+}
+
+.people-card .add-executor-btn .icon {
+    font-size: 16px;
+    color: var(--primary-color);
+}
+
+.people-card .add-executor-btn .text {
+    font-size: 13px;
+    color: var(--primary-color);
+}
+
+.people-card .person-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background-color: var(--bg-primary);
+    padding: 6px 10px;
+    border-radius: 6px;
+    flex: 1;
+    min-width: 120px;
+}
+
+/* 可折叠卡片 */
+.card-collapsible {
+    cursor: pointer;
+}
+
+.card-collapsible .toggle-icon {
+    font-size: 12px;
+    color: var(--text-tertiary);
+    transition: transform 0.3s;
+    margin-left: 8px;
+}
+
+.card-collapsible.collapsed .toggle-icon {
+    transform: rotate(-90deg);
+}
+
+.card-content-collapsible {
+    transition: max-height 0.3s ease-out;
+    overflow: hidden;
+}
+
+.card-content-collapsible.collapsed {
+    max-height: 0 !important;
+    padding: 0;
+    margin: 0;
+}
+
+/* 人员头像和信息 */
+.people-card .person-avatar {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-light) 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #FFFFFF;
+    font-size: 13px;
+    flex-shrink: 0;
+    cursor: pointer;
+    transition: opacity 0.2s;
+}
+
+.people-card .person-avatar:hover {
+    opacity: 0.8;
+}
+
+.people-card .person-avatar:active {
+    opacity: 0.6;
+}
+
+.people-card .person-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.people-card .person-name {
+    font-size: 14px;
+    color: var(--text-primary);
+    font-weight: 500;
+    cursor: pointer;
+    transition: opacity 0.2s;
+}
+
+.people-card .person-name:hover {
+    opacity: 0.8;
+}
+
+.people-card .person-name:active {
+    opacity: 0.6;
+}
+
+.people-card .person-role {
+    font-size: 11px;
+    color: var(--text-tertiary);
+    margin-top: 2px;
+}
+
+.people-card .person-tag {
+    font-size: 10px;
+    padding: 2px 6px;
+    border-radius: 4px;
+    flex-shrink: 0;
+}
+
+.people-card .person-tag.confirmed {
+    background-color: var(--status-success-bg);
+    color: var(--success-color);
+}
+
+.people-card .person-tag.pending {
+    background-color: var(--status-warning-bg);
+    color: var(--warning-color);
+}
+
+/* 角色标签 */
+.role-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 1px 6px;
+    border-radius: 4px;
+    font-size: 10px;
+    font-weight: 500;
+    margin-left: 4px;
+}
+
+.role-badge.designer {
+    background-color: #E6F7FF;
+    color: #1890FF;
+}
+
+.role-badge.foreman {
+    background-color: #F6FFED;
+    color: #52C41A;
+}
+
+.role-badge.owner {
+    background-color: #FFF7E6;
+    color: #FA8C16;
+}
+
+.role-badge.manager {
+    background-color: #F9F0FF;
+    color: #722ED1;
+}
+
+/* 标准卡片 */
+.standard-card {
+    margin-bottom: 12px;
+}
+
+.standard-card .card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+}
+
+.standard-card .card-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.standard-card .card-title .icon {
+    font-size: 16px;
+}
+
+.standard-card .toggle-btn {
+    font-size: 12px;
+    color: var(--primary-color);
+    cursor: pointer;
+}
+
+.standard-list {
+    font-size: 13px;
+}
+
+.standard-list.collapsed {
+    display: none;
+}
+
+.standard-item {
+    display: flex;
+    padding: 6px 0;
+}
+
+.standard-item .num {
+    width: 20px;
+    color: var(--text-tertiary);
+    flex-shrink: 0;
+}
+
+.standard-item .text {
+    flex: 1;
+    color: var(--text-secondary);
+}
+
+/* 执行区块 */
+.execution-section {
+    background-color: var(--bg-secondary);
+    border-radius: 8px;
+    padding: 12px;
+    margin-bottom: 12px;
+}
+
+.execution-section .section-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+/* 媒体网格 */
+.media-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin-bottom: 12px;
+}
+
+.media-item {
+    aspect-ratio: 1;
+    background-color: var(--bg-tertiary);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+}
+
+.media-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.media-item .play-icon {
+    position: absolute;
+    font-size: 32px;
+    color: rgba(255,255,255,0.9);
+    text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+}
+
+.media-item .duration {
+    position: absolute;
+    bottom: 4px;
+    right: 4px;
+    background-color: rgba(0,0,0,0.6);
+    color: #FFFFFF;
+    font-size: 10px;
+    padding: 2px 4px;
+    border-radius: 2px;
+}
+
+.execution-desc {
+    font-size: 13px;
+    color: var(--text-secondary);
+    line-height: 1.6;
+    background-color: var(--bg-primary);
+    padding: 10px;
+    border-radius: 6px;
+}
+
+/* 确认列表 */
+.confirm-list {
+    margin-top: 12px;
+}
+
+.confirm-item {
+    display: flex;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.confirm-item:last-child {
+    border-bottom: none;
+}
+
+.confirm-item .avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-light) 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #FFFFFF;
+    font-size: 14px;
+    margin-right: 12px;
+    flex-shrink: 0;
+    cursor: pointer;
+    transition: opacity 0.2s;
+}
+
+.confirm-item .avatar:hover {
+    opacity: 0.8;
+}
+
+.confirm-item .avatar:active {
+    opacity: 0.6;
+}
+
+.confirm-item .info {
+    flex: 1;
+}
+
+.confirm-item .name-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 4px;
+}
+
+.confirm-item .name {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-primary);
+    cursor: pointer;
+    transition: opacity 0.2s;
+}
+
+.confirm-item .name:hover {
+    opacity: 0.8;
+}
+
+.confirm-item .name:active {
+    opacity: 0.6;
+}
+
+.confirm-item .status-tag {
+    font-size: 11px;
+    padding: 2px 6px;
+    border-radius: 4px;
+}
+
+.confirm-item .status-tag.confirmed {
+    background-color: var(--status-success-bg);
+    color: var(--success-color);
+}
+
+.confirm-item .status-tag.rejected {
+    background-color: #FFF1F0;
+    color: var(--error-color);
+}
+
+.confirm-item .status-tag.pending {
+    background-color: var(--status-warning-bg);
+    color: var(--warning-color);
+}
+
+.confirm-item .time {
+    font-size: 12px;
+    color: var(--text-tertiary);
+}
+
+.confirm-item .content {
+    font-size: 13px;
+    color: var(--text-secondary);
+    margin-top: 6px;
+    line-height: 1.5;
+}
+
+.confirm-item .media-row {
+    display: flex;
+    gap: 8px;
+    margin-top: 8px;
+}
+
+.confirm-item .media-thumb {
+    width: 60px;
+    height: 60px;
+    border-radius: 6px;
+    background-color: var(--bg-tertiary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+}
+
+.confirm-item .rating {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin-top: 8px;
+}
+
+.confirm-item .rating .star {
+    font-size: 14px;
+    color: #FFD700;
+}
+
+.confirm-item .rating .star.empty {
+    color: var(--bg-tertiary);
+}
+
+.confirm-item .rating .text {
+    font-size: 12px;
+    color: var(--text-tertiary);
+    margin-left: 4px;
+}
+
+.confirm-item .tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 8px;
+}
+
+.confirm-item .tags .tag {
+    font-size: 12px;
+    padding: 3px 8px;
+    background: linear-gradient(135deg, #E6F7FF 0%, #BAE7FF 100%);
+    color: #1890ff;
+    border-radius: 12px;
+    border: 0.5px solid #91D5FF;
+}
+
+/* 按钮样式 */
+.btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 44px;
+    border-radius: 8px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s;
+    border: none;
+    font-family: inherit;
+}
+
+.btn.primary {
+    background-color: var(--primary-color);
+    color: #FFFFFF;
+}
+
+.btn.primary:hover {
+    background-color: #40a9ff;
+}
+
+.btn.secondary {
+    background-color: var(--bg-secondary);
+    color: var(--text-secondary);
+}
+
+.btn.secondary:hover {
+    background-color: #E8E8E8;
+}
+
+/* 操作按钮区 */
+.action-buttons {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background-color: var(--bg-primary);
+    padding: 12px 16px;
+    box-shadow: 0 -2px 10px var(--shadow-md);
+    display: flex;
+    gap: 12px;
+}
+
+.action-buttons .btn {
+    flex: 1;
+    height: 44px;
+    border-radius: 8px;
+    font-size: 15px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+}
+
+.action-buttons .btn.secondary {
+    background-color: var(--bg-secondary);
+    color: var(--text-secondary);
+    border: none;
+}
+
+.action-buttons .btn.primary {
+    background-color: var(--primary-color);
+    color: #FFFFFF;
+    border: none;
+}
+
+.action-buttons .btn.success {
+    background-color: var(--success-color);
+    color: #FFFFFF;
+    border: none;
+}
+
+.action-buttons .btn.warning {
+    background-color: var(--warning-color);
+    color: #FFFFFF;
+    border: none;
+}
+
+/* 上传弹窗 */
+.upload-modal {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background-color: rgba(0,0,0,0.5);
+    z-index: 200;
+    display: none;
+    align-items: flex-end;
+    justify-content: center;
+    overflow: hidden;
+}
+
+.upload-modal.show { display: flex; }
+
+.upload-modal .modal-content {
+    width: 100%;
+    max-height: 90%;
+    background-color: var(--bg-primary);
+    border-radius: 16px 16px 0 0;
+    padding: 16px;
+    overflow-y: auto;
+}
+
+.upload-modal .modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+}
+
+.upload-modal .modal-title {
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.upload-modal .modal-close {
+    font-size: 20px;
+    color: var(--text-tertiary);
+    cursor: pointer;
+}
+
+.upload-modal .media-upload {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin-bottom: 12px;
+}
+
+.upload-modal .upload-item {
+    aspect-ratio: 1;
+    background-color: var(--bg-secondary);
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    border: 2px dashed var(--border-color);
+}
+
+.upload-modal .upload-item .icon {
+    font-size: 24px;
+    margin-bottom: 4px;
+}
+
+.upload-modal .upload-item .text {
+    font-size: 10px;
+    color: var(--text-tertiary);
+}
+
+.upload-modal .desc-input {
+    width: 100%;
+    height: 60px;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 10px;
+    font-size: 14px;
+    resize: none;
+    outline: none;
+    margin-bottom: 12px;
+    box-sizing: border-box;
+}
+
+.upload-modal .desc-input:focus {
+    border-color: var(--primary-color);
+}
+
+.upload-modal .submit-btn {
+    width: 100%;
+    height: 44px;
+    background-color: var(--primary-color);
+    color: #FFFFFF;
+    border: none;
+    border-radius: 8px;
+    font-size: 15px;
+    cursor: pointer;
+}
+
+.upload-modal .modal-actions {
+    display: flex;
+    gap: 12px;
+}
+
+.upload-modal .modal-actions .btn {
+    flex: 1;
+    height: 44px;
+    border-radius: 8px;
+    font-size: 15px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.upload-modal .modal-actions .btn.secondary {
+    background-color: var(--bg-secondary);
+    color: var(--text-secondary);
+    border: none;
+}
+
+.upload-modal .modal-actions .btn.primary {
+    background-color: var(--primary-color);
+    color: #FFFFFF;
+    border: none;
+}
+
+/* 确认弹窗 */
+.confirm-modal {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background-color: rgba(0,0,0,0.5);
+    z-index: 200;
+    display: none;
+    align-items: flex-end;
+    justify-content: center;
+    overflow: hidden;
+}
+
+.confirm-modal.show { display: flex; }
+
+.confirm-modal .modal-content {
+    width: 100%;
+    max-height: 90%;
+    background-color: var(--bg-primary);
+    border-radius: 16px 16px 0 0;
+    padding: 16px;
+    overflow-y: auto;
+}
+
+.confirm-modal .modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+}
+
+.confirm-modal .modal-title {
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.confirm-modal .modal-close {
+    font-size: 20px;
+    color: var(--text-tertiary);
+    cursor: pointer;
+}
+
+.confirm-modal .rating-section {
+    margin-bottom: 16px;
+}
+
+.confirm-modal .rating-section-multi {
+    margin-bottom: 16px;
+}
+
+.confirm-modal .rating-section-single {
+    margin-bottom: 16px;
+}
+
+.confirm-modal .tag-section {
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 1px solid var(--border-color);
+}
+
+.confirm-modal .tag-header {
+    font-size: 13px;
+    color: var(--text-secondary);
+    margin-bottom: 12px;
+    display: block;
+}
+
+.confirm-modal .tag-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+}
+
+.confirm-modal .tag-item {
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 13px;
+    background-color: #F5F5F5;
+    color: #8C8C8C;
+    cursor: pointer;
+    transition: all 0.2s;
+    border: 1px solid #E8E8E8;
+    flex-shrink: 0;
+}
+
+.confirm-modal .tag-item:hover {
+    background-color: #E6F7FF;
+    color: #1890FF;
+    border-color: #91D5FF;
+}
+
+.confirm-modal .tag-item.selected {
+    background-color: #E6F7FF;
+    color: #1890FF;
+    border-color: #1890FF;
+    font-weight: 500;
+}
+
+.confirm-modal .rating-header {
+    font-size: 13px;
+    color: var(--text-secondary);
+    margin-bottom: 12px;
+}
+
+.confirm-modal .rating-dimension {
+    padding: 12px;
+    background-color: var(--bg-secondary);
+    border-radius: 8px;
+    margin-bottom: 12px;
+}
+
+.confirm-modal .rating-dimension:last-child {
+    margin-bottom: 0;
+}
+
+.confirm-modal .dimension-header {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    margin-bottom: 8px;
+    gap: 6px;
+}
+
+.confirm-modal .dimension-icon {
+    font-size: 16px;
+}
+
+.confirm-modal .dimension-label {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-primary);
+}
+
+.confirm-modal .dimension-desc {
+    font-size: 11px;
+    color: var(--text-tertiary);
+    margin-left: auto;
+}
+
+.confirm-modal .rating-label {
+    font-size: 13px;
+    color: var(--text-secondary);
+    margin-bottom: 8px;
+}
+
+.confirm-modal .rating-stars {
+    display: flex;
+    gap: 8px;
+}
+
+.confirm-modal .rating-stars {
+    display: flex;
+    gap: 0;
+    justify-content: flex-start;
+}
+
+.confirm-modal .star-wrapper {
+    position: relative;
+    width: 32px;
+    height: 32px;
+    cursor: pointer;
+}
+
+.confirm-modal .star-wrapper .star {
+    position: absolute;
+    font-size: 32px;
+    color: #E8E8E8;
+    transition: all 0.2s;
+    top: 0;
+}
+
+.confirm-modal .star-wrapper .star.half {
+    left: 0;
+    width: 50%;
+    overflow: hidden;
+    z-index: 2;
+}
+
+.confirm-modal .star-wrapper .star.full {
+    left: 0;
+    z-index: 1;
+}
+
+.confirm-modal .star-wrapper .star.active {
+    color: #FFD700;
+    text-shadow: 0 0 4px rgba(255, 215, 0, 0.5);
+}
+
+.confirm-modal .star-wrapper:hover .star {
+    color: #FFD700;
+}
+
+.confirm-modal .star-wrapper .star.half:hover,
+.confirm-modal .star-wrapper:hover .star.half.active {
+    color: #FFD700;
+}
+
+.confirm-modal .media-upload {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin-bottom: 12px;
+}
+
+.confirm-modal .upload-item {
+    aspect-ratio: 1;
+    background-color: var(--bg-secondary);
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    border: 2px dashed var(--border-color);
+}
+
+.confirm-modal .upload-item .icon {
+    font-size: 24px;
+    margin-bottom: 4px;
+}
+
+.confirm-modal .upload-item .text {
+    font-size: 10px;
+    color: var(--text-tertiary);
+}
+
+.confirm-modal .desc-input {
+    width: 100%;
+    height: 60px;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 10px;
+    font-size: 14px;
+    resize: none;
+    outline: none;
+    margin-bottom: 12px;
+    box-sizing: border-box;
+}
+
+.confirm-modal .desc-input:focus {
+    border-color: var(--primary-color);
+}
+
+.confirm-modal .modal-actions {
+    display: flex;
+    gap: 12px;
+}
+
+.confirm-modal .modal-actions .btn {
+    flex: 1;
+    height: 44px;
+    border-radius: 8px;
+    font-size: 15px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.confirm-modal .modal-actions .btn.secondary {
+    background-color: var(--bg-secondary);
+    color: var(--text-secondary);
+    border: none;
+}
+
+.confirm-modal .modal-actions .btn.reject {
+    background-color: var(--error-color);
+    color: #FFFFFF;
+    border: none;
+}
+
+.confirm-modal .modal-actions .btn.confirm {
+    background-color: var(--success-color);
+    color: #FFFFFF;
+    border: none;
+}
+
+/* 状态切换器 */
+.status-switcher {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.status-switch-item {
+    padding: 8px 12px;
+    font-size: 13px;
+    color: var(--text-secondary);
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.status-switch-item:hover { background-color: var(--bg-secondary); }
+
+.status-switch-item.active {
+    background-color: var(--status-primary-bg);
+    color: var(--primary-color);
+    font-weight: 600;
+}
+
+/* 确认人推荐 */
+.confirmer-recommend {
+    background: linear-gradient(135deg, #E6F7FF 0%, #BAE7FF 100%);
+    border: 1px solid #91D5FF;
+    border-radius: 8px;
+    padding: 12px;
+    margin-bottom: 12px;
+}
+
+.confirmer-recommend .recommend-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 10px;
+}
+
+.confirmer-recommend .recommend-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--primary-color);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.confirmer-recommend .recommend-title .icon {
+    font-size: 14px;
+}
+
+.confirmer-recommend .recommend-tip {
+    font-size: 11px;
+    color: var(--text-tertiary);
+}
+
+.confirmer-recommend .recommend-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.confirmer-recommend .recommend-item {
+    display: flex;
+    align-items: center;
+    background-color: rgba(255,255,255,0.8);
+    padding: 10px 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.confirmer-recommend .recommend-item:hover {
+    background-color: #FFFFFF;
+}
+
+.confirmer-recommend .recommend-item.selected {
+    border: 1px solid var(--primary-color);
+    background-color: #FFFFFF;
+}
+
+.confirmer-recommend .recommend-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-light) 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #FFFFFF;
+    font-size: 14px;
+    margin-right: 10px;
+    flex-shrink: 0;
+}
+
+.confirmer-recommend .recommend-info {
+    flex: 1;
+}
+
+.confirmer-recommend .recommend-name {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.confirmer-recommend .recommend-qual {
+    font-size: 11px;
+    color: var(--text-tertiary);
+    margin-top: 2px;
+}
+
+.confirmer-recommend .recommend-stats {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 11px;
+}
+
+.confirmer-recommend .stat-item {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    color: var(--text-secondary);
+}
+
+.confirmer-recommend .stat-item .value {
+    color: var(--primary-color);
+    font-weight: 600;
+}
+
+.confirmer-recommend .recommend-reason {
+    font-size: 10px;
+    color: var(--success-color);
+    background-color: var(--status-success-bg);
+    padding: 2px 6px;
+    border-radius: 4px;
+    margin-left: 6px;
+}
+
+/* 确认人分类 */
+.confirmer-category {
+    font-size: 11px;
+    color: var(--text-tertiary);
+    padding: 4px 0;
+    margin-top: 8px;
+    border-bottom: 1px dashed var(--border-color);
+}
+
+.confirmer-workload {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 10px;
+    color: var(--warning-color);
+    margin-top: 4px;
+}
+
+.confirmer-workload .icon {
+    font-size: 12px;
+}
+
+/* 人员资质 */
+.person-qualification {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin-top: 4px;
+}
+
+.person-qualification .qual-tag {
+    font-size: 10px;
+    padding: 1px 4px;
+    border-radius: 3px;
+    background-color: var(--status-primary-bg);
+    color: var(--primary-color);
+}
+
+.person-qualification .qual-tag.expert {
+    background-color: #FFF7E6;
+    color: #FA8C16;
+}
+
+/* 快速添加确认人 */
+.quick-add-confirmer {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px;
+    background-color: var(--bg-secondary);
+    border: 1px dashed var(--border-color);
+    border-radius: 6px;
+    margin-top: 6px;
+    cursor: pointer;
+    color: var(--primary-color);
+    font-size: 12px;
+    transition: all 0.2s;
+}
+
+.quick-add-confirmer:hover {
+    background-color: #E6F7FF;
+    border-color: var(--primary-color);
+}
+
+.quick-add-confirmer .icon {
+    margin-right: 4px;
+}
+
+/* 验收流程卡片 */
+.acceptance-flow-card {
+    background-color: var(--bg-primary);
+    border-radius: 8px;
+    padding: 8px 10px;
+    margin-bottom: 8px;
+    border: 1px solid var(--border-color);
+}
+
+.acceptance-flow-title {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.acceptance-flow-title .status-badge {
+    font-size: 10px;
+    padding: 2px 6px;
+    border-radius: 10px;
+    background-color: var(--status-primary-bg);
+    color: var(--primary-color);
+}
+
+.acceptance-flow-diagram {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 2px;
+    margin-bottom: 6px;
+}
+
+.flow-step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex: 1;
+}
+
+.flow-step .step-icon {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    margin-bottom: 2px;
+    border: 2px solid var(--border-color);
+    background-color: var(--bg-secondary);
+    color: var(--text-tertiary);
+}
+
+.flow-step.completed .step-icon {
+    background-color: var(--success-color);
+    border-color: var(--success-color);
+    color: #FFFFFF;
+}
+
+.flow-step.current .step-icon {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+    color: #FFFFFF;
+    box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.2);
+}
+
+.flow-step .step-label {
+    font-size: 10px;
+    color: var(--text-tertiary);
+    text-align: center;
+}
+
+.flow-step.completed .step-label,
+.flow-step.current .step-label {
+    color: var(--text-primary);
+    font-weight: 500;
+}
+
+.flow-line {
+    flex: 0 0 20px;
+    height: 2px;
+    background-color: var(--border-color);
+    margin: 0 -4px;
+    margin-bottom: 22px;
+}
+
+.flow-line.completed {
+    background-color: var(--success-color);
+}
+
+.flow-line.active {
+    background-color: var(--primary-color);
+}
+
+/* 验收进度 */
+.acceptance-progress {
+    background-color: var(--bg-secondary);
+    border-radius: 6px;
+    padding: 6px 8px;
+}
+
+.acceptance-progress-title {
+    font-size: 11px;
+    color: var(--text-secondary);
+    margin-bottom: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.acceptance-progress-bar {
+    height: 3px;
+    background-color: var(--bg-tertiary);
+    border-radius: 2px;
+    overflow: hidden;
+}
+
+.acceptance-progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--primary-color) 0%, var(--primary-light) 100%);
+    border-radius: 2px;
+    transition: width 0.5s;
+}
+
+/* 确认人状态列表 */
+.confirmer-status-list {
+    margin-top: 8px;
+}
+
+.confirmer-status-item {
+    display: flex;
+    align-items: center;
+    padding: 6px 0;
+    border-bottom: 1px solid var(--border-color);
+    position: relative;
+}
+
+.confirmer-status-item:last-child {
+    border-bottom: none;
+}
+
+.confirmer-status-item .delete-btn {
+    position: absolute;
+    right: 0;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background-color: #FF4D4F;
+    color: #FFFFFF;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    cursor: pointer;
+    opacity: 0;
+    transition: opacity 0.2s;
+}
+
+.confirmer-status-item:hover .delete-btn {
+    opacity: 1;
+}
+
+.confirmer-status-item .delete-btn:hover {
+    background-color: #FF7875;
+}
+
+.confirmer-status-item .delete-btn.always-show {
+    opacity: 1 !important;
+    display: flex !important;
+}
+
+.confirmer-status-item.configuring-mode {
+    padding-right: 36px;
+}
+
+.confirmer-status-item.configuring-mode.with-status {
+    padding-right: 80px;
+}
+
+.confirmer-status-item.configuring-mode.with-status .delete-btn {
+    right: 52px;
+}
+
+.confirmer-status-item:last-child {
+    border-bottom: none;
+}
+
+.confirmer-status-item .avatar {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-light) 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #FFFFFF;
+    font-size: 11px;
+    margin-right: 8px;
+    flex-shrink: 0;
+    cursor: pointer;
+    transition: opacity 0.2s;
+}
+
+.confirmer-status-item .avatar:hover {
+    opacity: 0.8;
+}
+
+.confirmer-status-item .avatar:active {
+    opacity: 0.6;
+}
+
+.confirmer-status-item .info {
+    flex: 1;
+}
+
+.confirmer-status-item .name {
+    font-size: 12px;
+    color: var(--text-primary);
+    cursor: pointer;
+    transition: opacity 0.2s;
+}
+
+.confirmer-status-item .name:hover {
+    opacity: 0.8;
+}
+
+.confirmer-status-item .name:active {
+    opacity: 0.6;
+}
+
+.confirmer-status-item .time {
+    font-size: 10px;
+    color: var(--text-tertiary);
+    margin-top: 1px;
+}
+
+.confirmer-status-item .status {
+    font-size: 11px;
+    padding: 2px 6px;
+    border-radius: 8px;
+}
+
+.confirmer-status-item .status.confirmed {
+    background-color: var(--status-success-bg);
+    color: var(--success-color);
+}
+
+.confirmer-status-item .status.pending {
+    background-color: var(--status-warning-bg);
+    color: var(--warning-color);
+}
+
+/* 评价弹窗 */
+.evaluation-modal {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background-color: rgba(0,0,0,0.5);
+    z-index: 200;
+    display: none;
+    align-items: flex-end;
+    justify-content: center;
+    overflow: hidden;
+}
+
+.evaluation-modal.show { display: flex; }
+
+.evaluation-modal .modal-content {
+    width: 100%;
+    max-height: 90%;
+    background-color: var(--bg-primary);
+    border-radius: 16px 16px 0 0;
+    padding: 16px;
+    overflow-y: auto;
+}
+
+.evaluation-modal .modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+}
+
+.evaluation-modal .modal-title {
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.evaluation-modal .modal-close {
+    font-size: 20px;
+    color: var(--text-tertiary);
+    cursor: pointer;
+}
+
+.evaluation-modal .rating-section {
+    margin-bottom: 16px;
+}
+
+.evaluation-modal .rating-label {
+    font-size: 13px;
+    color: var(--text-secondary);
+    margin-bottom: 8px;
+}
+
+.evaluation-modal .rating-stars {
+    display: flex;
+    gap: 0;
+    justify-content: flex-start;
+}
+
+.evaluation-modal .star-wrapper {
+    position: relative;
+    width: 32px;
+    height: 32px;
+    cursor: pointer;
+}
+
+.evaluation-modal .star-wrapper .star {
+    position: absolute;
+    font-size: 32px;
+    color: #E8E8E8;
+    transition: all 0.2s;
+    top: 0;
+}
+
+.evaluation-modal .star-wrapper .star.half {
+    left: 0;
+    width: 50%;
+    overflow: hidden;
+    z-index: 2;
+}
+
+.evaluation-modal .star-wrapper .star.full {
+    left: 0;
+    z-index: 1;
+}
+
+.evaluation-modal .star-wrapper .star.active {
+    color: #FFD700;
+    text-shadow: 0 0 4px rgba(255, 215, 0, 0.5);
+}
+
+.evaluation-modal .star-wrapper:hover .star {
+    color: #FFD700;
+}
+
+.evaluation-modal .star-wrapper .star.half:hover,
+.evaluation-modal .star-wrapper:hover .star.half.active {
+    color: #FFD700;
+}
+
+.evaluation-modal .rating-section-single {
+    margin-bottom: 16px;
+}
+
+.evaluation-modal .tag-section {
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 1px solid var(--border-color);
+}
+
+.evaluation-modal .tag-header {
+    font-size: 13px;
+    color: var(--text-secondary);
+    margin-bottom: 12px;
+    display: block;
+}
+
+.evaluation-modal .tag-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+}
+
+.evaluation-modal .tag-item {
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 13px;
+    background-color: #F5F5F5;
+    color: #8C8C8C;
+    cursor: pointer;
+    transition: all 0.2s;
+    border: 1px solid #E8E8E8;
+    flex-shrink: 0;
+}
+
+.evaluation-modal .tag-item:hover {
+    background-color: #E6F7FF;
+    color: #1890FF;
+    border-color: #91D5FF;
+}
+
+.evaluation-modal .tag-item.selected {
+    background-color: #E6F7FF;
+    color: #1890FF;
+    border-color: #1890FF;
+    font-weight: 500;
+}
+
+.evaluation-modal .desc-input {
+    width: 100%;
+    height: 80px;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 10px;
+    font-size: 14px;
+    resize: none;
+    outline: none;
+    margin-bottom: 12px;
+    box-sizing: border-box;
+}
+
+.evaluation-modal .desc-input:focus {
+    border-color: var(--primary-color);
+}
+
+.evaluation-modal .submit-btn {
+    width: 100%;
+    height: 44px;
+    background-color: var(--primary-color);
+    color: #FFFFFF;
+    border: none;
+    border-radius: 8px;
+    font-size: 15px;
+    cursor: pointer;
+}
+
+/* 评价列表弹窗 */
+.evaluation-list-modal {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background-color: rgba(0,0,0,0.5);
+    z-index: 200;
+    display: none;
+    align-items: flex-end;
+    justify-content: center;
+    overflow: hidden;
+}
+
+.evaluation-list-modal.show { display: flex; }
+
+.evaluation-list-modal .modal-content {
+    width: 100%;
+    max-height: 80%;
+    background-color: var(--bg-primary);
+    border-radius: 16px 16px 0 0;
+    overflow: hidden;
+}
+
+.evaluation-list-modal .modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.evaluation-list-modal .modal-title {
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.evaluation-list-modal .modal-close {
+    font-size: 20px;
+    color: var(--text-tertiary);
+    cursor: pointer;
+}
+
+.evaluation-list-modal .modal-body {
+    padding: 16px;
+    overflow-y: auto;
+    max-height: calc(80vh - 60px);
+}
+
+/* 人员选择器弹窗 */
+.person-selector-modal {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background-color: rgba(0,0,0,0.5);
+    z-index: 200;
+    display: none;
+    align-items: flex-end;
+    justify-content: center;
+    overflow: hidden;
+}
+
+.person-selector-modal.show { display: flex; }
+
+.person-selector-modal .modal-content {
+    width: 100%;
+    max-height: 70%;
+    background-color: var(--bg-primary);
+    border-radius: 16px 16px 0 0;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.person-selector-modal .modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px;
+    border-bottom: 1px solid var(--border-color);
+    flex-shrink: 0;
+}
+
+.person-selector-modal .modal-title {
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.person-selector-modal .modal-close {
+    font-size: 20px;
+    color: var(--text-tertiary);
+    cursor: pointer;
+}
+
+.person-selector-modal .search-box {
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border-color);
+    flex-shrink: 0;
+}
+
+.person-selector-modal .search-input {
+    width: 100%;
+    height: 40px;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 0 12px;
+    font-size: 14px;
+    outline: none;
+    box-sizing: border-box;
+}
+
+.person-selector-modal .search-input:focus {
+    border-color: var(--primary-color);
+}
+
+.person-selector-modal .person-list {
+    flex: 1;
+    overflow-y: auto;
+    min-height: 0;
+    padding: 8px 0;
+}
+
+.person-selector-modal .person-option {
+    display: flex;
+    align-items: center;
+    padding: 12px 16px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.person-selector-modal .person-option:hover {
+    background-color: #E6F7FF;
+}
+
+.person-selector-modal .person-option.selected {
+    background-color: var(--status-primary-bg);
+}
+
+.person-selector-modal .person-option .avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-light) 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #FFFFFF;
+    font-size: 14px;
+    margin-right: 12px;
+    flex-shrink: 0;
+}
+
+.person-selector-modal .person-option .info {
+    flex: 1;
+    min-width: 0;
+}
+
+.person-selector-modal .person-option .name {
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--text-primary);
+    margin-bottom: 2px;
+}
+
+.person-selector-modal .person-option .role {
+    font-size: 12px;
+    color: var(--text-tertiary);
+}
+
+.person-selector-modal .person-option .check-icon {
+    color: var(--primary-color);
+    font-size: 18px;
+    margin-left: 8px;
+}
+
+.person-selector-modal .empty-result {
+    padding: 40px 16px;
+    text-align: center;
+    color: var(--text-tertiary);
+    font-size: 14px;
+}
+
+/* 评价项 */
+.evaluation-item {
+    display: flex;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.evaluation-item:last-child {
+    border-bottom: none;
+}
+
+.evaluation-item .avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-light) 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #FFFFFF;
+    font-size: 16px;
+    margin-right: 12px;
+    flex-shrink: 0;
+}
+
+.evaluation-item .info {
+    flex: 1;
+}
+
+.evaluation-item .name-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 6px;
+}
+
+.evaluation-item .name {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.evaluation-item .rating {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+}
+
+.evaluation-item .rating .star {
+    font-size: 14px;
+    color: #FFD700;
+}
+
+.evaluation-item .rating .star.empty {
+    color: var(--bg-tertiary);
+}
+
+.evaluation-item .time {
+    font-size: 12px;
+    color: var(--text-tertiary);
+    margin-bottom: 6px;
+}
+
+.evaluation-item .content {
+    font-size: 13px;
+    color: var(--text-secondary);
+    line-height: 1.5;
+}
+
+.evaluation-item .no-evaluation {
+    font-size: 12px;
+    color: var(--text-tertiary);
+    font-style: italic;
+}
+
+.go-evaluate-btn {
+    font-size: 12px;
+    color: var(--primary-color);
+    cursor: pointer;
+    margin-left: 8px;
+}

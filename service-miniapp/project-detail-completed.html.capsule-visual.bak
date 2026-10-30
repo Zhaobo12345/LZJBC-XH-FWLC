@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>家装平台小程序原型 - 项目详情（已完成）</title>
+    <link rel="stylesheet" href="common.css">
+    <link rel="stylesheet" href="css/project-detail.css">
+    <style>
+        /* 通用空状态（用于待办） */
+        .simple-empty-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px 12px;
+        }
+        .simple-empty-state .empty-icon {
+            font-size: 32px;
+            opacity: 0.4;
+            margin-bottom: 6px;
+        }
+        .simple-empty-state .empty-text {
+            font-size: 12px;
+            color: var(--text-tertiary);
+        }
+        /* 已完成状态标签 */
+        .status-completed {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 11px;
+            background-color: #F6FFED;
+            color: #52C41A;
+            border: 1px solid #B7EB8F;
+        }
+    </style>
+<style>
+/* 微信原生胶囊占位（样式参考真机效果，由微信客户端实际渲染） */
+    .nav-bar .native-capsule {
+        display: inline-flex;
+        align-items: center;
+        justify-content: space-between;
+        min-width: 56px;
+        height: 28px;
+        padding: 0 10px;
+        border: 1px solid rgba(0, 0, 0, 0.08);
+        border-radius: 14px;
+        background: rgba(255, 255, 255, 0.7);
+        color: rgba(0, 0, 0, 0.6);
+        font-size: 12px;
+        line-height: 1;
+        user-select: none;
+        box-sizing: border-box;
+    }
+    .nav-bar .native-capsule .nc-left,
+    .nav-bar .native-capsule .nc-right {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex: 1;
+        min-width: 16px;
+    }
+    .nav-bar .native-capsule .nc-right {
+        font-size: 10px;
+    }
+    .nav-bar .native-capsule .nc-divider {
+        width: 1px;
+        height: 14px;
+        background: rgba(0, 0, 0, 0.1);
+        margin: 0 4px;
+    }
+</style>
+</head>
+<body>
+    <div class="phone-frame">
+        <div class="status-bar">
+            <div class="time">9:41</div>
+            <div class="icons">📶 🔋</div>
+        </div>
+
+        <div class="nav-bar">
+            <div class="back">← 返回</div>
+            <div class="title centered">XX小区整体装修</div>
+            
+            
+        
+            <div class="actions"><div class="native-capsule" title="微信原生胶囊：由微信客户端渲染，开发者不可自定义其内容"><span class="nc-left">⋯</span><span class="nc-divider"></span><span class="nc-right">○</span></div></div>
+        </div>
+            
+
+
+        <div class="page-content" id="pageContent">
+            <div class="loading-overlay" id="loadingOverlay">
+                <div class="loading-spinner"></div>
+                <div class="loading-text">加载中...</div>
+            </div>
+
+            <div class="sticky-header" id="stickyHeader">
+                <div class="quick-nav" id="quickNav">
+                    <div class="pin-btn" id="pinBtn">📌 固定</div>
+                    <div class="quick-nav-item" data-href="project-info.html">
+                        <div class="icon info">📋</div>
+                        <div class="label">项目信息</div>
+                    </div>
+                    <div class="quick-nav-item" data-href="architecture.html">
+                        <div class="icon structure">🏗️</div>
+                        <div class="label">架构</div>
+                    </div>
+                    <div class="quick-nav-item" data-href="member.html">
+                        <div class="icon member">👥</div>
+                        <div class="label">成员</div>
+                    </div>
+                    <div class="quick-nav-item" data-href="project-files.html">
+                        <div class="icon file">📁</div>
+                        <div class="label">资料</div>
+                    </div>
+                    <div class="quick-nav-item" data-href="statement-list.html">
+                        <div class="icon statement">💰</div>
+                        <div class="label">对账单</div>
+                    </div>
+                </div>
+
+                <div class="quick-nav-toggle" id="quickNavToggle">
+                    <div class="toggle-btn">
+                        <div class="dots">
+                            <div class="dot"></div>
+                            <div class="dot"></div>
+                            <div class="dot"></div>
+                            <div class="dot"></div>
+                        </div>
+                        <span id="toggleText">展开快捷入口</span>
+                        <span class="arrow" id="toggleArrow">▼</span>
+                    </div>
+                </div>
+
+                <div class="level-selector" id="levelSelector">
+                    <div class="level-dropdown">
+                        <div class="current">
+                            <div class="icon" id="levelIcon">🏢</div>
+                            <div>
+                                <div class="text-row">
+                                    <div class="text" id="levelText">项目部</div>
+                                    <div class="type-badge" id="levelType">项目部</div>
+                                </div>
+                                <div class="breadcrumb-inline" id="breadcrumbInline">
+                                    <span class="breadcrumb-item active">项目部</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="arrow" id="levelArrow">▼</div>
+                    </div>
+                    <div class="level-options" id="levelOptions">
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-title">
+                    <span>📄 合同概览</span>
+                    <span class="more">
+                        查看合同
+                        <span class="arrow expanded">▼</span>
+                    </span>
+                </div>
+                <div class="contract-summary">
+                    <div class="contract-stat">
+                        <div class="value"><span class="current">8</span><span class="separator">/</span><span class="total">8</span></div>
+                        <div class="label">合同签约</div>
+                    </div>
+                    <div class="contract-stat">
+                        <div class="value"><span class="current">100</span><span class="total">%</span></div>
+                        <div class="label">总进度</div>
+                    </div>
+                </div>
+                <div class="contract-list show" id="contractList">
+                    <div style="margin-top: 2px; padding-top: 2px; border-top: 1px solid #E8E8E8;">
+                        <div class="contract-item" data-href="contract-detail.html?status=completed">
+                            <div class="info">
+                                <div class="name">水电分包合同</div>
+                                <div class="meta">水电工作组 | 金额：8万</div>
+                            </div>
+                            <div class="progress-wrap">
+                                <div class="percent">100%</div>
+                                <div class="bar"><div class="fill" style="width: 100%;"></div></div>
+                            </div>
+                        </div>
+                        <div class="contract-item" data-href="contract-detail.html?status=completed">
+                            <div class="info">
+                                <div class="name">泥瓦分包合同</div>
+                                <div class="meta">泥瓦工作组 | 金额：12万</div>
+                            </div>
+                            <div class="progress-wrap">
+                                <div class="percent">100%</div>
+                                <div class="bar"><div class="fill" style="width: 100%;"></div></div>
+                            </div>
+                        </div>
+                        <div class="contract-item" data-href="contract-detail.html?status=completed">
+                            <div class="info">
+                                <div class="name">木工分包合同</div>
+                                <div class="meta">木工工作组 | 金额：15万</div>
+                            </div>
+                            <div class="progress-wrap">
+                                <div class="percent">100%</div>
+                                <div class="bar"><div class="fill" style="width: 100%;"></div></div>
+                            </div>
+                        </div>
+                        <div class="contract-item" data-href="contract-detail.html?status=completed">
+                            <div class="info">
+                                <div class="name">油漆分包合同</div>
+                                <div class="meta">油漆工作组 | 金额：10万</div>
+                            </div>
+                            <div class="progress-wrap">
+                                <div class="percent">100%</div>
+                                <div class="bar"><div class="fill" style="width: 100%;"></div></div>
+                            </div>
+                        </div>
+                        <div class="contract-item" data-href="contract-detail.html?status=completed">
+                            <div class="info">
+                                <div class="name">防水分包合同</div>
+                                <div class="meta">防水工作组 | 金额：6万</div>
+                            </div>
+                            <div class="progress-wrap">
+                                <div class="percent">100%</div>
+                                <div class="bar"><div class="fill" style="width: 100%;"></div></div>
+                            </div>
+                        </div>
+                        <div class="contract-item" data-href="contract-detail.html?status=completed">
+                            <div class="info">
+                                <div class="name">吊顶分包合同</div>
+                                <div class="meta">吊顶工作组 | 金额：9万</div>
+                            </div>
+                            <div class="progress-wrap">
+                                <div class="percent">100%</div>
+                                <div class="bar"><div class="fill" style="width: 100%;"></div></div>
+                            </div>
+                        </div>
+                        <div class="contract-item" data-href="contract-detail.html?status=completed">
+                            <div class="info">
+                                <div class="name">橱柜分包合同</div>
+                                <div class="meta">柜体工作组 | 金额：11万</div>
+                            </div>
+                            <div class="progress-wrap">
+                                <div class="percent">100%</div>
+                                <div class="bar"><div class="fill" style="width: 100%;"></div></div>
+                            </div>
+                        </div>
+                        <div class="contract-item" data-href="contract-detail.html?status=completed">
+                            <div class="info">
+                                <div class="name">墙面分包合同</div>
+                                <div class="meta">墙面工作组 | 金额：7万</div>
+                            </div>
+                            <div class="progress-wrap">
+                                <div class="percent">100%</div>
+                                <div class="bar"><div class="fill" style="width: 100%;"></div></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-title">
+                    <span>📊 任务统计</span>
+                    <span class="more" data-href="task-list.html">查看全部 ></span>
+                </div>
+                <div class="task-stats">
+                    <div class="task-stat-item">
+                        <div class="icon-wrap all">📋</div>
+                        <div class="info">
+                            <div class="value"><span class="current" id="overallCompleted">24</span><span class="separator">/</span><span class="total" id="overallTotal">24</span></div>
+                            <div class="label">全部任务</div>
+                        </div>
+                    </div>
+                    <div class="task-stat-item">
+                        <div class="icon-wrap accept">⏳</div>
+                        <div class="info">
+                            <div class="value" id="overallConfirming">0</div>
+                            <div class="label">确认中任务</div>
+                        </div>
+                    </div>
+                    <div class="task-stat-item">
+                        <div class="icon-wrap contract">▶</div>
+                        <div class="info">
+                            <div class="value" id="overallInProgress">0</div>
+                            <div class="label">执行中任务</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-title">
+                    <span>📋 待办事项</span>
+                    <span class="badge-wrap"><span class="badge" id="todoBadge">0</span></span>
+                    <span class="more" data-href="todo-list.html">查看全部 ></span>
+                </div>
+                <div class="simple-empty-state">
+                    <div class="empty-icon">📋</div>
+                    <div class="empty-text">暂无待办事项</div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-title">
+                    <span>📝 今日动态</span>
+                    <span class="more" data-action="activity-list">查看全部 ></span>
+                </div>
+                <div class="activity-list" id="activityList">
+                    <div class="activity-item" data-href="task-detail.html">
+                        <div class="activity-header">
+                            <div class="activity-avatar" style="background: linear-gradient(135deg, #52C41A 0%, #73D13D 100%);">项</div>
+                            <div class="activity-info">
+                                <div class="activity-user">项目总</div>
+                                <div class="activity-time">01-20 16:00</div>
+                            </div>
+                        </div>
+                        <div class="activity-content">项目整体竣工验收完成</div>
+                    </div>
+                    <div class="activity-item secondary" data-href="statement-detail.html">
+                        <div class="activity-header">
+                            <div class="activity-avatar" style="background: linear-gradient(135deg, #722ED1 0%, #9254DE 100%);">财</div>
+                            <div class="activity-info">
+                                <div class="activity-user">财务组</div>
+                                <div class="activity-time">01-20 14:30</div>
+                            </div>
+                        </div>
+                        <div class="activity-content">签署了最终结算对账单</div>
+                    </div>
+                    <div class="activity-item tertiary" data-href="task-detail.html">
+                        <div class="activity-header">
+                            <div class="activity-avatar">李</div>
+                            <div class="activity-info">
+                                <div class="activity-user">李监理</div>
+                                <div class="activity-time">01-20 10:00</div>
+                            </div>
+                        </div>
+                        <div class="activity-content">完成了 油漆分包合同 全部任务验收</div>
+                    </div>
+                </div>
+            </div>
+
+            <div style="height: 20px;"></div>
+        </div>
+        
+        <div class="custom-toast-modal" id="customToastModal">
+            <div class="modal-box">
+                <div class="modal-body" id="customToastMessage">
+                    操作成功
+                </div>
+                <div class="modal-footer">
+                    <div class="modal-btn">知道了</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="page-nav">
+        <div class="page-nav-title">原型导航</div>
+        <a href="home.html" class="page-nav-item">首页</a>
+        <a href="project-list.html" class="page-nav-item">项目列表</a>
+        <a href="project-detail.html" class="page-nav-item">项目详情（进行中）</a>
+        <a href="project-detail-completed.html" class="page-nav-item active">项目详情（已完成）</a>
+        <a href="project-info.html" class="page-nav-item">项目信息</a>
+        <a href="architecture.html" class="page-nav-item">项目架构</a>
+        <a href="create-project.html" class="page-nav-item">创建项目</a>
+        <a href="contract-detail.html" class="page-nav-item">合同详情</a>
+        <a href="task-detail.html" class="page-nav-item">任务详情</a>
+    </div>
+
+    <script src="js/page-nav.js"></script>
+    <script src="js/project-detail.js"></script>
+</body>
+</html>

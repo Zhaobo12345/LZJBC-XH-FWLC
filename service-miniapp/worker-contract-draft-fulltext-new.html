@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-page-node-id="kGqsPgc2zCLHmd9mdsfrOR">
+<head data-page-node-id="NdT2EFjCdDof0bqiWGAixj">
+    <meta charset="UTF-8" data-page-node-id="gMCpKJ57ES1Ew3jz9hkNoe">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" data-page-node-id="PsErBGPuGejuY0GDGYzHzH">
+    <title>家装平台小程序原型 - 合同固定详细条款</title>
+    <link rel="stylesheet" href="common.css" data-page-node-id="p9urtsbAcJjit3dAtTevvR">
+    <link rel="stylesheet" href="css/contract-detail.css" data-page-node-id="lZGAi7Aix8R6gl6NrNnHna">
+    <style>
+        * { box-sizing: border-box; }
+        ::-webkit-scrollbar { display: none; }
+        * { scrollbar-width: none; -ms-overflow-style: none; }
+        body {
+            margin: 0; background: #e9ebee; min-height: 100vh;
+            font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
+            display: flex; align-items: flex-start; justify-content: center; padding: 24px;
+        }
+        .phone-frame {
+            width: 375px; height: 812px; background: #f2f3f5;
+            border-radius: 40px; overflow: hidden; position: relative; flex-shrink: 0;
+            box-shadow: 0 12px 40px rgba(0,0,0,.25); display: flex; flex-direction: column;
+        }
+        .status-bar {
+            height: 44px; background: #fff; display: flex; align-items: center;
+            justify-content: space-between; padding: 0 22px; font-size: 14px; font-weight: 600; color: #000; flex-shrink: 0;
+        }
+        .nav-bar {
+            height: 48px; background: #fff; display: flex; align-items: center; position: relative;
+            border-bottom: 1px solid #ececec; flex-shrink: 0;
+        }
+        .nav-bar .nb-back {
+            position: absolute; left: 14px; font-size: 26px; line-height: 1; color: #1a1a1a; text-decoration: none; width: 28px;
+        }
+        .nav-bar .title { flex: 1; text-align: center; font-size: 17px; font-weight: 600; color: #1a1a1a; }
+        .scroll { flex: 1; overflow-y: auto; padding: 14px; }
+        .contract-article { background: #fff; border-radius: 12px; padding: 14px; margin-bottom: 12px; box-shadow: 0 1px 4px rgba(0,0,0,.04); }
+        .article-title { font-size: 15px; font-weight: 700; color: #222; margin-bottom: 8px; }
+        .article-content p { font-size: 13px; color: #444; line-height: 1.8; margin: 0 0 6px; }
+        .article-content p:last-child { margin-bottom: 0; }
+        /* 条款排版：小节标题 + 悬挂缩进条目 */
+        .article-content .clause-subtitle { font-weight: 600; color: #222; margin: 10px 0 4px; }
+        .article-content .clause-item { padding-left: 16px; text-indent: -16px; }
+        .article-content .clause-sub2 { padding-left: 32px; text-indent: -32px; }
+    </style>
+</head>
+<body data-page-node-id="EwkUdRQYNX1tNSrShh0b4F">
+<div class="phone-frame" data-page-node-id="KiHNimSPaLO1SJMm4CAKDA">
+    <div class="status-bar" data-page-node-id="snrm7O2XkqWHaOrFeIDqmM">
+        <div class="time" data-page-node-id="sf4FFaCoDXiKT9pDzOdgbr">9:41</div>
+        <div class="icons" data-page-node-id="3qaPSdoECztYVGed2FS8bh">📶 🔋</div>
+    </div>
+    <div class="nav-bar" data-page-node-id="4mGeWHh7kB4asvI2sKBHdZ">
+        <a class="nb-back" href="worker-contract-draft-initial-new.html" data-page-node-id="X32hqqMXB4KuAMmf3gaBdZ">&lsaquo;</a>
+        <div class="title" data-page-node-id="o56ORmkX35HTB2Nw2HI8EI">合同固定详细条款</div>
+    </div>
+
+    <div class="scroll" data-page-node-id="DjcEHixzIUedj4BCaJXoDJ">
+        <div class="contract-article" data-page-node-id="rJgDL0J8Q9CK7IyYr3TIjU">
+            <div class="article-title" data-page-node-id="k6BYmQAc3EDn8WJjjsmaHS">一、双方权责</div>
+            <div class="article-content" data-page-node-id="RjwkhNvfVdYODFgPN9Zfg1">
+                <p class="clause-subtitle" data-page-node-id="ejSJbgqPrAAZwoRRntPfjA">1、甲方责任</p>
+                <p class="clause-item" data-page-node-id="kvjX3AkCBpa12ZskRFjJNf">A. 提供施工图纸，协调物业办理施工手续，提供作业面，配合乙方进场施工</p>
+                <p class="clause-item" data-page-node-id="SDtYABmE0g7iLKX1HaazFL">B. 给乙方进行进场前的交底培训</p>
+                <p class="clause-item" data-page-node-id="yuyzCk8s2ckOltt6vzkcqb">C. 对乙方的施工内容进行验收</p>
+                <p class="clause-item" data-page-node-id="qmdAnzLy9SYAAoZh9buifP">D. 依据合同款项申请支付乙方</p>
+                <p class="clause-subtitle" data-page-node-id="e86uBwZE1Yl7j2OX6yM6MK">2、甲方权利</p>
+                <p class="clause-item" data-page-node-id="MY650zsyuLdZQnAvnjbMtu">A. 有权审核乙方的相关证件</p>
+                <p class="clause-item" data-page-node-id="B3YVHB17ZWVTGW4E32tqKh">B. 对不合格的施工项目，有权要求整改或停工</p>
+                <p class="clause-item" data-page-node-id="dds2QAx3mFN18oCooLqiPW">C. 乙方施工质量不达标且拒不整改的，甲方有权扣除相应费用</p>
+                <p class="clause-item" data-page-node-id="XPdSDNcdvvZ15stp1fUY5U">D. 对不按合同约定履约的乙方，可随时提出更换</p>
+                <p class="clause-subtitle" data-page-node-id="GsNagUQBQgAEIq0DvZJIS8">3、乙方责任</p>
+                <p class="clause-item" data-page-node-id="8oAv2409MaFDf8TxFRO4Vg">A. 严格按合同、图纸及规范施工，确保工程质量</p>
+                <p class="clause-item" data-page-node-id="ftrJGx2FvkpLlBzDumb66g">B. 配合甲方提出的合理的变更事项</p>
+                <p class="clause-item" data-page-node-id="ymEblEfTRYiJDQZSfOdhpf">C. 保修期内免费维修因施工质量导致的问题</p>
+                <p class="clause-subtitle" data-page-node-id="ynAcAiwGdbaEITN4KnUdPe">4、乙方权利</p>
+                <p class="clause-item" data-page-node-id="hLNhhWbukGYr97lnsJoZUY">A. 依据合同约定要求甲方支付合同款项</p>
+                <p class="clause-item" data-page-node-id="ouihipiRkER9MTFW1ZgRAa">B. 发生变更，有权追加合理的费用</p>
+            </div>
+        </div>
+        <div class="contract-article" data-page-node-id="CW39eRNVcLGj1CCGbu6uhX">
+            <div class="article-title" data-page-node-id="Q0oe9AjXJypMBhBjD8H9AL">二、质量验收</div>
+            <div class="article-content" data-page-node-id="xA5HKFOGZ7CTzjKZmXHyWH">
+                <p class="clause-item" data-page-node-id="ByhLwVxi1W1HSjwNhY01KR">1、甲方依据《施工工艺标准》进行验收</p>
+                <p class="clause-item" data-page-node-id="xRQvZXYH5T7O9FhigZpBot">2、验收流程：班组自检-工长预检-业主正式验收-班组交接互检</p>
+                <p class="clause-item" data-page-node-id="ovIjirMQ9kS7GPSRxMluSb">3、验收不合格的，乙方需在2日内整改完毕，经过两次验收仍然不合格的，甲方有权扣除相应的合同金额并终止与乙方的合同。</p>
+            </div>
+        </div>
+        <div class="contract-article" data-page-node-id="28g4UxEemv0AJaR7AysujZ">
+            <div class="article-title" data-page-node-id="ao4Ylr8uFR1urStCYNSFWz">三、安全及文明施工</div>
+            <div class="article-content" data-page-node-id="xB0cLtlk493cIhQGRacIo8">
+                <p class="clause-item" data-page-node-id="VX7BEbh54XFzJhMgZO8nju">1、乙方必须购买意外保险（提供保单），施工中发生安全事故由乙方承担全部责任</p>
+                <p class="clause-item" data-page-node-id="dDn0p13gTiZn1zwMBBAuEl">2、施工期间若因乙方操作不当导致甲方或第三方财产损失，乙方负责赔偿</p>
+                <p class="clause-item" data-page-node-id="IXmNOcPLrcNcvaj29OAVwq">3、乙方需遵守现场《安全文明施工规定》</p>
+            </div>
+        </div>
+        <div class="contract-article" data-page-node-id="FnenOiVXL5VASERgMHPQD6">
+            <div class="article-title" data-page-node-id="ENgzhTrE5ey5bh6wfK19CC">四、道德承诺</div>
+            <div class="article-content" data-page-node-id="ZdN45KRYkQAHbe6m0H1Goo">
+                <p class="clause-item" data-page-node-id="H3JkNEDa4IUwOtyeQOzSir">1）工人承诺，在整个施工服务过程中不做任何违反道德的事情，如有违反自愿赔偿非法所得。</p>
+                <p class="clause-sub2" data-page-node-id="NO4RsY5ItjCFnMsm59O4sM">1. 搞恶意增项的，自罚30倍。</p>
+                <p class="clause-sub2" data-page-node-id="jqg1abwFxh7WYmVxfxwEiJ">2. 恶意虚增费用和费用造假的，自罚30倍。</p>
+                <p class="clause-sub2" data-page-node-id="6a40I0jIpiTNIFALd9sqlE">3. 商品以次充好和掺假调包的，自罚30倍。</p>
+                <p class="clause-sub2" data-page-node-id="WytPgZAngHxqGWo49oH0oC">4. 私下侵吞业主财物的，自罚30倍。</p>
+                <p class="clause-sub2" data-page-node-id="oHAnDkVeVX2hdEdVSKJfxQ">5. 知劣买劣、知假买假的，自罚30倍。</p>
+                <p class="clause-sub2" data-page-node-id="JWI3cwrNyqF7V5QjJ36VpS">6. 私下收取好处费、返佣、回扣等，自罚30倍。</p>
+                <p class="clause-sub2" data-page-node-id="1lkG2TrDEpS1yvjQUs6qxZ">7. 耍手段胁迫甲方而获取不当利益的，自罚30倍。</p>
+                <p class="clause-sub2" data-page-node-id="AkoaPlytaM6SsXwyvWKTj8">8. 故意使坏妨碍安全、质量、工期造成损失的，自罚10倍。</p>
+                <p class="clause-sub2" data-page-node-id="yOFhxDOFGymEDRnE6HGlTD">9. 无条件接受社会舆论公开谴责。</p>
+                <p class="clause-item" data-page-node-id="PM4uDe20EpwGP2ZQbvHSSL">2）取证与执行</p>
+                <p class="clause-sub2" data-page-node-id="cR9hlhyn3N7SnwEdrE6uPj">1. 客户或甲方自行取证留存。</p>
+                <p class="clause-sub2" data-page-node-id="ib0lm6gmXhrCuGDFHveOiN">2. 直接按非法所得金额的倍数赔偿客户。</p>
+                <p class="clause-sub2" data-page-node-id="T93Jh1NBugWekvvZCF6U1t">3. 如果拒绝赔偿，客户或甲方有权扣除乙方已有的项目资金，并提起诉讼。</p>
+            </div>
+        </div>
+        <div class="contract-article" data-page-node-id="ZnXJKWzUAEMf9INKnSrVA0">
+            <div class="article-title" data-page-node-id="db2dc4LBNJsNvVUKLqEmru">五、其他条款</div>
+            <div class="article-content" data-page-node-id="r5x3IwOgO8o4nZbGiI6xD6">
+                <p class="clause-item" data-page-node-id="fvHpnHFsA37pms0CELkI3i">1、如因不可抗力，甲乙双方可协商一致终止合同</p>
+                <p class="clause-item" data-page-node-id="yydEk4g9Wv8fXCFvGPxUV7">2、因本合同引起的争议，双方应协商解决，协商不成的，提交项目所在地人民法院诉讼解决</p>
+                <p class="clause-item" data-page-node-id="FGVi6TFRwOO8YXauwGSM5O">3、本合同未尽事宜，可签订补充协议，补充协议与本合同具有同等效力</p>
+                <p class="clause-item" data-page-node-id="snTx0WvBpEBzT5zFEgIkaT">4、本合同一式两份，甲乙双方各执一份，自签字盖章之日起生效</p>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="../shared/doc-viewer/doc-viewer.js"></script>
+</body>
+</html>

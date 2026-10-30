@@ -1,0 +1,387 @@
+﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿<!DOCTYPE html>
+<html lang="zh-CN" data-page-node-id="7lVZFXxMQTpAsN3daEMK8G">
+<head data-page-node-id="8Mhkn5RIknIvsBJATCHFVK">
+    <meta charset="UTF-8" data-page-node-id="qJpN1MBlnEFkmli42EfxCP">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" data-page-node-id="zjVdacQ3T6jFZ6I7bsdckx">
+    <title>业主小程序 - 首页</title>
+    <link rel="stylesheet" href="common.css" data-page-node-id="58dkwBwWYslY2OBqgVqnbq">
+    <style>
+        .page-content {
+            height: calc(100% - 44px - 44px - 50px);
+        }
+
+        .welcome-card {
+            background: linear-gradient(135deg, var(--primary-color) 0%, #096DD9 100%);
+            color: #FFFFFF;
+        }
+
+        .welcome-card .greeting {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .welcome-card .stats {
+            font-size: 12px;
+            opacity: 0.9;
+        }
+
+        .data-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .data-item {
+            background-color: var(--bg-secondary);
+            border-radius: 8px;
+            padding: 12px;
+            text-align: center;
+        }
+
+        .data-item .value {
+            font-size: 24px;
+            font-weight: 600;
+            color: var(--primary-color);
+            margin-bottom: 4px;
+        }
+
+        .data-item .label {
+            font-size: 12px;
+            color: var(--text-tertiary);
+        }
+
+        .card .project-card {
+            margin: 0 0 12px 0;
+        }
+
+        .todo-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid var(--border-color);
+            cursor: pointer;
+        }
+
+        .todo-item:last-child {
+            border-bottom: none;
+        }
+
+        .todo-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            margin-right: 12px;
+            flex-shrink: 0;
+        }
+
+        .todo-dot.urgent  { background-color: var(--error-color); }
+        .todo-dot.warning { background-color: var(--warning-color); }
+        .todo-dot.normal  { background-color: var(--success-color); }
+
+        .todo-content { flex: 1; }
+
+        .todo-title {
+            font-size: 14px;
+            color: var(--text-primary);
+        }
+
+        .todo-status {
+            font-size: 12px;
+            color: var(--text-tertiary);
+        }
+
+        .quick-actions {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+        }
+
+        .quick-action {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            cursor: pointer;
+        }
+
+        .quick-action .icon {
+            width: 48px;
+            height: 48px;
+            background-color: var(--status-primary-bg);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 8px;
+            font-size: 24px;
+            transition: all 0.2s;
+        }
+
+        .quick-action:hover .icon {
+            background-color: var(--primary-color);
+            color: #FFFFFF;
+        }
+
+        .quick-action .label {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+    </style>
+<style>
+        /* 微信原生胶囊占位（样式参考真机效果，由微信客户端实际渲染） */
+    .nav-bar .native-capsule {
+        display: inline-flex;
+        align-items: center;
+        justify-content: space-between;
+        min-width: 56px;
+        height: 28px;
+        padding: 0 10px;
+        border: 1px solid rgba(0, 0, 0, 0.08);
+        border-radius: 14px;
+        background: rgba(255, 255, 255, 0.7);
+        color: rgba(0, 0, 0, 0.6);
+        font-size: 12px;
+        line-height: 1;
+        user-select: none;
+        box-sizing: border-box;
+    }
+    .nav-bar .native-capsule .nc-left,
+    .nav-bar .native-capsule .nc-right {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex: 1;
+        min-width: 16px;
+    }
+    .nav-bar .native-capsule .nc-right {
+        font-size: 10px;
+    }
+    .nav-bar .native-capsule .nc-divider {
+        width: 1px;
+        height: 14px;
+        background: rgba(0, 0, 0, 0.1);
+        margin: 0 4px;
+    }
+</style>
+</head>
+<body data-page-node-id="iCBVjKvwuvnm4Kxewu5syP">
+    <div class="phone-frame" data-page-node-id="estu9WQQUMrABdJFquE9D6">
+        <div class="status-bar" data-page-node-id="2pUWbZOm5NDTK1oI6yNYr8">
+            <div class="time" data-page-node-id="b6I2QKGFpbjPo86bBHWcpq">9:41</div>
+            <div class="icons" data-page-node-id="iFEM1A5GhJqpyUCG7JrtoR">📶 🔋</div>
+        </div>
+        
+        <div class="nav-bar" data-page-node-id="HPyoEJnGXsfimpZprPE8oH">
+            <div class="title" data-page-node-id="v38CQMSu6p16hBk8UhYLJj">🏠 首页</div>
+            
+            
+        
+            <div class="actions" data-page-node-id="rC7l2taRQKlkzi8C0IS5bj"><div class="native-capsule" title="微信原生胶囊：由微信客户端渲染，开发者不可自定义其内容" data-page-node-id="OzdUE8WseMQnVMioZi90ZK"><span class="nc-left" data-page-node-id="XP4m98w9WsHAjVjmelHS4L">⋯</span><span class="nc-divider" data-page-node-id="QkhBB2UrAY1IJfWnf6Uide"></span><span class="nc-right" data-page-node-id="IpoTsGLGo6VCfDGw26C1VC">○</span></div></div>
+        </div>
+            
+
+        
+        <div class="page-content" data-page-node-id="hzLEmNGvoe1fKXjhFOoXGy">
+            <div class="card welcome-card" data-page-node-id="Hea7irAR1mn83Eobb86kT6">
+                <div class="greeting" data-page-node-id="FO92JJR1ZvHJyAGK4R2ni9">欢迎回来，张先生</div>
+                <div class="stats" data-page-node-id="Rew419AoTOrepRWXLBACQs">今日待办：2项  |  本周验收：1项</div>
+            </div>
+            
+            <div class="card" data-page-node-id="OOY2FEyg7HEuwqW1tH0W3e">
+                <div class="card-title" data-page-node-id="o6u794m3dVzIwqxwHGi0ZM">
+                    <span data-page-node-id="p0BpiHn30CqpuC2CaWFzXU">📊 数据概览</span>
+                </div>
+                <div class="data-grid" data-page-node-id="B9RMe5ICVdxSqg3f2JTedp">
+                    <div class="data-item" data-page-node-id="Fg6UE5bPV7TBEdAz1pgG6X">
+                        <div class="value" data-page-node-id="wCXoOv5QklguIHFlZctu7K">1</div>
+                        <div class="label" data-page-node-id="HZKuSrpWiE05qIPhFFm6DP">进行中项目</div>
+                    </div>
+                    <div class="data-item" data-page-node-id="ZDXmfxU1JcG67gV6L2UqT1">
+                        <div class="value" data-page-node-id="eTQMvppPvoUJAB6W9hh0EB">2</div>
+                        <div class="label" data-page-node-id="Ul9aGGETH681eUVrCw0tU2">已完成项目</div>
+                    </div>
+                    <div class="data-item" data-page-node-id="ifd6r1Ta0Qm0TZ14fMemiZ">
+                        <div class="value" data-page-node-id="VLevSbAuQ8kWPfUDTwxwDB">2</div>
+                        <div class="label" data-page-node-id="fSsYuJXkzEjRDwYgadBTsf">待确认任务</div>
+                    </div>
+                    <div class="data-item" data-page-node-id="EZE3IIQ8pBFsoMdEcERT6l">
+                        <div class="value" data-page-node-id="3hC2dRt0jSJts62bxUS9ns">5</div>
+                        <div class="label" data-page-node-id="7uiD2uZR3Apw9by1DQZd3N">本月验收</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card" data-page-node-id="rUZnYGHGKXeKN37qSOJH87">
+                <div class="card-title" data-page-node-id="9U2737xAOBnmJcCPNMcZ80">
+                    <span data-page-node-id="3sP4HscCUxJ1LW1IQzwz5U">📋 我的项目</span>
+                    <span class="more" onclick="location.href='project-detail-ongoing-v2.html'" data-page-node-id="1E8nLchtEGqMVaSrgKs2TA">查看详情 ></span>
+                </div>
+                <div class="project-card" onclick="location.href='project-detail-ongoing-v2.html'" data-page-node-id="r8NRdOLzfYg3XuWO5ozUGt">
+                    <div class="project-header" data-page-node-id="I4tVFr0yomVYp3sTag4xJ2">
+                        <div class="project-name" data-page-node-id="GqlBIJgGYZBNOCt6B55NEe">XX小区整体装修</div>
+                        <div class="project-status" data-page-node-id="l9ZFYlzOZF3G1nm4SnGgcx">进行中</div>
+                    </div>
+                    <div class="project-info" data-page-node-id="BtsGCRHCGTUw8mXvMbeo9l">预算：50万  |  工期：2024-01-01~03-31</div>
+                    <div class="progress-bar" data-page-node-id="EwCDghaVNZyrwnXvAWGqoO">
+                        <div class="progress" style="width: 65%" data-page-node-id="Vx2xcBmxpVjdIOMowLy6DD"></div>
+                    </div>
+                    <div class="progress-text" data-page-node-id="s1L3VdhbAFBpEi3wfTGcjn">进度：65%</div>
+                </div>
+                <div class="project-card" onclick="location.href='project-detail-initial-v2.html'" style="margin-top:12px;" data-page-node-id="Y4mlTptc3UV93Q5uvZObBU">
+                    <div class="project-header" data-page-node-id="AnAsinux764rJBAzr2E4VU">
+                        <div class="project-name" data-page-node-id="hHGq4y4PPbNa7JPwukitY7">XX小区整体装修（初始态）</div>
+                        <div class="project-status" style="background:#FFF7E6;color:#FA8C16;" data-page-node-id="PDwkIgTYyPRZc0JHIhMsnd">刚创建</div>
+                    </div>
+                    <div class="project-info" data-page-node-id="DWxEFzbZcqA8UgjTDCvArM">服务方已创建项目，待完善信息 / 搭建架构（演示 §12.6 初始项目详情页）</div>
+                </div>
+            </div>
+            
+            <div class="card" data-page-node-id="LJK1lbMl3QwH6Bczx3MSbi">
+                <div class="card-title" data-page-node-id="kDwcTiHdRKW3ti1OIrodb5">
+                    <span data-page-node-id="45ELsiDExCkj3vA4kGoyBl">⏰ 待办事项</span>
+                    <span class="more" onclick="location.href='todo-list.html'" data-page-node-id="oFKsRszmjezNS5GZWvGKzh">查看全部 ></span>
+                </div>
+                <div class="todo-item" onclick="location.href='task-detail.html'" data-page-node-id="BgHODmfwpGfBIpJPNcgskS">
+                    <div class="todo-dot urgent" data-page-node-id="HxmLVv0jA9zl58q2yBNWIt"></div>
+                    <div class="todo-content" data-page-node-id="17S9E2J3BY1C4AabjduuWU">
+                        <div class="todo-title" data-page-node-id="naJUq4mo0tUEWR7FHrYdza">水电工程-开槽布线</div>
+                        <div class="todo-status" data-page-node-id="rf5BHT9pjmQOJPvkq42gN5">待确认</div>
+                    </div>
+                </div>
+                <div class="todo-item" onclick="location.href='task-detail.html'" data-page-node-id="ZfbepGsMuvnLzNgWJs4Agu">
+                    <div class="todo-dot warning" data-page-node-id="okviBuHxNkXgcpkEaT0cO7"></div>
+                    <div class="todo-content" data-page-node-id="i8AevZYK3eeDpe3KpiXk0B">
+                        <div class="todo-title" data-page-node-id="XscaSaqQLA2lvemldhL5F6">泥瓦工程-墙面贴砖</div>
+                        <div class="todo-status" data-page-node-id="qn7hacFkPTEao87zFyG3vg">待确认</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card" data-page-node-id="cPlBVIxywwn6n0CWTuuq9j">
+                <div class="card-title" data-page-node-id="OhmZGNBqcMUqN725f3vRR8">
+                    <span data-page-node-id="vjIgVvg2NbWjU9CAEhhRP1">🚀 快捷入口</span>
+                </div>
+                <div class="quick-actions" data-page-node-id="33Vsw3BFEsPAyCkp7cE2YY">
+                    <div class="quick-action" onclick="location.href='project-detail-ongoing-v2.html'" data-page-node-id="y9VYO6y0pCTA7AvR2F9GhT">
+                        <div class="icon" data-page-node-id="8QXAPJaHhX5OmCsPN4nDXb">📋</div>
+                        <div class="label" data-page-node-id="LGUH7PQs8Tf8FjeI1eVv5k">项目详情</div>
+                    </div>
+                    <div class="quick-action" onclick="location.href='contract-detail.html'" data-page-node-id="3GcfY6dBSMmiZM2UwvCqpo">
+                        <div class="icon" data-page-node-id="qo6ZXYZd3AkIPLb6HJFxu5">📄</div>
+                        <div class="label" data-page-node-id="8ut7yH3ovVCQbz4X7JeUd7">查看合同</div>
+                    </div>
+                    <div class="quick-action" onclick="location.href='project-files.html'" data-page-node-id="ZOhcHbpM4MjmDQlkSQDKvW">
+                        <div class="icon" data-page-node-id="BYYihtzFYTpkrZUCiPrFmR">📁</div>
+                        <div class="label" data-page-node-id="Yl8DVNoxdTCkdcm5E22eYW">资料库</div>
+                    </div>
+                    <div class="quick-action" onclick="location.href='member.html'" data-page-node-id="umuNOFSOniqLMNRu1MSQ66">
+                        <div class="icon" data-page-node-id="zVnTIBxI4ObcU4bQbtw1vo">👥</div>
+                        <div class="label" data-page-node-id="8eYEKwm1S2WmZoF9huzZDV">项目成员</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div style="height: 20px;" data-page-node-id="AEkQ7xBmBeIXxHUQ5NvJOA"></div>
+        </div>
+        
+        <div class="tab-bar" data-page-node-id="Bh8O9ma9zThSnJAbNy7HO9">
+            <div class="tab-item active" data-page-node-id="BHrgiiE37Cbpgm3xT529bB">
+                <div class="icon" data-page-node-id="giiwCwy6UgAtpx5DduJEd7">🏠</div>
+                <div class="label" data-page-node-id="auWoeG6Ajrbte3R4kPpQwf">首页</div>
+            </div>
+            <div class="tab-item" onclick="location.href='project-detail-ongoing-v2.html'" data-page-node-id="XFKAPDDmcYtpA2xsjVLfy5">
+                <div class="icon" data-page-node-id="Dvt6EzUpwz7R6d3ATwtGd8">📋</div>
+                <div class="label" data-page-node-id="528O95LT32VOCIk3sO9Rs5">我的家</div>
+            </div>
+            <div class="tab-item" onclick="location.href='message.html'" data-page-node-id="mSJlMr8aqyHxrV8I54Ibbp">
+                <div class="icon" data-page-node-id="Paq77PpVpcEEtHW9AQHdSo">💬</div>
+                <div class="label" data-page-node-id="xUlUbch7GzezrWgTTLrUDw">消息</div>
+            </div>
+            <div class="tab-item" onclick="showToast('个人中心开发中')" data-page-node-id="zLKTXswXiNAeOnoUoAqVUE">
+                <div class="icon" data-page-node-id="cqwz2JEAm72ukjIjBVEcvp">👤</div>
+                <div class="label" data-page-node-id="wxvtOV9si46WVRcvBLM6mM">我的</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="page-nav">
+        <div class="page-nav-title">原型导航</div>
+        <a href="home.html" class="page-nav-item active">首页</a>
+        <a href="project-detail-initial-v2.html" class="page-nav-item">项目详情（初始-新版）</a>
+        <a href="project-detail-ongoing-v2.html" class="page-nav-item">项目详情（进行中-新版）</a>
+        <a href="project-detail-completed-v2.html" class="page-nav-item">项目详情（已完成-新版）</a>
+        <a href="project-info.html" class="page-nav-item">项目信息</a>
+        <a href="architecture.html" class="page-nav-item">项目架构</a>
+        <a href="contract-detail.html" class="page-nav-item">合同详情</a>
+        <a href="task-detail.html" class="page-nav-item">任务详情</a>
+    </div>
+
+    <script>
+        // 直接在页面中初始化原型导航折叠功能
+        (function() {
+            function initPageNav() {
+                var pageNav = document.querySelector('.page-nav');
+                if (!pageNav) return;
+
+                var navTitle = pageNav.querySelector('.page-nav-title');
+                if (!navTitle) return;
+
+                // 添加切换按钮
+                var toggleBtn = document.createElement('span');
+                toggleBtn.className = 'toggle-btn';
+                toggleBtn.textContent = '▼';
+                navTitle.appendChild(toggleBtn);
+
+                // 点击标题切换折叠/展开状态
+                navTitle.addEventListener('click', function() {
+                    pageNav.classList.toggle('collapsed');
+                    toggleBtn.classList.toggle('collapsed');
+                });
+            }
+
+            // 页面加载完成后初始化
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', initPageNav);
+            } else {
+                initPageNav();
+            }
+        })();
+    </script>
+    <script>
+        function showToast(message, duration) {
+            duration = duration || 2000;
+            var existingToast = document.querySelector('.app-toast');
+            if (existingToast) {
+                existingToast.remove();
+            }
+            
+            var toast = document.createElement('div');
+            toast.className = 'app-toast';
+            toast.textContent = message;
+            toast.style.cssText = 'position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%); background-color: rgba(0, 0, 0, 0.7); color: #FFFFFF; padding: 8px 16px; border-radius: 20px; font-size: 13px; z-index: 10000; white-space: nowrap;';
+            document.body.appendChild(toast);
+            
+            setTimeout(function() {
+                toast.remove();
+            }, duration);
+        }
+        
+        function toggleActionMenu() {
+            var actionMenu = document.getElementById('actionMenu');
+            if (actionMenu) {
+                actionMenu.classList.toggle('show');
+            }
+        }
+        
+        function closeActionMenu() {
+            var actionMenu = document.getElementById('actionMenu');
+            if (actionMenu) {
+                actionMenu.classList.remove('show');
+            }
+        }
+        
+        
+    </script>
+<script src="../shared/doc-viewer/doc-viewer.js"></script>
+</body>
+</html>

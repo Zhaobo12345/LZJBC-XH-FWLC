@@ -1,0 +1,11 @@
+<!-- 500错误页 -->
+<svg viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect x="24" y="24" width="72" height="72" rx="8" fill="#FFF1F0" stroke="#FF4D4F" stroke-width="2"/>
+  <text x="60" y="56" font-family="Arial" font-size="24" font-weight="bold" fill="#FF4D4F" text-anchor="middle">500</text>
+  <path d="M40 72H80" stroke="#FF4D4F" stroke-width="2" stroke-linecap="round"/>
+  <path d="M48 84H72" stroke="#FF4D4F" stroke-width="2" stroke-linecap="round"/>
+  <circle cx="36" cy="36" r="8" fill="#FF4D4F" fill-opacity="0.2"/>
+  <text x="36" y="40" font-family="Arial" font-size="12" font-weight="bold" fill="#FF4D4F" text-anchor="middle">!</text>
+  <circle cx="84" cy="36" r="8" fill="#FF4D4F" fill-opacity="0.2"/>
+  <text x="84" y="40" font-family="Arial" font-size="12" font-weight="bold" fill="#FF4D4F" text-anchor="middle">!</text>
+</svg>

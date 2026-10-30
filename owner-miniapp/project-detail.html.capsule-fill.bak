@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>家装平台小程序原型 - 项目详情</title>
+    <link rel="stylesheet" href="common.css">
+    <link rel="stylesheet" href="css/project-detail.css">
+<style>
+    /* v2-native-capsule-style：微信原生胶囊占位（不可自定义，仅演示位置） */
+    .nav-bar .native-capsule {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 5px;
+        min-width: 46px;
+        height: 28px;
+        padding: 0 8px;
+        border: 1px dashed #cfcfcf;
+        border-radius: 14px;
+        color: #b3b3b3;
+        font-size: 13px;
+        line-height: 1;
+        user-select: none;
+        box-sizing: border-box;
+    }
+</style>
+</head>
+<body>
+    <div class="phone-frame">
+        <div class="status-bar">
+            <div class="time">9:41</div>
+            <div class="icons">📶 🔋</div>
+        </div>
+
+        <div class="nav-bar">
+            <div class="title">XX小区整体装修</div>
+            
+            
+        
+            <div class="actions"><div class="native-capsule" title="微信原生胶囊：由微信客户端渲染，开发者不可自定义其内容"></div></div>
+        </div>
+            
+
+
+        <div class="page-content" id="pageContent">
+            <div class="loading-overlay" id="loadingOverlay">
+                <div class="loading-spinner"></div>
+                <div class="loading-text">加载中...</div>
+            </div>
+
+            <div class="sticky-header" id="stickyHeader">
+                <div class="quick-nav" id="quickNav">
+                    <div class="pin-btn" id="pinBtn">📌 固定</div>
+                    <div class="quick-nav-item" data-href="project-info.html">
+                        <div class="icon info">📋</div>
+                        <div class="label">项目信息</div>
+                    </div>
+                    <div class="quick-nav-item" data-href="architecture.html">
+                        <div class="icon structure">🏗️</div>
+                        <div class="label">架构</div>
+                    </div>
+                    <div class="quick-nav-item" data-href="member.html">
+                        <div class="icon member">👥</div>
+                        <div class="label">成员</div>
+                    </div>
+                    <div class="quick-nav-item" data-href="project-files.html">
+                        <div class="icon file">📁</div>
+                        <div class="label">资料</div>
+                    </div>
+                    <div class="quick-nav-item" data-href="statement-list.html">
+                        <div class="icon statement">💰</div>
+                        <div class="label">对账单</div>
+                    </div>
+                </div>
+
+                <div class="quick-nav-toggle" id="quickNavToggle">
+                    <div class="toggle-btn">
+                        <div class="dots">
+                            <div class="dot"></div>
+                            <div class="dot"></div>
+                            <div class="dot"></div>
+                            <div class="dot"></div>
+                        </div>
+                        <span id="toggleText">展开快捷入口</span>
+                        <span class="arrow" id="toggleArrow">▼</span>
+                    </div>
+                </div>
+
+                <div class="level-selector" id="levelSelector">
+                    <div class="level-dropdown">
+                        <div class="current">
+                            <div class="icon" id="levelIcon">🏢</div>
+                            <div>
+                                <div class="text-row">
+                                    <div class="text" id="levelText">项目部</div>
+                                    <div class="type-badge" id="levelType">项目部</div>
+                                </div>
+                                <div class="breadcrumb-inline" id="breadcrumbInline">
+                                    <span class="breadcrumb-item active">项目部</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="arrow" id="levelArrow">▼</div>
+                    </div>
+                    <div class="level-options" id="levelOptions">
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-title">
+                    <span>📝 今日动态</span>
+                    <span class="more" data-action="activity-list">查看全部 ></span>
+                </div>
+                <div class="activity-list" id="activityList">
+                    <div class="activity-item" data-href="task-detail.html">
+                        <div class="activity-header">
+                            <div class="activity-avatar">李</div>
+                            <div class="activity-info">
+                                <div class="activity-user">李监理</div>
+                                <div class="activity-time">01-15 10:30</div>
+                            </div>
+                        </div>
+                        <div class="activity-content">完成了 开槽布线 的验收</div>
+                        <div class="activity-media">
+                            <div class="activity-media-item" style="background: url('https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=120&h=120&fit=crop') center/cover; border-radius: 6px;"></div>
+                            <div class="activity-media-item" style="background: url('https://images.unsplash.com/photo-1621905252507-b35492cc74b4?w=120&h=120&fit=crop') center/cover; border-radius: 6px;"></div>
+                            <div class="activity-media-item video" style="background: url('https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=120&h=120&fit=crop') center/cover; border-radius: 6px; position: relative;">
+                                <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 24px; height: 24px; background: rgba(0,0,0,0.5); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 10px;">▶</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="activity-item secondary" data-href="task-detail.html">
+                        <div class="activity-header">
+                            <div class="activity-avatar" style="background: linear-gradient(135deg, #52C41A 0%, #73D13D 100%);">张</div>
+                            <div class="activity-info">
+                                <div class="activity-user">张工长</div>
+                                <div class="activity-time">01-15 09:15</div>
+                            </div>
+                        </div>
+                        <div class="activity-content">提交了 开槽布线 的验收申请</div>
+                        <div class="activity-media">
+                            <div class="activity-media-item" style="background: url('https://images.unsplash.com/photo-1503387762-592deb58ef4e?w=120&h=120&fit=crop') center/cover; border-radius: 6px;"></div>
+                            <div class="activity-media-item" style="background: url('https://images.unsplash.com/photo-1585232351009-aa654f89dfed?w=120&h=120&fit=crop') center/cover; border-radius: 6px;"></div>
+                        </div>
+                    </div>
+                    <div class="activity-item tertiary hidden" data-href="task-detail.html">
+                        <div class="activity-header">
+                            <div class="activity-avatar" style="background: linear-gradient(135deg, #FA8C16 0%, #FFA940 100%);">王</div>
+                            <div class="activity-info">
+                                <div class="activity-user">王工长</div>
+                                <div class="activity-time">01-15 08:00</div>
+                            </div>
+                        </div>
+                        <div class="activity-content">创建了临时任务 紧急修补墙面裂缝</div>
+                    </div>
+                    <div class="activity-item quaternary hidden" data-href="contract-detail.html?status=signed">
+                        <div class="activity-header">
+                            <div class="activity-avatar" style="background: linear-gradient(135deg, #722ED1 0%, #9254DE 100%);">项</div>
+                            <div class="activity-info">
+                                <div class="activity-user">项目总</div>
+                                <div class="activity-time">01-14 10:00</div>
+                            </div>
+                        </div>
+                        <div class="activity-content">签署了 水电分包合同</div>
+                        <div class="activity-media">
+                            <div class="activity-media-item" style="background: url('https://images.unsplash.com/photo-1554224155-6726b3ff858f?w=120&h=120&fit=crop') center/cover; border-radius: 6px;"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="activity-more-btn" id="activityMoreBtn">
+                    <span id="activityMoreText">展开更多</span>
+                    <span class="arrow" id="activityMoreArrow">▼</span>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-title">
+                    <span>📄 合同概览</span>
+                    <span class="more">
+                        查看合同
+                        <span class="arrow">▼</span>
+                    </span>
+                </div>
+                <div class="contract-summary">
+                    <div class="contract-stat">
+                        <div class="value"><span class="current">6</span><span class="separator">/</span><span class="total">8</span></div>
+                        <div class="label">合同签约</div>
+                    </div>
+                    <div class="contract-stat">
+                        <div class="value"><span class="current">65</span><span class="total">%</span></div>
+                        <div class="label">总进度</div>
+                    </div>
+                </div>
+                <div class="contract-list" id="contractList">
+                    <div style="margin-top: 2px; padding-top: 2px; border-top: 1px solid #E8E8E8;">
+                        <div class="contract-item" data-href="contract-detail.html?status=draft_party_a">
+                            <div class="info">
+                                <div class="name">水电分包合同</div>
+                                <div class="meta">水电工作组 | 金额：8万 | 拟定中</div>
+                            </div>
+                            <div class="progress-wrap">
+                                <div class="percent">65%</div>
+                                <div class="bar"><div class="fill" style="width: 65%;"></div></div>
+                            </div>
+                        </div>
+                        <div class="contract-item" data-href="contract-detail.html?status=confirming_receiver">
+                            <div class="info">
+                                <div class="name">泥瓦分包合同</div>
+                                <div class="meta">泥瓦工作组 | 金额：12万 | 待我确认</div>
+                            </div>
+                            <div class="progress-wrap">
+                                <div class="percent">30%</div>
+                                <div class="bar"><div class="fill" style="width: 30%;"></div></div>
+                            </div>
+                        </div>
+                        <div class="contract-item" data-href="contract-detail.html?status=confirmed">
+                            <div class="info">
+                                <div class="name">木工分包合同</div>
+                                <div class="meta">木工工作组 | 金额：15万</div>
+                            </div>
+                            <div class="progress-wrap">
+                                <div class="percent">0%</div>
+                                <div class="bar"><div class="fill" style="width: 0%;"></div></div>
+                            </div>
+                        </div>
+                        <div class="contract-item" data-href="contract-detail.html?status=signed">
+                            <div class="info">
+                                <div class="name">油漆分包合同</div>
+                                <div class="meta">油漆工作组 | 金额：10万</div>
+                            </div>
+                            <div class="progress-wrap">
+                                <div class="percent">0%</div>
+                                <div class="bar"><div class="fill" style="width: 0%;"></div></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-title">
+                    <span>📊 任务统计</span>
+                    <span class="more" data-href="task-list.html">查看全部 ></span>
+                </div>
+                <div class="task-stats">
+                    <div class="task-stat-item">
+                        <div class="icon-wrap all">📋</div>
+                        <div class="info">
+                            <div class="value"><span class="current" id="overallCompleted">18</span><span class="separator">/</span><span class="total" id="overallTotal">24</span></div>
+                            <div class="label">全部任务</div>
+                        </div>
+                    </div>
+                    <div class="task-stat-item">
+                        <div class="icon-wrap accept">⏳</div>
+                        <div class="info">
+                            <div class="value" id="overallConfirming">3</div>
+                            <div class="label">确认中任务</div>
+                        </div>
+                    </div>
+                    <div class="task-stat-item">
+                        <div class="icon-wrap contract">▶</div>
+                        <div class="info">
+                            <div class="value" id="overallInProgress">2</div>
+                            <div class="label">执行中任务</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-title">
+                    <span>📋 待办事项</span>
+                    <span class="badge-wrap"><span class="badge" id="todoBadge">5</span></span>
+                    <span class="more" data-href="todo-list.html">查看全部 ></span>
+                </div>
+
+                <div class="todo-content show" id="todoContent">
+                    <div class="todo-item" data-href="task-detail.html?status=confirming">
+                        <div class="icon" style="background-color: #E6F7FF;">🔵</div>
+                        <div class="content">
+                            <div class="title">开槽布线验收确认 <span class="task-tag task">任务</span></div>
+                            <div class="desc">强电施工组 | 等待业主确认</div>
+                        </div>
+                        <div class="status urgent">待确认</div>
+                    </div>
+                    <div class="todo-item" data-href="task-detail.html?status=confirming">
+                        <div class="icon" style="background-color: #E6F7FF;">🔵</div>
+                        <div class="content">
+                            <div class="title">墙面贴砖验收确认 <span class="task-tag task">任务</span></div>
+                            <div class="desc">泥瓦工作组 | 等待业主确认</div>
+                        </div>
+                        <div class="status pending">待确认</div>
+                    </div>
+                    <div class="todo-item" data-href="task-detail.html?status=pending">
+                        <div class="icon" style="background-color: #F6FFED;">🟢</div>
+                        <div class="content">
+                            <div class="title">水电工程验收 <span class="task-tag task">任务</span></div>
+                            <div class="desc">水电工作组 | 待业主确认</div>
+                        </div>
+                        <div class="status pending">待确认</div>
+                    </div>
+                    <div class="todo-item" data-href="task-detail.html?status=pending">
+                        <div class="icon" style="background-color: #F6FFED;">🟢</div>
+                        <div class="content">
+                            <div class="title">瓷砖铺贴验收 <span class="task-tag task">任务</span></div>
+                            <div class="desc">泥瓦工作组 | 待业主确认</div>
+                        </div>
+                        <div class="status pending">待确认</div>
+                    </div>
+                    <div class="todo-item" data-href="contract-detail.html?status=confirming_receiver">
+                        <div class="icon" style="background-color: #F9F0FF;">🟣</div>
+                        <div class="content">
+                            <div class="title">泥瓦分包合同确认 <span class="task-tag contract">合同</span></div>
+                            <div class="desc">泥瓦工作组 | 待业主确认</div>
+                        </div>
+                        <div class="status urgent">待确认</div>
+                    </div>
+                </div>
+            </div>
+
+            <div style="height: 20px;"></div>
+        </div>
+        
+        <div class="custom-toast-modal" id="customToastModal">
+            <div class="modal-box">
+                <div class="modal-body" id="customToastMessage">
+                    操作成功
+                </div>
+                <div class="modal-footer">
+                    <div class="modal-btn">知道了</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 项目导航组件 -->
+        <div class="project-nav-trigger" id="projectNavTrigger">
+            <span class="nav-arrow">◀</span>
+            <span class="nav-text">项目导航</span>
+        </div>
+
+        <div class="project-nav-overlay" id="projectNavOverlay"></div>
+
+        <div class="project-nav-drawer" id="projectNavDrawer">
+            <!-- 深色顶部导航栏 -->
+            <div class="drawer-header-bar">
+                <div class="drawer-header-left">
+                    <span class="drawer-header-icon">ⓘ</span>
+                    <span class="drawer-header-title">项目导航</span>
+                    <span class="drawer-header-tag">施工路线</span>
+                </div>
+                <div class="drawer-header-right">
+                    <span class="drawer-expand-btn" id="projectNavExpandAll" onclick="ProjectNav.toggleExpandAll()">全部展开</span>
+                    <span class="drawer-close" id="projectNavClose">×</span>
+                </div>
+            </div>
+
+            <!-- 统计信息栏 -->
+            <div class="drawer-info-bar">
+                <div class="info-badge">
+                    <span class="info-badge-value" id="totalStageCount">5大阶段</span>
+                    <span class="info-badge-slash">/</span>
+                    <span class="info-badge-value" id="totalTaskCount">18项工程节点</span>
+                </div>
+                <span class="locate-btn" onclick="ProjectNav.scrollToCurrentTask()">
+                    <span class="locate-icon">📍</span>
+                    定位施工项
+                </span>
+            </div>
+
+            <!-- 阶段+任务列表内容区 -->
+            <div class="drawer-content" id="projectNavContent">
+                <!-- 内容由 JS 动态生成 -->
+            </div>
+
+            <!-- 底部提示 -->
+            <div class="drawer-footer-tip">
+                <span class="footer-tip-icon">💡</span>
+                <span>点击阶段行可展开/收起；点击任务直达详情</span>
+            </div>
+        </div>
+        
+        <div class="tab-bar">
+            <div class="tab-item" onclick="location.href='home.html'">
+                <div class="icon">🏠</div>
+                <div class="label">首页</div>
+            </div>
+            <div class="tab-item active">
+                <div class="icon">📋</div>
+                <div class="label">我的家</div>
+            </div>
+            <div class="tab-item" onclick="location.href='message.html'">
+                <div class="icon">💬</div>
+                <div class="label">消息</div>
+            </div>
+            <div class="tab-item" onclick="showToast('个人中心开发中')">
+                <div class="icon">👤</div>
+                <div class="label">我的</div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="page-nav">
+        <div class="page-nav-title">原型导航</div>
+        <a href="home.html" class="page-nav-item">首页</a>
+        <a href="project-detail.html" class="page-nav-item active">项目详情</a>
+        <a href="../service-miniapp/project-detail-ongoing-v2.html" class="page-nav-item">项目详情（进行中-新版）</a>
+        <a href="project-detail-completed.html" class="page-nav-item">项目详情（已完成）</a>
+        <a href="project-info.html" class="page-nav-item">项目信息</a>
+        <a href="architecture.html" class="page-nav-item">项目架构</a>
+        <a href="contract-detail.html" class="page-nav-item">合同详情</a>
+        <a href="task-detail.html" class="page-nav-item">任务详情</a>
+    </div>
+
+    <script>
+        // 导航栏菜单功能
+        function toggleActionMenu() {
+            const actionMenu = document.getElementById('actionMenu');
+            if (actionMenu) {
+                actionMenu.classList.toggle('show');
+            }
+        }
+        
+        function closeActionMenu() {
+            const actionMenu = document.getElementById('actionMenu');
+            if (actionMenu) {
+                actionMenu.classList.remove('show');
+            }
+        }
+        
+        // 直接在页面中初始化原型导航折叠功能
+        function initPageNav() {
+            var pageNav = document.querySelector('.page-nav');
+            if (!pageNav) return;
+
+            var navTitle = pageNav.querySelector('.page-nav-title');
+            if (!navTitle) return;
+
+            var toggleBtn = document.createElement('span');
+            toggleBtn.className = 'toggle-btn';
+            toggleBtn.textContent = '▼';
+            navTitle.appendChild(toggleBtn);
+
+            navTitle.addEventListener('click', function() {
+                pageNav.classList.toggle('collapsed');
+                toggleBtn.classList.toggle('collapsed');
+            });
+        }
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initPageNav);
+        } else {
+            initPageNav();
+        }
+    </script>
+    <script src="js/project-nav-data.js"></script>
+    <script src="js/project-detail.js"></script>
+    <!-- 移除内联脚本，避免事件绑定冲突 -->
+</body>
+</html>

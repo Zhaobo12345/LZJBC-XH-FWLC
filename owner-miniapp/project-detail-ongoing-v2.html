@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-page-node-id="doobHqYArQ5HTaEKsppj3D">
+<head data-page-node-id="CGIctx1sp353SSWcvX5uzu">
+    <meta charset="UTF-8" data-page-node-id="PGQ0RTVrbvuhmw4GVSSM63">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" data-page-node-id="OdQbs08LtILsUfCEW3m0BF">
+    <title>家装平台小程序原型 - 项目详情（进行中-新版）</title>
+    <link rel="stylesheet" href="common.css" data-page-node-id="LKDfX9LmzpqwrYRjSBEho7">
+    <link rel="stylesheet" href="css/project-detail.css" data-page-node-id="PutuzoeccCVApsSfzNGG8u">
+<style>
+        /* 微信原生胶囊占位（样式参考真机效果，由微信客户端实际渲染） */
+    .nav-bar .native-capsule {
+        display: inline-flex;
+        align-items: center;
+        justify-content: space-between;
+        min-width: 56px;
+        height: 28px;
+        padding: 0 10px;
+        border: 1px solid rgba(0, 0, 0, 0.08);
+        border-radius: 14px;
+        background: rgba(255, 255, 255, 0.7);
+        color: rgba(0, 0, 0, 0.6);
+        font-size: 12px;
+        line-height: 1;
+        user-select: none;
+        box-sizing: border-box;
+    }
+    .nav-bar .native-capsule .nc-left,
+    .nav-bar .native-capsule .nc-right {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex: 1;
+        min-width: 16px;
+    }
+    .nav-bar .native-capsule .nc-right {
+        font-size: 10px;
+    }
+    .nav-bar .native-capsule .nc-divider {
+        width: 1px;
+        height: 14px;
+        background: rgba(0, 0, 0, 0.1);
+        margin: 0 4px;
+    }
+
+        /* ===== 新家已开工头部 ===== */
+        .project-basic-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 14px;
+            background: linear-gradient(135deg, #FFF7E6 0%, #FFE4BA 100%);
+            border-radius: 12px;
+            margin: 6px 10px 4px;
+            box-shadow: 0 1px 4px rgba(250, 140, 22, 0.1);
+            border: none;
+        }
+        .project-basic-header .left-info { font-size: 14px; color: #874D00; font-weight: 500; }
+        .project-basic-header .left-info .highlight {
+            color: var(--orange-color);
+            font-weight: 700;
+            font-size: 18px;
+            margin: 0 2px;
+        }
+        .project-basic-header .right-wrap { display: inline-flex; align-items: center; gap: 6px; }
+        .project-basic-header .right-info {
+            display: inline-flex;
+            align-items: center;
+            padding: 5px 12px;
+            border: 1px solid rgba(250, 140, 22, 0.25);
+            border-radius: 16px;
+            font-size: 12px;
+            color: #874D00;
+            background-color: rgba(255, 255, 255, 0.6);
+        }
+        .project-basic-header.clickable { cursor: pointer; transition: background-color 0.2s; }
+        .project-basic-header.clickable:active {
+            background: linear-gradient(135deg, #FFE4BA 0%, #FFD591 100%);
+            box-shadow: 0 1px 4px rgba(250, 140, 22, 0.15);
+        }
+        .project-basic-header .enter-arrow {
+            font-size: 18px;
+            line-height: 1;
+            color: var(--text-tertiary, #C0C4CC);
+            font-weight: 400;
+        }
+
+        /* ===== 首屏紧凑化布局优化 ===== */
+        .quick-nav {
+            grid-template-columns: repeat(4, 1fr);
+            padding: 4px 4px;
+            max-height: 54px;
+        }
+        .quick-nav-item .icon { width: 28px; height: 28px; font-size: 14px; margin-bottom: 1px; }
+        .quick-nav-item .label { font-size: 10px; }
+
+        .level-selector.arch-half { padding: 2px 12px; }
+        .level-selector.arch-half .level-dropdown .current .icon { width: 24px; height: 24px; font-size: 11px; margin-right: 5px; }
+        .level-selector.arch-half .level-dropdown .current .text { font-size: 12px; }
+        .level-selector.arch-half .breadcrumb-inline { font-size: 10px; margin-top: 0; }
+
+        .card { padding: 6px 8px; margin: 6px 8px; border-radius: 10px; }
+        .card .card-title { margin-bottom: 3px; font-size: 12px; }
+
+        .todo-content .todo-item:nth-child(n+3) { display: none; }
+        .todo-item { padding: 4px 6px; margin-bottom: 2px; }
+        .todo-item .icon { width: 22px; height: 22px; font-size: 10px; margin-right: 6px; }
+        .todo-item .title { font-size: 12px; }
+        .todo-item .desc { font-size: 10px; margin-top: 1px; }
+        .todo-item .status { font-size: 9px; padding: 1px 5px; }
+
+        .stats-row { display: block; margin: 0 8px 6px 8px; }
+        .stats-row > .card { margin: 0 0 4px 0; padding: 5px 8px; }
+        .stats-row .card:last-child { margin-bottom: 0; }
+
+        .activity-list { max-height: 100px; overflow: hidden; }
+        .activity-list.expanded { max-height: none; overflow: visible; }
+        .activity-item { padding: 4px 0 4px 20px; position: relative; overflow: visible; }
+        .activity-item::before { left: 6px; top: 20px; bottom: -4px; width: 2px; }
+        .activity-item::after { left: 1px; top: 10px; width: 10px; height: 10px; }
+        .activity-header { margin-bottom: 2px; display: flex; align-items: center; }
+        .activity-avatar { width: 24px; height: 24px; font-size: 10px; }
+        .activity-user { font-size: 11px; }
+        .activity-time { font-size: 9px; }
+        .activity-content { font-size: 12px; margin-bottom: 2px; line-height: 1.4; }
+        .activity-media { display: flex; gap: 4px; margin-top: 2px; overflow: visible; }
+        .activity-media-item { width: 48px; height: 48px; border-radius: 6px; flex-shrink: 0; }
+        .activity-more-btn { padding: 4px; font-size: 11px; margin-top: 2px; }
+
+        /* 角色/阶段标签 */
+        .activity-role-tag {
+            display: inline-block;
+            font-size: 10px;
+            padding: 0 6px;
+            border-radius: 8px;
+            margin-left: 4px;
+            vertical-align: middle;
+            line-height: 14px;
+            height: 14px;
+            font-weight: 500;
+        }
+        .activity-role-tag.supervisor { background-color: #E6F7FF; color: #1890FF; }
+        .activity-role-tag.foreman { background-color: #F6FFED; color: #52C41A; }
+        .activity-role-tag.worker { background-color: #FFF7E6; color: #FA8C16; }
+        .activity-role-tag.designer { background-color: #F9F0FF; color: #722ED1; }
+        .activity-role-tag.owner { background-color: #FFF1F0; color: #F5222D; }
+        .activity-stage-tag {
+            display: inline-block;
+            font-size: 10px;
+            padding: 1px 6px;
+            border-radius: 4px;
+            margin: 0 4px;
+            font-weight: 500;
+            line-height: 14px;
+        }
+        .activity-stage-tag.plumbing { background-color: #E6F7FF; color: #1890FF; }
+        .activity-stage-tag.carpentry { background-color: #FFF7E6; color: #FA8C16; }
+        .activity-stage-tag.design { background-color: #F9F0FF; color: #722ED1; }
+    </style>
+</head>
+<body data-page-node-id="Czb1Q1U6cXHrshKtegaBSV">
+    <div class="phone-frame" data-page-node-id="xaQDeSVgUzsDzeHaUqOJM6">
+        <div class="status-bar" data-page-node-id="WT5A4byZfNARCByJuWahHC">
+            <div class="time" data-page-node-id="kk30KTe2adf6EEEeAIpAB5">9:41</div>
+            <div class="icons" data-page-node-id="VigiFF4he2jmsH4suRiYji">📶 🔋</div>
+        </div>
+
+        <div class="nav-bar" data-page-node-id="NnfBSaGVvaeqHCKX5f8g3M">
+            <div class="title" data-page-node-id="eddj95XZKwiLx4z901zO2z">XX小区整体装修</div>
+            
+            
+        
+            <div class="actions" data-page-node-id="hfT9R3eCzwEGE0CCQRrYwT"><div class="native-capsule" title="微信原生胶囊：由微信客户端渲染，开发者不可自定义其内容" data-page-node-id="p0zv1jmDFmsL0QjqnukGFk"><span class="nc-left" data-page-node-id="wFPsFSXEbABFP1DSxSn91R">⋯</span><span class="nc-divider" data-page-node-id="dJoHVufJuYpzMErBxunUwQ"></span><span class="nc-right" data-page-node-id="S9J4yDJts9nQfIJYRTprOF">○</span></div></div>
+        </div>
+            
+
+
+        <div class="page-content page-content--full" id="pageContent" data-page-node-id="lg9wK66WdgpzlSaJrqb0Hh">
+            <div class="loading-overlay" id="loadingOverlay" style="display:none;" data-page-node-id="XgA75WpIFgy2q8NBHJ0a1H">
+                <div class="loading-spinner" data-page-node-id="45rewI6X0OJsI5APf4xoY8"></div>
+                <div class="loading-text" data-page-node-id="qUP4ZGFcJyCgqNlEkPiDzz">加载中...</div>
+            </div>
+
+            <!-- 新家已开工头部 -->
+            <div class="project-basic-header clickable" data-href="project-info.html" data-page-node-id="DN98QRIgrSVAr2kAeC9uyF">
+                <div class="left-info" data-page-node-id="7Pq3iD68ipyes9omGFmRzg">
+                    新家已开工<span class="highlight" data-page-node-id="3sTgAjlIXDJN9HxB8toLl1">60</span>天
+                </div>
+                <div class="right-wrap" data-page-node-id="UBR3E8tk9EIwGWnfVwrSUU">
+                    <div class="right-info" data-page-node-id="qScNI4rSCX3v9KrqKSmeDW">
+                        75.0m² 2室1厅
+                    </div>
+                    <span class="enter-arrow" data-page-node-id="2gZEdl1dWZ6e4cCJ6CXGl7">›</span>
+                </div>
+            </div>
+
+            <!-- 待办事项（与架构切换无联动，置于吸顶导航上方） -->
+            <div class="card" data-page-node-id="Gy5SOlhaTRK33fxO7FSOrF">
+                <div class="card-title" data-page-node-id="mXZfxHGiBaA9bsNGYfAlu1">
+                    <span data-page-node-id="074VtME8InuzlvdWm48khP">📋 待办事项</span>
+                    <span class="badge-wrap" data-page-node-id="rbadfP1m2kvkv4M1pPkxZv"><span class="badge" id="todoBadge" data-page-node-id="zi0FAOmUXQG7mSyvLBjwOs">5</span></span>
+                    <span class="more" data-href="todo-list.html" data-page-node-id="1sQeE7kEhCE39tOSwbGRgP">查看全部 ></span>
+                </div>
+
+                <div class="todo-content show" id="todoContent" data-page-node-id="EPvhJHvI3eNtBNxTngF9hE">
+                    <div class="todo-item" data-href="task-detail.html?status=confirming" data-page-node-id="eUweqnSMBHeCmhHttfNHmC">
+                        <div class="icon" style="background-color: #E6F7FF;" data-page-node-id="77ENhhi5BX958GouLKOWvw">🔵</div>
+                        <div class="content" data-page-node-id="NQEy8B7Rc0nIoSZgBi6D9V">
+                            <div class="title" data-page-node-id="1I0gJXUW6tpizcrZVYtT6B">开槽布线验收确认</div>
+                            <div class="desc" data-page-node-id="B0zAPKk2263G6T3Y1OC3nR">强电施工组 | 等待业主确认</div>
+                        </div>
+                        <div class="status urgent" data-page-node-id="hyEJxsxyg0rJbRz1KHIFLd">待确认</div>
+                    </div>
+                    <div class="todo-item" data-href="task-detail.html?status=confirming" data-page-node-id="rU66MEmtSGEjS23lpCar6K">
+                        <div class="icon" style="background-color: #E6F7FF;" data-page-node-id="yAg7H9dXg6Ew9vrYszti5C">🔵</div>
+                        <div class="content" data-page-node-id="oT4J6WVPcCv7eDAT80VqnD">
+                            <div class="title" data-page-node-id="dnF6zBbGR03NGLoOveveq7">墙面贴砖验收确认</div>
+                            <div class="desc" data-page-node-id="sqDktxDnOjy6lFWYymmAQ4">泥瓦工作组 | 等待业主确认</div>
+                        </div>
+                        <div class="status pending" data-page-node-id="qQkQBBWn2WiMA9toWkm6oJ">待确认</div>
+                    </div>
+                    <div class="todo-item" data-href="task-detail.html?status=pending" data-page-node-id="DC6gJqZUUfiRqsuaV9BFmf">
+                        <div class="icon" style="background-color: #F6FFED;" data-page-node-id="78sBUrFls7YCnAkJanXmu1">🟢</div>
+                        <div class="content" data-page-node-id="ZQc6Lcd1fJ6dYLDDwNxOUq">
+                            <div class="title" data-page-node-id="LNKdXMWMCuHmm6qyf0t8GT">水电工程验收</div>
+                            <div class="desc" data-page-node-id="PmZPUlGJZSJvJP5kSuoNXJ">水电工作组 | 待业主确认</div>
+                        </div>
+                        <div class="status pending" data-page-node-id="NdPnsAwQ64lg7yeBUnqikV">待确认</div>
+                    </div>
+                    <div class="todo-item" data-href="task-detail.html?status=pending" data-page-node-id="NYqPk8sl4dYsOPd1kbtExJ">
+                        <div class="icon" style="background-color: #F6FFED;" data-page-node-id="6lnhN6gmQSbleZ0GSkVC5s">🟢</div>
+                        <div class="content" data-page-node-id="i7mw3pTy5uCpkF4XlB4tWB">
+                            <div class="title" data-page-node-id="BMBlgEGpjAXkB0mPTmvIxC">瓷砖铺贴验收</div>
+                            <div class="desc" data-page-node-id="rmnMYBD7vj7Dent6IjS7vr">泥瓦工作组 | 待业主确认</div>
+                        </div>
+                        <div class="status pending" data-page-node-id="JtVfTs8Jgo9zX39vQgmkdr">待确认</div>
+                    </div>
+                    <div class="todo-item" data-href="contract-detail.html?status=confirming_receiver" data-page-node-id="DxNkUrmOmskG2o7jvCuIfr">
+                        <div class="icon" style="background-color: #F9F0FF;" data-page-node-id="MPqF7jhq95N75OfUflOsky">🟣</div>
+                        <div class="content" data-page-node-id="70EVUiZc5AkHQC3f5RXWil">
+                            <div class="title" data-page-node-id="f19i2uDAMPHNdoQIBzTVDX">泥瓦工班组服务合同确认</div>
+                            <div class="desc" data-page-node-id="W8xO1HjuBuoKWFZLSer1zA">泥瓦工作组 | 待业主确认</div>
+                        </div>
+                        <div class="status urgent" data-page-node-id="gsdTYAFeHxVySCWdZh8r73">待确认</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="sticky-header" id="stickyHeader" data-page-node-id="4BHbLVnijeqSEq7u2d6OsV">
+                <div class="quick-nav" id="quickNav" data-page-node-id="Io66E9FiLg47flyFFZ2Lh0">
+                    <div class="pin-btn" id="pinBtn" data-page-node-id="bnR8GYHIcnLJB4kXTHTOZh">📌 固定</div>
+                    <div class="quick-nav-item" data-href="architecture.html" data-page-node-id="wARmZ6J0wSJyAQ7MVkMlbY">
+                        <div class="icon structure" data-page-node-id="nBhz99ChLlD7nZvUKH9oZm">🏗️</div>
+                        <div class="label" data-page-node-id="pSVeJXzcfvBJjbXLyAARNS">架构</div>
+                    </div>
+                    <div class="quick-nav-item" data-href="member.html" data-page-node-id="GFKvtvl8iV2WccnrzIwbN1">
+                        <div class="icon member" data-page-node-id="uONcbKxBsEePX6q3MGvV3K">👥</div>
+                        <div class="label" data-page-node-id="ooFApIJGGwZSM6friEPwaC">成员</div>
+                    </div>
+                    <div class="quick-nav-item" data-href="project-files.html" data-page-node-id="Hv226H7MLIouPhkR4031Ds">
+                        <div class="icon file" data-page-node-id="1EhkmKulWJSYyLyiNKdluC">📁</div>
+                        <div class="label" data-page-node-id="eKFgOyRVGMptW5bvRU8Be3">资料</div>
+                    </div>
+                    <div class="quick-nav-item" data-href="statement-list.html" data-page-node-id="A01P1nSIsPH9sWAIfBzeoI">
+                        <div class="icon statement" data-page-node-id="V1cTVObkorOj2c9lreXB9b">💰</div>
+                        <div class="label" data-page-node-id="k2s6DGvx2Qkyz4RCKBRd1n">对账单</div>
+                    </div>
+                </div>
+
+                <div class="quick-nav-toggle" id="quickNavToggle" data-page-node-id="zSKSVnvypSSeh6xPI5DxT1">
+                    <div class="toggle-btn" data-page-node-id="1Qr4Xrq3AcQMHhr9rEwEji">
+                        <div class="dots" data-page-node-id="onWdaontu8n7QxVbo9hhr8">
+                            <div class="dot" data-page-node-id="fnBMs46FtrQXcCrZw90FXS"></div>
+                            <div class="dot" data-page-node-id="x3UB8dFEze5XmoC8i6npjb"></div>
+                            <div class="dot" data-page-node-id="YjMXk3qDK1k0gRxk5HYpEh"></div>
+                            <div class="dot" data-page-node-id="2Mc9rq9x0YYhynHYLlKFOr"></div>
+                        </div>
+                        <span id="toggleText" data-page-node-id="lGNvHx91W12ct9hifiwI5w">展开快捷入口</span>
+                        <span class="arrow" id="toggleArrow" data-page-node-id="E4ka1XVNQ2EdVmtiXQIHMc">▼</span>
+                    </div>
+                </div>
+
+                <div class="level-selector arch-half" id="levelSelector" data-page-node-id="99vNZPq5mgpJqjeZdtZSNy">
+                    <div class="level-dropdown" data-page-node-id="WwHKw41SQMY3K36Q2lkxRn">
+                        <div class="current" data-page-node-id="akBx2k4HvTbWtFZe8O7OGv">
+                            <div class="icon" id="levelIcon" data-page-node-id="wmx2RhoHpHleFKvGk982Nz">🏢</div>
+                            <div data-page-node-id="IaSAeWsiWbQexwNaEXkylp">
+                                <div class="text-row" data-page-node-id="mdAyLR1qqqpYDiEWz7MNwT">
+                                    <div class="text" id="levelText" data-page-node-id="i2470FbmBlKiwYcIaFVLsW">项目部</div>
+                                    <div class="type-badge" id="levelType" data-page-node-id="6iFcrJBmIOmSG3Z0H4vUAQ">项目部</div>
+                                </div>
+                                <div class="breadcrumb-inline" id="breadcrumbInline" data-page-node-id="ib1rMBiPiTANQ25LljTReI">
+                                    <span class="breadcrumb-item active" data-page-node-id="1obqPaoVnHgOxbTGFnEoA3">项目部</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="arrow" id="levelArrow" data-page-node-id="pFZI1lAA11pEsTfUSFZYZ5">▼</div>
+                    </div>
+                    <div class="level-options" id="levelOptions" data-page-node-id="QAtCAzFjLBEP9NNjYqhz7l">
+                    </div>
+                </div>
+            </div>
+
+            <div class="card" data-page-node-id="zf63dFU5U5GelX482XGlG9">
+                <div class="card-title" data-page-node-id="3MFhIcnOADsHXl3Ba9Anzq">
+                    <span data-page-node-id="WJOylWDSzC6zLr5M0d2HDF">📝 今日动态</span>
+                    <span class="more" data-href="activity-list.html" data-page-node-id="Wc0ZVtVKA3JQt256IzteCV">查看全部 ></span>
+                </div>
+                <div class="activity-list" id="activityList" data-page-node-id="gHY72th1HUzSPaoGLMXvuZ">
+                    <div class="activity-item" data-href="task-detail.html" data-page-node-id="crFmh41tRWNj41V1pjz0H5">
+                        <div class="activity-header" data-page-node-id="xpmMDDonSidGKVzOOjpNFG">
+                            <div class="activity-avatar" data-page-node-id="BAbt9PRWX8IjepYKuBOdDy">李</div>
+                            <div class="activity-info" data-page-node-id="uaxvIziO7ft7E9DGDUzE8X">
+                                <div class="activity-user" data-page-node-id="hHOp21DL4jEmgpXpmvcNmV">李监理<span class="activity-role-tag supervisor" data-page-node-id="nsDgO6ZDBYwsXQNTgwDQJ3">监理</span></div>
+                                <div class="activity-time" data-page-node-id="eYWmFEyplb9JfrFot7QWdy">01-15 10:30</div>
+                            </div>
+                        </div>
+                        <div class="activity-content" data-page-node-id="3mAoLTkhp54kQPgC5T5e8x">完成了<span class="activity-stage-tag plumbing" data-page-node-id="oiWE3dNUhtq3ojZUf7Proj">水电</span>开槽布线 的验收</div>
+                        <div class="activity-media" data-page-node-id="KXuFJBYOsKP3Hpmxgp8RFG">
+                            <div class="activity-media-item" style="background: url('https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=120&h=120&fit=crop') center/cover; border-radius: 6px;" data-page-node-id="rs9xgGJBofaAPy6xAf7qDo"></div>
+                            <div class="activity-media-item" style="background: url('https://images.unsplash.com/photo-1621905252507-b35492cc74b4?w=120&h=120&fit=crop') center/cover; border-radius: 6px;" data-page-node-id="UyNxdFuwtPTdi3ZZEmzjGY"></div>
+                            <div class="activity-media-item video" style="background: url('https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=120&h=120&fit=crop') center/cover; border-radius: 6px; position: relative;" data-page-node-id="gE975yEKxOn6dSlFx691Xp">
+                                <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 24px; height: 24px; background: rgba(0,0,0,0.5); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 10px;" data-page-node-id="JLhbQ7nt5zbt2e5rSn2Lmu">▶</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="activity-item secondary" data-href="task-detail.html" data-page-node-id="VIUIUEx4gyg5UcRmJaaAof">
+                        <div class="activity-header" data-page-node-id="4stujCYZ6mqOIXlMiQ46wF">
+                            <div class="activity-avatar" style="background: linear-gradient(135deg, #52C41A 0%, #73D13D 100%);" data-page-node-id="4GeZ9cYFsougCg8BpujPIW">张</div>
+                            <div class="activity-info" data-page-node-id="GrNA0X3NCjVqWwWeFv2cXB">
+                                <div class="activity-user" data-page-node-id="mPfcPusrzAjGLwg9XC6qbD">张工长<span class="activity-role-tag foreman" data-page-node-id="6C7hVbrwS7Bjx4zTgvY24r">工长</span></div>
+                                <div class="activity-time" data-page-node-id="T21RFYzHtdFScMTgdgaMpx">01-15 09:15</div>
+                            </div>
+                        </div>
+                        <div class="activity-content" data-page-node-id="frC9SfhRg2kUdyAagvPrHO">提交了<span class="activity-stage-tag plumbing" data-page-node-id="denW7lhWoOAGvocBXwcNNV">水电</span>开槽布线 的验收申请</div>
+                        <div class="activity-media" data-page-node-id="6JFVznmh80PLAktwMoq55B">
+                            <div class="activity-media-item" style="background: url('https://images.unsplash.com/photo-1503387762-592deb58ef4e?w=120&h=120&fit=crop') center/cover; border-radius: 6px;" data-page-node-id="eWi6VpmG8oP6aG2A8SkALy"></div>
+                            <div class="activity-media-item" style="background: url('https://images.unsplash.com/photo-1585232351009-aa654f89dfed?w=120&h=120&fit=crop') center/cover; border-radius: 6px;" data-page-node-id="w2HkrCQfwmTmJc67VjHgZe"></div>
+                        </div>
+                    </div>
+                    <div class="activity-item quaternary hidden" data-href="contract-detail.html?status=signed" data-page-node-id="weHdbRyzci78chUSzPc8fV">
+                        <div class="activity-header" data-page-node-id="j1ac0dBF8iL1y6XjrOz5dt">
+                            <div class="activity-avatar" style="background: linear-gradient(135deg, #722ED1 0%, #9254DE 100%);" data-page-node-id="ew6I1XqwrFeNrTuUPv16zv">项</div>
+                            <div class="activity-info" data-page-node-id="ZoExGek4pqFyyhEjGDF9vs">
+                                <div class="activity-user" data-page-node-id="0c339qS0xFWBfwyu57IGB2">项目总<span class="activity-role-tag owner" data-page-node-id="57aNIiwMQ2FZi2oFu8NY6x">业主</span></div>
+                                <div class="activity-time" data-page-node-id="HS2zzrOIUEMitui5zJkYSP">01-14 10:00</div>
+                            </div>
+                        </div>
+                        <div class="activity-content" data-page-node-id="CZdXZXPVHetvVR0ia8HNrz">水电班组服务合同签约完成</div>
+                        <div class="activity-media" data-page-node-id="B7gZQ726hWVY4ZmjlLtnSx">
+                            <div class="activity-media-item" style="background: url('https://images.unsplash.com/photo-1554224155-6726b3ff858f?w=120&h=120&fit=crop') center/cover; border-radius: 6px;" data-page-node-id="bRgTHFJPPfRqHr1CeINcVj"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="activity-more-btn" id="activityMoreBtn" data-page-node-id="gdb09Xw4hmCAr778qZ0Ylj">
+                    <span id="activityMoreText" data-page-node-id="ybpcImkIz6wiIZAe5gd7gy">展开更多</span>
+                    <span class="arrow" id="activityMoreArrow" data-page-node-id="ufq0tP1XrzIFTKV1plaaAl">▼</span>
+                </div>
+            </div>
+
+            <!-- 合同概览 + 任务统计 -->
+            <div class="stats-row" data-page-node-id="UJEW8WnCkcDCXbo2Vqz0Kj">
+            <div class="card contract-half" data-page-node-id="yLBFTIa6VmaPjZiuR8M2RF">
+                <div class="card-title" data-page-node-id="CLL8tLKxc9YTNG4cHPgk4D">
+                    <span data-page-node-id="sP7TPPEG41SBKpiDOjwei3">📄 合同概览</span>
+                    <span class="more" data-page-node-id="NXV52OOltQLSJnGQLbh8y9">
+                        查看合同
+                        <span class="arrow" data-page-node-id="ls3DICsqLElEo1wtzcDbVS">▼</span>
+                    </span>
+                </div>
+                <div class="contract-summary" data-page-node-id="anFFfO6wCoQe53pfXwuKiK">
+                    <div class="contract-stat" data-page-node-id="FdQAb4tdLRDpCeOmF9YC6d">
+                        <div class="value" data-page-node-id="Dw692B0kqZ0ozpIBGoGKH2"><span class="current" data-page-node-id="BtMmQmXgzHFLF5N9Cr46Vk">6</span><span class="separator" data-page-node-id="E8Ca6TfnQFxh0yJ4vFnoOq">/</span><span class="total" data-page-node-id="CHwAhNNhv3IH4TY6b3rQeR">8</span></div>
+                        <div class="label" data-page-node-id="qo58O9wpysPmt6Iw7OvDxH">合同签约</div>
+                    </div>
+                    <div class="contract-stat" data-page-node-id="Cxunr8H5c7oPSazfHEKPHB">
+                        <div class="value" data-page-node-id="4bliEbFb3Znt3q3GRFayNN"><span class="current" data-page-node-id="7AOrd1VKDdEMjQx93B71b6">65</span><span class="total" data-page-node-id="XDn5VOT20s6QEpVVP9m97V">%</span></div>
+                        <div class="label" data-page-node-id="yzw2YO8kiGbWoa75tbgxXH">总进度</div>
+                    </div>
+                </div>
+                <div class="contract-list" id="contractList" data-page-node-id="HE9MMYcgtlFla2r9af5C6g">
+                    <div style="margin-top: 2px; padding-top: 2px; border-top: 1px solid #E8E8E8;">
+                        <div class="contract-item" data-href="contract-detail.html?status=signed">
+                            <div class="info">
+                                <div class="name">基础施工服务合同</div>
+                                <div class="meta">基础施工 | 金额：88万 | 已签约</div>
+                            </div>
+                            <div class="progress-wrap">
+                                <div class="percent">100%</div>
+                                <div class="bar"><div class="fill" style="width: 100%;"></div></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div style="margin-top: 2px; padding-top: 2px;" data-page-node-id="ks42tz1E2xnSJMAug0RCB7">
+                        <div class="contract-item" data-href="contract-detail.html?status=draft_party_a" data-page-node-id="SVNejrbVEqwtuTNY43x9Gj">
+                            <div class="info" data-page-node-id="2SBuuMyA0eAzE3Hi7qpeh9">
+                                <div class="name" data-page-node-id="9z0DBQCLJ6V1AGri4N11D9">水电班组服务合同</div>
+                                <div class="meta" data-page-node-id="n6YfLLc1CZHEwpsry9AjbP">水电工作组 | 金额：8万 | 拟定中</div>
+                            </div>
+                            <div class="progress-wrap" data-page-node-id="ZK3U0a0apIches3lUHLGxw">
+                                <div class="percent" data-page-node-id="3eApdWCxi7xSoDNdWRJgLf">65%</div>
+                                <div class="bar" data-page-node-id="uIE9HwibaEElXMuF232T5g"><div class="fill" style="width: 65%;" data-page-node-id="TuCecN8moxDPY0GP9TiUdp"></div></div>
+                            </div>
+                        </div>
+                        <div class="contract-item" data-href="contract-detail.html?status=confirming_receiver" data-page-node-id="pZcL7fI8yMvEKn7tLbI6TL">
+                            <div class="info" data-page-node-id="Xsj1baMrRETigrkgby8VRA">
+                                <div class="name" data-page-node-id="myauAgNY89FjGv21Hv7HIk">泥瓦工班组服务合同</div>
+                                <div class="meta" data-page-node-id="Ty8WnFUCox8ZMCHzrRiLNK">泥瓦工作组 | 金额：12万 | 待我确认</div>
+                            </div>
+                            <div class="progress-wrap" data-page-node-id="XYObHYYyw8zhTCxsEjf7tI">
+                                <div class="percent" data-page-node-id="dUP3VCAN5AgiPi7GbO0ja4">30%</div>
+                                <div class="bar" data-page-node-id="PuOVJERx4YVdBBdFAwEq0I"><div class="fill" style="width: 30%;" data-page-node-id="ZqZ8RPABvmcgHGNmOMVkEp"></div></div>
+                            </div>
+                        </div>
+                        <div class="contract-item" data-href="contract-detail.html?status=confirmed" data-page-node-id="WZ9fDHsSH8HQDDOrLpJah7">
+                            <div class="info" data-page-node-id="QsYFpF2IWObA1JXtsM1soP">
+                                <div class="name" data-page-node-id="pOmA0yBAFQYe5xbxaPcDb6">木作班组服务合同</div>
+                                <div class="meta" data-page-node-id="WfKM2HEdYo7rWXQU0Fn3Lc">木工工作组 | 金额：15万</div>
+                            </div>
+                            <div class="progress-wrap" data-page-node-id="nUc7UNq2H7hoQFBhlYC5KE">
+                                <div class="percent" data-page-node-id="B9wFUoPpjphzWmj8XS6Neh">0%</div>
+                                <div class="bar" data-page-node-id="H1Y276mQjqXrDwvL2nCnBo"><div class="fill" style="width: 0%;" data-page-node-id="5GJSKVxs1VwrZgam87EAGE"></div></div>
+                            </div>
+                        </div>
+                        <div class="contract-item" data-href="contract-detail.html?status=signed" data-page-node-id="ALhOgCJWzr89Fg8mb7YlG4">
+                            <div class="info" data-page-node-id="D8efGktlhRsVOQQ6TBFvC6">
+                                <div class="name" data-page-node-id="f6khn7bA9YW4jfl2L4zvvP">油漆工班组服务合同</div>
+                                <div class="meta" data-page-node-id="ImazSDCBrAbk5efo0H8geo">油漆工作组 | 金额：10万</div>
+                            </div>
+                            <div class="progress-wrap" data-page-node-id="GenkHfnByDZJVWm8SCbDcL">
+                                <div class="percent" data-page-node-id="TeYVKBsJNRre5vjDe1PYPU">0%</div>
+                                <div class="bar" data-page-node-id="R7MsYmzZYZHXaww3yHLxoM"><div class="fill" style="width: 0%;" data-page-node-id="CYeA4ywaqM4WrQwbUkX7Vz"></div></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card task-half" data-page-node-id="3ueLqwXfsqaHK3dmLyHBz7">
+                <div class="card-title" data-page-node-id="hytXLnLRCoAGVcd7Ib3jTd">
+                    <span data-page-node-id="2cB72BNhEWTir8tYJZAwSI">📊 任务统计</span>
+                    <span class="more" data-href="task-list.html" data-page-node-id="23SCttL9ygvpJvJFBSDgHk">查看全部 ></span>
+                </div>
+                <div class="task-stats" data-page-node-id="L0FI2kI43cPNWs3T5WuVxa">
+                    <div class="task-stat-item" data-page-node-id="SEj6SEhYHf89F4wJqctiz2">
+                        <div class="icon-wrap all" data-page-node-id="AXgp80NP62fPgE8Cgbr42j">📋</div>
+                        <div class="info" data-page-node-id="58cZ0RIashomP672R3j02R">
+                            <div class="value" data-page-node-id="07nNP8uEVoskfAY54zhxCD"><span class="current" id="overallCompleted" data-page-node-id="G7OSaa036vBP21APgTPkqT">18</span><span class="separator" data-page-node-id="bbhs3OHsE9BLN1ffZeZsSO">/</span><span class="total" id="overallTotal" data-page-node-id="ekbSNXqhZu7hHNZf3UEKh7">24</span></div>
+                            <div class="label" data-page-node-id="JFsNsb2yF8MDOoxL3slX8i">全部任务</div>
+                        </div>
+                    </div>
+                    <div class="task-stat-item" data-page-node-id="kJbKeLJcK3TDWvgFLZHOxh">
+                        <div class="icon-wrap accept" data-page-node-id="zAVFwleaj9uaz4kepRdRIa">⏳</div>
+                        <div class="info" data-page-node-id="THL3pVhEsHIy5oaaNbTW6X">
+                            <div class="value" id="overallConfirming" data-page-node-id="gxS0pWZdXDHzjfeyQGfJm9">3</div>
+                            <div class="label" data-page-node-id="zytFE2V8sVHe7BuLvsJbZw">确认中任务</div>
+                        </div>
+                    </div>
+                    <div class="task-stat-item" data-page-node-id="EcKTYzTfSKpZMR1REx0sL2">
+                        <div class="icon-wrap contract" data-page-node-id="sZHcZ8pDM3aOGxn7CZSVcA">▶</div>
+                        <div class="info" data-page-node-id="reolaeXcHdEwrPqokXspRs">
+                            <div class="value" id="overallInProgress" data-page-node-id="pg9SEJ5MjUAO4cjTNDUii6">2</div>
+                            <div class="label" data-page-node-id="5qsbXD2lhWUiGnlchEIAzM">执行中任务</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            </div>
+
+            <div style="height: 20px;" data-page-node-id="dXhJhAOAe5HQGRrs0EA4LD"></div>
+        </div>
+        
+        <div class="custom-toast-modal" id="customToastModal" data-page-node-id="KAjxfObKhkTIbrHFgPhC2o">
+            <div class="modal-box" data-page-node-id="64SOi69BcAWAdTzEzOlyvd">
+                <div class="modal-body" id="customToastMessage" data-page-node-id="2epbgD8sB77LzGLDIPHIvV">
+                    操作成功
+                </div>
+                <div class="modal-footer" data-page-node-id="mgX2nXZkMtJqM1wuE4ToHH">
+                    <div class="modal-btn" data-page-node-id="sfvMfe6HGFHIgXwHCaUYo2">知道了</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 项目导航组件 -->
+        <div class="project-nav-trigger" id="projectNavTrigger" data-page-node-id="iFEzOGcifuZdxqucKpfTWB">
+            <span class="nav-arrow" data-page-node-id="Y7dCV5inSyDHd3tGbg8yGN">◀</span>
+            <span class="nav-text" data-page-node-id="AOyW0tsI5wwTIX4We8mhqD">项目导航</span>
+        </div>
+
+        <div class="project-nav-overlay" id="projectNavOverlay" data-page-node-id="DGZUEDvT0bcApZHdgTHoVe"></div>
+
+        <div class="project-nav-drawer" id="projectNavDrawer" data-page-node-id="RUCfUVvr5Bs96t5KhtMyrH">
+            <!-- 深色顶部导航栏 -->
+            <div class="drawer-header-bar" data-page-node-id="oMJnrYtTlPhd4dGU8uGxt7">
+                <div class="drawer-header-left" data-page-node-id="7RlG1EqTLsqvDiEcBinmhj">
+                    <span class="drawer-header-icon" data-page-node-id="xOqQYrZDBtv2qFl2An5M5E">ⓘ</span>
+                    <span class="drawer-header-title" data-page-node-id="JwPBBaT4wqaDDAcEMBB3Ph">项目导航</span>
+                    <span class="drawer-header-tag" data-page-node-id="0IXBX5JEhFHPCVeQVzNUvr">施工路线</span>
+                </div>
+                <div class="drawer-header-right" data-page-node-id="Hm4jB3HFK6clzoWoiqEZtk">
+                    <span class="drawer-expand-btn" id="projectNavExpandAll" onclick="ProjectNav.toggleExpandAll()" data-page-node-id="tOKPuFuu1EiHNOcS3nbdS2">全部展开</span>
+                    <span class="drawer-close" id="projectNavClose" data-page-node-id="HB0cBCeQVeumCcCq2O2mIf">×</span>
+                </div>
+            </div>
+
+            <!-- 统计信息栏 -->
+            <div class="drawer-info-bar" data-page-node-id="uf1VB4AKYbdshHS6r4cMww">
+                <div class="info-badge" data-page-node-id="XCxrNHqjAx56TBfVMCmEiF">
+                    <span class="info-badge-value" id="totalStageCount" data-page-node-id="EBp0tdScidOCBzhASFpAf8">5大阶段</span>
+                    <span class="info-badge-slash" data-page-node-id="4bIvMaTXpkCfzwPOMKXoKa">/</span>
+                    <span class="info-badge-value" id="totalTaskCount" data-page-node-id="EIPm91iwwkeCH9c7dgI4lT">18项工程节点</span>
+                </div>
+                <span class="locate-btn" onclick="ProjectNav.scrollToCurrentTask()" data-page-node-id="rZjt1fUHJuF5bTFheHT9BJ">
+                    <span class="locate-icon" data-page-node-id="DYtp74UebB2yCaxUZH3KHq">📍</span>
+                    定位施工项
+                </span>
+            </div>
+
+            <!-- 阶段+任务列表内容区 -->
+            <div class="drawer-content" id="projectNavContent" data-page-node-id="rgjSu2GOLreNJm1KyJKnKA">
+                <!-- 内容由 JS 动态生成 -->
+            </div>
+
+            <!-- 底部提示 -->
+            <div class="drawer-footer-tip" data-page-node-id="4SR1hiGTC2DWev4CRww3Uj">
+                <span class="footer-tip-icon" data-page-node-id="mb0xYLtbxwK0gzuHAhFDeN">💡</span>
+                <span data-page-node-id="9Ca9uHnxHbXUffe8j7aTni">点击阶段行可展开/收起；点击任务直达详情</span>
+            </div>
+        </div>
+        
+        <div class="tab-bar" data-page-node-id="2FJdknVvOr1FxMXwXABn2y">
+            <div class="tab-item" onclick="location.href='home.html'" data-page-node-id="F9Q0r8UAxgkA8VhucsakUx">
+                <div class="icon" data-page-node-id="olaMeL75qMMKaB5MGvFfxR">🏠</div>
+                <div class="label" data-page-node-id="06KcTHTl4HLQ6Sjvbmzosq">首页</div>
+            </div>
+            <div class="tab-item active" data-page-node-id="WkbG7SHsyY7RgHYPvSAXGf">
+                <div class="icon" data-page-node-id="cuHhefBsb2nL3dFYOIKJCN">📋</div>
+                <div class="label" data-page-node-id="78g3cgNlvfknCYO77vNMzU">我的家</div>
+            </div>
+            <div class="tab-item" onclick="location.href='message.html'" data-page-node-id="pk7O7BET9dPxMNcfK03kx7">
+                <div class="icon" data-page-node-id="cQr5QNHvh0ChgAS0zpZu4A">💬</div>
+                <div class="label" data-page-node-id="8d0dTbhWxhdz1kAUSIvJ5e">消息</div>
+            </div>
+            <div class="tab-item" onclick="showToast('个人中心开发中')" data-page-node-id="uasYpA9lSYaeG6yFSwT2jO">
+                <div class="icon" data-page-node-id="6VVMST6qtK7NsfLqAuMdcH">👤</div>
+                <div class="label" data-page-node-id="ARtTvgn1lIDEzN8qNfjoLW">我的</div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="page-nav" data-page-node-id="Ob44Kv0nnFEAtLDWMH42XJ">
+        <div class="page-nav-title" data-page-node-id="XRQsIr6aLhvPZU4hrnHEIj">原型导航</div>
+        <a href="home.html" class="page-nav-item" data-page-node-id="MknmAZupqfXKB9cDOEyZYv">首页</a>
+        <a href="project-detail-initial-v2.html" class="page-nav-item" data-page-node-id="ORouvOC5y2yH4iIClV3xVC">项目详情（初始-新版）</a>
+        <a href="project-detail-ongoing-v2.html" class="page-nav-item active" data-page-node-id="xrnmNQhu10Z5EHd0LPneLr">项目详情（进行中-新版）</a>
+        <a href="project-detail-completed-v2.html" class="page-nav-item" data-page-node-id="uDn67nBKHiX6i4147iSPtr">项目详情（已完成-新版）</a>
+        <a href="project-info.html" class="page-nav-item" data-page-node-id="XghPFNB4vo6F2CTACpBDA1">项目信息</a>
+        <a href="architecture.html" class="page-nav-item" data-page-node-id="Eq22v3WL2HNGUzeHezruGt">项目架构</a>
+        <a href="contract-detail.html" class="page-nav-item" data-page-node-id="4sQeviGYRlWJfeqe4B3ANb">合同详情</a>
+        <a href="task-detail.html" class="page-nav-item" data-page-node-id="L6MiWxHwm0hH5fSEHHZCnu">任务详情</a>
+    </div>
+
+    <script>
+        // 导航栏菜单功能
+        function toggleActionMenu() {
+            const actionMenu = document.getElementById('actionMenu');
+            if (actionMenu) {
+                actionMenu.classList.toggle('show');
+            }
+        }
+        
+        function closeActionMenu() {
+            const actionMenu = document.getElementById('actionMenu');
+            if (actionMenu) {
+                actionMenu.classList.remove('show');
+            }
+        }
+        
+        // 直接在页面中初始化原型导航折叠功能
+        function initPageNav() {
+            var pageNav = document.querySelector('.page-nav');
+            if (!pageNav) return;
+
+            var navTitle = pageNav.querySelector('.page-nav-title');
+            if (!navTitle) return;
+
+            var toggleBtn = document.createElement('span');
+            toggleBtn.className = 'toggle-btn';
+            toggleBtn.textContent = '▼';
+            navTitle.appendChild(toggleBtn);
+
+            navTitle.addEventListener('click', function() {
+                pageNav.classList.toggle('collapsed');
+                toggleBtn.classList.toggle('collapsed');
+            });
+        }
+
+        // 新家已开工头部点击跳转
+        document.addEventListener('click', function(e) {
+            var header = e.target.closest('.project-basic-header.clickable');
+            if (header && header.dataset.href) {
+                e.preventDefault();
+                window.location.href = header.dataset.href;
+            }
+        });
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initPageNav);
+        } else {
+            initPageNav();
+        }
+    </script>
+    <script src="js/project-nav-data.js"></script>
+    <script src="js/project-detail.js"></script>
+    <!-- 移除内联脚本，避免事件绑定冲突 -->
+<script src="../shared/doc-viewer/doc-viewer.js"></script>
+</body>
+</html>

@@ -1,0 +1,299 @@
+/* 业主小程序首页样式 */
+
+.page-content--with-tabbar {
+    height: calc(100% - 44px - 44px - 50px);
+}
+
+.welcome-card {
+    margin: 0;
+    border-radius: 0;
+    padding: 20px 16px;
+    color: #FFFFFF;
+}
+
+.welcome-card.owner {
+    background: linear-gradient(135deg, #FA8C16 0%, #FFA940 100%);
+}
+
+.welcome-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 16px;
+}
+
+.welcome-card .avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background-color: rgba(255,255,255,0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    margin-right: 12px;
+}
+
+.welcome-info .greeting {
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 4px;
+}
+
+.welcome-info .sub-info {
+    font-size: 13px;
+    opacity: 0.9;
+}
+
+.progress-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.progress-bar.owner {
+    flex: 1;
+    height: 8px;
+    background-color: rgba(255,255,255,0.3);
+}
+
+.progress-bar.owner .progress {
+    background-color: #FFFFFF;
+}
+
+.progress-label {
+    font-size: 13px;
+    font-weight: 500;
+}
+
+.card-title .badge {
+    background-color: var(--error-color);
+    color: #FFFFFF;
+    font-size: 11px;
+    padding: 2px 8px;
+    border-radius: 10px;
+    margin-left: 8px;
+}
+
+.confirm-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.confirm-item {
+    display: flex;
+    align-items: center;
+    padding: 12px;
+    background-color: var(--bg-secondary);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+    border-left: 3px solid transparent;
+}
+
+.confirm-item:hover {
+    background-color: #FFF7E6;
+}
+
+.confirm-item.urgent {
+    border-left-color: var(--error-color);
+    background-color: #FFF7E6;
+}
+
+.confirm-icon {
+    font-size: 24px;
+    margin-right: 12px;
+}
+
+.confirm-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.confirm-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.confirm-meta {
+    font-size: 12px;
+    color: var(--text-tertiary);
+    margin-top: 2px;
+}
+
+.confirm-time {
+    font-size: 11px;
+    color: var(--text-tertiary);
+    margin-top: 4px;
+}
+
+.confirm-action {
+    flex-shrink: 0;
+}
+
+.action-tag {
+    display: inline-flex;
+    align-items: center;
+    padding: 4px 10px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.action-tag.primary {
+    background-color: var(--primary-color);
+    color: #FFFFFF;
+}
+
+.project-overview {
+    display: flex;
+    justify-content: space-around;
+    padding: 8px 0;
+}
+
+.overview-item {
+    text-align: center;
+}
+
+.overview-label {
+    font-size: 12px;
+    color: var(--text-tertiary);
+    margin-bottom: 4px;
+}
+
+.overview-value {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.overview-value .highlight {
+    color: var(--primary-color);
+}
+
+.contract-status-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.contract-status-item {
+    display: flex;
+    align-items: center;
+    padding: 12px;
+    background-color: var(--bg-secondary);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.contract-status-item:hover {
+    background-color: #FFF7E6;
+}
+
+.contract-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    margin-right: 12px;
+    flex-shrink: 0;
+}
+
+.contract-icon.signed {
+    background-color: #F6FFED;
+    color: #52C41A;
+}
+
+.contract-icon.changing {
+    background-color: #FFF7E6;
+    color: #FA8C16;
+}
+
+.contract-icon.pending {
+    background-color: #E6F7FF;
+    color: #1890FF;
+}
+
+.contract-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.contract-name {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.contract-meta {
+    font-size: 12px;
+    color: var(--text-tertiary);
+    margin-top: 2px;
+}
+
+.contract-badge {
+    font-size: 11px;
+    padding: 2px 8px;
+    border-radius: 4px;
+    flex-shrink: 0;
+}
+
+.contract-badge.signed {
+    background-color: #F6FFED;
+    color: #52C41A;
+}
+
+.contract-badge.pending {
+    background-color: #FFF7E6;
+    color: #FA8C16;
+}
+
+.activity-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.activity-item {
+    display: flex;
+    align-items: flex-start;
+}
+
+.activity-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #1890FF 0%, #40A9FF 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #FFFFFF;
+    font-size: 12px;
+    margin-right: 10px;
+    flex-shrink: 0;
+}
+
+.activity-content {
+    flex: 1;
+}
+
+.activity-text {
+    font-size: 13px;
+    color: var(--text-secondary);
+    line-height: 1.5;
+}
+
+.activity-text strong {
+    color: var(--text-primary);
+}
+
+.activity-time {
+    font-size: 11px;
+    color: var(--text-tertiary);
+    margin-top: 2px;
+}

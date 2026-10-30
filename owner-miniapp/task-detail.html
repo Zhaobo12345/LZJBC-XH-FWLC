@@ -1,0 +1,757 @@
+﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿<!DOCTYPE html>
+<html lang="zh-CN" data-page-node-id="d7lMg1wszzIBSbLCsHrFk5">
+<head data-page-node-id="zO8NHCKvrb8LNBvCPop80d">
+    <meta charset="UTF-8" data-page-node-id="SHfu7Ol76J8TBdP2Xq49mU">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" data-page-node-id="MLxCBRZQ6mqCNgJBLmXU1C">
+    <title>家装平台小程序原型 - 任务详情</title>
+    <link rel="stylesheet" href="common.css" data-page-node-id="hMCxAKa5ZWrLoUJavYdYaj">
+    <link rel="stylesheet" href="css/task-detail.css" data-page-node-id="1LQlxFDnZNFJe7XSrN8z1B">
+<style>
+        /* 微信原生胶囊占位（样式参考真机效果，由微信客户端实际渲染） */
+    .nav-bar .native-capsule {
+        display: inline-flex;
+        align-items: center;
+        justify-content: space-between;
+        min-width: 56px;
+        height: 28px;
+        padding: 0 10px;
+        border: 1px solid rgba(0, 0, 0, 0.08);
+        border-radius: 14px;
+        background: rgba(255, 255, 255, 0.7);
+        color: rgba(0, 0, 0, 0.6);
+        font-size: 12px;
+        line-height: 1;
+        user-select: none;
+        box-sizing: border-box;
+    }
+    .nav-bar .native-capsule .nc-left,
+    .nav-bar .native-capsule .nc-right {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex: 1;
+        min-width: 16px;
+    }
+    .nav-bar .native-capsule .nc-right {
+        font-size: 10px;
+    }
+    .nav-bar .native-capsule .nc-divider {
+        width: 1px;
+        height: 14px;
+        background: rgba(0, 0, 0, 0.1);
+        margin: 0 4px;
+    }
+</style>
+</head>
+<body data-page-node-id="NoU6IQBGnuCPlfeGCuJQJZ">
+    <div class="phone-frame" data-page-node-id="VX8dBOClZ3pKZ8Eszc9XBD">
+        <div class="status-bar" data-page-node-id="S2wAAjevy3j45W0NxiXsGy">
+            <div class="time" data-page-node-id="h9pqw3kGiG2fuAseYLERtJ">9:41</div>
+            <div class="icons" data-page-node-id="ea0UUs5wdudTks0KhnyiUX">📶 🔋</div>
+        </div>
+        
+        <div class="nav-bar" data-page-node-id="QIBvxX8WpbnE8rHatBXluw">
+            <div class="back" onclick="history.back()" data-page-node-id="FBDbYenDIE2xSF7HAu4qit">← 返回</div>
+            <div class="title centered" data-page-node-id="yLMju0shHrzTREEglCSNHX">任务详情</div>
+            
+            
+        
+            <div class="actions" data-page-node-id="fg6jeedj8yOGdOZSktWA6t"><div class="native-capsule" title="微信原生胶囊：由微信客户端渲染，开发者不可自定义其内容" data-page-node-id="uiVQSRA0ZVxGOmE3YwoAkJ"><span class="nc-left" data-page-node-id="BBYWrjpFmlT1TCqSCm0WHE">⋯</span><span class="nc-divider" data-page-node-id="lvUkBL8XU4jRm4ejKoUY1w"></span><span class="nc-right" data-page-node-id="DHs0pJyNxPx1pKDc8gnmJX">○</span></div></div>
+        </div>
+            
+
+        
+        <div class="page-content" data-page-node-id="Wd9JAejnf7wgmNmhOtE1WK">
+            <div class="task-header-card" id="taskHeader" data-page-node-id="VwGykOQYzqWHUqobcsD0DM">
+                <div class="task-name" id="taskName" data-page-node-id="TdIGJSCAo9USkMXw1RFcGX">穿线</div>
+                <div class="task-stage" data-page-node-id="tH0YNUuTmFhmVGOAEn38vk">📍 水电分包合同 > 布管布线阶段</div>
+                <div class="task-status-row" data-page-node-id="1Iii6x9DQsLHei2IHXXwGM">
+                    <div class="status-badge" id="taskStatus" data-page-node-id="hJBEma5uNXkxjt1rF1SuAX">待配置</div>
+                    <div class="confirm-progress" id="confirmProgress" data-page-node-id="PwR57GKEdlwYaHNsd19sd9">请配置执行人（<span style="color: #FF4D4F;" data-page-node-id="KlNMvVxnmkTTqMXQ4UcoLr">必填</span>）和确认人（<span style="color: #8C8C8C;" data-page-node-id="aNqC9fYuuR0Mj70fjlpDiz">选填</span>）</div>
+                </div>
+            </div>
+            
+            <div class="pre-task-block-card" id="preTaskBlockCard" style="display: none;" data-page-node-id="SX74I2Q0Cge8NLG0vPqP6O">
+                <div class="block-header" data-page-node-id="Rm5BfTnuHXIoLTB6ifdgqS">
+                    <div class="block-icon" data-page-node-id="gUNvwFYm1g5jGDCOm9tS77">🔒</div>
+                    <div class="block-title" data-page-node-id="VrEtFm9QglMA7y7LdvHfjZ">前置任务未完成</div>
+                </div>
+                <div class="block-desc" data-page-node-id="cMYvGrxoH33nXNRBNuErRl">当前任务设置了按序执行，需等待前置任务完成后才能开始执行</div>
+                <div class="pre-task-list" id="preTaskList" data-page-node-id="ZfNtRGNLSThRl04zzgOVsW">
+                    <div class="pre-task-item" data-page-node-id="NaR79Spirs3zLS5DiRVPrq">
+                        <div class="pre-task-status in-progress" data-page-node-id="pUGh7R87lFVDr26K9TgI2M">进行中</div>
+                        <div class="pre-task-info" data-page-node-id="WxAL27X30Pwcp9KRBDU4t5">
+                            <div class="pre-task-name" data-page-node-id="ys0vgljDSN3XDjt6hi3LiK">开槽布管</div>
+                            <div class="pre-task-meta" data-page-node-id="285QsWwyewnV856k2N7dVn">执行人：张工 | 预计完成：01-18</div>
+                        </div>
+                        <div class="pre-task-arrow" data-page-node-id="ZbexQZQ9n5kr6rrcdP0uER">→</div>
+                    </div>
+                </div>
+                <div class="block-tip" data-page-node-id="CcPl5iyIgicXOq6YqtfnpS">💡 前置任务完成后将自动通知执行人</div>
+            </div>
+            
+            <div class="card" data-page-node-id="uty2OYPq58kcAXiR8VWT3B">
+                <div class="people-section" data-page-node-id="5wpgjiUqe9qEIR5imUPmu3">
+                    <div class="acceptance-flow-card" data-page-node-id="78LPxIGpzwosbEp6Ti13hh">
+                        <div class="acceptance-flow-title" data-page-node-id="hQAD1W2Wicb2apSjgC0s8f">
+                            <span data-page-node-id="8rD5UeQg3pdU7lUXantEoQ">任务流程</span>
+                        </div>
+                        <div class="acceptance-flow-diagram" data-page-node-id="PQM7q34TjurtSDXLemMULi">
+                            <div class="flow-step current" id="flowStep1" data-page-node-id="tdQIJZuBlETnLPU3sJ4C1M">
+                                <div class="step-icon" data-page-node-id="Uc4sJNqQsUrz3PobOmejB5">⏸</div>
+                                <div class="step-label" data-page-node-id="So9BroBysvxSzz6z8iGNu3">待开始</div>
+                            </div>
+                            <div class="flow-line" id="flowLine1" data-page-node-id="zpCKB4pnSKoPTIO2RVUtLl"></div>
+                            <div class="flow-step" id="flowStep2" data-page-node-id="J5DzfpGQS6wdtntrNKIxCu">
+                                <div class="step-icon" data-page-node-id="x5BFHp2jzd7B0MsxAPCfvM">▶</div>
+                                <div class="step-label" data-page-node-id="X5ZEUamnzmxcw7hVKh1Lj6">执行中</div>
+                            </div>
+                            <div class="flow-line" id="flowLine2" data-page-node-id="eGDii5AKGfyLZklRV3BGrx"></div>
+                            <div class="flow-step" id="flowStep3" data-page-node-id="l1Y5FdOcyxIEC3n6pDOLJr">
+                                <div class="step-icon" data-page-node-id="GlOVwrJw65szOHGKBXezWd">⏳</div>
+                                <div class="step-label" data-page-node-id="LBSJqg52f5qvHka3xAzcT3">确认中</div>
+                            </div>
+                            <div class="flow-line" id="flowLine3" data-page-node-id="VgCF1EcKeIYwSGkd6MPqaZ"></div>
+                            <div class="flow-step" id="flowStep4" data-page-node-id="CJCCTGAJ0teo9vrpUwETUM">
+                                <div class="step-icon" data-page-node-id="jZi2QPkrcKCdNaTY1eqjpH">✓</div>
+                                <div class="step-label" data-page-node-id="yudBr4l3lLj4c3WkBzbAwH">已完成</div>
+                            </div>
+                        </div>
+                        <div class="acceptance-progress" id="acceptanceProgress" style="display: none;" data-page-node-id="WfUOhkjC7jCQoTMnBQnCuL">
+                            <div class="acceptance-progress-title" data-page-node-id="avumoEzPeyZBGSvJL0eQd3">
+                                <span data-page-node-id="sae4Q6i6SyGUlwWeP0fPBN">确认进度</span>
+                                <span id="flowProgressText" data-page-node-id="n7SSPsqsFDpJTPFp6o1uei">任务配置中</span>
+                            </div>
+                            <div class="acceptance-progress-bar" data-page-node-id="YOtit4BpdDyFL0R4q0cMKU">
+                                <div class="acceptance-progress-fill" id="flowProgressBar" style="width: 0%;" data-page-node-id="5CgJ0jGHgO9nUvsZ1eENng"></div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="people-card" id="executorCard" data-page-node-id="A5r8APMDlyZwai3dhIh2Rg">
+                        <div class="card-label" data-page-node-id="c6SCxV8MKXGhERwPQzuUwx">
+                            <span class="label-icon" data-page-node-id="BQxAf3K0AMCBK9vHXfDhGS">👤</span>
+                            <span data-page-node-id="GoOqZXZuhnDqO5cu9s7hqI">执行人</span>
+                        </div>
+                        <div class="person-list" id="executorList" style="display: none;" data-page-node-id="Tq0HSs9mpLNdOVkHmXQ2Aj">
+                            <div class="person-item" id="executorItem" data-page-node-id="S9raJoZRDdUGCTifC8edNE">
+                                <div class="person-avatar" data-page-node-id="lYgzHHrVa2cOuIBo4PVXZl">李</div>
+                                <div class="person-info" data-page-node-id="9AhCpVFAasA9zVIodux77H">
+                                    <div class="person-name" data-page-node-id="mjzrqRYKd5R9J0RCm4pGEu">李四 <span class="role-badge foreman" data-page-node-id="NBv86kzYJFm5MCZSL16nw0">工长</span></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="no-executor" id="noExecutorView" onclick="showExecutorSelector()" data-page-node-id="ssSpvz10DOgsNGECYCW8iY">
+                            <div class="icon" data-page-node-id="iQRNj3VtOBytsKwUyPqLbx">👤</div>
+                            <div class="text" data-page-node-id="dnZNu0rXfJV5vHgtWuoP3W">暂无执行人，点击添加</div>
+                        </div>
+                        <div class="add-executor-btn" id="addExecutorBtn" style="display: none;" onclick="showExecutorSelector()" data-page-node-id="FQxtWvbS98HglWU3EOi5dT">
+                            <span class="icon" data-page-node-id="WznkseefDmgKJD4rbRDmme">✎</span>
+                            <span class="text" data-page-node-id="ILI5EkrW7DrmUh95cH1K9E">修改执行人</span>
+                        </div>
+                    </div>
+                    
+                    <div class="people-card" id="confirmerCard" data-page-node-id="WCeaL82IdL6s9EdpizkcDw">
+                        <div class="card-label" data-page-node-id="NYoJC7x61QVgT5U723OpLe">
+                            <span class="label-icon" data-page-node-id="7oDeKMDQGFPtZ0kQHgwClZ">👥</span>
+                            <span data-page-node-id="ELR8WDKJn34dGuyMIKwiLT">确认人</span>
+                            <span class="label-tag" id="confirmerCount" data-page-node-id="7mJL9Odo0ZwCUwH5GibUpX">0人</span>
+                        </div>
+                        
+                        <div class="confirmer-status-list" id="confirmerList" data-page-node-id="etuXJYJicNuYStlY0Zu82m">
+                            <div class="no-confirmer-tip" onclick="showConfirmerSelector()" style="display: flex; align-items: center; justify-content: center; padding: 10px; color: var(--text-tertiary); cursor: pointer;" data-page-node-id="ecYlRU3ZtGL2lIEi8g2tJE">
+                                <div style="text-align: center;" data-page-node-id="mxLbId7qrPpNZKPISCA91K">
+                                    <div style="font-size: 20px; margin-bottom: 4px;" data-page-node-id="TFzRFpgWhB958wsJYxrpeb">👥</div>
+                                    <div style="font-size: 13px;" data-page-node-id="fnTa8QH4pvMFs7ln55xRIS">暂无确认人，点击添加</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="quick-add-confirmer" id="addConfirmerBtn" onclick="showConfirmerSelector()" data-page-node-id="hVUmNN8s4KXvf7m3KNGsYI">
+                            <span class="icon" data-page-node-id="rzOuuuG9zRGfPPt9WthyAI">+</span>
+                            <span data-page-node-id="r6XywBGMHZ0Z46b8v5KfwF">添加确认人</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card standard-card" data-page-node-id="z2Au7ziyhULUUCNqpg1Gma">
+                <div class="card-header" data-page-node-id="iDEmJ6WHRH6d90IyKv6kvj">
+                    <div class="card-title" data-page-node-id="mgC4CSY050vVvnIfubW4KF"><span class="icon" data-page-node-id="SnyJzXbGg2zRT3CCyvANLS">📝</span> 执行标准</div>
+                    <div class="toggle-btn" onclick="toggleStandard('exec')" data-page-node-id="NWF4tXqdbJOCuPJUvIXXvV">收起</div>
+                </div>
+                <div class="standard-list" id="execStandard" data-page-node-id="RXqtcxEZF6hUug6KrxE96r">
+                    <div class="standard-item" data-page-node-id="dlhkCojSQSWSQl016CMRBS">
+                        <span class="num" data-page-node-id="WPEop81TqclBJsueS0tBmF">1.</span>
+                        <span class="text" data-page-node-id="EacFLYJRLcWiAVq3mRgprj">穿线前检查线管是否畅通</span>
+                    </div>
+                    <div class="standard-item" data-page-node-id="JOlmsych4cFajGNBEBf0jP">
+                        <span class="num" data-page-node-id="2yMUDZZmkL4B6UGWa13mNb">2.</span>
+                        <span class="text" data-page-node-id="FYi6N22G6dm8DvsYDcwoYM">使用专用穿线器进行穿线</span>
+                    </div>
+                    <div class="standard-item" data-page-node-id="CAHG1hnGXNrAo3jVpDpja9">
+                        <span class="num" data-page-node-id="APC7vhXug4sTqVBfdi5Pvv">3.</span>
+                        <span class="text" data-page-node-id="p7QkEDmZwdK1Un4Ynk3n9W">电线在管内不得有接头</span>
+                    </div>
+                    <div class="standard-item" data-page-node-id="FEuqh77OlqvjrJZhwpfwrA">
+                        <span class="num" data-page-node-id="iwXqdv7GZ4maFR1NAeUKTj">4.</span>
+                        <span class="text" data-page-node-id="aawIicobJJP4aVcxSlPGG0">穿线完成后进行绝缘测试</span>
+                    </div>
+                </div>
+                <div class="craft-ref">
+                    <div class="craft-ref-title">工艺参考示例</div>
+                    <div class="craft-ref-display" id="execCraftRef"></div>
+                </div>
+            </div>
+            
+            <div class="card standard-card" data-page-node-id="x104s0YoDSHkGScCHx5RKY">
+                <div class="card-header" data-page-node-id="LndSTDmL3AVotG1TeOHVpA">
+                    <div class="card-title" data-page-node-id="JJnt3DVtHF5IcsV2qESyvU"><span class="icon" data-page-node-id="Q4Q7XeoYCTTutPWkOLmqgT">✅</span> 确认标准</div>
+                    <div class="toggle-btn" onclick="toggleStandard('confirm')" data-page-node-id="zdpZWbAb82CWII18oV0P97">收起</div>
+                </div>
+                <div class="standard-list" id="confirmStandard" data-page-node-id="DVRtlam2PX2SOrXCX2detO">
+                    <div class="standard-item" data-page-node-id="rKmWBUl2itPRhKql1RKau8">
+                        <span class="num" data-page-node-id="rkxREQYJk7PFgl6lZjHgk9">1.</span>
+                        <span class="text" data-page-node-id="jJtBuMMGQ32b044jjw2tmd">电线规格符合设计要求</span>
+                    </div>
+                    <div class="standard-item" data-page-node-id="sNpl1brQHGZ5geqtpdRnSJ">
+                        <span class="num" data-page-node-id="AkG9p1EefWnPlqMAIQPAEZ">2.</span>
+                        <span class="text" data-page-node-id="LbeLm5DhIFm5XdrXWtHlFY">穿线数量符合规范</span>
+                    </div>
+                    <div class="standard-item" data-page-node-id="K0zfmixNs7nDYFfQYrWQFg">
+                        <span class="num" data-page-node-id="0cT0z3OpJ8tCV8mo3kYFkW">3.</span>
+                        <span class="text" data-page-node-id="p3eSDCS7q5UlyhbFW8Kv24">绝缘电阻测试合格</span>
+                    </div>
+                    <div class="standard-item" data-page-node-id="LS0dmfS7Eun5UGnVHRdKqE">
+                        <span class="num" data-page-node-id="eV5WtIOyk8EcLE1MPaQp2h">4.</span>
+                        <span class="text" data-page-node-id="SbyIxbTYlCc17tCfEur0yp">线头预留长度适当</span>
+                    </div>
+                </div>
+                <div class="craft-ref">
+                    <div class="craft-ref-title">工艺参考示例</div>
+                    <div class="craft-ref-display" id="confirmCraftRef"></div>
+                </div>
+            </div>
+            
+            <div class="card standard-card" data-page-node-id="CsQtk1exqEqtfKOKHwK55P">
+                <div class="card-header" data-page-node-id="zA2vDl1GU6yoAPyHf59C2a">
+                    <div class="card-title" data-page-node-id="TbnZIgzVuZaq9zToi6D11o"><span class="icon" data-page-node-id="4mg4CTi7Xyb2N6BuPfX88c">⚠️</span> 担责标准</div>
+                    <div class="toggle-btn" onclick="toggleStandard('liable')" data-page-node-id="gGWnB9gHJzFonosHA4vXIL">收起</div>
+                </div>
+                <div class="standard-list" id="liableStandard" data-page-node-id="Yw8O2hkpxHpkrr3ACbZEFN">
+                    <div class="standard-item" data-page-node-id="qjSXskudfSULpUnqnhJzV7">
+                        <span class="num" data-page-node-id="Wiy5awlLxRYZv9eSOUvo5q">1.</span>
+                        <span class="text" data-page-node-id="ovt3kmjetb4tEA6dFoVzAu">穿线不规范导致返工，由执行人承担费用</span>
+                    </div>
+                    <div class="standard-item" data-page-node-id="064jvLBuLH8VI4LiGFjbO3">
+                        <span class="num" data-page-node-id="hUueHQ5fySZhpn5dnQDneQ">2.</span>
+                        <span class="text" data-page-node-id="2kOpEM9ZpqDZr21wXB4iwy">电线质量不合格，由材料供应商承担责任</span>
+                    </div>
+                    <div class="standard-item" data-page-node-id="tnpJWvJWVzYhKaKm1JGhG1">
+                        <span class="num" data-page-node-id="0DdQCTja0XjKDQChrBFmEQ">3.</span>
+                        <span class="text" data-page-node-id="IwLZvpFjB6G2FsABnZ4SEj">确认人确认后发现问题，确认人承担连带责任</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card" id="executionRecordCard" data-page-node-id="NDMzfLsRF6Sf9K1D43kDQc">
+                <div class="card-title card-collapsible" onclick="toggleCard('execution')" data-page-node-id="aS1SXVxk7SbdyOB1FRIpxh">
+                    <span data-page-node-id="NQpgbT2Ve5JSk1WVJNAfDY">📸 执行记录 <span class="toggle-icon" data-page-node-id="zPBaVYuQELRlJ4PNFpLSxD">▼</span></span>
+                    <span class="more" onclick="event.stopPropagation(); toggleHistoryRecords()" style="display: none;" data-page-node-id="m9MotABHW2B2rpbE7fnJ8e">查看历史记录</span>
+                </div>
+                
+                <div class="card-content-collapsible" id="executionCardContent" data-page-node-id="Vnw32EDkNmQultWD3cWxLd">
+                <!-- 当前有效执行记录 -->
+                <div class="execution-section" id="currentExecution" data-page-node-id="frJXmma6Z8snCLwWhQePdg">
+                    <div class="section-title" data-page-node-id="kKfDyIMZ5LlZ6zHY9Y1Vqp">
+                        <span data-page-node-id="TJMoOWvrRXpG4Zgu673oGB">📤 执行人提交的内容</span>
+                    </div>
+                    <div class="media-grid" data-page-node-id="EdOHpcYEpi5CAjZyvF8T1U">
+                        <div class="media-item" data-page-node-id="OFbAhRBDTsASwJCqgFSMtp">📷</div>
+                        <div class="media-item" data-page-node-id="VF0w1yNw9H2HI9ycWNGzmA">📷</div>
+                        <div class="media-item" data-page-node-id="wPAb7Nc2supAl6Ms0BSlgX">📷</div>
+                        <div class="media-item" style="background-color: #000;" data-page-node-id="Ai65c44bMBqa0WswU0ZB19">
+                            <span class="play-icon" data-page-node-id="HCJtwLmLEOFyyf9DPsklv8">▶</span>
+                            <span class="duration" data-page-node-id="NQjP9HDuBUq0DU4fEySGlP">0:15</span>
+                        </div>
+                    </div>
+                    <div class="execution-desc" data-page-node-id="D0Vv6hNZJwA1AwoW51BZsD">
+                        穿线工作已完成，共穿设强电线管12根，弱电线管6根。已进行绝缘测试，所有线路绝缘电阻均大于0.5MΩ，符合规范要求。
+                    </div>
+                    <div id="executionSubmitter" style="font-size: 12px; color: var(--text-tertiary); margin-top: 8px;" data-page-node-id="OLvfUFzWJaH5IVmR4KTjbh">
+                        提交人：李四 · 2024-01-25 14:30
+                    </div>
+                </div>
+                
+                <!-- 历史执行记录（默认隐藏） -->
+                <div id="historyRecords" style="display: none;" data-page-node-id="yc6ZqaI4UWE2J8yzDg4P68">
+                </div>
+                </div>
+            </div>
+            
+            <div class="card" id="confirmRecordCard" data-page-node-id="LGgv87ZS8XmXjS6Ff0VYuV">
+                <div class="card-title card-collapsible" onclick="toggleCard('confirm')" data-page-node-id="ZmoZEBCSGLk6IXiE28GnuP">
+                    <span data-page-node-id="frA0ftHvEWz4xSc9nGnHw8">✅ 确认记录 <span class="toggle-icon" data-page-node-id="wK9ndA6TpVG6Eyy6ul5dkO">▼</span></span>
+                </div>
+                <div class="card-content-collapsible" id="confirmRecordCardContent" data-page-node-id="k9Cc59RxbuZ05uMkuiHOG0">
+                <div class="confirm-list" id="confirmRecordsContainer" data-page-node-id="ygeEe1BUXtECmA71ItBH9a">
+                    <div class="confirm-item" data-page-node-id="k78PqL394FBNnJouBfsZtg">
+                        <div class="avatar" data-page-node-id="OgCN0eQ8y3ur6RRuXMyZZR">张</div>
+                        <div class="info" data-page-node-id="mqxpp28Y55hxtATNjZGrxk">
+                            <div class="name-row" data-page-node-id="GDVHXRzUYeYcyv2hBFTlZm">
+                                <div class="name" data-page-node-id="AHxwATJ5UvGJSVJTKnT8tF">张三 <span class="role-badge manager" data-page-node-id="XP76LsnnaXZYmJu9I5ypJk">项目总</span></div>
+                                <div class="status-tag confirmed" data-page-node-id="jGT9HpBmys3fqIEgmbY3IC">已确认</div>
+                            </div>
+                            <div class="time" data-page-node-id="nwRQvNwwc3p5sdmkIumOHi">2024-01-25 15:20</div>
+                            <div class="content" data-page-node-id="B2GjwyoF9TuRBjH8GqWS44">穿线工作符合标准，绝缘测试数据合格。</div>
+                            <div class="media-row" data-page-node-id="2vSG53uCd829kr2jCeIdwY">
+                                <div class="media-thumb" data-page-node-id="FUElEcLpJMxJ5A3CZKScbf">📷</div>
+                            </div>
+                            <div class="tags" data-page-node-id="OKqQgquuw22byEllKNEU1Y">
+                                <span class="tag" data-page-node-id="NJ3zZXqacSEpI5xZLwCcdO">责任心棒</span>
+                                <span class="tag" data-page-node-id="yhf2h7nyrdPqmetOfRZ1fE">专业能力强</span>
+                            </div>
+                            <div class="rating" data-page-node-id="cAFMW55hGlbPPjisToZeIx">
+                                <span class="star" data-page-node-id="t0Qlu8c6l8cFS8oc4AjNic">★</span>
+                                <span class="star" data-page-node-id="rfbQHBI3UFOFVaaOsHiyI9">★</span>
+                                <span class="star" data-page-node-id="dni2qxC6LkoQBuqpWd1v2Q">★</span>
+                                <span class="star" data-page-node-id="Hu3q0ZTNXCmN1q7fW3GVkz">★</span>
+                                <span class="star empty" data-page-node-id="BF9yKIOFGLtV6esIEUkh6R">★</span>
+                                <span class="text" data-page-node-id="Xu9jzrzlXDbxRmEXV1hDTb">优秀</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="confirm-item" data-page-node-id="YJrbLhO3TXJHlrlpTl4ZRf">
+                        <div class="avatar" data-page-node-id="y1Pzj9isCnet07KfzFqaJ0">王</div>
+                        <div class="info" data-page-node-id="i3WgGqBm5AZzLt8E9V6hb8">
+                            <div class="name-row" data-page-node-id="gz7Cg81igtHQOt5m3Co81r">
+                                <div class="name" data-page-node-id="06Ow02QUNJcXUsQ2YjqCnZ">王五 <span class="role-badge owner" data-page-node-id="XDz1AcRwRzwL5LBv2AXhPb">业主</span></div>
+                                <div class="status-tag pending" data-page-node-id="eRR7vTzl4CCD9NF1NBRgtE">待确认</div>
+                            </div>
+                            <div class="time" data-page-node-id="AabWGh7vH4XFBBIyUyrEjW">等待确认中...</div>
+                        </div>
+                    </div>
+                    <div class="confirm-item" data-page-node-id="FbLIzlQZ1GwtHvywc1e4uj">
+                        <div class="avatar" data-page-node-id="APpuDzy0ESoST3k4OtOe9S">赵</div>
+                        <div class="info" data-page-node-id="KFyQ1zrroTj8AVPBjmfC2X">
+                            <div class="name-row" data-page-node-id="l2fxJMCqutb3yzt3vGoNYq">
+                                <div class="name" data-page-node-id="VMSPHhw7YIRlKgtAWfF5al">赵六 <span class="role-badge designer" data-page-node-id="PI4Ap9mXhCB2N3Mnl9JYNO">设计师</span></div>
+                                <div class="status-tag pending" data-page-node-id="JPwchaHGipbfzMjQGgxrEq">待确认</div>
+                            </div>
+                            <div class="time" data-page-node-id="K1gcN36Au77pUCcdzw3GFR">等待确认中...</div>
+                        </div>
+                    </div>
+                </div>
+                </div>
+            </div>
+            
+            <div style="height: 80px;" data-page-node-id="AmmkTIsuq3VB5ktegn5VC0"></div>
+        </div>
+        
+        <div class="action-buttons" id="actionButtons" data-page-node-id="SsL8aGfAtf9dRRDmS7Qtp5">
+            <div class="btn secondary" style="width: 100%; opacity: 0.5; cursor: not-allowed;" data-page-node-id="7dbxfHx7Mykayt4hDi2rDV">请先选择执行人</div>
+        </div>
+        
+        <div class="confirm-modal" id="confirmModal" data-page-node-id="cOmjRMipwefcWilWF64mXi">
+            <div class="modal-content" data-page-node-id="GDdh44TrtWHGdnUqg8WLgQ">
+                <div class="modal-header" data-page-node-id="rMO8Ojg8FEvjdJPwobkRda">
+                    <div class="modal-title" data-page-node-id="RtVKCA6xFkOCQNtwX6zoan">确认通过</div>
+                    <div class="modal-close" onclick="closeConfirmModal()" data-page-node-id="QWqKqCq9TolrCrWE7ase4l">✕</div>
+                </div>
+                <div class="media-upload" data-page-node-id="YyI2q5W8L8vzFLNdqjMrFD">
+                    <div class="upload-item" onclick="triggerUpload('image', 'confirm')" data-page-node-id="4hxN68swGWJM16OTII27wN">
+                        <span class="icon" data-page-node-id="op1R9EGSVzgLmaVtRXDvCX">📷</span>
+                        <span class="text" data-page-node-id="Ql9tJNP66PSCVMfEhWsr2K">添加图片</span>
+                    </div>
+                    <div class="upload-item" onclick="triggerUpload('video', 'confirm')" data-page-node-id="N08ARQk0SDcG1Tv1GitUxm">
+                        <span class="icon" data-page-node-id="WWCSo4GmGOjWykO53rcEF8">🎬</span>
+                        <span class="text" data-page-node-id="Z16vP5oFigsS6pQpaWlZgT">添加视频</span>
+                    </div>
+                    <div class="upload-item" onclick="triggerUpload('audio', 'confirm')" data-page-node-id="Y7iBZH4o0NZ2m0dcyTRBqA">
+                        <span class="icon" data-page-node-id="kNJVeHIZLpozyEbXTsvwz0">🎵</span>
+                        <span class="text" data-page-node-id="PO8ZV71qJ2GfdK1Ci6KbKq">添加音频</span>
+                    </div>
+                </div>
+                <textarea class="desc-input" id="confirmDescInput" placeholder="请填写真实评语"></textarea>
+                <div class="rating-section-single" data-page-node-id="LNxZvsXZTfofa9DudNFsAs">
+                    <div class="rating-header" data-page-node-id="Z405RqXo14CCxWI2l45B01">
+                        <span data-page-node-id="C8pqDvqjA75cbT8c797I3P">综合评星（非必填）</span>
+                    </div>
+                    <div class="rating-stars" id="ratingStarsOverall" data-page-node-id="T4sNHlfX2tjdY4JOUpImJg">
+                        <span class="star-wrapper" data-rating="1" data-page-node-id="AHJz3Repnw8JeIf5sABgmF">
+                            <span class="star half" onclick="setOverallRating(0.5)" data-page-node-id="26XSqFaMwX9cD1EoRMLPjS">★</span>
+                            <span class="star full" onclick="setOverallRating(1)" data-page-node-id="5nrSkEhwBqIXfJsLhHGcmu">★</span>
+                        </span>
+                        <span class="star-wrapper" data-rating="2" data-page-node-id="MaWmXGHXpEWIevV9x7FWzQ">
+                            <span class="star half" onclick="setOverallRating(1.5)" data-page-node-id="CoKxmS5rstczOa7GDXhdGF">★</span>
+                            <span class="star full" onclick="setOverallRating(2)" data-page-node-id="DgkzVUUthwHZgV4emyu4OC">★</span>
+                        </span>
+                        <span class="star-wrapper" data-rating="3" data-page-node-id="LuJaiODrjz7ESXCpiY7v8o">
+                            <span class="star half" onclick="setOverallRating(2.5)" data-page-node-id="2DlPt0fbqct6BDTARb0LIH">★</span>
+                            <span class="star full" onclick="setOverallRating(3)" data-page-node-id="K3FZOrHG3wvhfjCSuyAgdO">★</span>
+                        </span>
+                        <span class="star-wrapper" data-rating="4" data-page-node-id="jT2ZA1qwxKGGtQRVAPsxSA">
+                            <span class="star half" onclick="setOverallRating(3.5)" data-page-node-id="zeI2YS1BsxaQl9MEdQz0Ez">★</span>
+                            <span class="star full" onclick="setOverallRating(4)" data-page-node-id="wAXflI8MWHlxldzWI5oyuJ">★</span>
+                        </span>
+                        <span class="star-wrapper" data-rating="5" data-page-node-id="Dj6l0wqvFoCB3e3xwIKEIY">
+                            <span class="star half" onclick="setOverallRating(4.5)" data-page-node-id="MNJQTHYCJNohaGju1LvvAC">★</span>
+                            <span class="star full" onclick="setOverallRating(5)" data-page-node-id="oHj2UL66j5e6oAkDyYLaxC">★</span>
+                        </span>
+                    </div>
+                    <div class="tag-section" data-page-node-id="Qx5bHV5tB95cJ1XV9jKB0G">
+                        <div class="tag-header" data-page-node-id="AlEMI1Poq5wW7kgTQxHSnJ">评价标签（可多选）</div>
+                        <div class="tag-list" data-page-node-id="mtYTaMy4jI4hnveK3VO6Eg">
+                            <span class="tag-item" onclick="toggleTag('responsible')" data-page-node-id="GRAID5rheVP341HpX7M9ZP">责任心棒</span>
+                            <span class="tag-item" onclick="toggleTag('attitude')" data-page-node-id="9HV8eESaG4cLGkFDawpywC">服务态度好</span>
+                            <span class="tag-item" onclick="toggleTag('professional')" data-page-node-id="uFAza1Ic3xGQkzRREE6RUc">专业能力强</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-actions" data-page-node-id="5avM9P8qvW2EvhE14C0f8d">
+                    <div class="btn secondary" onclick="closeConfirmModal()" style="display: flex; align-items: center; justify-content: center;" data-page-node-id="IGoZMba4nNrdH6XsSTK59e">取消</div>
+                    <div class="btn confirm" onclick="confirmTask()" style="display: flex; align-items: center; justify-content: center;" data-page-node-id="MUVr89lr6xk5khE5gqBGuh">确认通过</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="confirm-modal" id="rejectModal" data-page-node-id="MiachWw05oak7nTJzWso6t">
+            <div class="modal-content" data-page-node-id="Qk3IBFC4R4D3VW3TutIZI8">
+                <div class="modal-header" data-page-node-id="d47iCEa1ffBFWUsgk7WW1C">
+                    <div class="modal-title" data-page-node-id="BmkhWpI6vbxB31NE6cgwIs">驳回任务</div>
+                    <div class="modal-close" onclick="closeRejectModal()" data-page-node-id="X5pOrMz1tYvwFPAGbposH3">✕</div>
+                </div>
+                <div class="media-upload" data-page-node-id="qZArFgoe0FnDxtowREEfIf">
+                    <div class="upload-item" onclick="triggerUpload('image', 'reject')" data-page-node-id="u0k8sndy3uhSBJwOw1KGC5">
+                        <span class="icon" data-page-node-id="RJ8SfYICuP7UB5h4e6FjE3">📷</span>
+                        <span class="text" data-page-node-id="HlUvEMeZ20OveSD9a7VXuP">添加图片</span>
+                    </div>
+                    <div class="upload-item" onclick="triggerUpload('video', 'reject')" data-page-node-id="V5DiOEg4AUzkWa8rdXlkdt">
+                        <span class="icon" data-page-node-id="QyKge2jlya8vlxGAiMYTaz">🎬</span>
+                        <span class="text" data-page-node-id="6SINmMdXF0OMPTrLMABYyR">添加视频</span>
+                    </div>
+                    <div class="upload-item" onclick="triggerUpload('audio', 'reject')" data-page-node-id="1jSfZC7yZ7dC0IyuqIBr80">
+                        <span class="icon" data-page-node-id="UUZicxFfy5K4iMDdBVuQFw">🎵</span>
+                        <span class="text" data-page-node-id="Q11bj5za7IVHC2gLkCn581">添加音频</span>
+                    </div>
+                </div>
+                <textarea class="desc-input" id="rejectDescInput" placeholder="请输入驳回原因（必填）"></textarea>
+                <div class="modal-actions" data-page-node-id="5TIxTUis6hzG6jMcyP42BC">
+                    <div class="btn secondary" onclick="closeRejectModal()" style="display: flex; align-items: center; justify-content: center;" data-page-node-id="HxACzhNIF6Rrdwax5fzhBq">取消</div>
+                    <div class="btn reject" onclick="rejectTask()" style="display: flex; align-items: center; justify-content: center; background-color: var(--error-color); color: #FFFFFF; border: none;" data-page-node-id="z2MXTXMwp0f5KBYfLmYVR3">确认驳回</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="upload-modal" id="uploadModal" data-page-node-id="H7csoPDNOhpJAY6pdJzzVB">
+            <div class="modal-content" data-page-node-id="QBZsxZrcbfObHGZuSobsg4">
+                <div class="modal-header" data-page-node-id="yQED8vwEEgAEAXEKMr1w3a">
+                    <div class="modal-title" data-page-node-id="ZNKjk1jEKYN2T9QckrqPB6">提交执行记录</div>
+                    <div class="modal-close" onclick="closeUploadModal()" data-page-node-id="TM98HL4A8R6H7GFHsgkZ1y">✕</div>
+                </div>
+                <div class="media-upload" id="uploadMediaGrid" data-page-node-id="9r3xvDxyvKASLJrQJVClhN">
+                    <div class="upload-item" onclick="triggerUpload('image', 'execution')" data-page-node-id="jZKpNUCXG6d0TOrMBco385">
+                        <span class="icon" data-page-node-id="PBsNOpqDtq7G3XtTf5RRAl">📷</span>
+                        <span class="text" data-page-node-id="jUDZnOIerGdcGV3G400v9g">添加图片</span>
+                    </div>
+                    <div class="upload-item" onclick="triggerUpload('video', 'execution')" data-page-node-id="Ni8PKwZyx3NGfV6TXZCrsL">
+                        <span class="icon" data-page-node-id="BMsBsGVAosy9Wwws7vgA4M">🎬</span>
+                        <span class="text" data-page-node-id="DsxZYErVVmJL5EL0GxEcVF">添加视频</span>
+                    </div>
+                    <div class="upload-item" onclick="triggerUpload('audio', 'execution')" data-page-node-id="wYBpgaCwXGtDEwsufqy0tm">
+                        <span class="icon" data-page-node-id="v7JgJAvHtqs2bjQzHbvKbu">🎵</span>
+                        <span class="text" data-page-node-id="KQiKuTlmTmXHdZPbAfUd1b">添加音频</span>
+                    </div>
+                </div>
+                <div id="uploadedPreview" style="display: none; margin-bottom: 12px;" data-page-node-id="VzgsbtkTpv2kPaT3OLQhmd">
+                    <div style="font-size: 12px; color: var(--text-secondary); margin-bottom: 8px;" data-page-node-id="H7fWhD8NSShu9ZIuqm7hAq">已上传文件：</div>
+                    <div id="uploadedFiles" style="display: flex; flex-wrap: wrap; gap: 8px;" data-page-node-id="NAz5eGFeSqHkrKMK5UIktD"></div>
+                </div>
+                <textarea class="desc-input" id="executionDescInput" placeholder="请输入执行说明"></textarea>
+                <button class="submit-btn" onclick="submitExecution()" data-page-node-id="9ysidqa9HHRUTxs2vjh98g">提交执行记录</button>
+            </div>
+        </div>
+        
+        <div class="upload-modal" id="uploadRecordModal" data-page-node-id="Ke4u3SCflZmnRIxfu8qZZn">
+            <div class="modal-content" data-page-node-id="P2c0rdID043icny8flZRO9">
+                <div class="modal-header" data-page-node-id="ypbfBPLqi09GJwIGCO8oT8">
+                    <div class="modal-title" data-page-node-id="kaVxLoMXFhU7LwxWzpmNAz">上传记录</div>
+                    <div class="modal-close" onclick="closeUploadRecordModal()" data-page-node-id="8IvGoO4hc32GpR7ejkFQvn">✕</div>
+                </div>
+                <div class="media-upload" id="uploadRecordMediaGrid" data-page-node-id="m8QJklh159t42euN6CjLQV">
+                    <div class="upload-item" onclick="triggerUpload('image', 'record')" data-page-node-id="ZBi2lzw8Jwc7pjAcdB7ExP">
+                        <span class="icon" data-page-node-id="c83zk7i4TiMyKaPPD96HhF">📷</span>
+                        <span class="text" data-page-node-id="xDTGI0bfFoadOEC6sGMwf9">添加图片</span>
+                    </div>
+                    <div class="upload-item" onclick="triggerUpload('video', 'record')" data-page-node-id="kLCWB8iXuK8OKPlthzTWIb">
+                        <span class="icon" data-page-node-id="lNM6fkJVCxHFQhlXlO3Tih">🎬</span>
+                        <span class="text" data-page-node-id="iUUnkDMxKeN8l6HH6t1Uen">添加视频</span>
+                    </div>
+                    <div class="upload-item" onclick="triggerUpload('audio', 'record')" data-page-node-id="eA1rByXi1DZ4VIUyqvA8TJ">
+                        <span class="icon" data-page-node-id="LVbOTzidqPEV3SeROq6e5C">🎵</span>
+                        <span class="text" data-page-node-id="jYA5RKaDziwGqPqw7apjJQ">添加音频</span>
+                    </div>
+                </div>
+                <div id="uploadedRecordPreview" style="display: none; margin-bottom: 12px;" data-page-node-id="7alUkDjLjlS7BEjih0aADB">
+                    <div style="font-size: 12px; color: var(--text-secondary); margin-bottom: 8px;" data-page-node-id="R6D7oMB6vkOJ60MVB5jUOd">已上传文件：</div>
+                    <div id="uploadedRecordFiles" style="display: flex; flex-wrap: wrap; gap: 8px;" data-page-node-id="ECyo8cHzFB4N0yviLsbx3z"></div>
+                </div>
+                <textarea class="desc-input" id="recordDescInput" placeholder="请输入执行说明（必填）"></textarea>
+                <div class="modal-actions" data-page-node-id="cJqgVwDMxJb2jdxd63jB41">
+                    <div class="btn secondary" onclick="closeUploadRecordModal()" style="display: flex; align-items: center; justify-content: center;" data-page-node-id="PejVD3smxdHGjlCrfknCkD">取消</div>
+                    <div class="btn primary" onclick="confirmUploadRecord()" style="display: flex; align-items: center; justify-content: center;" data-page-node-id="dnzVIo2HxjF2wxHzJvKgsP">确认上传</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="confirm-modal" id="submitConfirmModal" data-page-node-id="86e7xG8r5EBkLyRExm0XpM">
+            <div class="modal-content" data-page-node-id="7PPcQg79aulnQQYRTUlp4Z">
+                <div class="modal-header" data-page-node-id="I4MX8doVQQA9rGHuLiN91w">
+                    <div class="modal-title" id="submitModalTitle" data-page-node-id="CgRDUNNJnnnRuEHR5BjNF3">提交确认</div>
+                    <div class="modal-close" onclick="closeSubmitConfirmModal()" data-page-node-id="98zxLxIu4QhKhneKvMR0jx">✕</div>
+                </div>
+                <div style="padding: 16px; text-align: center;" id="submitModalBody" data-page-node-id="6G2AuIq6EJb9ObAvOsEspU">
+                    <div style="font-size: 48px; margin-bottom: 16px;" data-page-node-id="NmdHw1NMOLBRL2nUEg4CPd">📤</div>
+                    <div style="font-size: 16px; color: var(--text-primary); margin-bottom: 8px;" id="submitModalText" data-page-node-id="jDPsHElbCCyuQDivaRIL8H">确定要提交确认吗？</div>
+                    <div style="font-size: 13px; color: var(--error-color); margin-bottom: 16px;" data-page-node-id="7yjgpe6stTVAwJKpuL8y02">⚠️ 提交后不支持修改执行记录</div>
+                    <div style="font-size: 13px; color: var(--text-secondary); background: var(--bg-secondary); padding: 12px; border-radius: 8px; text-align: left;" id="submitModalConfirmerList" data-page-node-id="6HulCdzBN8iqE0HldGO1q7">
+                        <div style="margin-bottom: 8px;" data-page-node-id="GlPqn4r44xNt4H1JFYZDun"><strong data-page-node-id="gOLBRCKGiA7ppFf9aLa8aM">确认人列表：</strong></div>
+                        <div style="display: flex; flex-direction: column; gap: 8px;" data-page-node-id="hQJ6vsEC6AmFUxH4es4QbJ">
+                            <div style="display: flex; align-items: center; gap: 8px;" data-page-node-id="MpGHoXDouOUkuj2ZQxl7cB">
+                                <div style="width: 28px; height: 28px; border-radius: 50%; background: #1890FF; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 12px;" data-page-node-id="sAtQaIODxQFqSbLr5wlfbs">张</div>
+                                <span data-page-node-id="DrcE1ASZ7XQ3Y6mBEnpq3Z">张三 · 项目总</span>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 8px;" data-page-node-id="O7UMV1bf1paAWPLJw8Umek">
+                                <div style="width: 28px; height: 28px; border-radius: 50%; background: #52C41A; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 12px;" data-page-node-id="bSvXSPY8vWLyKA4gwCinQc">王</div>
+                                <span data-page-node-id="9q7EiHzhmzVMxyn7L89fHe">王五 · 业主</span>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 8px;" data-page-node-id="2zAOzxsmFH6rsVihvCkXDn">
+                                <div style="width: 28px; height: 28px; border-radius: 50%; background: #722ED1; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 12px;" data-page-node-id="FirUdINWFDRpoXkRJtqpSa">赵</div>
+                                <span data-page-node-id="viK3Jp1K6nCu0j9jGfcPgL">赵六 · 设计师</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-actions" data-page-node-id="czdOYzSD1w5Qo93EToAHLc">
+                    <div class="btn secondary" onclick="closeSubmitConfirmModal()" style="display: flex; align-items: center; justify-content: center;" data-page-node-id="nyNe0FvSLRFPrMm8BF6G9y">取消</div>
+                    <div class="btn primary" onclick="confirmSubmitToConfirmer()" style="display: flex; align-items: center; justify-content: center;" id="submitModalBtn" data-page-node-id="n2IzdARgIMorifDM3IMXcr">确认提交</div>
+                </div>
+            </div>
+        </div>
+        
+        <input type="file" id="fileInput" accept="image/*,video/*,audio/*" style="display: none;" onchange="handleFileSelect(event)" data-page-node-id="bmMrHFWlBZgPZ6CLka45sq">
+        <input type="file" id="cameraInput" accept="image/*" capture="environment" style="display: none;" onchange="handleFileSelect(event)" data-page-node-id="0zDszGe67X8Bl1HGtNKGwP">
+
+        <div class="evaluation-modal" id="evaluationModal" data-page-node-id="69ecJnHuABp3LL2G7LAvGZ">
+            <div class="modal-content" data-page-node-id="k5D2A14VESymWoZlURgLkl">
+                <div class="modal-header" data-page-node-id="zipuSTJqiRFWpivnIHrYdo">
+                    <div class="modal-title" data-page-node-id="RmWWVWTSwLAIkmDMAeyuxF">评价任务</div>
+                    <div class="modal-close" onclick="closeEvaluationModal()" data-page-node-id="Vr83pQGHrzh65SwcwEifb2">✕</div>
+                </div>
+                <textarea class="desc-input" id="evaluationDescInput" placeholder="请填写真实评语"></textarea>
+                <div class="rating-section-single" data-page-node-id="OT9w5USP4dROuzcVvcWIxr">
+                    <div class="rating-header" data-page-node-id="F8yTowwlWykAl9uHWzC8tF">
+                        <span data-page-node-id="sboDqKwUk3wVmJwMzo9Ftk">综合评星（必填）</span>
+                    </div>
+                    <div class="rating-stars" id="evaluationStarsOverall" data-page-node-id="X5rroizsjFIlwmFIaKRHCb">
+                        <span class="star-wrapper" data-rating="1" data-page-node-id="LSFZg4yWIPLZuA7VbHjvrw">
+                            <span class="star half" onclick="setEvaluationOverallRating(0.5)" data-page-node-id="OBhNFLF4fKfhHZpRDkefa4">★</span>
+                            <span class="star full" onclick="setEvaluationOverallRating(1)" data-page-node-id="ROzDXWlbHYKdDBxgQLr4iy">★</span>
+                        </span>
+                        <span class="star-wrapper" data-rating="2" data-page-node-id="yTOBseZmIYVtRAdILaBsZl">
+                            <span class="star half" onclick="setEvaluationOverallRating(1.5)" data-page-node-id="J6ko2HkXMBAEmJpcUIPvtp">★</span>
+                            <span class="star full" onclick="setEvaluationOverallRating(2)" data-page-node-id="ZuHMGyLckHKkX1sSYcp5oH">★</span>
+                        </span>
+                        <span class="star-wrapper" data-rating="3" data-page-node-id="45ph8WH7Dsm7Sogzy90ixP">
+                            <span class="star half" onclick="setEvaluationOverallRating(2.5)" data-page-node-id="0F7MIOdBQlBdWcYFGTZG1T">★</span>
+                            <span class="star full" onclick="setEvaluationOverallRating(3)" data-page-node-id="UjJ4xcKQpBvXksxTZNF8Ms">★</span>
+                        </span>
+                        <span class="star-wrapper" data-rating="4" data-page-node-id="pRD6CiGFisyoA7qxPRJbb0">
+                            <span class="star half" onclick="setEvaluationOverallRating(3.5)" data-page-node-id="bVlTy4c64FHa8svS9ESLu8">★</span>
+                            <span class="star full" onclick="setEvaluationOverallRating(4)" data-page-node-id="Jn00NLkLwPbDCSj7Ja4Cr4">★</span>
+                        </span>
+                        <span class="star-wrapper" data-rating="5" data-page-node-id="Z7hWpl2AkmbsttzwoGavUw">
+                            <span class="star half" onclick="setEvaluationOverallRating(4.5)" data-page-node-id="oPWjSKLCX9cT88MkgckWwI">★</span>
+                            <span class="star full" onclick="setEvaluationOverallRating(5)" data-page-node-id="XKSCTjV8U0YUtPbor8Htdz">★</span>
+                        </span>
+                    </div>
+                    <div class="tag-section" data-page-node-id="i3GtNf1Eg6XMHwitfAU422">
+                        <div class="tag-header" data-page-node-id="cERcOaX28iYApxsNQ6iQ1V">评价标签（可多选）</div>
+                        <div class="tag-list" data-page-node-id="YiZv761TTqDq2iSZk6MuPp">
+                            <span class="tag-item" onclick="toggleEvaluationTag('responsible')" data-page-node-id="XzDhCZkBtjKnY8yQqmrisC">责任心棒</span>
+                            <span class="tag-item" onclick="toggleEvaluationTag('attitude')" data-page-node-id="EGIocqw7iDkRVOn0r4tY8M">服务态度好</span>
+                            <span class="tag-item" onclick="toggleEvaluationTag('professional')" data-page-node-id="crRTvsKPCkVGkZnQUyq5q1">专业能力强</span>
+                        </div>
+                    </div>
+                </div>
+                <button class="submit-btn" onclick="submitEvaluation()" data-page-node-id="589A2PmCYGHFby9w5knKTd">提交评价</button>
+            </div>
+        </div>
+
+        <div class="evaluation-list-modal" id="evaluationListModal" data-page-node-id="88ejF5rqwY04TFtgLjXJuL">
+            <div class="modal-content" data-page-node-id="VBo1WSRioFnmcQZ4EWT85I">
+                <div class="modal-header" data-page-node-id="agt0FgQ6dpEnTonriaSang">
+                    <div class="modal-title" data-page-node-id="KSumVwnivcVH1B95ZiPqZV">确认人评价</div>
+                    <div class="modal-close" onclick="closeEvaluationListModal()" data-page-node-id="XeMJzX7Elg1d3U2oOSmLQm">✕</div>
+                </div>
+                <div class="modal-body" id="evaluationListBody" data-page-node-id="lQTeqnLIrW4FvH5OJuDRBA">
+                </div>
+            </div>
+        </div>
+        
+        <div class="person-selector-modal" id="executorSelectorModal" data-page-node-id="n0rSouwAonyQFm2Bu0XM72">
+            <div class="modal-content" data-page-node-id="RkHWp1zUPgjYavCfOIn5ND">
+                <div class="modal-header" data-page-node-id="OoKwlOZ73eHVEBRBj25wr6">
+                    <div class="modal-title" data-page-node-id="6KsEf9kFXVnR7exvNaNG96">选择执行人</div>
+                    <div class="modal-close" onclick="closeExecutorSelector()" data-page-node-id="Bayac02e2dTDJ3VqhAY1HH">✕</div>
+                </div>
+                <div class="search-box" data-page-node-id="6uvDJyQYEM31U52nvYwMwG">
+                    <input type="text" class="search-input" id="executorSearchInput" placeholder="搜索姓名..." oninput="filterExecutors(this.value)" data-page-node-id="e9bvIjhjOAHlmwPcgCUFFp">
+                </div>
+                <div class="person-list" id="executorOptionList" data-page-node-id="S3NB7wRufbU4kEbd7dalwj">
+                </div>
+            </div>
+        </div>
+        
+        <div class="person-selector-modal" id="confirmerSelectorModal" data-page-node-id="80y7cwZCFtNgcr5Ce5gVMY">
+            <div class="modal-content" data-page-node-id="7jJXfMB0bROtbGVCbMHJuI">
+                <div class="modal-header" data-page-node-id="Euf9c8WXivMAPvoOj9SpMN">
+                    <div class="modal-title" data-page-node-id="BUU81FOUZIKCuKxPyCaSVu">选择确认人</div>
+                    <div class="modal-close" onclick="closeConfirmerSelector()" data-page-node-id="9pFvL6z4T9Bh6iO9CCEQbD">✕</div>
+                </div>
+                <div class="search-box" data-page-node-id="YGyCE3g6raOHmYdjygZuTY">
+                    <input type="text" class="search-input" id="confirmerSearchInput" placeholder="搜索姓名..." oninput="filterConfirmers(this.value)" data-page-node-id="IMMT1R4A6MxICHQVgQZrkn">
+                </div>
+                <div class="person-list" id="confirmerOptionList" data-page-node-id="txa6PeGqY3Hcf1FiTjkj0O">
+                </div>
+                <div style="padding: 12px 16px; border-top: 1px solid var(--border-color); flex-shrink: 0;" data-page-node-id="I0mbZmHlFMoexWhLzpk6My">
+                    <button class="btn primary" style="width: 100%;" onclick="confirmConfirmerSelection()" data-page-node-id="jgHVHopCX1d8pYjUyvT5xv">确定</button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="person-selector-modal" id="submitTaskModal" data-page-node-id="7aA5LEePslgXjIVPV9wPvg">
+            <div class="modal-content" style="max-height: 80%;" data-page-node-id="ZFKJm30oGrFsP4ZpgwPmtm">
+                <div class="modal-header" data-page-node-id="Sseo4cG6EVGRN0xsjafejs">
+                    <div class="modal-title" data-page-node-id="Req4JTovYSPCa4MXJZQgZA">确认提交任务</div>
+                    <div class="modal-close" onclick="closeSubmitTaskModal()" data-page-node-id="qqaWv0jIc2b3Dlmr15PY4n">✕</div>
+                </div>
+                <div style="padding: 16px;" data-page-node-id="JSBs8nDKtlpl3X8Du0FTAg">
+                    <div style="margin-bottom: 16px;" data-page-node-id="Cg7UdggcnPCajlutosS1c5">
+                        <div style="font-size: 14px; color: var(--text-secondary); margin-bottom: 8px;" data-page-node-id="xvBfRwvIuEtWbQ7NgPvGAw">提交后将发送通知给以下人员：</div>
+                    </div>
+                    <div style="background: #F5F5F5; border-radius: 8px; padding: 12px; margin-bottom: 12px;" data-page-node-id="IAH89MYaMvUkJzFQO3hijT">
+                        <div style="font-size: 12px; color: var(--text-tertiary); margin-bottom: 8px;" data-page-node-id="C0s2hjdQxOLGBZ82XimQBA">执行人</div>
+                        <div id="submitExecutorInfo" style="display: flex; align-items: center;" data-page-node-id="vuklCAYyeVuAACgcCcYmKo">
+                            <div class="avatar" style="width: 32px; height: 32px; border-radius: 50%; background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-light) 100%); display: flex; align-items: center; justify-content: center; color: #FFFFFF; font-size: 12px; margin-right: 8px;" data-page-node-id="4j2f3HiCWWYXZLGL7DxzhE">李</div>
+                            <div style="font-size: 14px; color: var(--text-primary);" data-page-node-id="jZqam8vdKYrkTD3Lt0eMFc">李四 · 工长</div>
+                        </div>
+                    </div>
+                    <div style="background: #F5F5F5; border-radius: 8px; padding: 12px; margin-bottom: 16px;" data-page-node-id="nWwzvADd9Qhizw0KlZnQoF">
+                        <div style="font-size: 12px; color: var(--text-tertiary); margin-bottom: 8px;" data-page-node-id="X0xlYBtnFhm8DGWemmDBFh">确认人（<span id="submitConfirmerCount" data-page-node-id="ehmZ5mGbnRO0AyfPXW6lHk">3</span>人）</div>
+                        <div id="submitConfirmerInfo" data-page-node-id="3Aj4miBbeo89ycoHaX1UGZ">
+                            <div style="display: flex; align-items: center; margin-bottom: 6px;" data-page-node-id="0HLdvjHGbxnI6DDLcKdub9">
+                                <div class="avatar" style="width: 32px; height: 32px; border-radius: 50%; background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-light) 100%); display: flex; align-items: center; justify-content: center; color: #FFFFFF; font-size: 12px; margin-right: 8px;" data-page-node-id="V8OVWKrbbPM2p62rfcMs7r">张</div>
+                                <div style="font-size: 14px; color: var(--text-primary);" data-page-node-id="M1178Jv79CoU1nSataRBUe">张三 · 项目总</div>
+                            </div>
+                            <div style="display: flex; align-items: center; margin-bottom: 6px;" data-page-node-id="uG6UZMHbefH6ArGNsEDsuu">
+                                <div class="avatar" style="width: 32px; height: 32px; border-radius: 50%; background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-light) 100%); display: flex; align-items: center; justify-content: center; color: #FFFFFF; font-size: 12px; margin-right: 8px;" data-page-node-id="MZUG8hPtC0xVrms0RJWILu">王</div>
+                                <div style="font-size: 14px; color: var(--text-primary);" data-page-node-id="9EsbCBIZAMdUXFoGlcDEia">王五 · 业主</div>
+                            </div>
+                            <div style="display: flex; align-items: center;" data-page-node-id="oAPdbZmmIDWO7lVJ7elkkO">
+                                <div class="avatar" style="width: 32px; height: 32px; border-radius: 50%; background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-light) 100%); display: flex; align-items: center; justify-content: center; color: #FFFFFF; font-size: 12px; margin-right: 8px;" data-page-node-id="PMX4UGilpbHfNhdPqh3A5W">赵</div>
+                                <div style="font-size: 14px; color: var(--text-primary);" data-page-node-id="3nNzRM4jsygOBSUGWXie0i">赵六 · 设计师</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div style="background: #FFF7E6; border-radius: 8px; padding: 12px; margin-bottom: 16px;" data-page-node-id="Bzo9LhphpLBbUBz3lkLC50">
+                        <div style="font-size: 12px; color: #FA8C16; line-height: 1.5;" data-page-node-id="kqA3W2FBpBB4USNEBS2S9S">
+                            ⚠️ 提交后执行人和确认人将不可修改，请确认信息无误后再提交。
+                        </div>
+                    </div>
+                </div>
+                <div style="padding: 12px 16px; border-top: 1px solid var(--border-color); display: flex; gap: 12px;" data-page-node-id="chJA1xVYqWehHW7kG5CT5X">
+                    <button class="btn secondary" style="flex: 1;" onclick="closeSubmitTaskModal()" data-page-node-id="Qlao45cpb3enAfrskxa5Kn">取消</button>
+                    <button class="btn primary" style="flex: 1;" onclick="confirmSubmitTask()" data-page-node-id="fTaKz02bcljRJU2BjUBTUK">确认提交</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="page-nav" data-page-node-id="TrKQ9LotSamVASw3iAtBrF">
+        <div class="page-nav-title" data-page-node-id="QfHLvRZwEnzQ3FfwmLjiGo">原型导航</div>
+        <a href="home.html" class="page-nav-item" data-page-node-id="5pPi3IQyp0FHv1Ek5nP8ML">首页</a>
+        <a href="contract-detail.html" class="page-nav-item" data-page-node-id="tdnIEb0oa2DKvOqREHqqN3">合同详情</a>
+        <a href="task-detail.html" class="page-nav-item active" data-page-node-id="d7l9T7SsIYtdzqiwy9bRPx">任务详情</a>
+        <div style="margin-top: 16px; padding-top: 12px; border-top: 1px solid #E8E8E8;" data-page-node-id="TejrLeKazpjO3XwYcDvLe4">
+            <div class="page-nav-title" data-page-node-id="sJSuAVp9M24gaxGsRx1X9y">任务状态切换</div>
+            <div class="status-switcher" data-page-node-id="N9SeXzqai4FfWASiUXckAn">
+                <div class="status-switch-item active" onclick="updateTaskStatus('configuring')" data-page-node-id="Fht9zAnXEJAEvyE68KHD9V">待配置</div>
+                <div class="status-switch-item" onclick="updateTaskStatus('pending')" data-page-node-id="YUhvkK7gAi462uypXqD1Z4">待开始</div>
+                <div class="status-switch-item" onclick="updateTaskStatus('in_progress')" data-page-node-id="Yh1VRu4uxV2T8hRDAT2wAm">执行中</div>
+                <div class="status-switch-item" onclick="updateTaskStatus('confirming')" data-page-node-id="kTSvsKylAcieH1MpZeiIue">确认中</div>
+                <div class="status-switch-item" onclick="updateTaskStatus('completed')" data-page-node-id="5YomFv3kAoXlM4ICPfNU7g">已完成</div>
+            </div>
+            <div class="page-nav-title" style="margin-top: 12px;" data-page-node-id="b7TRO4pZEGREykXBzIPKCT">更多状态（含驳回流程）</div>
+            <div class="status-switcher" data-page-node-id="BimivgwHt4erX4sTG9bZ7U">
+                <div class="status-switch-item" onclick="updateTaskStatus('rejected_pending')" data-page-node-id="cMkszUELGQk5363BF7h9CH">驳回后待开始</div>
+                <div class="status-switch-item" onclick="updateTaskStatus('confirming_after_reject')" data-page-node-id="8NNnRFCNoaE5cGzBO64PxU">确认中（驳回后再次执行）</div>
+                <div class="status-switch-item" onclick="updateTaskStatus('completed_with_reject')" data-page-node-id="Kd0DlOP5AoqMHQiWdc06ol">已完成（含驳回）</div>
+            </div>
+            <div class="page-nav-title" style="margin-top: 12px;" data-page-node-id="s96D1Xt7Jv1iZDynDWPX5k">前置任务阻塞效果</div>
+            <div class="status-switcher" data-page-node-id="8WzCPN9kM8MqGDRo0nzVlj">
+                <div class="status-switch-item" onclick="updateTaskStatus('pending_blocked')" data-page-node-id="c2zAOfAZr6z6EGzstJfof6">待开始（前置阻塞）</div>
+            </div>
+        </div>
+        <div style="margin-top: 12px; padding-top: 12px; border-top: 1px solid #E8E8E8;" data-page-node-id="mOHJ1FhByoRaA4kygKmvAU">
+            <div class="page-nav-title" data-page-node-id="d9hTkaFSkfJ0rLzHoxdCgp">用户视角切换</div>
+            <div class="status-switcher" id="roleSwitcher" data-page-node-id="tS9bzuHTkMl9c9zMzrFsGo">
+                <div class="status-switch-item role-switch-item active" onclick="switchUserRole('executor')" data-page-node-id="nDCgVK3luB9Yn2k1Lwi8JJ">执行人视角</div>
+                <div class="status-switch-item role-switch-item" onclick="switchUserRole('confirmer')" data-page-node-id="gP3CJQikwx6IDKqiofr1fe">确认人视角</div>
+                <div class="status-switch-item role-switch-item" onclick="switchUserRole('configurer')" data-page-node-id="9eJlIoAfHk7InpkFbFEQYw">配置人视角</div>
+                <div class="status-switch-item role-switch-item" onclick="switchUserRole('other')" data-page-node-id="VPCCIXZvr0juClT9utArBi">其他用户视角</div>
+            </div>
+            <div class="status-switcher" id="configuringRoleSwitcher" style="margin-top: 8px; display: none;" data-page-node-id="AnY3XhINhvlWqYR7ZQq2dU">
+                <div class="status-switch-item role-switch-item" onclick="switchUserRole('other')" data-page-node-id="Q3FkDi6aYCxkEFZ95JKqFX">其他用户视角</div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // 直接在页面中初始化原型导航折叠功能
+        (function() {
+            function initPageNav() {
+                var pageNav = document.querySelector('.page-nav');
+                if (!pageNav) return;
+
+                var navTitle = pageNav.querySelector('.page-nav-title');
+                if (!navTitle) return;
+
+                // 添加切换按钮
+                var toggleBtn = document.createElement('span');
+                toggleBtn.className = 'toggle-btn';
+                toggleBtn.textContent = '▼';
+                navTitle.appendChild(toggleBtn);
+
+                // 点击标题切换折叠/展开状态
+                navTitle.addEventListener('click', function() {
+                    pageNav.classList.toggle('collapsed');
+                    toggleBtn.classList.toggle('collapsed');
+                });
+            }
+
+            // 页面加载完成后初始化
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', initPageNav);
+            } else {
+                initPageNav();
+            }
+        })();
+    </script>
+    <script src="../shared/validation.js"></script>
+    <script src="js/craft-ref.js"></script>
+    <script src="js/task-detail.js"></script>
+
+<script src="../shared/doc-viewer/doc-viewer.js"></script>
+</body>
+</html>

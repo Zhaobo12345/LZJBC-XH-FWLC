@@ -1,0 +1,10 @@
+<!-- 空状态：对账单列表 -->
+<svg viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect x="20" y="16" width="80" height="88" rx="8" fill="#FFF7E6" stroke="#FA8C16" stroke-width="2"/>
+  <rect x="32" y="32" width="56" height="8" rx="2" fill="#FA8C16" fill-opacity="0.3"/>
+  <rect x="32" y="48" width="32" height="4" rx="2" fill="#BFBFBF"/>
+  <text x="32" y="68" font-family="Arial" font-size="24" font-weight="bold" fill="#FA8C16">¥</text>
+  <text x="52" y="68" font-family="Arial" font-size="24" font-weight="bold" fill="#BFBFBF">0.00</text>
+  <line x1="32" y1="80" x2="88" y2="80" stroke="#FA8C16" stroke-width="2" stroke-dasharray="4 2"/>
+  <rect x="32" y="88" width="40" height="4" rx="2" fill="#BFBFBF"/>
+</svg>

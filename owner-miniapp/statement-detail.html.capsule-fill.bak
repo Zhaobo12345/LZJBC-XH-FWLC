@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>家装平台小程序原型 - 对账单详情</title>
+    <link rel="stylesheet" href="common.css">
+    <link rel="stylesheet" href="css/statement-detail.css">
+<style>
+    /* v2-native-capsule-style：微信原生胶囊占位（不可自定义，仅演示位置） */
+    .nav-bar .native-capsule {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 5px;
+        min-width: 46px;
+        height: 28px;
+        padding: 0 8px;
+        border: 1px dashed #cfcfcf;
+        border-radius: 14px;
+        color: #b3b3b3;
+        font-size: 13px;
+        line-height: 1;
+        user-select: none;
+        box-sizing: border-box;
+    }
+</style>
+</head>
+<body>
+    <div class="phone-frame">
+        <div class="status-bar">
+            <div class="time">9:41</div>
+            <div class="icons">📶 🔋</div>
+        </div>
+
+        <div class="nav-bar">
+            <div class="back" onclick="history.back()">← 返回</div>
+            <div class="title centered">对账单详情</div>
+            
+        
+            <div class="actions"><div class="native-capsule" title="微信原生胶囊：由微信客户端渲染，开发者不可自定义其内容"></div></div>
+        </div>
+            
+
+
+        <div class="page-content" id="pageContent">
+            <div class="status-banner" id="statusBanner">
+                <div class="status-icon" id="statusIcon">⏳</div>
+                <div class="status-info">
+                    <div class="status-text" id="statusText">待确认</div>
+                    <div class="status-desc" id="statusDesc">请确认此对账单</div>
+                </div>
+            </div>
+
+            <div class="reject-reason-banner" id="rejectReasonBanner" style="display: none;">
+                <div class="banner-header">
+                    <span class="banner-icon">❌</span>
+                    <span class="banner-title">驳回原因</span>
+                </div>
+                <div class="banner-content" id="rejectReasonContent">数量算错了，现场测量只有20米，请核对后重新发起。</div>
+            </div>
+
+            <div class="detail-card">
+                <div class="detail-header">
+                    <div class="type-tag" id="typeTag">辅料费</div>
+                    <div class="amount-section">
+                        <div class="amount" id="amountDisplay">¥ 4,500.00</div>
+                    </div>
+                </div>
+                <div class="detail-body">
+                    <div class="detail-row">
+                        <div class="detail-label">关联合同</div>
+                        <div class="detail-value contract-link" id="contractName">基础施工合同</div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">账单类型</div>
+                        <div class="detail-value" id="billType">辅料费</div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">提交人</div>
+                        <div class="detail-value" id="creatorName">张工长</div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">提交时间</div>
+                        <div class="detail-value" id="createTime">2026-05-20 10:30</div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">确认人</div>
+                        <div class="detail-value">
+                            <span class="confirmer-role-tag">业主</span>
+                            <span class="confirmer-name-text">李先生</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="detail-card">
+                <div class="card-title">用途描述</div>
+                <div class="desc-content" id="descContent">
+                    现场水电实际超出原合同预估米数，进行实际增项测量结算。具体包括：
+                    <br><br>
+                    1. 客厅新增插座点位3个
+                    <br>
+                    2. 厨房新增水电点位5个
+                    <br>
+                    3. 卫生间新增水电点位4个
+                    <br><br>
+                    以上增项均已现场测量确认。
+                </div>
+            </div>
+
+            <div class="detail-card" id="confirmInfoCard" style="display: none;">
+                <div class="card-title">确认信息</div>
+                <div class="confirm-info">
+                    <div class="confirm-avatar" id="confirmerAvatar">李</div>
+                    <div class="confirm-detail">
+                        <div class="confirm-name" id="confirmerName">我（业主）</div>
+                        <div class="confirm-time" id="confirmTime">已于 2026-05-19 14:30 确认</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="detail-card" id="voucherCard" style="display: none;">
+                <div class="card-title">支付凭证</div>
+                <div class="voucher-info">
+                    <div class="voucher-uploader">
+                        <span class="uploader-avatar" id="uploaderAvatar">张</span>
+                        <span class="uploader-text">服务方 <strong id="uploaderName">张工长</strong> 已于 <strong id="uploadTime">2026-05-18 16:30</strong> 上传</span>
+                    </div>
+                    <div class="voucher-grid" id="voucherGrid">
+                        <div class="voucher-img" onclick="previewImage(0)">
+                            <div class="img-placeholder">📷</div>
+                        </div>
+                        <div class="voucher-img" onclick="previewImage(1)">
+                            <div class="img-placeholder">📷</div>
+                        </div>
+                        <div class="voucher-img" onclick="previewImage(2)">
+                            <div class="img-placeholder">📷</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="operation-log-card">
+                <div class="card-title">操作记录</div>
+                <div class="log-list" id="logList">
+                    <div class="log-item">
+                        <div class="log-dot"></div>
+                        <div class="log-content">
+                            <div class="log-text">张工长 提交了对账单</div>
+                            <div class="log-time">2026-05-20 10:30</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div style="height: 100px;"></div>
+        </div>
+
+        <div class="action-footer" id="actionFooter">
+            <div class="btn-reject" onclick="showRejectDrawer()">驳回</div>
+            <div class="btn-confirm" onclick="confirmStatement()">确认无误</div>
+        </div>
+
+        <div class="waiting-hint" id="waitingHint" style="display: none;">
+            等待服务方上传线下支付凭证
+        </div>
+
+        <div class="confirm-modal-overlay" id="confirmModalOverlay" onclick="hideConfirmModal()"></div>
+        <div class="confirm-modal" id="confirmModal">
+            <div class="confirm-modal-content">
+                <div class="confirm-modal-title">确认对账单</div>
+                <div class="confirm-modal-desc">确认后账单将生效，确定确认无误吗？</div>
+                <div class="confirm-modal-footer">
+                    <div class="confirm-modal-btn cancel" onclick="hideConfirmModal()">取消</div>
+                    <div class="confirm-modal-btn confirm" onclick="submitConfirm()">确认</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="reject-drawer-overlay" id="rejectDrawerOverlay" onclick="hideRejectDrawer()"></div>
+        <div class="reject-drawer" id="rejectDrawer">
+            <div class="drawer-header">
+                <div class="drawer-title">驳回原因</div>
+                <div class="drawer-close" onclick="hideRejectDrawer()">×</div>
+            </div>
+            <div class="drawer-body">
+                <textarea class="reject-reason-input" id="rejectReasonInput" placeholder="请输入驳回原因，将通知提交人进行修改" maxlength="200"></textarea>
+                <div class="modal-hint">驳回原因必填，否则无法提交</div>
+            </div>
+            <div class="drawer-footer">
+                <div class="btn-cancel" onclick="hideRejectDrawer()">取消</div>
+                <div class="btn-submit reject" onclick="submitReject()">确认驳回</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast-modal" id="toastModal">
+        <div class="toast-content" id="toastContent">操作成功</div>
+    </div>
+
+    <div class="page-nav">
+        <div class="page-nav-title">原型导航</div>
+        <a href="home.html" class="page-nav-item">首页</a>
+        <a href="project-detail.html" class="page-nav-item">项目详情</a>
+        <a href="statement-list.html" class="page-nav-item">对账单列表</a>
+        <a href="statement-detail.html" class="page-nav-item active">对账单详情</a>
+    </div>
+
+    <script src="js/page-nav.js"></script>
+    <script src="../shared/validation.js"></script>
+    <script src="js/statement-detail.js"></script>
+</body>
+</html>

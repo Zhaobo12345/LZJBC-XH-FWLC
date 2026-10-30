@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>良造家平台PC端 - 合同管理</title>
+    <link rel="stylesheet" href="pc-common.css">
+    <link rel="stylesheet" href="pc-contract-list.css">
+</head>
+<body>
+    <div class="pc-container">
+        <div class="pc-sidebar">
+            <div class="pc-sidebar-header">
+                <div class="pc-sidebar-logo">
+                    <span class="icon">🏗️</span>
+                    <span>良造家平台</span>
+                </div>
+            </div>
+            <div class="pc-sidebar-menu" id="sidebarMenu">
+                <a href="pc-contract-list.html" class="pc-menu-item main-nav active">
+                    <span class="icon">📋</span>
+                    <span class="label">合同审核管理</span>
+                </a>
+                <div class="pc-menu-group">
+                    <div class="pc-menu-group-title">模板管理</div>
+                    <a href="pc-contract-template.html" class="pc-menu-item">
+                        <span class="icon">📄</span>
+                        <span class="label">合同文本模板</span>
+                    </a>
+                    <a href="pc-stage-template.html" class="pc-menu-item">
+                        <span class="icon">📝</span>
+                        <span class="label">阶段任务模板</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="pc-main" id="pcMain">
+            <div class="pc-header">
+                <div class="pc-header-left">
+                    <div class="pc-breadcrumb">
+                        <span class="item">合同管理</span>
+                        <span class="separator">/</span>
+                        <span class="item current">全部合同</span>
+                    </div>
+                </div>
+                <div class="pc-header-right">
+                    <div class="pc-user-dropdown">
+                        <div class="pc-user-info" onclick="toggleUserDropdown()">
+                            <div class="pc-user-avatar" id="userAvatar">运</div>
+                            <span class="pc-user-name" id="userName">运营人员</span>
+                            <span style="font-size: 12px; color: var(--text-tertiary);">▼</span>
+                        </div>
+                        <div class="pc-user-dropdown-menu" id="userDropdownMenu">
+                            <div class="pc-dropdown-item danger" onclick="logout()">
+                                <span class="pc-dropdown-icon">🚪</span>
+                                <span>退出登录</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pc-content">
+                <div class="filter-row">
+                    <div class="filter-item">
+                        <label>合同状态</label>
+                        <select id="statusFilter" onchange="filterContracts()">
+                            <option value="">全部状态</option>
+                            <option value="pending_review">合同待审核</option>
+                            <option value="changing">变更待审核</option>
+                            <option value="reviewed_pass">审核已通过</option>
+                            <option value="reviewed_reject">审核已驳回</option>
+                            <option value="change_reviewed_pass">变更已通过</option>
+                            <option value="change_reviewed_reject">变更已驳回</option>
+                            <option value="contract_withdrawn">合同已撤回</option>
+                            <option value="change_withdrawn">变更已撤回</option>
+                        </select>
+                    </div>
+                    <div class="filter-item">
+                        <label>合同类型</label>
+                        <select id="typeFilter" onchange="filterContracts()">
+                            <option value="">全部</option>
+                            <option value="base_construction">基础施工服务合同</option>
+                            <option value="design">设计服务合同</option>
+                        </select>
+                    </div>
+                    <div class="filter-item">
+                        <label>搜索</label>
+                        <input type="text" id="searchInput" placeholder="合同名称/项目名称" oninput="filterContracts()">
+                        <button class="pc-btn pc-btn-default" onclick="filterContracts()" style="margin-left:6px;">搜索</button>
+                    </div>
+                    <div class="filter-item">
+                        <button class="pc-btn pc-btn-default" onclick="resetFilters()">重置</button>
+                    </div>
+                </div>
+
+                <div class="contract-table-container">
+                    <table class="contract-table">
+                        <thead>
+                            <tr>
+                                <th>合同名称</th>
+                                <th>关联项目</th>
+                                <th>合同类型</th>
+                                <th>合同金额</th>
+                                <th>当前状态</th>
+                                <th>创建时间</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="contractTableBody">
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="pc-pagination">
+                    <span id="resultCount" style="color: var(--text-tertiary); font-size: 13px;">共 6 条</span>
+                    <div class="pc-pagination-item disabled">‹</div>
+                    <div class="pc-pagination-item active">1</div>
+                    <div class="pc-pagination-item">2</div>
+                    <div class="pc-pagination-item">›</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="pc-page-nav-wrapper" id="pageNavWrapper">
+        <div class="pc-page-nav-toggle" onclick="togglePageNav()">◀</div>
+        <div class="pc-page-nav" id="pageNav">
+            <div class="pc-page-nav-title">
+                PC端原型导航
+                <span class="badge">PC</span>
+            </div>
+            
+            <div class="pc-page-nav-group">
+                <div class="pc-page-nav-group-title">模板管理</div>
+                <a href="pc-contract-template.html" class="pc-page-nav-item">合同文本模板</a>
+                <a href="pc-stage-template.html" class="pc-page-nav-item">阶段任务模板</a>
+            </div>
+            <div class="pc-page-nav-group">
+                <div class="pc-page-nav-group-title">合同管理</div>
+                <a href="pc-contract-list.html" class="pc-page-nav-item active">合同审核管理</a>
+                <a href="pc-contract-detail.html" class="pc-page-nav-item">合同详情</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="pc-modal-overlay" id="reviewModal">
+        <div class="pc-modal" style="width: 600px;">
+            <div class="pc-modal-header">
+                <div class="pc-modal-title" id="reviewModalTitle">审核合同</div>
+                <div class="pc-modal-close" onclick="closeReviewModal()">×</div>
+            </div>
+            <div class="pc-modal-body">
+                <div class="review-info">
+                    <div class="review-info-title">合同基本信息</div>
+                    <div class="review-info-row">
+                        <div class="review-info-label">合同名称</div>
+                        <div class="review-info-value" id="reviewContractName">水电分包合同-西湖区别墅</div>
+                    </div>
+                    <div class="review-info-row">
+                        <div class="review-info-label">关联项目</div>
+                        <div class="review-info-value" id="reviewProjectName">西湖区别墅</div>
+                    </div>
+                    <div class="review-info-row">
+                        <div class="review-info-label">合同类型</div>
+                        <div class="review-info-value" id="reviewContractType">水电工程</div>
+                    </div>
+                    <div class="review-info-row">
+                        <div class="review-info-label">合同金额</div>
+                        <div class="review-info-value" id="reviewContractAmount">￥50,000</div>
+                    </div>
+                    <div class="review-info-row">
+                        <div class="review-info-label">甲方</div>
+                        <div class="review-info-value">张三（项目经理）</div>
+                    </div>
+                    <div class="review-info-row">
+                        <div class="review-info-label">乙方</div>
+                        <div class="review-info-value">李四（电工组长）</div>
+                    </div>
+                </div>
+                <div id="rejectReasonSection" style="display: none;">
+                    <div style="font-size: 14px; font-weight: 500; margin-bottom: 8px;">驳回原因 <span style="color: var(--error-color);">*</span></div>
+                    <textarea class="reject-reason-input" id="rejectReason" placeholder="请输入驳回原因，将通知合同创建方进行修改"></textarea>
+                </div>
+            </div>
+            <div class="pc-modal-footer">
+                <button class="pc-btn pc-btn-default" onclick="closeReviewModal()">取消</button>
+                <button class="pc-btn pc-btn-primary" id="reviewConfirmBtn" onclick="confirmReview()">确认</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="pc-modal-overlay" id="toastModal">
+        <div class="pc-modal" style="width: 360px;">
+            <div class="pc-modal-body" style="text-align: center; padding: 32px;">
+                <div style="font-size: 48px; margin-bottom: 16px;" id="toastIcon">✅</div>
+                <div style="font-size: 16px; font-weight: 500; margin-bottom: 8px;" id="toastTitle">操作成功</div>
+                <div style="font-size: 14px; color: var(--text-secondary);" id="toastMessage">合同审核已通过</div>
+            </div>
+            <div class="pc-modal-footer" style="justify-content: center;">
+                <button class="pc-btn pc-btn-primary" onclick="closeToastModal()">确定</button>
+            </div>
+        </div>
+    </div>
+    <script src="pc-common.js"></script>
+    <script src="../common.js"></script>
+    <script src="pc-contract-list.js"></script>
+
+<script src="../shared/doc-viewer/doc-viewer.js"></script>
+</body>
+</html>

@@ -1,0 +1,1186 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-page-node-id="VGBHf9cHswZjsVX36iuS6z">
+<head data-page-node-id="RUl6HTP7NPFTy4EizYDyFW">
+    <meta charset="UTF-8" data-page-node-id="8J4FSQNBUbXynVCHO3UHOT">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" data-page-node-id="mBcy1pxXdh31EeMShoNldl">
+    <title>家装平台小程序原型 - 项目详情（初始-新版）</title>
+    <style>
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        /* 手机端小程序规范：隐藏所有滚动条（手机框内详情滚动、下拉面板、原型导航等） */
+        ::-webkit-scrollbar { width: 0 !important; height: 0 !important; display: none !important; }
+        * { -ms-overflow-style: none; scrollbar-width: none; }
+        :root {
+            --primary: #1677ff; --primary-bg: #e6f7ff; --primary-light: #4096ff;
+            --success: #52c41a; --success-bg: #f6ffed; --warning: #fa8c16; --warning-bg: #fff7e6;
+            --danger: #ff4d4f; --danger-bg: #fff2f0; --orange: #fa541c;
+            --text: #222; --text-2: #555; --text-3: #999; --bg: #f2f3f5;
+            --card: #fff; --border: #ececec; --shadow: 0 1px 6px rgba(0,0,0,.05);
+            /* 原型导航（common.css）规范变量，用于与其他页面原型导航样式统一 */
+            --primary-color: #1890FF; --bg-primary: #FFFFFF; --bg-secondary: #F5F5F5;
+            --text-primary: #262626; --text-secondary: #595959; --text-tertiary: #8C8C8C; --shadow-md: rgba(0,0,0,0.1);
+            /* 与 project-detail.css 对齐的渐变色（快捷入口图标用） */
+            --gradient-blue: linear-gradient(135deg, #1890FF 0%, #40A9FF 100%);
+            --gradient-green: linear-gradient(135deg, #52C41A 0%, #73D13D 100%);
+            --gradient-orange: linear-gradient(135deg, #FA8C16 0%, #FFA940 100%);
+            --gradient-purple: linear-gradient(135deg, #722ED1 0%, #9254DE 100%);
+            --gradient-gold: linear-gradient(135deg, #FAAD14 0%, #FFC53D 100%);
+            --gradient-cyan: linear-gradient(135deg, #13C2C2 0%, #36CFC9 100%);
+        }
+        body {
+            margin: 0; background: #e9ebee; min-height: 100vh;
+            font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
+            display: flex; align-items: flex-start; justify-content: center; padding: 24px; gap: 16px;
+        }
+
+        /* ===== 手机框 ===== */
+        .phone-frame {
+            width: 375px; height: 812px; background: var(--bg);
+            border-radius: 40px; overflow: hidden; position: relative; flex-shrink: 0;
+            border: 10px solid #1a1a1a;
+            box-shadow: 0 12px 40px rgba(0,0,0,.25); display: flex; flex-direction: column;
+        }
+        .stage { position: relative; flex-shrink: 0; }
+        .status-bar {
+            height: 44px; background: #fff; display: flex; align-items: center;
+            justify-content: space-between; padding: 0 22px; font-size: 14px;
+            font-weight: 600; color: #000; flex-shrink: 0;
+        }
+        .nav-bar {
+            height: 48px; background: #fff; display: flex; align-items: center;
+            position: relative; border-bottom: 1px solid var(--border); flex-shrink: 0;
+        }
+        .nav-bar .nb-back { position: absolute; left: 14px; font-size: 26px; line-height: 1; color: #1a1a1a; text-decoration: none; }
+        .nav-bar .title { flex: 1; text-align: center; font-size: 17px; font-weight: 600; color: #1a1a1a; }
+        .nav-bar .nb-actions { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); display: flex; align-items: center; }
+        /* 微信原生胶囊占位（与项目列表页一致：由微信客户端渲染，开发者不可自定义其内容） */
+        .nav-bar .native-capsule {
+            display: inline-flex; align-items: center; justify-content: space-between;
+            min-width: 56px; height: 28px; padding: 0 10px;
+            border: 1px solid rgba(0,0,0,.08); border-radius: 14px;
+            background: rgba(255,255,255,.7); color: rgba(0,0,0,.6);
+            font-size: 12px; line-height: 1; user-select: none; box-sizing: border-box;
+        }
+        .nav-bar .native-capsule .nc-left,
+        .nav-bar .native-capsule .nc-right { display: inline-flex; align-items: center; justify-content: center; flex: 1; min-width: 16px; }
+        .nav-bar .native-capsule .nc-right { font-size: 10px; }
+        .nav-bar .native-capsule .nc-divider { width: 1px; height: 14px; background: rgba(0,0,0,.1); margin: 0 4px; }
+
+        /* ===== 顶部：项目切换条 + 角色分段 ===== */
+        .topbar {
+            flex-shrink: 0; background: #fff; border-bottom: 1px solid var(--border);
+            padding: 8px 12px; display: flex; align-items: center; gap: 10px; position: relative; z-index: 30;
+        }
+        .proj-switch {
+            flex: 1; display: flex; align-items: stretch;
+            background: #f5f7fa; border: 1px solid #e8edf3; border-radius: 12px; overflow: hidden;
+        }
+        .proj-info-zone {
+            flex: 1; min-width: 0; display: flex; align-items: center; gap: 8px; cursor: pointer;
+            padding: 8px 10px; transition: background .15s;
+        }
+        .proj-info-zone:active { background: #eef2f7; }
+        .proj-info-zone .info-arrow { font-size: 18px; color: var(--text-3); flex: 0 0 auto; line-height: 1; }
+        .proj-switch-left { display: flex; align-items: center; gap: 8px; min-width: 0; flex: 0 1 auto; }
+        .proj-name { font-size: 14px; font-weight: 600; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 110px; }
+        .proj-status { font-size: 11px; padding: 2px 8px; border-radius: 10px; background: var(--primary-bg); color: var(--primary); flex: 0 0 auto; }
+        .proj-switch-hero { flex: 1 1 auto; min-width: 0; text-align: right; font-size: 12px; color: var(--text-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding: 0 4px; }
+        .proj-switch-hero b { color: var(--primary); font-weight: 700; font-size: 14px; }
+        .proj-status.done { background: var(--success-bg); color: var(--success); }
+        .proj-switch-right {
+            display: flex; align-items: center; gap: 4px; flex: 0 0 auto; cursor: pointer;
+            padding: 8px 12px; border-left: 1px solid #e3e8ef; background: #fafbfc; transition: background .15s;
+        }
+        .proj-switch-right:active { background: #eef2f7; }
+        .switch-hint { font-size: 11px; color: var(--text-3); }
+        .switch-arrow { font-size: 12px; color: var(--text-3); transition: transform .25s; }
+        .switch-arrow.open { transform: rotate(180deg); }
+
+        /* ===== 项目下拉面板 ===== */
+        .proj-panel {
+            position: absolute; left: 0; right: 0; top: 100%; background: #fff;
+            max-height: 0; overflow: hidden; transition: max-height .3s ease; z-index: 25;
+            box-shadow: 0 8px 20px rgba(0,0,0,.12); border-radius: 0 0 16px 16px;
+        }
+        .proj-panel.open { max-height: 460px; display: flex; flex-direction: column; overflow: hidden; }
+        .proj-panel-inner { flex: 1; min-height: 0; overflow-y: auto; padding: 8px 12px 12px; }
+        .proj-option {
+            border: 1px solid var(--border); border-radius: 12px; padding: 10px 12px; margin-bottom: 8px; cursor: pointer;
+            transition: all .15s; background: #fff;
+        }
+        .proj-option:active { background: #f5f7fa; }
+        .proj-option.active { border-color: var(--primary); background: #f5faff; }
+        .po-top { display: flex; align-items: center; justify-content: space-between; }
+        .po-name { font-size: 14px; font-weight: 600; color: var(--text); }
+        .po-status { font-size: 11px; padding: 2px 8px; border-radius: 10px; background: var(--primary-bg); color: var(--primary); }
+        .po-status.done { background: var(--success-bg); color: var(--success); }
+        .po-addr { font-size: 12px; color: var(--text-3); margin: 4px 0; }
+        .po-stats { display: flex; gap: 14px; font-size: 12px; color: var(--text-2); margin-bottom: 6px; }
+        .po-bar { height: 4px; background: #eef0f3; border-radius: 2px; overflow: hidden; }
+        .po-bar-fill { height: 100%; background: var(--primary); border-radius: 2px; }
+        /* ===== 切换面板：状态筛选胶囊 + 新建项目 ===== */
+        .proj-panel-filter { flex-shrink: 0; display: flex; gap: 6px; padding: 8px 12px 6px; border-bottom: 1px solid var(--border); background: #fff; }
+        .pf-item {
+            flex: 1; text-align: center; font-size: 12px; padding: 5px 0; border-radius: 8px;
+            background: #f2f4f7; color: var(--text-2); cursor: pointer; transition: all .15s;
+        }
+        .pf-item.active { background: #333; color: #fff; font-weight: 600; }
+        .proj-panel-foot {
+            flex-shrink: 0; padding: 8px 12px 10px;
+            border-top: 1px solid var(--border); background: #fff;
+            box-shadow: 0 -2px 8px rgba(0,0,0,.04);
+        }
+        .proj-new-btn {
+            width: 100%; padding: 9px; border: none; border-radius: 10px;
+            background: var(--primary); color: #fff; font-size: 14px; font-weight: 600; cursor: pointer;
+            transition: opacity .15s;
+        }
+        .proj-new-btn:active { opacity: .85; }
+        .proj-empty { text-align: center; font-size: 12px; color: #999; padding: 18px 0; }
+
+        /* ===== 详情滚动区 ===== */
+        .detail-scroll { flex: 1; overflow-y: auto; padding: 10px 12px 56px; position: relative; }
+        .detail-fade { animation: fadeUp .28s ease both; }
+        @keyframes fadeUp { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+
+        /* ===== 项目基本信息头（沿用项目列表页规范，状态徽标取自项目主体状态） ===== */
+        .project-basic-header {
+            background: linear-gradient(135deg, #1677ff 0%, #4096ff 100%); color: #fff; border-radius: 14px;
+            padding: 10px 14px; margin-bottom: 8px; display: flex; align-items: center; justify-content: space-between; cursor: pointer;
+            box-shadow: 0 4px 14px rgba(22,119,255,.25);
+        }
+        .project-basic-header.new-project {
+            background: linear-gradient(135deg, #FFF7E6 0%, #FFE4BA 100%);
+            box-shadow: 0 4px 14px rgba(250,140,22,.18);
+        }
+        .project-basic-header .left-info { font-size: 14px; font-weight: 500; }
+        .project-basic-header .left-info .highlight { font-size: 18px; font-weight: 800; color: var(--primary); margin: 0 2px; }
+        .project-basic-header.new-project .left-info { color: #874D00; font-weight: 600; }
+        .project-basic-header.new-project .left-info .highlight { color: #FA8C16; }
+        .project-basic-header .right-wrap { display: flex; align-items: center; gap: 6px; }
+        .project-basic-header .right-info { font-size: 13px; opacity: .95; }
+        .project-basic-header.new-project .right-info { color: #874D00; }
+        .project-basic-header .enter-arrow { font-size: 18px; opacity: .9; }
+        .project-basic-header.new-project .enter-arrow { color: #FA8C16; }
+
+        /* ===== 通用卡片 ===== */
+        .card {
+            background: var(--card); border-radius: 14px; padding: 10px 12px; margin-bottom: 8px; box-shadow: var(--shadow);
+        }
+        .card-title {
+            display: flex; align-items: center; font-size: 15px; font-weight: 600; color: var(--text); margin-bottom: 7px; gap: 6px;
+        }
+        .card-title .badge-wrap { display: inline-flex; }
+        .card-title .badge {
+            background: var(--danger-bg); color: var(--danger); font-size: 11px; font-weight: 600;
+            min-width: 18px; height: 18px; border-radius: 9px; display: inline-flex; align-items: center; justify-content: center; padding: 0 5px;
+        }
+        .card-title .more { margin-left: auto; font-size: 12px; color: var(--text-3); font-weight: 400; }
+
+        /* ===== 待办 ===== */
+        .todo-content { }
+        .todo-item { display: flex; align-items: center; gap: 10px; padding: 7px 0; border-bottom: 1px solid #f5f5f5; }
+        .todo-item:last-child { border-bottom: none; }
+        .todo-item .icon { width: 34px; height: 34px; border-radius: 9px; display: flex; align-items: center; justify-content: center; font-size: 16px; flex: 0 0 auto; }
+        .todo-item .content { flex: 1; min-width: 0; }
+        .todo-item .title { font-size: 13px; color: var(--text); font-weight: 500; display: flex; align-items: center; gap: 6px; }
+        .todo-item .desc { font-size: 11px; color: var(--text-3); margin-top: 3px; }
+        .todo-item .status { font-size: 11px; padding: 3px 9px; border-radius: 10px; flex: 0 0 auto; font-weight: 500; }
+        .status.urgent { background: var(--danger-bg); color: var(--danger); }
+        .status.pending { background: var(--warning-bg); color: var(--warning); }
+        .status.in-progress { background: var(--primary-bg); color: var(--primary); }
+        .task-tag { font-size: 10px; padding: 1px 6px; border-radius: 4px; font-weight: 500; }
+        .task-tag.contract { background: #e6f7ff; color: #1677ff; }
+        .task-tag.task { background: #f6ffed; color: #52c41a; }
+
+        /* ===== 吸顶快捷入口 + 架构（与 project-list 对齐） ===== */
+        .sticky-header {
+            position: sticky; top: 0; z-index: 100;
+            background: rgba(255,255,255,.92);
+            -webkit-backdrop-filter: saturate(180%) blur(12px);
+            backdrop-filter: saturate(180%) blur(12px);
+            border-radius: 0 0 14px 14px;
+            padding: 5px 10px; margin-bottom: 4px;
+            box-shadow: 0 1px 4px rgba(0,0,0,.06);
+            transition: box-shadow .25s;
+        }
+        .sticky-header.with-shadow { box-shadow: 0 4px 16px rgba(0,0,0,.08); }
+
+        /* 快捷入口：4 项网格，常驻吸顶、始终可见 */
+        .quick-nav {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+            padding: 2px 8px 0;
+            background: transparent;
+            position: relative;
+        }
+        .quick-nav-item {
+            display: flex; flex-direction: column; align-items: center;
+            cursor: pointer; padding: 4px 2px; border-radius: 8px;
+            transition: all .2s;
+        }
+        .quick-nav-item:active { transform: scale(0.95); background: var(--primary-bg); }
+        .quick-nav-item .icon {
+            width: 32px; height: 32px; border-radius: 10px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 15px; margin-bottom: 2px; color: #fff;
+            position: relative;
+        }
+        .quick-nav-item .icon.info { background: var(--gradient-blue); }
+        .quick-nav-item .icon.structure { background: var(--gradient-green); }
+        .quick-nav-item .icon.member { background: var(--gradient-orange); }
+        .quick-nav-item .icon.file { background: var(--gradient-purple); }
+        .quick-nav-item .icon.statement { background: var(--gradient-gold); }
+        .quick-nav-item .icon.tasks { background: var(--gradient-blue); }
+        .quick-nav-item .icon.activity { background: var(--gradient-cyan); }
+        .quick-nav-item .icon.contract { background: var(--gradient-orange); }
+        .quick-nav-item .icon.more { background: linear-gradient(135deg, #8C8C8C 0%, #BFBFBF 100%); }
+        .quick-nav-item .label { font-size: 11px; color: var(--text-2); text-align: center; line-height: 1.2; }
+        .quick-nav-item .nav-badge {
+            position: absolute;
+            top: -4px; right: -4px;
+            background: var(--danger); color: #fff;
+            font-size: 10px; min-width: 14px; height: 14px; border-radius: 7px;
+            padding: 0 3px;
+            display: inline-flex; align-items: center; justify-content: center;
+            white-space: nowrap;
+        }
+
+        /* 架构选择器 */
+        .level-selector {
+            margin-top: 2px; border-top: 1px solid #f0f0f0; padding-top: 2px;
+            position: relative; z-index: 50;
+        }
+        .level-dropdown { display: flex; align-items: center; justify-content: space-between; cursor: pointer; }
+        .level-dropdown .current { display: flex; align-items: center; }
+        .level-dropdown .current .icon {
+            width: 32px; height: 32px; border-radius: 8px; background: var(--gradient-blue);
+            display: flex; align-items: center; justify-content: center;
+            margin-right: 10px; font-size: 14px; color: #fff; flex: 0 0 auto;
+        }
+        .level-dropdown .text-row { display: flex; align-items: center; gap: 6px; }
+        .level-dropdown .text { font-size: 14px; font-weight: 600; color: var(--text); }
+        .level-dropdown .type-badge {
+            font-size: 10px; padding: 1px 6px; border-radius: 4px;
+            background: var(--primary-bg); color: var(--primary);
+        }
+        .level-dropdown .type-badge.workgroup { background: var(--success-bg); color: var(--success); }
+        .level-dropdown .arrow { color: var(--text-3); transition: transform .3s; }
+        .level-dropdown .arrow.open { transform: rotate(180deg); }
+        .breadcrumb-inline { display: flex; align-items: center; font-size: 11px; color: var(--text-3); margin-top: 2px; }
+        .breadcrumb-inline .breadcrumb-item { color: var(--text-3); }
+        .breadcrumb-inline .breadcrumb-item.active { color: var(--primary); font-weight: 500; }
+        .breadcrumb-inline .separator { margin: 0 4px; color: var(--text-3); }
+        .level-options {
+            position: absolute; left: 0; right: 0; top: 100%;
+            background: #fff; border-radius: 0 0 12px 12px;
+            box-shadow: 0 4px 16px rgba(0,0,0,.12);
+            display: none; z-index: 100;
+        }
+        .level-options.open { display: block; }
+        .level-option { display: flex; align-items: center; padding: 10px 12px; cursor: pointer; }
+        .level-option:active { background: #f5f7fa; }
+        .level-option.selected { background: #f5faff; }
+        .level-option .icon {
+            width: 28px; height: 28px; border-radius: 6px; background: var(--gradient-blue);
+            display: flex; align-items: center; justify-content: center;
+            margin-right: 10px; font-size: 12px; color: #fff; flex: 0 0 auto;
+        }
+        .level-option .info { flex: 1; }
+        .level-option .name { font-size: 13px; font-weight: 500; color: var(--text); }
+        .level-option .count { font-size: 11px; color: var(--text-3); margin-top: 1px; }
+        .level-option .check { margin-left: auto; color: var(--primary); font-size: 14px; }
+
+        /* 通用箭头旋转 */
+        .arrow { transition: transform .2s; }
+        .arrow.open { transform: rotate(180deg); }
+
+        /* ===== 合同 / 任务统计（与「项目详情（进行中-新版）」v2 首屏优化一致） ===== */
+        .stats-row { display: block; margin: 0 10px 8px; }
+        .stats-row > .card { margin: 0 0 6px 0; padding: 6px 10px; }
+        .stats-row > .card:last-child { margin-bottom: 0; }
+        .card.indent-card { margin: 0 10px 8px; }
+        .contract-half { flex: 1.2; }
+        .task-half { flex: 1; }
+        /* 合同概览：2 统计横排（全宽，中间分隔线） */
+        .card.contract-half .contract-summary { display: flex; flex-direction: row; align-items: center; padding: 2px 0; }
+        .card.contract-half .contract-stat { flex: 1; display: flex; flex-direction: column; align-items: center; }
+        .card.contract-half .contract-stat .value { font-size: 14px; font-weight: 700; color: var(--text); }
+        .card.contract-half .contract-stat .value .separator { color: var(--text-3); margin: 0 1px; }
+        .card.contract-half .contract-stat .value .total { font-size: 11px; color: var(--text-3); font-weight: 400; }
+        .card.contract-half .contract-stat .label { font-size: 10px; color: var(--text-3); margin-top: 2px; }
+        .card.contract-half .contract-list { max-height: 0; overflow: hidden; transition: max-height .25s ease; }
+        .card.contract-half .contract-list.show { max-height: 110px; overflow-y: auto; }
+        .contract-item { display: flex; align-items: center; gap: 10px; padding: 7px 0; border-top: 1px solid #f0f0f0; cursor: pointer; transition: background .15s; }
+        .contract-item:active { background: #f7faff; }
+        .contract-item:first-child { border-top: none; }
+        .contract-item .info { flex: 1; min-width: 0; }
+        .contract-item .name { font-size: 13px; color: var(--text); font-weight: 500; }
+        .contract-item .meta { font-size: 11px; color: var(--text-3); margin-top: 2px; }
+        .contract-item .meta-row { display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--text-3); margin-top: 2px; }
+        .action-badge { font-size: 10px; padding: 1px 7px; border-radius: 8px; }
+        .action-badge.green { background: var(--success-bg); color: var(--success); }
+        .action-badge.orange { background: var(--warning-bg); color: var(--warning); }
+        .progress-wrap { width: 64px; flex: 0 0 auto; text-align: right; }
+        .progress-wrap .percent { font-size: 11px; color: var(--text-2); margin-bottom: 3px; }
+        .progress-wrap .bar { height: 4px; background: #eef0f3; border-radius: 2px; overflow: hidden; }
+        .progress-wrap .fill { height: 100%; background: var(--primary); border-radius: 2px; }
+        /* 任务统计：3 项横排（全宽，icon 居左、数值+标签纵向居右，单行紧凑） */
+        .card.task-half .task-stats { display: flex; flex-direction: row; gap: 6px; }
+        .card.task-half .task-stat-item { flex: 1; display: flex; flex-direction: row; align-items: center; justify-content: center; gap: 5px; padding: 3px 2px; }
+        .card.task-half .task-stat-item .icon-wrap { width: 22px; height: 22px; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 11px; margin-bottom: 0; flex: 0 0 auto; }
+        .icon-wrap.all { background: #e6f7ff; }
+        .icon-wrap.accept { background: #fff7e6; }
+        .icon-wrap.contract { background: #f6ffed; }
+        .card.task-half .task-stat-item .info { flex: none; display: block; text-align: left; line-height: 1.1; }
+        .card.task-half .task-stat-item .value { font-size: 14px; font-weight: 700; color: var(--text); }
+        .card.task-half .task-stat-item .value .separator { color: var(--text-3); }
+        .card.task-half .task-stat-item .value .total { font-size: 11px; color: var(--text-3); font-weight: 400; }
+        .card.task-half .task-stat-item .label { font-size: 10px; color: var(--text-3); margin-top: 0; }
+        /* 数据色彩化（与源页一致） */
+        .card.contract-half .contract-stat:nth-of-type(1) .value { color: var(--primary); }
+        .card.contract-half .contract-stat:nth-of-type(2) .value .current { color: var(--success); }
+        .card.task-half .task-stat-item:nth-of-type(1) .value { color: var(--primary); }
+        .card.task-half .task-stat-item:nth-of-type(2) .value { color: var(--warning); }
+        .card.task-half .task-stat-item:nth-of-type(3) .value { color: var(--orange); }
+
+        /* ===== 我的任务（位于待办事项下方） ===== */
+        .my-task-card { cursor: pointer; padding: 8px 12px; margin-bottom: 8px; }
+        .my-task-card .card-title { margin-bottom: 4px; }
+        .my-task-card .my-task-stats { display: flex; flex-direction: row; align-items: stretch; }
+        .my-task-card .my-task-stat { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; padding: 2px 0; }
+        .my-task-card .my-task-stat .value { font-size: 18px; font-weight: 700; color: var(--text); line-height: 1; }
+        .my-task-card .my-task-stat .label { font-size: 11px; color: var(--text-3); margin-top: 1px; text-align: center; }
+        .my-task-card .my-task-divider { width: 1px; background: #f0f0f0; margin: 4px 0; }
+        .my-task-card .my-task-stat:first-child .value { color: var(--success, #52c41a); }
+
+        /* ===== 工人视角（与 project-list 工人视角统一） ===== */
+        .todo-card.worker { border-left: 3px solid var(--warning); }
+        .todo-card.worker .card-title { color: #d46b08; }
+        .level-default-hint { font-size: 11px; color: var(--warning); margin-top: 2px; }
+
+        /* ===== 今日动态 ===== */
+        .activity-role-tag {
+            display: inline-block; font-size: 10px; padding: 0 6px; border-radius: 8px;
+            margin-left: 4px; vertical-align: middle; line-height: 14px; height: 14px; font-weight: 500;
+        }
+        .activity-role-tag.supervisor { background-color: #E6F7FF; color: #1890FF; }
+        .activity-role-tag.foreman { background-color: #F6FFED; color: #52C41A; }
+        .activity-role-tag.worker { background-color: #FFF7E6; color: #FA8C16; }
+        .activity-role-tag.designer { background-color: #F9F0FF; color: #722ED1; }
+        .activity-role-tag.owner { background-color: #FFF1F0; color: #F5222D; }
+        .activity-role-tag.project-manager { background-color: #E6F7FF; color: #1890FF; }
+        .activity-role-tag.plumbing-worker { background-color: #E6FFFB; color: #13C2C2; }
+        .activity-stage-tag {
+            display: inline-block; font-size: 10px; padding: 1px 6px; border-radius: 4px;
+            margin: 0 4px; font-weight: 500; line-height: 14px;
+        }
+        .activity-stage-tag.demolition { background-color: #FFF1F0; color: #F5222D; }
+        .activity-stage-tag.plumbing { background-color: #E6F7FF; color: #1890FF; }
+        .activity-stage-tag.carpentry { background-color: #FFF7E6; color: #FA8C16; }
+        .activity-stage-tag.tiling { background-color: #F9F0FF; color: #722ED1; }
+        .activity-stage-tag.painting { background-color: #FCFABE; color: #D4B106; }
+        .activity-stage-tag.installation { background-color: #F0F5FF; color: #2F54EB; }
+        .activity-stage-tag.cleanup { background-color: #F6FFED; color: #52C41A; }
+        .activity-stage-tag.design { background-color: #F9F0FF; color: #722ED1; }
+        .activity-list { max-height: 150px; overflow-y: auto; }
+        .activity-item { padding: 6px 0 6px 16px; position: relative; cursor: pointer; transition: background .15s; }
+        .activity-item:active { background: #f7faff; }
+        .activity-item::before { content: ''; position: absolute; left: 4px; top: 14px; width: 7px; height: 7px; border-radius: 50%; background: var(--primary); }
+        .activity-header { display: flex; align-items: center; gap: 8px; margin-bottom: 3px; }
+        .activity-avatar {
+            width: 26px; height: 26px; border-radius: 50%; font-size: 11px; color: #fff;
+            display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 0 0 2px rgba(255,255,255,.85), 0 1px 4px rgba(0,0,0,.12); flex: 0 0 auto;
+        }
+        .activity-info { flex: 1; min-width: 0; }
+        .activity-user { font-size: 12px; color: var(--text); }
+        .activity-time { font-size: 10px; color: var(--text-3); }
+        .activity-content { font-size: 12px; color: var(--text); margin-bottom: 3px; }
+        .activity-media { display: flex; gap: 4px; margin-top: 3px; flex-wrap: wrap; }
+        .activity-media-item { width: 48px; height: 48px; border-radius: 6px; flex: 0 0 auto; position: relative; }
+        .activity-more-btn { padding: 5px; font-size: 12px; margin-top: 3px; text-align: center; color: var(--primary); }
+        .hidden { display: none; }
+
+        /* ===== 空状态提示（初始项目） ===== */
+        .empty-tip { padding: 14px 4px; text-align: center; color: #999; font-size: 12px; line-height: 1.6; }
+        .empty-tip .emoji { font-size: 22px; display: block; margin-bottom: 4px; opacity: .7; }
+
+        /* 创建工作组 / 施工组 引导按钮（初始项目专属） */
+        .add-arch-btn {
+            display: flex; align-items: center; justify-content: center; gap: 6px;
+            width: 100%; margin-top: 8px; padding: 10px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+            color: #fff; border: none; border-radius: 10px; font-size: 14px; font-weight: 600; cursor: pointer;
+            box-shadow: 0 4px 12px rgba(22,119,255,.25);
+        }
+        .add-arch-btn:active { transform: scale(.98); }
+
+        /* ===== 原型导航 ===== */
+        .page-nav {
+            position: fixed; top: 20px; right: 20px; z-index: 1000;
+            width: 200px; background: var(--bg-primary); border-radius: 8px; padding: 16px; box-shadow: 0 2px 10px var(--shadow-md);
+            max-height: calc(100vh - 40px); overflow-y: auto; transition: all .3s;
+        }
+        .page-nav-title { font-size: 14px; font-weight: 600; margin: 0 0 12px; color: var(--text-primary); display: flex; justify-content: space-between; align-items: center; cursor: pointer; user-select: none; }
+        .page-nav-title .toggle-btn { font-size: 12px; color: var(--text-tertiary); transition: transform .3s; display: inline-block; }
+        .page-nav-title .toggle-btn.collapsed { transform: rotate(-90deg); }
+        .page-nav.collapsed { max-height: 60px; overflow: hidden; }
+        .page-nav.collapsed .page-nav-title { margin-bottom: 0; }
+        .page-nav a { display: block; padding: 8px 12px; margin: 4px 0; background-color: var(--bg-secondary); border-radius: 4px; text-decoration: none; color: var(--text-secondary); font-size: 12px; transition: all .2s; }
+        .page-nav a.active { background-color: var(--primary-color); color: #fff; }
+        .page-nav a:hover { background-color: var(--primary-color); color: #fff; }
+
+        /* 小程序底部主导航（复用 common.css 语义，但本页自包含不依赖外部样式） */
+        .tab-bar {
+            height: 50px;
+            background: var(--card);
+            display: flex;
+            border-top: 1px solid var(--border);
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+        }
+        .tab-item {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .tab-item .icon { font-size: 20px; margin-bottom: 2px; }
+        .tab-item .label { font-size: 10px; }
+        .tab-item.active { color: var(--primary); }
+        .tab-item:not(.active) { color: var(--text-3); }
+
+        /* ===== 角色演示开关（与项目列表页「演示开关」同源，置于手机框外侧右侧） ===== */
+        .role-demo-switch {
+            position: absolute; left: calc(100% + 16px); top: 80px;
+            background: #fff; border: 1px solid #ffe7ba; border-radius: 12px;
+            padding: 12px 14px; box-shadow: 0 4px 16px rgba(0,0,0,.1); z-index: 100; width: 132px;
+        }
+        .role-demo-switch .switch-title { font-size: 12px; font-weight: 600; color: #333; margin-bottom: 8px; text-align: center; }
+        .role-demo-switch .switch-item { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 6px; }
+        .role-demo-switch .switch-status { color: var(--primary); font-weight: 600; font-size: 12px; white-space: nowrap; }
+        .role-demo-switch .switch-status.worker { color: var(--warning); }
+        .role-demo-switch .switch-hint { font-size: 10px; color: #999; text-align: center; line-height: 1.3; }
+        .switch { position: relative; display: inline-block; width: 36px; height: 20px; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider {
+            position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0;
+            background-color: #ccc; transition: .3s; border-radius: 20px;
+        }
+        .slider:before {
+            position: absolute; content: ""; height: 16px; width: 16px; left: 2px; bottom: 2px;
+            background-color: #fff; transition: .3s; border-radius: 50%;
+        }
+        .switch input:checked + .slider { background-color: var(--warning); }
+        .switch input:checked + .slider:before { transform: translateX(16px); }
+
+        /* ===== 服务流程（横向流程条 + 内联明细；回迁自 demo，对齐项目详情原型） ===== */
+        .qn-card { padding: 4px 12px; }
+        .quick-nav.qn-3 { grid-template-columns: repeat(3, 1fr); }
+        .flow-card { background: var(--card); border-radius: 14px; padding: 0; margin: 0 0 8px; box-shadow: var(--shadow); }
+        .flow-sticky { position: sticky; top: 0; z-index: 20; background: #fff; padding: 8px 12px 0; border-bottom: 1px solid transparent; transition: border-color 120ms ease-out; }
+        .flow-sticky.stuck { border-bottom-color: #f0f0f0; }
+        .flow-head { display: flex; align-items: center; gap: 6px; margin-bottom: 5px; }
+        .flow-head .fh-t { font-size: 15px; font-weight: 600; color: var(--text); }
+        .flow-head .fh-n { font-size: 11px; color: var(--text-2); }
+        .flow-stats { display: flex; align-items: center; gap: 12px; background: #f5f5f5; border-radius: 8px; padding: 4px 10px; margin-bottom: 5px; }
+        .flow-stats .fs-seg { display: flex; align-items: baseline; gap: 4px; }
+        .flow-stats .fs-num { font-size: 13px; font-weight: 500; color: var(--text); }
+        .flow-stats .fs-lab { font-size: 11px; color: var(--text-2); }
+        .flow-stats .fs-div { width: 1px; height: 12px; background: #d9d9d9; }
+        .rail-wrap { position: relative; margin-bottom: 5px; }
+        .flow-rail { display: flex; gap: 8px; overflow-x: auto; overflow-y: hidden; scroll-snap-type: x proximity; padding-bottom: 2px; }
+        .flow-item { flex: 0 0 auto; min-width: 50px; min-height: 38px; scroll-snap-align: center; border-radius: 10px; padding: 5px 6px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; background: transparent; transition: transform 160ms ease-out, background-color 160ms ease-out; }
+        .flow-item:active { background: #f5f7fa; }
+        .flow-item.on { min-width: 84px; background: var(--primary-bg); transform: scale(1.02); }
+        .flow-item .fi-dot { width: 10px; height: 10px; border-radius: 50%; }
+        .flow-item .fi-name { font-size: 11px; color: var(--text-2); line-height: 1.2; text-align: center; }
+        .flow-item.on .fi-name { font-size: 13px; font-weight: 500; color: var(--primary); }
+        .flow-item .fi-bar { width: 100%; height: 3px; border-radius: 2px; background: #d9d9d9; overflow: hidden; }
+        .flow-item .fi-bar i { display: block; height: 100%; border-radius: 2px; }
+        .flow-item .fi-prog { font-size: 11px; color: var(--text-3); line-height: 1.2; }
+        .flow-item.on .fi-prog { color: var(--primary); }
+        .rail-mask { position: absolute; right: 0; top: 0; bottom: 2px; width: 24px; background: linear-gradient(to left, #fff, rgba(255,255,255,0)); pointer-events: none; display: none; }
+        .flow-detail { background: #fafcff; border-radius: 0 0 14px 14px; }
+        .flow-detail.collapsed { display: none; }
+        .detail-inner { padding: 12px; border-left: 2px solid var(--primary); }
+        .detail-title { font-size: 13px; font-weight: 500; color: var(--text); margin-bottom: 8px; }
+        .d-sec { margin-bottom: 12px; }
+        .d-sec:last-child { margin-bottom: 0; }
+        .d-sec-h { font-size: 11px; color: var(--text-2); margin-bottom: 6px; }
+        .d-row { display: flex; align-items: center; gap: 8px; min-height: 44px; padding: 6px 0; border-top: 1px solid #f0f0f0; }
+        .d-row:first-of-type { border-top: none; }
+        .d-row:active { background: #f7faff; }
+        .d-row .d-name { flex: 1; min-width: 0; font-size: 12px; color: var(--text); line-height: 1.4; }
+        .d-row .d-meta { font-size: 11px; color: var(--text-2); line-height: 1.4; }
+        .d-row .d-go { font-size: 11px; color: var(--primary); flex-shrink: 0; }
+        .flow-detail .badge { font-size: 11px; font-weight: 500; border-radius: 999px; padding: 2px 8px; flex-shrink: 0; white-space: nowrap; }
+        .flow-detail .b-go { color: var(--primary); background: var(--primary-bg); }
+        .flow-detail .b-done { color: var(--success); background: var(--success-bg); }
+        .flow-detail .b-wait { color: var(--text-2); background: #f5f5f5; }
+        .flow-detail .b-stop { color: var(--danger); background: var(--danger-bg); }
+        .detail-empty { text-align: center; padding: 20px 12px; }
+        .detail-empty .de-t { font-size: 12px; color: var(--text-2); line-height: 1.5; margin-bottom: 12px; }
+        .add-btn { display: inline-block; border: 1px dashed var(--primary-light); color: var(--primary); font-size: 12px; border-radius: 8px; padding: 8px 16px; }
+    </style>
+</head>
+<body data-page-node-id="g1FClbnfUZNh11RZq8nFdK">
+    <div class="page-nav" data-page-node-id="DK74frdvtfc1T2oVcvFbTG">
+        <div class="page-nav-title" onclick="togglePageNav()" title="收起 / 展开 原型导航" data-page-node-id="vHw8y59UsHHhGfIS0pZBHF">原型导航 <span class="toggle-btn" id="pageNavToggle" data-page-node-id="eHolhOR1bmgRhs3o6uSEYP">▼</span></div>
+        <a href="home.html" data-page-node-id="RKlTqIHGCcKNMGYhLU6LFZ">首页</a>
+        <a href="project-list.html" data-page-node-id="eSTpOME72QpkxILYsgGC2D">项目主页（进行中）</a>
+        <a href="project-detail-initial-v2.html" class="active" data-page-node-id="mj3mWMFM08aPyyTjFOIf9a">项目详情（初始-新版）</a>
+        <a href="project-detail-completed-v2.html" data-page-node-id="Mgwl8lASJDFvvBA4nx9mrO">项目详情（已完成-新版）</a>
+        <a href="project-info.html" data-page-node-id="seOhJ1X6jAuw1At656qMFT">项目信息</a>
+        <a href="architecture.html" data-page-node-id="HjCFuBOSP4ZCELuyTM6Iew">项目架构</a>
+        <a href="create-project.html" data-page-node-id="ROEjKTB6gd6M07i3yCL043">创建项目</a>
+        <a href="contract-detail.html" data-page-node-id="aYyuDbuTRP2tjOmqGZDvBo">合同详情</a>
+        <a href="task-detail.html" data-page-node-id="7YGCDYcBGqt0De301VkeEc">任务详情（非工人）</a>
+        <a href="task-detail-shuidian.html">任务详情（水电）</a>
+    </div>
+
+    <div class="stage" data-page-node-id="veezREe4vMohiea9IhAGCJ">
+    <div class="phone-frame" data-page-node-id="y8K58yu5ICtmV6nqNTBDQq">
+        <div class="status-bar" data-page-node-id="HWGofwiaMjQyVDcAAZ0Oos">
+            <span class="time" data-page-node-id="lTF7dnYVOJjY46v86KU3kg">9:41</span>
+            <div class="icons" data-page-node-id="z6lOql2L8k9BtpC0tW2ml7">📶 🔋</div>
+        </div>
+        <div class="nav-bar" data-page-node-id="xm4yzSajzg2N0cMY2YZqiD">
+            <div class="title" data-page-node-id="AdhOeQfRBfs7YKUpYeMFsA">项目详情</div>
+            <div class="nb-actions" data-page-node-id="nw2amp3bOM8ivlGXEKIcO8"><div class="native-capsule" title="微信原生胶囊：由微信客户端渲染，开发者不可自定义其内容" data-page-node-id="TiscmMHDGqA3cgU2N5X70P"><span class="nc-left" data-page-node-id="79Qv6CqpvVAdp7ZyHdYASV">⋯</span><span class="nc-divider" data-page-node-id="TDefeq1ovCHi2eRhcOv9iI"></span><span class="nc-right" data-page-node-id="uDkUldJq8DHJxFPeZfb86Y">○</span></div></div>
+        </div>
+
+        <!-- 顶部：项目切换条 -->
+        <div class="topbar" data-page-node-id="7UhLP1p5bRu3tsyQCqSjxB">
+            <div class="proj-switch" data-page-node-id="urhfONdjqbcSXjCtuJcXHw">
+                <!-- 左侧：点击查看当前项目信息（跳转 project-info 页） -->
+                <div class="proj-info-zone" onclick="viewProjectInfo()" data-page-node-id="CAq6i2bhuHuK8RSMLUoB7u">
+                    <div class="proj-switch-left" data-page-node-id="AVS1hqYdhni7fnYw4lx466">
+                        <span class="proj-name" id="curProjName" data-page-node-id="5gHVdrwFaueBuzTbp6lWWJ">—</span>
+                        <span class="proj-status" id="curProjStatus" data-page-node-id="PAAG4Jmn4BFvtTZpYi2oLh">—</span>
+                    </div>
+                    <div class="proj-switch-hero" id="topHero" data-page-node-id="7Z62CBapBt7uDQE0ePbgB0"></div>
+                    <span class="info-arrow" data-page-node-id="xN0w2VZKDX6PWYtQG6kSay">›</span>
+                </div>
+                <!-- 右侧：点击展开项目切换面板 -->
+                <div class="proj-switch-right" onclick="togglePanel()" data-page-node-id="h8bBLx45tqg8lZK5MPDM4S">
+                    <span class="switch-hint" data-page-node-id="NAGBH9CL3ottyfvgki0DoJ">切换</span>
+                    <span class="switch-arrow" id="switchArrow" data-page-node-id="x3NoUp6AmHjLMnE7zhM0PJ">▾</span>
+                </div>
+            </div>
+
+            <!-- 项目下拉面板：置于 topbar 内，相对切换条定位展开 -->
+            <div class="proj-panel" id="projPanel" data-page-node-id="P7FavnzOEkT2P61qKZbv0c">
+                <div class="proj-panel-filter" id="projPanelFilter" data-page-node-id="ew3O2lkVBGH2gCFJcok8Gy">
+                    <div class="pf-item active" data-filter="all" onclick="setPanelFilter('all', this)" data-page-node-id="rcF3eiR8wBGQcQAi2LHiih">全部</div>
+                    <div class="pf-item" data-filter="ongoing" onclick="setPanelFilter('ongoing', this)" data-page-node-id="871iw6hii7b0JLOqErHArp">进行中</div>
+                    <div class="pf-item" data-filter="done" onclick="setPanelFilter('done', this)" data-page-node-id="r1rWv64sgfL8Gtv1FbwxDf">已完成</div>
+                </div>
+                <div class="proj-panel-inner" id="projPanelInner" data-page-node-id="waLq7DSayAloqFHe0Jly3q"></div>
+                <div class="proj-panel-foot" data-page-node-id="eeHlGP7wPFas4aWZ5fgSao">
+                    <button class="proj-new-btn" onclick="createProject()" data-page-node-id="yysgK6M8AWTkUHeXCdrw8K">＋ 新建项目</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 详情区 -->
+        <div class="detail-scroll" id="detailArea" data-page-node-id="HPj8TK1au8BtuT0rpmKTOj"></div>
+
+        <!-- 小程序主导航（项目为当前选中项） -->
+        <div class="tab-bar" data-page-node-id="UYRNRwfWvI6fRdtrsPXS1F">
+            <div class="tab-item" onclick="location.href='home.html'" data-page-node-id="5DVfMYqN4AhqUuHQR213H9">
+                <div class="icon" data-page-node-id="lcGraBWY17Uy77OpywYoMn">🏠</div>
+                <div class="label" data-page-node-id="6ysSTXAWjgLIgzpDQL05GJ">首页</div>
+            </div>
+            <div class="tab-item active" data-page-node-id="UiRqiEf9ZLG4Im5arqnCL6">
+                <div class="icon" data-page-node-id="jVtCqaL1PAdJMOvFCQPetv">📋</div>
+                <div class="label" data-page-node-id="6qb6VfrRSMpFm3BzGTQd88">项目</div>
+            </div>
+            <div class="tab-item" onclick="location.href='message.html'" data-page-node-id="qEb69tOJOubJkxbfQfPv4A">
+                <div class="icon" data-page-node-id="4FytzLexTILqcgvDqu9xUI">💬</div>
+                <div class="label" data-page-node-id="EzbbtphYPsCkGlQ9T0EKXz">消息</div>
+            </div>
+            <div class="tab-item" onclick="showToast('个人中心开发中')" data-page-node-id="ShOlh6xLwzD4ATQyZXteWr">
+                <div class="icon" data-page-node-id="qoFBmvzyO7O0ZtOVBol27R">👤</div>
+                <div class="label" data-page-node-id="joXCtstAEDZ6tDlAJkTbo1">我的</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 角色演示开关：置于手机框外侧右侧，与项目列表页「演示开关」同源 -->
+    <div class="role-demo-switch" data-page-node-id="mSRm9C8kkk4fdBBBnQGrL3">
+        <div class="switch-title" data-page-node-id="f9zv8zEeCfUgKDCelYArYj">演示开关</div>
+        <div class="switch-item" data-page-node-id="wM6O0yGcCOfeLDERn8V9QL">
+            <span class="switch-status" id="roleStatus" data-page-node-id="3xA56R7fIoh3LvJAUbSeuL">非工人</span>
+            <label class="switch" data-page-node-id="nDGbAu7Bd1BIQ0R9mErcOO">
+                <input type="checkbox" id="roleSwitch" onchange="toggleRoleSwitch(this.checked)" data-page-node-id="XfaHIgKdxJDJAwMBUhA5fo">
+                <span class="slider" data-page-node-id="VFkib8n6OkODkt4vC2uTuh"></span>
+            </label>
+        </div>
+        <div class="switch-hint" data-page-node-id="n6zY0SO5cMHrtiOuxS6XfV">切换角色视角</div>
+    </div>
+
+    </div>
+
+    <script>
+        /* ===================== 原型导航 收起/展开 ===================== */
+        function togglePageNav() {
+            var nav = document.querySelector('.page-nav');
+            var btn = document.getElementById('pageNavToggle');
+            if (!nav) return;
+            var collapsed = nav.classList.toggle('collapsed');
+            if (btn) btn.classList.toggle('collapsed', collapsed);
+            try { localStorage.setItem('pageNavCollapsed', collapsed ? 'true' : 'false'); } catch (e) {}
+        }
+        (function restorePageNav() {
+            try {
+                if (localStorage.getItem('pageNavCollapsed') === 'true') {
+                    var nav = document.querySelector('.page-nav');
+                    var btn = document.getElementById('pageNavToggle');
+                    if (nav) nav.classList.add('collapsed');
+                    if (btn) btn.classList.add('collapsed');
+                }
+            } catch (e) {}
+        })();
+
+        /* ===================== 数据 ===================== */
+        // 初始项目（刚创建）：读取 localStorage.newProjectData，缺省给出一个示例新项目
+        var newProject = (function () {
+            var d = null;
+            try { d = JSON.parse(localStorage.getItem('newProjectData')); } catch (e) { d = null; }
+            if (!d) d = {};
+            var area = d.area ? (parseFloat(d.area).toFixed(1) + 'm²') : '75.0m²';
+            var houseType = d.houseType || '2室1厅';
+            var groups = (d.groups && Array.isArray(d.groups)) ? d.groups.length : 0;
+            return {
+                name: d.projectName || 'XX小区整体装修',
+                status: d.status || '进行中',
+                address: d.address || 'XX小区***号***室',
+                area: area + ' ' + houseType,
+                contractSigned: 0, contractTotal: 0, taskDone: 0, taskTotal: 0,
+                trade: '', todoCount: 0, groupCount: groups
+            };
+        })();
+
+        var PROJECTS = [ newProject ];
+
+        var currentIndex = 0;
+        var currentRole = 'nonworker'; // 初始项目页：项目创建者（非工人视角）
+        var panelFilter = 'all';
+
+        /* ===================== 渲染：项目切换条 ===================== */
+        function renderSwitchBar() {
+            var p = PROJECTS[currentIndex];
+            document.getElementById('curProjName').textContent = p.name;
+            var st = document.getElementById('curProjStatus');
+            st.textContent = p.status;
+            st.className = 'proj-status' + (p.status === '已完工' || p.status === '已完成' ? ' done' : '');
+            document.getElementById('topHero').textContent = '项目信息';
+        }
+
+        function renderPanel() {
+            var list = PROJECTS.filter(function (p) {
+                if (panelFilter === 'ongoing') return p.status === '进行中';
+                if (panelFilter === 'done') return p.status === '已完工' || p.status === '已完成';
+                return true;
+            });
+            if (list.length === 0) {
+                document.getElementById('projPanelInner').innerHTML = '<div class="proj-empty">暂无匹配的项目</div>';
+                return;
+            }
+            var html = list.map(function (p) {
+                var realIdx = PROJECTS.indexOf(p);
+                var pct = p.contractTotal ? Math.round(p.contractSigned / p.contractTotal * 100) : 0;
+                var active = realIdx === currentIndex ? ' active' : '';
+                var done = p.status === '已完工' ? ' done' : '';
+                return '<div class="proj-option' + active + '" onclick="selectProject(' + realIdx + ')">' +
+                    '<div class="po-top"><span class="po-name">' + p.name + '</span>' +
+                    '<span class="po-status' + done + '">' + p.status + '</span></div>' +
+                    '<div class="po-addr">📍 ' + p.address + '</div>' +
+                    '<div class="po-stats"><span>合同 ' + p.contractSigned + '/' + p.contractTotal + '</span>' +
+                    '<span>任务 ' + p.taskDone + '/' + p.taskTotal + '</span></div>' +
+                    '<div class="po-bar"><div class="po-bar-fill" style="width:' + pct + '%"></div></div>' +
+                    '</div>';
+            }).join('');
+            document.getElementById('projPanelInner').innerHTML = html;
+        }
+
+        /* 架构层级选项（非工人默认项目部 / 工人默认泥瓦工作组；两视角共用同一组件） */
+        function buildLevelOptions(selected) {
+            var defs = [
+                { name: '项目部', icon: '🏢', type: 'project', count: '0个工作组 · 0份合同' },
+                { name: '水电工作组', icon: '⚡', type: 'workgroup', count: '3个施工组 · 2份合同' },
+                { name: '泥瓦工作组', icon: '⚡', type: 'workgroup', count: '2个施工组 · 1份合同' },
+                { name: '木工工作组', icon: '⚡', type: 'workgroup', count: '2个施工组 · 1份合同' },
+                { name: '油漆工作组', icon: '⚡', type: 'workgroup', count: '1个施工组 · 1份合同' }
+            ];
+            return defs.map(function (d) {
+                var sel = d.name === selected;
+                var badge = d.type === 'project' ? '项目部' : '工作组';
+                return '<div class="level-option' + (sel ? ' selected' : '') + '" onclick="pickLevel(this, event)">' +
+                    '<div class="icon">' + d.icon + '</div>' +
+                    '<div class="info"><div class="name">' + d.name + '</div><div class="count">' + d.count + '</div></div>' +
+                    '<div class="check" style="visibility:' + (sel ? 'visible' : 'hidden') + ';">✓</div></div>';
+            }).join('');
+        }
+
+        /* ===================== 渲染：初始项目详情（整体布局对齐项目列表页） ===================== */
+        function renderInitial(p) {
+            var levels = buildLevelOptions('项目部');
+
+            return                 '<div class="detail-fade">' +
+                // 快捷入口（3 项：团队成员 / 资料 / 对账单）
+                '<div class="card qn-card">' +
+                    '<div class="quick-nav qn-3" id="quickNav">' +
+                        '<div class="quick-nav-item" onclick="go(\'team-members.html\')"><div class="icon structure">🏗️</div><div class="label">团队成员</div></div>' +
+                        '<div class="quick-nav-item" onclick="go(\'project-files.html\')"><div class="icon file">📁</div><div class="label">资料</div></div>' +
+                        '<div class="quick-nav-item" onclick="go(\'statement-list.html\')"><div class="icon statement">💰</div><div class="label">对账单</div></div>' +
+                    '</div>' +
+                '</div>' +
+                // 待办事项（初始态：暂无待办 + 创建工作组引导）
+                '<div class="card"><div class="card-title"><span>📋 待办事项</span>' +
+                    '<span class="badge-wrap"><span class="badge">0</span></span>' +
+                    '<span class="more" onclick="openPage(\'todo-list.html\')">查看全部 ></span></div>' +
+                    '<div class="empty-tip"><span class="emoji">🗒️</span>项目刚创建，暂无待办<br>完善信息、搭建架构后将自动生成</div>' +
+                    '<button class="add-arch-btn" onclick="go(\'architecture.html\')">＋ 创建工作组 / 施工组</button>' +
+                '</div>' +
+                // 我的任务（初始态：0/0）
+                '<div class="card my-task-card" onclick="openPage(\'task-list.html?role=exec\')"><div class="card-title"><span>📌 我的任务</span><span class="more">查看全部 ></span></div>' +
+                    '<div class="my-task-stats">' +
+                        '<div class="my-task-stat"><div class="value">0</div><div class="label">已完成</div></div>' +
+                        '<div class="my-task-divider"></div>' +
+                        '<div class="my-task-stat"><div class="value">0</div><div class="label">我作为执行人的全部任务</div></div>' +
+                    '</div></div>' +
+                // 服务流程（横向流程条 + 内联明细；回迁自 demo，由 flowMount() 注入）
+                '<div id="flowHost"></div>' +
+                // 合同概览 / 任务统计 已并入「服务流程」统计条（见 flowMount）
+                '' +
+                // 今日动态（初始态：暂无动态）
+                '<div class="card indent-card"><div class="card-title"><span>📝 今日动态</span><span class="more" onclick="go(\'activity-list.html\')">查看全部 ></span></div>' +
+                    '<div class="empty-tip"><span class="emoji">📭</span>暂无动态，项目开工后将在此展示进展</div></div>' +
+                '</div>';
+        }
+
+        /* 工人视角初始项目详情（单页演示开关切换；顶部单一项目信息头与全局切换条共用） */
+        function renderInitialWorker(p) {
+            var trade = p.trade || '泥瓦';
+            var levels = buildLevelOptions(trade + '工作组');
+            return '<div class="detail-fade">' +
+                // 快捷入口（3 项：团队成员 / 资料 / 对账单）
+                '<div class="card qn-card">' +
+                    '<div class="quick-nav qn-3" id="quickNavWork">' +
+                        '<div class="quick-nav-item" onclick="go(\'team-members.html\')"><div class="icon structure">🏗️</div><div class="label">团队成员</div></div>' +
+                        '<div class="quick-nav-item" onclick="go(\'project-files.html\')"><div class="icon file">📁</div><div class="label">资料</div></div>' +
+                        '<div class="quick-nav-item" onclick="go(\'statement-list.html\')"><div class="icon statement">💰</div><div class="label">对账单</div></div>' +
+                    '</div>' +
+                '</div>' +
+                // 待办事项（工人视角：初始态 0 待办，与项目列表工人视角一致）
+                '<div class="card todo-card worker"><div class="card-title"><span>📋 待办事项</span>' +
+                    '<span class="badge-wrap"><span class="badge">0</span></span>' +
+                    '<span class="more" onclick="openPage(\'todo-list.html\')">查看全部 ></span></div>' +
+                    '<div class="todo-content"><div class="empty-state" style="font-size:12px;color:#999;padding:8px 0;">暂无待办，待工长分配任务、发起合同后在此显示</div></div></div>' +
+                // 我的任务（工人视角：0/0）
+                '<div class="card my-task-card worker" onclick="openPage(\'task-list.html?role=exec\')"><div class="card-title"><span>📌 我的任务</span><span class="more">查看全部 ></span></div>' +
+                    '<div class="my-task-stats">' +
+                        '<div class="my-task-stat"><div class="value">0</div><div class="label">已完成</div></div>' +
+                        '<div class="my-task-divider"></div>' +
+                        '<div class="my-task-stat"><div class="value">0</div><div class="label">我作为执行人的全部任务</div></div>' +
+                    '</div></div>' +
+                // 服务流程（横向流程条 + 内联明细；回迁自 demo，由 flowMount() 注入）
+                '<div id="flowHost"></div>' +
+                // 合同 / 任务统计 已并入「服务流程」统计条（见 flowMount）
+                '' +
+                '</div>';
+        }
+
+        /* ===================== 顶部一行：项目名/切换（切换条已承载，无需额外摘要） ===================== */
+
+        /* ===================== 主渲染 ===================== */
+        function renderDetail() {
+            var p = PROJECTS[currentIndex];
+            var area = document.getElementById('detailArea');
+            area.innerHTML = (currentRole === 'worker') ? renderInitialWorker(p) : renderInitial(p);
+            flowMount();
+        }
+
+        /* ===================== 交互 ===================== */
+        function togglePanel() {
+            var panel = document.getElementById('projPanel');
+            var arrow = document.getElementById('switchArrow');
+            var open = panel.classList.toggle('open');
+            arrow.classList.toggle('open', open);
+        }
+
+        function selectProject(i) {
+            currentIndex = i;
+            renderSwitchBar();
+            renderPanel();
+            togglePanel();
+            renderDetail();
+        }
+
+        function setPanelFilter(f, el) {
+            panelFilter = f;
+            var items = document.querySelectorAll('#projPanelFilter .pf-item');
+            items.forEach(function (it) { it.classList.remove('active'); });
+            if (el) el.classList.add('active');
+            renderPanel();
+        }
+
+        function createProject() {
+            location.href = 'create-project.html';
+        }
+
+        function toggleLevelOpts(el) {
+            var box = el.parentElement.querySelector('.level-options');
+            var arrow = el.querySelector('.arrow');
+            var open = box.classList.toggle('open');
+            arrow.classList.toggle('open', open);
+        }
+
+        function pickLevel(el, e) {
+            if (e) e.stopPropagation();
+            var opts = el.parentElement.querySelectorAll('.level-option');
+            opts.forEach(function (o) {
+                o.classList.remove('selected');
+                var c = o.querySelector('.check');
+                if (c) c.style.visibility = 'hidden';
+            });
+            el.classList.add('selected');
+            var c = el.querySelector('.check');
+            if (c) c.style.visibility = 'visible';
+            var selector = el.closest('.level-selector');
+            if (!selector) return;
+            var dd = selector.querySelector('.level-dropdown');
+            if (!dd) return;
+            var icon = el.querySelector('.icon') ? el.querySelector('.icon').textContent : '';
+            var name = el.querySelector('.info .name') ? el.querySelector('.info .name').textContent : '';
+            var isProject = name === '项目部';
+            var cur = dd.querySelector('.current');
+            if (cur) {
+                var ci = cur.querySelector('.icon'); if (ci) ci.textContent = icon;
+                var tx = cur.querySelector('.text-row .text'); if (tx) tx.textContent = name;
+                var badge = cur.querySelector('.text-row .type-badge');
+                if (badge) { badge.textContent = isProject ? '项目部' : '工作组'; badge.className = 'type-badge ' + (isProject ? 'project' : 'workgroup'); }
+                var bc = cur.querySelector('.breadcrumb-inline .breadcrumb-item.active'); if (bc) bc.textContent = name;
+            }
+            var box = selector.querySelector('.level-options');
+            if (box) box.classList.remove('open');
+            var arrow = dd.querySelector('.arrow');
+            if (arrow) arrow.classList.remove('open');
+        }
+
+        /* 滚动联动：仅维护吸顶阴影 */
+        (function initScrollFx() {
+            var scroller = document.getElementById('detailArea');
+            if (!scroller) return;
+            scroller.addEventListener('scroll', function () {
+                var top = scroller.scrollTop;
+                var sh = document.getElementById('stickyHeader');
+                if (sh) {
+                    if (top > 4) sh.classList.add('with-shadow');
+                    else sh.classList.remove('with-shadow');
+                }
+            }, { passive: true });
+        })();
+
+        function navigate(href) { if (href) window.location.href = href; }
+        function go(href) { navigate(href); }
+        function openPage(href) { window.location.href = href; }
+
+        function toggleContractNW(el) {
+            var list = document.getElementById('contractListNW');
+            if (!list) return;
+            var shown = list.classList.toggle('show');
+            if (el) {
+                var arrow = el.querySelector('.arrow');
+                if (arrow) arrow.classList.toggle('open', shown);
+            }
+        }
+
+        function viewProjectInfo() {
+            window.location.href = 'project-info.html';
+        }
+
+        function showToast(msg) {
+            var t = document.createElement('div');
+            t.textContent = msg;
+            t.style.cssText = 'position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);background:rgba(0,0,0,.8);color:#fff;font-size:13px;padding:10px 16px;border-radius:8px;z-index:200;white-space:nowrap;';
+            document.querySelector('.phone-frame').appendChild(t);
+            setTimeout(function () { t.remove(); }, 1600);
+        }
+
+        /* 角色演示开关：非工人 / 工人 视角切换（单页内切换，替代独立工人页） */
+        function toggleRoleSwitch(checked) {
+            currentRole = checked ? 'worker' : 'nonworker';
+            var rs = document.getElementById('roleStatus');
+            if (rs) {
+                rs.textContent = currentRole === 'worker' ? '工人' : '非工人';
+                rs.classList.toggle('worker', checked);
+            }
+            renderDetail();
+        }
+        /* 工人视角交互：层级切换 / 吸顶阴影由通用逻辑处理（见上） */
+
+        /* ===================== 点击面板外部自动收起 ===================== */
+        document.addEventListener('click', function (e) {
+            var panel = document.getElementById('projPanel');
+            var topbar = document.querySelector('.topbar');
+            if (panel.classList.contains('open') && !topbar.contains(e.target)) {
+                togglePanel();
+            }
+            // 层级下拉外部点击收起
+            var ls = document.querySelector('.level-selector');
+            if (ls && !ls.contains(e.target)) {
+                var lo = ls.querySelector('.level-options');
+                if (lo) lo.classList.remove('open');
+                var la = ls.querySelector('.arrow');
+                if (la) la.classList.remove('open');
+            }
+        });
+
+        /* ===================== 服务流程（回迁自 demo，演示态数据 FLOW_ITEMS；真实模型后续替换） ===================== */
+        /* 状态色（演示态） */
+        function flowStatusStyle(s) {
+            switch (s) {
+                case '进行中': return { dot: '#1677ff', ring: '', badge: 'b-go', bar: '#1677ff' };
+                case '已完成': return { dot: '#52c41a', ring: '', badge: 'b-done', bar: '#52c41a' };
+                case '已终止': return { dot: '#fff', ring: '#ff4d4f', badge: 'b-stop', bar: '#ff4d4f' };
+                default:       return { dot: '#fff', ring: '#d9d9d9', badge: 'b-wait', bar: '#d9d9d9' };
+            }
+        }
+        function flowBadgeText(s) { return s === '未开始' ? '待开始' : s; }
+
+        /* 演示态数据（后续由真实模型替换） */
+        function flowBaseItems() {
+            return [
+                { id: 'lh', name: '量房', kind: 'task', status: '已完成', done: 3, total: 3,
+                    tasks: [
+                        { name: '原始尺寸复测', exec: '张设计', status: '已完成' },
+                        { name: '墙体结构勘测', exec: '李设计', status: '已完成' },
+                        { name: '设备点位确认', exec: '王设计', status: '已完成' }
+                    ] },
+                { id: 'cs', name: '初步设计', kind: 'task', status: '已完成', done: 4, total: 4,
+                    tasks: [
+                        { name: '方案文件·户型优化', exec: '张设计', status: '已完成' },
+                        { name: '内部评审', exec: '李设计', status: '已完成' },
+                        { name: '会审', exec: '王设计', status: '已完成' },
+                        { name: '方案定稿', exec: '张设计', status: '已完成' }
+                    ] },
+                { id: 'ht', name: '设计合同', kind: 'contract', status: '已完成', done: 2, total: 2,
+                    contracts: {
+                        main: { name: '设计服务合同', status: '已完成', stage: '2/2' },
+                        subs: [ { name: '软装设计分包', status: '已完成', stage: '1/1' } ],
+                        externals: [ { name: '设计交底', exec: '张设计', status: '已完成' } ]
+                    } },
+                { id: 'sg', name: '施工合同', kind: 'contract', status: '进行中', done: 5, total: 8,
+                    contracts: {
+                        main: { name: '基础施工服务合同', status: '进行中', stage: '5/8' },
+                        subs: [
+                            { name: '水电分包合同', status: '进行中', stage: '2/3' },
+                            { name: '木工分包合同', status: '未开始', stage: '0/2' },
+                            { name: '主材分包合同', status: '进行中', stage: '3/3' }
+                        ],
+                        externals: [
+                            { name: '工地巡检', exec: '王强', status: '已完成' },
+                            { name: '材料进场验收', exec: '李伟', status: '进行中' },
+                            { name: '隐蔽工程验收', exec: '赵敏', status: '未开始' },
+                            { name: '收口验收', exec: '孙磊', status: '未开始' }
+                        ]
+                    } },
+                { id: 'cz', name: '主材安装', kind: 'contract', status: '未开始', done: 0, total: 2,
+                    contracts: {
+                        main: { name: '主材安装合同', status: '未开始', stage: '0/3' },
+                        subs: [],
+                        externals: []
+                    } },
+                { id: 'sh', name: '售后', kind: 'task', status: '未开始', done: 0, total: 0, tasks: [] }
+            ];
+        }
+        function flowExtraItems() {
+            return [
+                { id: 'rz', name: '软装', kind: 'contract', status: '未开始', done: 0, total: 1,
+                    contracts: { main: { name: '软装采购合同', status: '未开始', stage: '0/2' }, subs: [], externals: [] } },
+                { id: 'ys', name: '竣工验收', kind: 'task', status: '未开始', done: 0, total: 0, tasks: [] }
+            ];
+        }
+
+        var flowItems = flowBaseItems();
+        var flowSelectedId = 'sg';      // 默认选中首个进行中项
+        var flowItemCount = 6;
+        var flowDetailOpen = true;
+
+        /* 注入服务流程卡结构并挂载 */
+        function flowMount() {
+            var host = document.getElementById('flowHost');
+            if (!host) return;
+
+            host.innerHTML =
+                '<div class="flow-card">' +
+                    '<div class="flow-sticky" id="flowSticky">' +
+                        '<div class="flow-head"><span class="fh-t">服务流程</span><span class="fh-n" id="mainLine">主线 0/0</span></div>' +
+                        '<div class="flow-stats">' +
+                            '<span class="fs-seg"><span class="fs-num" id="cNum">0/0</span><span class="fs-lab">合同 · <span id="cPct">0%</span></span></span>' +
+                            '<span class="fs-div"></span>' +
+                            '<span class="fs-seg"><span class="fs-num" id="tNum">0/0</span><span class="fs-lab">任务 · <span id="tPct">0%</span></span></span>' +
+                        '</div>' +
+                        '<div class="rail-wrap">' +
+                            '<div class="flow-rail" id="flowRail"></div>' +
+                            '<div class="rail-mask" id="railMask"></div>' +
+                        '</div>' +
+                    '</div>' +
+                    '<div class="flow-detail" id="flowDetail"></div>' +
+                '</div>';
+
+            flowRenderRail();
+            flowRenderDetail();
+            flowSetDetail(true);
+            flowRefreshStats();
+
+            /* sticky 吸顶分隔线联动：随详情区滚动切换 .stuck */
+            var scroller = document.getElementById('detailArea');
+            if (scroller) {
+                scroller.addEventListener('scroll', function () {
+                    var st = document.getElementById('flowSticky');
+                    if (st) st.classList.toggle('stuck', scroller.scrollTop > 4);
+                }, { passive: true });
+            }
+            window.addEventListener('resize', flowUpdateMask);
+        }
+
+        /* 渲染横滑流程条 */
+        function flowRenderRail() {
+            var rail = document.getElementById('flowRail');
+            if (!rail) return;
+            rail.innerHTML = '';
+            var list = flowItemCount === 8 ? flowItems.concat(flowExtraItems()) : flowItems;
+            list.forEach(function (it) {
+                var st = it.status;
+                var ss = flowStatusStyle(st);
+                var el = document.createElement('div');
+                el.className = 'flow-item' + (it.id === flowSelectedId ? ' on' : '');
+                el.setAttribute('data-id', it.id);
+                var prog = it.total > 0 ? (it.done + '/' + it.total) : '—';
+                var pct = it.total > 0 ? Math.round(it.done / it.total * 100) : 0;
+                el.innerHTML =
+                    '<span class="fi-dot" style="background:' + ss.dot + (ss.ring ? ';border:2px solid ' + ss.ring : '') + '"></span>' +
+                    '<span class="fi-name">' + it.name + '</span>' +
+                    '<span class="fi-bar"><i style="width:' + pct + '%;background:' + ss.bar + '"></i></span>' +
+                    '<span class="fi-prog">' + prog + '</span>';
+                el.addEventListener('click', function () { flowSelectItem(it.id); });
+                rail.appendChild(el);
+            });
+            flowUpdateMask();
+        }
+
+        function flowUpdateMask() {
+            var rail = document.getElementById('flowRail');
+            var mask = document.getElementById('railMask');
+            if (!rail || !mask) return;
+            mask.style.display = rail.scrollWidth > rail.clientWidth + 2 ? 'block' : 'none';
+        }
+
+        function flowSelectItem(id) {
+            if (id === flowSelectedId && flowDetailOpen) {
+                /* 再次点击已选中项 = 收起明细（保留选中态） */
+                flowSetDetail(false);
+                return;
+            }
+            flowSelectedId = id;
+            flowRenderRail();
+            flowRenderDetail();
+            flowSetDetail(true);
+            var el = document.querySelector('.flow-item.on');
+            if (el) el.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+        }
+
+        /* 渲染内联明细 */
+        function flowRenderDetail() {
+            var box = document.getElementById('flowDetail');
+            if (!box) return;
+            var item = (flowItemCount === 8 ? flowItems.concat(flowExtraItems()) : flowItems).filter(function (x) { return x.id === flowSelectedId; })[0];
+            if (!item) return;
+            var html = '<div class="detail-inner">';
+
+            if (item.kind === 'contract') {
+                var c = item.contracts;
+                html += '<div class="d-sec"><div class="detail-title">主合同</div>';
+                html += flowRowHtml(c.main.name, '阶段 ' + c.main.stage, flowBadgeText(c.main.status), c.main.status, true);
+                html += '</div><div class="d-sec"><div class="d-sec-h">子合同 · ' + c.subs.length + '</div>';
+                if (c.subs.length === 0) {
+                    html += '<div class="d-row"><span class="d-name" style="color:var(--text-3)">暂无子合同</span></div>';
+                } else {
+                    c.subs.forEach(function (s) { html += flowRowHtml(s.name, '阶段 ' + s.stage, flowBadgeText(s.status), s.status, true); });
+                }
+                html += '</div><div class="d-sec"><div class="d-sec-h">合同外任务 · 完成 ' + flowCountDone(c.externals) + '/' + c.externals.length + '</div>';
+                if (c.externals.length === 0) {
+                    html += '<div class="d-row"><span class="d-name" style="color:var(--text-3)">暂无合同外任务</span></div>';
+                } else {
+                    c.externals.forEach(function (e) { html += flowRowHtml(e.name, '执行 ' + e.exec, flowBadgeText(e.status), e.status, false); });
+                }
+                html += '</div>';
+            } else {
+                html += '<div class="d-sec"><div class="d-sec-h">任务 · ' + item.done + '/' + item.total + '</div>';
+                if (item.tasks.length === 0) {
+                    html += '</div><div class="detail-empty"><div class="de-t">该流程项暂无任务</div><div class="add-btn" onclick="showToast(\'添加任务\')">+ 添加任务</div></div>';
+                } else {
+                    item.tasks.forEach(function (t) { html += flowRowHtml(t.name, '执行 ' + t.exec, flowBadgeText(t.status), t.status, false); });
+                    html += '</div>';
+                }
+            }
+            html += '</div>';
+            box.innerHTML = html;
+        }
+
+        function flowRowHtml(name, meta, badge, status, isContract) {
+            var ss = flowStatusStyle(status);
+            return '<div class="d-row" onclick="showToast(\'' + (isContract ? '查看合同：' : '查看任务：') + name + '\')">' +
+                '<span class="d-name">' + name + '</span>' +
+                '<span class="d-meta">' + meta + '</span>' +
+                '<span class="badge ' + ss.badge + '">' + badge + '</span>' +
+                '<span class="d-go">›</span></div>';
+        }
+        function flowCountDone(arr) { return arr.filter(function (x) { return x.status === '已完成'; }).length; }
+
+        function flowSetDetail(open) {
+            flowDetailOpen = open;
+            var box = document.getElementById('flowDetail');
+            if (box) box.classList.toggle('collapsed', !open);
+        }
+
+        /* 统计条 / 主线进度 */
+        function flowRefreshStats() {
+            var list = flowItemCount === 8 ? flowItems.concat(flowExtraItems()) : flowItems;
+            var cTotal = 0, cDone = 0, tTotal = 0, tDone = 0, mainDone = 0;
+            list.forEach(function (it) {
+                if (it.kind === 'contract') {
+                    cTotal += 1 + it.contracts.subs.length;
+                    if (it.contracts.main.status === '进行中' || it.contracts.main.status === '已完成') cDone += 1;
+                    it.contracts.subs.forEach(function (s) { if (s.status === '进行中' || s.status === '已完成') cDone += 1; });
+                } else {
+                    tTotal += it.tasks.length;
+                    tDone += flowCountDone(it.tasks);
+                }
+                if (it.status === '已完成') mainDone += 1;
+            });
+            var cNum = document.getElementById('cNum'); if (cNum) cNum.textContent = cDone + '/' + cTotal;
+            var tNum = document.getElementById('tNum'); if (tNum) tNum.textContent = tDone + '/' + tTotal;
+            var cPct = document.getElementById('cPct'); if (cPct) cPct.textContent = (cTotal ? Math.round(cDone / cTotal * 100) : 0) + '%';
+            var tPct = document.getElementById('tPct'); if (tPct) tPct.textContent = (tTotal ? Math.round(tDone / tTotal * 100) : 0) + '%';
+            var mainLine = document.getElementById('mainLine'); if (mainLine) mainLine.textContent = '主线 ' + mainDone + '/' + list.length;
+        }
+
+        /* ===================== 初始化 ===================== */
+        renderSwitchBar();
+        renderPanel();
+        renderDetail();
+    </script>
+<script src="../shared/doc-viewer/doc-viewer.js"></script>
+</body>
+</html>

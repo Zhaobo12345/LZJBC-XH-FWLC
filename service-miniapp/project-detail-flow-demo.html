@@ -1,0 +1,819 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>项目详情 · 服务流程（横向版 · 交互验证）</title>
+<style>
+/* ===== 全局：隐藏滚动条 / 防横向溢出 ===== */
+* { margin: 0; padding: 0; box-sizing: border-box; scrollbar-width: none; -ms-overflow-style: none; }
+::-webkit-scrollbar { display: none; }
+html, body { height: 100%; }
+body {
+  font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
+  background: #e9ebee; color: var(--text); font-size: 12px; line-height: 1.5;
+  display: flex; align-items: flex-start; justify-content: center;
+  min-height: 100vh; padding: 24px; gap: 16px;
+}
+
+/* ===== 设计令牌：对齐服务端项目详情原型（Ant Design 4 色调） ===== */
+:root {
+  --sp-1: 4px; --sp-2: 8px; --sp-3: 12px; --sp-4: 16px; --sp-5: 20px;
+  --r-card: 12px; --r-block: 8px; --r-pill: 999px;
+  --fs-11: 11px; --fs-12: 12px; --fs-13: 13px; --fs-15: 15px; --fs-17: 17px;
+  /* 颜色取自营服端 project-detail-initial-v2.html 的 :root */
+  --primary: #1677ff; --primary-bg: #e6f7ff; --primary-light: #4096ff;
+  --success: #52c41a; --success-bg: #f6ffed; --warning: #fa8c16; --warning-bg: #fff7e6;
+  --danger: #ff4d4f; --danger-bg: #fff2f0; --orange: #fa541c;
+  --text: #222; --text-2: #555; --text-3: #999; --bg: #f2f3f5;
+  --card: #fff; --border: #ececec; --shadow: 0 1px 6px rgba(0,0,0,.05);
+  --bg-secondary: #f5f5f5; --flow-bg: #fafcff; --line-light: #f0f0f0;
+  --dot-ring: #d9d9d9; --demo-blue: #1677ff;
+}
+
+/* ===== 手机框（与服务端原型一致：375×812 + 10px 黑边） ===== */
+.phone-frame {
+  width: 375px; flex-shrink: 0; height: 812px; background: var(--bg);
+  border-radius: 40px; overflow: hidden; position: relative;
+  display: flex; flex-direction: column; border: 10px solid #1a1a1a;
+  box-shadow: 0 12px 40px rgba(0,0,0,.25);
+}
+.status-bar {
+  height: 44px; background: #fff; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 22px; font-size: 14px; font-weight: 600; color: #1a1a1a;
+}
+.sb-ic { display: flex; align-items: center; gap: 6px; }
+.sb-signal { display: inline-flex; align-items: flex-end; gap: 2px; height: 11px; }
+.sb-signal i { width: 3px; background: #1a1a1a; border-radius: 1px; }
+.sb-signal i:nth-child(1){height:4px} .sb-signal i:nth-child(2){height:6px}
+.sb-signal i:nth-child(3){height:8px} .sb-signal i:nth-child(4){height:11px}
+.sb-battery { width: 22px; height: 11px; border: 1px solid #1a1a1a; border-radius: 3px; position: relative; padding: 1.5px; }
+.sb-battery::after { content: ""; position: absolute; right: -3px; top: 3px; width: 2px; height: 4px; background: #1a1a1a; border-radius: 0 1px 1px 0; }
+.sb-battery i { display: block; height: 100%; width: 70%; background: #1a1a1a; border-radius: 1px; }
+.nav-bar {
+  height: 48px; background: #fff; flex-shrink: 0; position: relative;
+  display: flex; align-items: center; border-bottom: 1px solid var(--border);
+}
+.nav-bar .nb-back { position: absolute; left: 14px; font-size: 26px; line-height: 1; color: #1a1a1a; text-decoration: none; }
+.nav-bar .title { flex: 1; text-align: center; font-size: 17px; font-weight: 600; color: #1a1a1a; }
+.nav-bar .nb-actions { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); }
+.native-capsule {
+  display: inline-flex; align-items: center; justify-content: space-between;
+  min-width: 56px; height: 28px; padding: 0 10px; box-sizing: border-box;
+  border: 1px solid rgba(0,0,0,.08); border-radius: 14px; background: rgba(255,255,255,.7);
+  color: rgba(0,0,0,.6); font-size: 12px; line-height: 1; user-select: none;
+}
+.native-capsule .nc-left, .native-capsule .nc-right { display: inline-flex; align-items: center; justify-content: center; flex: 1; min-width: 16px; }
+.native-capsule .nc-right { font-size: 10px; }
+.native-capsule .nc-divider { width: 1px; height: 14px; background: rgba(0,0,0,.1); margin: 0 4px; }
+
+/* ===== 可滚动主体 ===== */
+.page-body { flex: 1; overflow-y: auto; overflow-x: hidden; background: var(--bg); -webkit-overflow-scrolling: touch; }
+.card { background: var(--card); border: 1px solid var(--border); box-shadow: var(--shadow); border-radius: var(--r-card); padding: var(--sp-3); margin: 0 var(--sp-3) var(--sp-2); }
+.card:first-of-type { margin-top: 4px; }
+
+/* ===== 项目信息一行 ===== */
+.project-bar { display: flex; align-items: center; gap: var(--sp-2); padding: 6px var(--sp-3) 2px; min-height: 44px; }
+.project-bar .pname { font-size: var(--fs-17); font-weight: 600; color: var(--text); }
+.project-bar .pstatus { font-size: var(--fs-11); font-weight: 500; color: var(--primary); background: var(--primary-bg); padding: 2px 8px; border-radius: var(--r-pill); }
+.project-bar .pswitch { margin-left: auto; font-size: var(--fs-13); color: var(--text-2); display: flex; align-items: center; gap: 2px; min-height: 44px; padding: 0 4px; }
+.switch-pop { position: absolute; left: var(--sp-3); right: var(--sp-3); top: 56px; background: #fff; border: 1px solid var(--border); border-radius: var(--r-block); z-index: 40; overflow: hidden; box-shadow: var(--shadow); }
+.switch-pop div { padding: var(--sp-3); font-size: var(--fs-13); border-bottom: 1px solid var(--line-light); }
+.switch-pop div:last-child { border-bottom: none; }
+.switch-pop div.on { color: var(--primary); font-weight: 500; }
+
+/* ===== quick-nav 4 项 ===== */
+.qn-card { padding-top: 4px; padding-bottom: 4px; }
+.quick-nav { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--sp-2); }
+.quick-nav .qn { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; min-height: 40px; border-radius: var(--r-block); background: var(--bg-secondary); }
+.quick-nav .qn .qn-ic { width: 22px; height: 22px; border-radius: 7px; background: var(--primary-bg); display: flex; align-items: center; justify-content: center; color: var(--primary); font-size: 14px; font-weight: 500; }
+.quick-nav .qn .qn-tx { font-size: var(--fs-11); color: var(--text-2); }
+
+/* ===== 待办 ===== */
+.card-head { display: flex; align-items: center; gap: 6px; margin-bottom: var(--sp-2); }
+.card-head .ch-t { font-size: var(--fs-13); font-weight: 500; color: var(--text); }
+.card-head .ch-n { font-size: var(--fs-11); color: #fff; background: var(--primary); border-radius: var(--r-pill); padding: 0 7px; font-weight: 500; }
+.card-head .ch-a { margin-left: auto; font-size: var(--fs-11); color: var(--text-2); }
+.todo-row { display: flex; align-items: center; gap: var(--sp-2); min-height: 44px; padding: 6px 0; border-top: 1px solid var(--line-light); }
+.todo-row:active { background: #f5f7fa; }
+.todo-row .t-tag { font-size: var(--fs-11); font-weight: 500; border-radius: var(--r-pill); padding: 2px 7px; flex-shrink: 0; }
+.todo-row .t-tag.t-contract { color: var(--primary); background: var(--primary-bg); }
+.todo-row .t-tag.t-task { color: var(--success); background: var(--success-bg); }
+.todo-row .t-main { flex: 1; min-width: 0; }
+.todo-row .t-title { font-size: var(--fs-12); color: var(--text); line-height: 1.4; }
+.todo-row .t-sub { font-size: var(--fs-11); color: var(--text-2); line-height: 1.4; }
+.todo-row .t-go { font-size: var(--fs-11); color: var(--primary); flex-shrink: 0; }
+
+/* ===== 我的任务一行 ===== */
+.mytask-row { display: flex; align-items: center; gap: var(--sp-2); min-height: 40px; }
+.mytask-row .mt-t { font-size: var(--fs-13); font-weight: 500; color: var(--text); }
+.mytask-row .mt-s { font-size: var(--fs-12); color: var(--text-2); }
+.mytask-row .mt-a { margin-left: auto; font-size: var(--fs-11); color: var(--text-2); }
+
+/* ===== 服务流程卡（核心） ===== */
+.flow-card { background: var(--card); border: 1px solid var(--border); box-shadow: var(--shadow); border-radius: var(--r-card); margin: 0 var(--sp-3) var(--sp-2); overflow: hidden; }
+.flow-sticky { position: sticky; top: 0; z-index: 20; background: #fff; padding: 8px var(--sp-3) 0; border-bottom: 1px solid transparent; transition: border-color 120ms ease-out; }
+.flow-sticky.stuck { border-bottom-color: var(--line-light); }
+.flow-head { display: flex; align-items: center; gap: 6px; margin-bottom: 5px; }
+.flow-head .fh-t { font-size: var(--fs-15); font-weight: 500; color: var(--text); }
+.flow-head .fh-n { font-size: var(--fs-11); color: var(--text-2); }
+.flow-stats { display: flex; align-items: center; gap: var(--sp-3); background: var(--bg-secondary); border-radius: var(--r-block); padding: 4px 10px; margin-bottom: 5px; }
+.flow-stats .fs-seg { display: flex; align-items: baseline; gap: 4px; }
+.flow-stats .fs-num { font-size: var(--fs-13); font-weight: 500; color: var(--text); }
+.flow-stats .fs-lab { font-size: var(--fs-11); color: var(--text-2); }
+.flow-stats .fs-div { width: 1px; height: 12px; background: var(--dot-ring); }
+
+/* 横滑流程条 */
+.rail-wrap { position: relative; margin-bottom: 5px; }
+.flow-rail { display: flex; gap: var(--sp-2); overflow-x: auto; overflow-y: hidden; scroll-snap-type: x proximity; padding-bottom: 2px; }
+.flow-item { flex: 0 0 auto; min-width: 50px; min-height: 38px; scroll-snap-align: center; border-radius: 10px; padding: 5px 6px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; background: transparent; transition: transform 160ms ease-out, background-color 160ms ease-out; }
+.flow-item:active { background: #f5f7fa; }
+.flow-item.on { min-width: 84px; background: var(--primary-bg); transform: scale(1.02); }
+.flow-item .fi-dot { width: 10px; height: 10px; border-radius: 50%; }
+.flow-item .fi-name { font-size: var(--fs-11); color: var(--text-2); line-height: 1.2; text-align: center; }
+.flow-item.on .fi-name { font-size: var(--fs-13); font-weight: 500; color: var(--primary); }
+.flow-item .fi-bar { width: 100%; height: 3px; border-radius: 2px; background: var(--dot-ring); overflow: hidden; }
+.flow-item .fi-bar i { display: block; height: 100%; border-radius: 2px; }
+.flow-item .fi-prog { font-size: var(--fs-11); color: var(--text-3); line-height: 1.2; }
+.flow-item.on .fi-prog { color: var(--primary); }
+.rail-mask { position: absolute; right: 0; top: 0; bottom: 2px; width: 24px; background: linear-gradient(to left, #fff, rgba(255,255,255,0)); pointer-events: none; display: none; }
+
+/* 内联明细 */
+.flow-detail { background: var(--flow-bg); border-radius: 0 0 var(--r-card) var(--r-card); }
+.flow-detail.collapsed { display: none; }
+.detail-inner { padding: var(--sp-3); border-left: 2px solid var(--primary); }
+.detail-title { font-size: var(--fs-13); font-weight: 500; color: var(--text); margin-bottom: var(--sp-2); }
+.d-sec { margin-bottom: var(--sp-3); }
+.d-sec:last-child { margin-bottom: 0; }
+.d-sec-h { font-size: var(--fs-11); color: var(--text-2); margin-bottom: 6px; }
+.d-row { display: flex; align-items: center; gap: var(--sp-2); min-height: 44px; padding: 6px 0; border-top: 1px solid var(--line-light); }
+.d-row:first-of-type { border-top: none; }
+.d-row:active { background: #f5f7fa; }
+.d-row .d-name { flex: 1; min-width: 0; font-size: var(--fs-12); color: var(--text); line-height: 1.4; }
+.d-row .d-meta { font-size: var(--fs-11); color: var(--text-2); line-height: 1.4; }
+.d-row .d-go { font-size: var(--fs-11); color: var(--primary); flex-shrink: 0; }
+.badge { font-size: var(--fs-11); font-weight: 500; border-radius: var(--r-pill); padding: 2px 8px; flex-shrink: 0; white-space: nowrap; }
+.b-go { color: var(--primary); background: var(--primary-bg); }
+.b-done { color: var(--success); background: var(--success-bg); }
+.b-wait { color: var(--text-2); background: var(--bg-secondary); }
+.b-stop { color: var(--danger); background: var(--danger-bg); }
+.detail-empty { text-align: center; padding: var(--sp-5) var(--sp-3); }
+.detail-empty .de-t { font-size: var(--fs-12); color: var(--text-2); line-height: 1.5; margin-bottom: var(--sp-3); }
+.add-btn { display: inline-block; border: 1px dashed var(--primary-light); color: var(--primary); font-size: var(--fs-12); border-radius: var(--r-block); padding: 8px 16px; }
+
+/* ===== 今日动态（对齐服务端原型页） ===== */
+.activity-card .card-head { margin-bottom: 4px; }
+.activity-item { padding: 8px 0 8px 16px; position: relative; cursor: pointer; transition: background .15s; border-top: 1px solid var(--line-light); }
+.activity-item:first-child { border-top: none; }
+.activity-item:active { background: #f7faff; }
+.activity-item.hidden { display: none; }
+.activity-item::before { content: ''; position: absolute; left: 4px; top: 14px; width: 7px; height: 7px; border-radius: 50%; background: var(--primary); }
+.activity-header { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; }
+.activity-avatar { width: 26px; height: 26px; border-radius: 50%; font-size: 11px; color: #fff; display: flex; align-items: center; justify-content: center; flex-shrink: 0; box-shadow: 0 0 0 2px rgba(255,255,255,.85), 0 1px 4px rgba(0,0,0,.12); }
+.activity-info { flex: 1; min-width: 0; }
+.activity-user { font-size: 13px; color: var(--text); font-weight: 500; }
+.activity-role-tag { display: inline-block; font-size: 10px; padding: 0 6px; border-radius: 8px; margin-left: 4px; vertical-align: middle; line-height: 14px; height: 14px; font-weight: 500; }
+.activity-role-tag.project-manager { background-color: #E6F7FF; color: #1890FF; }
+.activity-role-tag.foreman { background-color: #F6FFED; color: #52C41A; }
+.activity-role-tag.worker { background-color: #FFF7E6; color: #FA8C16; }
+.activity-role-tag.designer { background-color: #F9F0FF; color: #722ED1; }
+.activity-role-tag.owner { background-color: #FFF1F0; color: #F5222D; }
+.activity-time { font-size: 10px; color: var(--text-3); margin-top: 2px; }
+.activity-content { font-size: 12px; color: var(--text); margin-bottom: 4px; line-height: 1.5; }
+.activity-content .hl { color: var(--primary); background: var(--primary-bg); border-radius: 3px; padding: 0 3px; }
+.activity-media { display: flex; gap: 4px; margin-top: 4px; flex-wrap: wrap; }
+.activity-media-item { width: 48px; height: 48px; border-radius: 6px; flex: 0 0 auto; position: relative; background: #dcdfe3; overflow: hidden; }
+.activity-media-item .play { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; }
+.activity-media-item .play::after { content: ''; width: 0; height: 0; border-left: 12px solid rgba(255,255,255,.95); border-top: 8px solid transparent; border-bottom: 8px solid transparent; margin-left: 3px; filter: drop-shadow(0 1px 2px rgba(0,0,0,.45)); }
+.activity-more-btn { padding: 8px 0 2px; font-size: 12px; text-align: center; color: var(--primary); cursor: pointer; }
+
+/* ===== Toast ===== */
+.toast { position: fixed; left: 50%; bottom: 90px; transform: translateX(-50%); background: rgba(0,0,0,.8); color: #fff; font-size: var(--fs-12); padding: 8px 16px; border-radius: var(--r-block); z-index: 100; opacity: 0; transition: opacity 160ms ease-out; pointer-events: none; }
+.toast.show { opacity: 1; }
+
+/* ===== 演示控制（框外） ===== */
+.demo-panel { width: 220px; flex-shrink: 0; background: #fff; border-left: 2px dashed var(--demo-blue); border-radius: var(--r-block); padding: var(--sp-3); align-self: flex-start; box-shadow: var(--shadow); }
+.demo-panel h4 { font-size: var(--fs-13); font-weight: 500; color: var(--text); margin-bottom: var(--sp-2); }
+.demo-panel .dp-group { margin-bottom: var(--sp-4); }
+.demo-panel .dp-lab { font-size: var(--fs-11); color: var(--text-2); margin-bottom: var(--sp-2); }
+.demo-panel .dp-opts { display: flex; flex-wrap: wrap; gap: var(--sp-2); }
+.demo-panel .dp-opt { font-size: var(--fs-11); color: var(--text-2); border: 1px solid var(--border); border-radius: var(--r-pill); padding: 6px 10px; min-height: 32px; display: flex; align-items: center; cursor: pointer; }
+.demo-panel .dp-opt.on { color: var(--primary); border-color: var(--primary); background: var(--primary-bg); font-weight: 500; }
+
+/* ===== 右侧「服务流程项」浮窗（参考 owner 项目导航） ===== */
+/* 右缘常驻触发条 */
+.flow-trigger {
+  position: absolute; right: 0; top: 50%; transform: translateY(-50%);
+  z-index: 30; background: var(--primary); color: #fff; cursor: pointer;
+  padding: 14px 6px; border-radius: 12px 0 0 12px;
+  display: flex; flex-direction: column; align-items: center; gap: 6px;
+  box-shadow: -2px 2px 14px rgba(22,119,255,.35); transition: opacity 160ms ease-out;
+}
+.flow-trigger .ft-arrow { font-size: 13px; line-height: 1; }
+.flow-trigger .ft-text { writing-mode: vertical-rl; font-size: 12px; font-weight: 600; letter-spacing: 3px; }
+
+/* 遮罩 + 抽屉 */
+.flow-drawer-mask {
+  position: absolute; inset: 0; background: rgba(0,0,0,.35); z-index: 50;
+  opacity: 0; visibility: hidden; transition: opacity 200ms ease-out, visibility 200ms;
+}
+.flow-drawer-mask.open { opacity: 1; visibility: visible; }
+.flow-drawer {
+  position: absolute; top: 0; right: 0; height: 100%; width: 300px; max-width: 86%;
+  background: #fff; z-index: 60; transform: translateX(100%);
+  transition: transform 240ms cubic-bezier(.22,.61,.36,1);
+  display: flex; flex-direction: column; box-shadow: -6px 0 24px rgba(0,0,0,.18);
+}
+.flow-drawer.open { transform: translateX(0); }
+
+/* 深色头部栏（仿 owner drawer-header-bar） */
+.fd-header { background: linear-gradient(135deg,#1677ff,#0958d9); color: #fff; padding: 12px 14px; display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+.fd-header .fd-ic { width: 22px; height: 22px; border-radius: 50%; background: rgba(255,255,255,.22); display: flex; align-items: center; justify-content: center; font-size: 13px; flex-shrink: 0; }
+.fd-header .fd-title { font-size: 15px; font-weight: 600; }
+.fd-header .fd-tag { font-size: 10px; background: rgba(255,255,255,.2); padding: 2px 8px; border-radius: 999px; }
+.fd-header .fd-right { margin-left: auto; display: flex; align-items: center; gap: 12px; font-size: 12px; }
+.fd-header .fd-expand { cursor: pointer; opacity: .92; }
+.fd-header .fd-close { cursor: pointer; font-size: 20px; line-height: 1; }
+
+/* 信息栏 */
+.fd-info { display: flex; align-items: center; gap: 10px; padding: 10px 14px; background: #f5f8ff; border-bottom: 1px solid var(--line-light); flex-shrink: 0; }
+.fd-info .fd-badge { font-size: 12px; color: var(--text); }
+.fd-info .fd-badge b { color: var(--primary); font-weight: 600; }
+.fd-info .fd-locate { margin-left: auto; font-size: 11px; color: var(--primary); background: var(--primary-bg); padding: 4px 10px; border-radius: 999px; cursor: pointer; }
+
+/* 内容区 */
+.fd-content { flex: 1; overflow-y: auto; padding: 12px 14px 16px; -webkit-overflow-scrolling: touch; }
+.fd-sec { margin-bottom: 14px; }
+.fd-sec-h { font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
+.fd-sec-h .fd-count { font-size: 11px; color: var(--text-2); font-weight: 500; }
+.fd-item { display: flex; align-items: center; gap: 8px; min-height: 44px; padding: 8px 0; border-top: 1px solid var(--line-light); cursor: pointer; }
+.fd-item:first-child { border-top: none; }
+.fd-item.active { background: linear-gradient(90deg, var(--primary-bg), transparent); margin: 0 -14px; padding: 8px 14px; border-radius: 8px; }
+.fd-item .fd-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+.fd-item .fd-name { flex: 1; min-width: 0; font-size: 13px; color: var(--text); }
+.fd-item .fd-meta { font-size: 11px; color: var(--text-2); }
+.fd-item .fd-badge { font-size: 11px; font-weight: 500; border-radius: 999px; padding: 2px 8px; flex-shrink: 0; white-space: nowrap; }
+.fd-item.active .fd-name { color: var(--primary); font-weight: 600; }
+.fd-empty { text-align: center; color: var(--text-3); font-size: 12px; padding: 14px 0; }
+.fd-footer { flex-shrink: 0; padding: 10px 14px; font-size: 11px; color: var(--text-3); text-align: center; border-top: 1px solid var(--line-light); background: #fafcff; }
+
+/* 流程项：横向 mini 流程条（A1） */
+.fd-rail { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 4px; margin-top: 8px; }
+.fd-rail-item { flex: 0 0 auto; min-width: 56px; border-radius: 10px; padding: 6px; background: var(--bg-secondary); display: flex; flex-direction: column; align-items: center; gap: 4px; cursor: pointer; }
+.fd-rail-item.active { background: var(--primary-bg); }
+.fd-ri-name { font-size: 11px; color: var(--text-2); line-height: 1.2; text-align: center; }
+.fd-rail-item.active .fd-ri-name { color: var(--primary); font-weight: 500; }
+.fd-ri-bar { width: 100%; height: 3px; border-radius: 2px; background: var(--dot-ring); overflow: hidden; }
+.fd-ri-bar i { display: block; height: 100%; border-radius: 2px; }
+.fd-ri-prog { font-size: 11px; color: var(--text-3); }
+.fd-rail-item.active .fd-ri-prog { color: var(--primary); }
+
+/* 两类任务：横向分段 tab（B1） */
+.fd-tabs { display: flex; gap: 0; background: var(--bg-secondary); border-radius: 8px; padding: 3px; margin: 12px 0 10px; }
+.fd-tab { flex: 1; text-align: center; font-size: 12px; color: var(--text-2); padding: 7px 4px; border-radius: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 4px; }
+.fd-tab.on { background: #fff; color: var(--primary); font-weight: 500; box-shadow: 0 1px 3px rgba(0,0,0,.08); }
+.fd-tab-n { font-size: 11px; color: var(--text-3); }
+.fd-tab.on .fd-tab-n { color: var(--primary); }
+
+@media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
+@media (max-width: 720px) { body { flex-direction: column; align-items: center; } .demo-panel { width: 375px; border-left: none; border-top: 2px dashed var(--demo-blue); } }
+</style>
+</head>
+<body>
+  <!-- ===== 手机框 ===== -->
+  <div class="phone-frame">
+    <div class="status-bar">
+      <span class="time">9:41</span>
+      <div class="sb-ic">
+        <span class="sb-signal"><i></i><i></i><i></i><i></i></span>
+        <span class="sb-battery"><i></i></span>
+      </div>
+    </div>
+    <div class="nav-bar">
+      <a class="nb-back" href="javascript:void(0)" onclick="toast('返回')">←</a>
+      <div class="title">项目详情</div>
+      <div class="nb-actions"><div class="native-capsule" title="微信原生胶囊：由微信客户端渲染，开发者不可自定义其内容"><span class="nc-left">⋯</span><span class="nc-divider"></span><span class="nc-right">○</span></div></div>
+    </div>
+
+    <div class="page-body" id="pageBody">
+      <!-- 项目信息一行 -->
+      <div class="project-bar">
+        <span class="pname" id="projName">西安全屋整装</span>
+        <span class="pstatus">施工中</span>
+        <span class="pswitch" onclick="toggleSwitch()">切换 <span style="font-size:11px">▾</span></span>
+      </div>
+      <div class="switch-pop" id="switchPop" style="display:none"></div>
+
+      <!-- quick-nav 4 项 -->
+      <div class="card qn-card">
+        <div class="quick-nav">
+          <div class="qn" onclick="toast('团队成员（演示暂未接入）')"><span class="qn-ic">众</span><span class="qn-tx">团队成员</span></div>
+          <div class="qn" onclick="toast('资料（演示暂未接入）')"><span class="qn-ic">资</span><span class="qn-tx">资料</span></div>
+          <div class="qn" onclick="toast('对账单（演示暂未接入）')"><span class="qn-ic">账</span><span class="qn-tx">对账单</span></div>
+          <div class="qn" onclick="toast('合同（演示暂未接入）')"><span class="qn-ic">合</span><span class="qn-tx">合同</span></div>
+        </div>
+      </div>
+
+      <!-- 待办事项 -->
+      <div class="card">
+        <div class="card-head"><span class="ch-t">待办事项</span><span class="ch-n">2</span><span class="ch-a" onclick="toast('查看全部待办')">全部 ›</span></div>
+        <div class="todo-row" onclick="toast('去处理：水电分包合同签约')">
+          <span class="t-tag t-contract">合同</span>
+          <span class="t-main"><span class="t-title">水电分包合同待签约</span><span class="t-sub">发起人 陈庄 · 今天 10:20</span></span>
+          <span class="t-go">去处理 ›</span>
+        </div>
+        <div class="todo-row" onclick="toast('去处理：材料进场验收')">
+          <span class="t-tag t-task">任务</span>
+          <span class="t-main"><span class="t-title">材料进场验收待确认</span><span class="t-sub">发起人 李伟 · 昨天 16:40</span></span>
+          <span class="t-go">去处理 ›</span>
+        </div>
+      </div>
+
+      <!-- 我的任务 -->
+      <div class="card">
+        <div class="mytask-row">
+          <span class="mt-t">我的任务</span>
+          <span class="mt-s">待处理 5 · 确认中 2 · 已完成 3</span>
+          <span class="mt-a" onclick="toast('查看我的任务')">›</span>
+        </div>
+      </div>
+
+      <!-- 服务流程卡 -->
+      <div class="flow-card">
+        <div class="flow-sticky" id="flowSticky">
+          <div class="flow-head" onclick="openFlowDrawer()" style="cursor:pointer"><span class="fh-t">服务流程 <span style="font-size:12px;color:var(--primary)">›</span></span><span class="fh-n" id="mainLine">主线 3/6</span></div>
+          <div class="flow-stats" onclick="openFlowDrawer()" style="cursor:pointer">
+            <span class="fs-seg"><span class="fs-num" id="cNum">3/5</span><span class="fs-lab">合同 · <span id="cPct">60%</span></span></span>
+            <span class="fs-div"></span>
+            <span class="fs-seg"><span class="fs-num" id="tNum">12/20</span><span class="fs-lab">任务 · <span id="tPct">60%</span></span></span>
+          </div>
+          <div class="rail-wrap">
+            <div class="flow-rail" id="flowRail"></div>
+            <div class="rail-mask" id="railMask"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 今日动态（对齐服务端原型页） -->
+      <div class="card activity-card">
+        <div class="card-head"><span class="ch-t">📝 今日动态</span><span class="ch-a" onclick="toast('查看全部动态')">查看全部 ›</span></div>
+        <div class="activity-list" id="activityList">
+          <div class="activity-item" onclick="toast('查看动态详情')">
+            <div class="activity-header">
+              <div class="activity-avatar" style="background:#1890FF">陈</div>
+              <div class="activity-info">
+                <span class="activity-user">陈庄</span><span class="activity-role-tag project-manager">项目总</span>
+                <div class="activity-time">01-15 10:30</div>
+              </div>
+            </div>
+            <div class="activity-content">确认了 <span class="hl">水电</span> 开槽布线验收，进入下一阶段</div>
+            <div class="activity-media">
+              <div class="activity-media-item" style="background:#cdd5dc"><div class="play"></div></div>
+              <div class="activity-media-item" style="background:#d7dde2"></div>
+              <div class="activity-media-item" style="background:#c9d0d6"></div>
+            </div>
+          </div>
+          <div class="activity-item" onclick="toast('查看动态详情')">
+            <div class="activity-header">
+              <div class="activity-avatar" style="background:#722ED1">张</div>
+              <div class="activity-info">
+                <span class="activity-user">张设计</span><span class="activity-role-tag designer">设计</span>
+                <div class="activity-time">01-15 09:15</div>
+              </div>
+            </div>
+            <div class="activity-content">上传了 <span class="hl">初步设计方案</span> v3 图纸</div>
+            <div class="activity-media">
+              <div class="activity-media-item" style="background:#d2d8dd"></div>
+              <div class="activity-media-item" style="background:#cdd5dc"></div>
+            </div>
+          </div>
+          <div class="activity-item" onclick="toast('查看动态详情')">
+            <div class="activity-header">
+              <div class="activity-avatar" style="background:#52C41A">李</div>
+              <div class="activity-info">
+                <span class="activity-user">李伟</span><span class="activity-role-tag foreman">工长</span>
+                <div class="activity-time">01-14 18:40</div>
+              </div>
+            </div>
+            <div class="activity-content">完成了 <span class="hl">水电</span> 隐蔽工程验收</div>
+          </div>
+          <div class="activity-item" onclick="toast('查看动态详情')">
+            <div class="activity-header">
+              <div class="activity-avatar" style="background:#FA8C16">王</div>
+              <div class="activity-info">
+                <span class="activity-user">王强</span><span class="activity-role-tag worker">施工</span>
+                <div class="activity-time">01-14 15:20</div>
+              </div>
+            </div>
+            <div class="activity-content">提交了 工地巡检 记录</div>
+            <div class="activity-media">
+              <div class="activity-media-item" style="background:#d7dde2"></div>
+              <div class="activity-media-item" style="background:#c9d0d6"></div>
+            </div>
+          </div>
+          <div class="activity-item extra hidden" onclick="toast('查看动态详情')">
+            <div class="activity-header">
+              <div class="activity-avatar" style="background:#1890FF">陈</div>
+              <div class="activity-info">
+                <span class="activity-user">陈庄</span><span class="activity-role-tag project-manager">项目总</span>
+                <div class="activity-time">01-13 11:00</div>
+              </div>
+            </div>
+            <div class="activity-content">发起了 <span class="hl">主材安装</span> 合同签订流程</div>
+          </div>
+          <div class="activity-item extra hidden" onclick="toast('查看动态详情')">
+            <div class="activity-header">
+              <div class="activity-avatar" style="background:#722ED1">张</div>
+              <div class="activity-info">
+                <span class="activity-user">张设计</span><span class="activity-role-tag designer">设计</span>
+                <div class="activity-time">01-12 16:30</div>
+              </div>
+            </div>
+            <div class="activity-content">完成了 量房 原始尺寸复测</div>
+          </div>
+        </div>
+        <div class="activity-more-btn" id="activityMoreBtn" onclick="toggleActivityMore()">展开更多</div>
+      </div>
+      <div style="height:var(--sp-3)"></div>
+    </div>
+
+    <!-- 右侧「服务流程项」浮窗（参考 owner 项目导航） -->
+    <div class="flow-trigger" id="flowTrigger" onclick="openFlowDrawer()">
+      <span class="ft-arrow">‹</span>
+      <span class="ft-text">服务流程</span>
+    </div>
+    <div class="flow-drawer-mask" id="flowDrawerMask" onclick="closeFlowDrawer()"></div>
+    <div class="flow-drawer" id="flowDrawer">
+      <div class="fd-header">
+        <span class="fd-ic">ⓘ</span>
+        <span class="fd-title">服务流程项</span>
+        <span class="fd-tag">施工路线</span>
+        <span class="fd-right">
+          <span class="fd-expand" id="fdExpandBtn" onclick="toggleDrawerExpand()">收起明细</span>
+          <span class="fd-close" onclick="closeFlowDrawer()">×</span>
+        </span>
+      </div>
+      <div class="fd-info">
+        <span class="fd-badge" id="fdMainCount">主线 3/6</span>
+        <span class="fd-locate" onclick="toast('定位当前施工项')">📍 定位</span>
+      </div>
+      <div class="fd-content">
+        <div class="fd-sec"><div class="fd-sec-h">服务流程项 <span class="fd-count" id="fdFlowCount"></span></div><div id="fdFlowList"></div></div>
+        <div id="fdDetailWrap"><div id="fdDetail"></div></div>
+      </div>
+      <div class="fd-footer">点击流程项可切换 · 点击任务查看详情</div>
+    </div>
+  </div>
+
+  <!-- ===== 演示控制（框外） ===== -->
+  <div class="demo-panel">
+    <h4>演示控制（不影响页面语义）</h4>
+    <div class="dp-group">
+      <div class="dp-lab">选中项状态</div>
+      <div class="dp-opts" id="optStatus">
+        <div class="dp-opt" data-v="未开始">未开始</div>
+        <div class="dp-opt on" data-v="进行中">进行中</div>
+        <div class="dp-opt" data-v="已完成">已完成</div>
+        <div class="dp-opt" data-v="已终止">已终止</div>
+      </div>
+    </div>
+    <div class="dp-group">
+      <div class="dp-lab">流程项数</div>
+      <div class="dp-opts" id="optCount">
+        <div class="dp-opt on" data-v="6">6 项</div>
+        <div class="dp-opt" data-v="8">8 项</div>
+      </div>
+    </div>
+    <div class="dp-group">
+      <div class="dp-lab">明细</div>
+      <div class="dp-opts" id="optDetail">
+        <div class="dp-opt on" data-v="open">展开</div>
+        <div class="dp-opt" data-v="collapse">收起</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+<script>
+/* ===== 状态色 ===== */
+function statusStyle(s) {
+  switch (s) {
+    case '进行中': return { dot: '#1677ff', ring: '', badge: 'b-go', bar: '#1677ff' };
+    case '已完成': return { dot: '#52c41a', ring: '', badge: 'b-done', bar: '#52c41a' };
+    case '已终止': return { dot: '#fff', ring: '#ff4d4f', badge: 'b-stop', bar: '#ff4d4f' };
+    default:       return { dot: '#fff', ring: '#d9d9d9', badge: 'b-wait', bar: '#d9d9d9' };
+  }
+}
+function badgeText(s) { return s === '未开始' ? '待开始' : s; }
+
+/* ===== 数据 ===== */
+function baseItems() {
+  return [
+    { id: 'lh', name: '量房', kind: 'task', status: '已完成', done: 3, total: 3,
+      tasks: [
+        { name: '原始尺寸复测', exec: '张设计', status: '已完成' },
+        { name: '墙体结构勘测', exec: '李设计', status: '已完成' },
+        { name: '设备点位确认', exec: '王设计', status: '已完成' }
+      ] },
+    { id: 'cs', name: '初步设计', kind: 'task', status: '已完成', done: 4, total: 4,
+      tasks: [
+        { name: '方案文件·户型优化', exec: '张设计', status: '已完成' },
+        { name: '内部评审', exec: '李设计', status: '已完成' },
+        { name: '会审', exec: '王设计', status: '已完成' },
+        { name: '方案定稿', exec: '张设计', status: '已完成' }
+      ] },
+    { id: 'ht', name: '设计合同', kind: 'contract', status: '已完成', done: 2, total: 2,
+      contracts: {
+        main: { name: '设计服务合同', status: '已完成', stage: '2/2' },
+        subs: [ { name: '软装设计分包', status: '已完成', stage: '1/1' } ],
+        externals: [ { name: '设计交底', exec: '张设计', status: '已完成' } ]
+      } },
+    { id: 'sg', name: '施工合同', kind: 'contract', status: '进行中', done: 5, total: 8,
+      contracts: {
+        main: { name: '基础施工服务合同', status: '进行中', stage: '5/8' },
+        subs: [
+          { name: '水电分包合同', status: '进行中', stage: '2/3' },
+          { name: '木工分包合同', status: '未开始', stage: '0/2' },
+          { name: '主材分包合同', status: '进行中', stage: '3/3' }
+        ],
+        externals: [
+          { name: '工地巡检', exec: '王强', status: '已完成' },
+          { name: '材料进场验收', exec: '李伟', status: '进行中' },
+          { name: '隐蔽工程验收', exec: '赵敏', status: '未开始' },
+          { name: '收口验收', exec: '孙磊', status: '未开始' }
+        ]
+      } },
+    { id: 'cz', name: '主材安装', kind: 'contract', status: '未开始', done: 0, total: 2,
+      contracts: {
+        main: { name: '主材安装合同', status: '未开始', stage: '0/3' },
+        subs: [],
+        externals: []
+      } },
+    { id: 'sh', name: '售后', kind: 'task', status: '未开始', done: 0, total: 0, tasks: [] }
+  ];
+}
+function extraItems() {
+  return [
+    { id: 'rz', name: '软装', kind: 'contract', status: '未开始', done: 0, total: 1,
+      contracts: { main: { name: '软装采购合同', status: '未开始', stage: '0/2' }, subs: [], externals: [] } },
+    { id: 'ys', name: '竣工验收', kind: 'task', status: '未开始', done: 0, total: 0, tasks: [] }
+  ];
+}
+
+var ITEMS = baseItems();
+var selectedId = 'sg';      // 默认首个进行中项
+var itemCount = 6;
+var detailOpen = true;
+var overrideStatus = '进行中'; // 演示开关：覆盖选中项状态
+
+/* ===== 渲染流程条 ===== */
+function renderRail() {
+  var rail = document.getElementById('flowRail');
+  rail.innerHTML = '';
+  var list = itemCount === 8 ? ITEMS.concat(extraItems()) : ITEMS;
+  list.forEach(function (it) {
+    var st = (it.id === selectedId) ? overrideStatus : it.status;
+    var ss = statusStyle(st);
+    var el = document.createElement('div');
+    el.className = 'flow-item' + (it.id === selectedId ? ' on' : '');
+    el.setAttribute('data-id', it.id);
+    var prog = it.total > 0 ? (it.done + '/' + it.total) : '—';
+    var pct = it.total > 0 ? Math.round(it.done / it.total * 100) : 0;
+    el.innerHTML =
+      '<span class="fi-dot" style="background:' + ss.dot + (ss.ring ? ';border:2px solid ' + ss.ring : '') + '"></span>' +
+      '<span class="fi-name">' + it.name + '</span>' +
+      '<span class="fi-bar"><i style="width:' + pct + '%;background:' + ss.bar + '"></i></span>' +
+      '<span class="fi-prog">' + prog + '</span>';
+    el.addEventListener('click', function () { selectItem(it.id); });
+    rail.appendChild(el);
+  });
+  updateMask();
+}
+
+function updateMask() {
+  var rail = document.getElementById('flowRail');
+  var mask = document.getElementById('railMask');
+  mask.style.display = rail.scrollWidth > rail.clientWidth + 2 ? 'block' : 'none';
+}
+
+function selectItem(id) {
+  selectedId = id;
+  renderRail();
+  openFlowDrawer();   // 选中流程项 → 展开并展示右侧浮窗
+}
+
+/* ===== 渲染明细（主页面已不再内联展示，明细统一在右侧浮窗；保留函数名以免破坏调用方） ===== */
+function renderDetail() {
+  return;
+}
+
+function rowHtml(name, meta, badge, status, isContract) {
+  var ss = statusStyle(status);
+  return '<div class="d-row" onclick="toast(\'' + (isContract ? '查看合同：' : '查看任务：') + name + '\')">' +
+    '<span class="d-name">' + name + '</span>' +
+    '<span class="d-meta">' + meta + '</span>' +
+    '<span class="badge ' + ss.badge + '">' + badge + '</span>' +
+    '<span class="d-go">›</span></div>';
+}
+function countDone(arr) { return arr.filter(function (x) { return x.status === '已完成'; }).length; }
+
+function setDetail(open) {
+  detailOpen = open;
+  var box = document.getElementById('flowDetail');
+  if (box) box.classList.toggle('collapsed', !open);
+}
+
+/* ===== 统计 / 主线 ===== */
+function refreshStats() {
+  // 合同：已签(进行中+已完成) / 总数；任务：已完成 / 总数
+  var list = itemCount === 8 ? ITEMS.concat(extraItems()) : ITEMS;
+  var cTotal = 0, cDone = 0, tTotal = 0, tDone = 0, mainDone = 0;
+  list.forEach(function (it) {
+    if (it.kind === 'contract') {
+      cTotal += 1 + it.contracts.subs.length;
+      if (it.contracts.main.status === '进行中' || it.contracts.main.status === '已完成') cDone += 1;
+      it.contracts.subs.forEach(function (s) { if (s.status === '进行中' || s.status === '已完成') cDone += 1; });
+    } else {
+      tTotal += it.tasks.length;
+      tDone += countDone(it.tasks);
+    }
+    if (it.status === '已完成') mainDone += 1;
+  });
+  document.getElementById('cNum').textContent = cDone + '/' + cTotal;
+  document.getElementById('tNum').textContent = tDone + '/' + tTotal;
+  document.getElementById('cPct').textContent = (cTotal ? Math.round(cDone / cTotal * 100) : 0) + '%';
+  document.getElementById('tPct').textContent = (tTotal ? Math.round(tDone / tTotal * 100) : 0) + '%';
+  document.getElementById('mainLine').textContent = '主线 ' + mainDone + '/' + list.length;
+}
+
+/* ===== 今日动态：展开更多 ===== */
+function toggleActivityMore() {
+  var extras = document.querySelectorAll('#activityList .activity-item.extra');
+  var willShow = document.querySelector('#activityList .activity-item.extra.hidden') !== null;
+  extras.forEach(function (it) { it.classList.toggle('hidden', !willShow); });
+  document.getElementById('activityMoreBtn').textContent = willShow ? '收起' : '展开更多';
+}
+
+/* ===== 项目切换浮层 ===== */
+var PROJECTS = ['西安全屋整装', '北京旧房翻新', '南阳样板间'];
+function toggleSwitch() {
+  var pop = document.getElementById('switchPop');
+  if (pop.style.display === 'none') {
+    pop.innerHTML = PROJECTS.map(function (p) {
+      return '<div class="' + (p === document.getElementById('projName').textContent ? 'on' : '') + '" onclick="pickProject(\'' + p + '\')">' + p + '</div>';
+    }).join('');
+    pop.style.display = 'block';
+  } else { pop.style.display = 'none'; }
+}
+function pickProject(p) { document.getElementById('projName').textContent = p; document.getElementById('switchPop').style.display = 'none'; toast('已切换到 ' + p); }
+
+/* ===== Toast ===== */
+var toastTimer;
+function toast(msg) {
+  var t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(function () { t.classList.remove('show'); }, 1600);
+}
+
+/* ===== sticky 常驻分隔线 ===== */
+document.getElementById('pageBody').addEventListener('scroll', function () {
+  var st = document.getElementById('flowSticky');
+  st.classList.toggle('stuck', this.scrollTop > 4);
+});
+
+/* ===== 右侧「服务流程项」浮窗 ===== */
+var drawerExpanded = true;
+function mainDoneCount() {
+  var list = itemCount === 8 ? ITEMS.concat(extraItems()) : ITEMS;
+  return list.filter(function (x) { return x.status === '已完成'; }).length;
+}
+function syncDrawerIfOpen() {
+  var d = document.getElementById('flowDrawer');
+  if (d && d.classList.contains('open')) renderFlowDrawer();
+}
+function openFlowDrawer() {
+  renderFlowDrawer();
+  document.getElementById('flowDrawerMask').classList.add('open');
+  document.getElementById('flowDrawer').classList.add('open');
+  document.getElementById('flowTrigger').style.opacity = '0';
+}
+function closeFlowDrawer() {
+  document.getElementById('flowDrawerMask').classList.remove('open');
+  document.getElementById('flowDrawer').classList.remove('open');
+  document.getElementById('flowTrigger').style.opacity = '1';
+}
+function toggleDrawerExpand() {
+  drawerExpanded = !drawerExpanded;
+  document.getElementById('fdDetailWrap').style.display = drawerExpanded ? '' : 'none';
+  document.getElementById('fdExpandBtn').textContent = drawerExpanded ? '收起明细' : '全部展开';
+}
+function fdRow(name, meta, badge, status) {
+  var ss = statusStyle(status);
+  return '<div class="fd-item" onclick="toast(\'查看：' + name + '\')">' +
+    '<span class="fd-dot" style="background:' + ss.dot + (ss.ring ? ';border:2px solid ' + ss.ring : '') + '"></span>' +
+    '<span class="fd-name">' + name + '</span>' +
+    '<span class="fd-meta">' + meta + '</span>' +
+    '<span class="fd-badge badge ' + ss.badge + '">' + badge + '</span></div>';
+}
+function selectFlow(id) {
+  selectedId = id;
+  renderRail();
+  renderDetail();
+  setDetail(true);
+  renderFlowDrawer();
+  var el = document.querySelector('.flow-item.on');
+  if (el && typeof el.scrollIntoView === 'function') el.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+}
+var fdDetailTab = 'stage';   // 'stage' = 主合同内的阶段任务；'ext' = 临时派遣阶段任务
+function renderFlowDrawer() {
+  var list = itemCount === 8 ? ITEMS.concat(extraItems()) : ITEMS;
+  // 流程项：横向 mini 流程条
+  var flowHtml = '<div class="fd-rail">' + list.map(function (it) {
+    var st = (it.id === selectedId) ? overrideStatus : it.status;
+    var ss = statusStyle(st);
+    var active = it.id === selectedId ? ' active' : '';
+    var prog = it.total > 0 ? (it.done + '/' + it.total) : '—';
+    var pct = it.total > 0 ? Math.round(it.done / it.total * 100) : 0;
+    return '<div class="fd-rail-item' + active + '" onclick="selectFlow(\'' + it.id + '\')">' +
+      '<span class="fd-ri-name">' + it.name + '</span>' +
+      '<span class="fd-ri-bar"><i style="width:' + pct + '%;background:' + ss.bar + '"></i></span>' +
+      '<span class="fd-ri-prog">' + prog + '</span></div>';
+  }).join('') + '</div>';
+
+  var sel = list.filter(function (x) { return x.id === selectedId; })[0];
+  document.getElementById('fdFlowList').innerHTML = flowHtml;
+  document.getElementById('fdDetail').innerHTML = renderFdDetail(sel);
+  document.getElementById('fdMainCount').innerHTML = '主线 <b>' + mainDoneCount() + '</b>/' + list.length;
+  document.getElementById('fdFlowCount').textContent = list.length + ' 项';
+}
+function renderFdDetail(sel) {
+  if (!sel) return '';
+  if (sel.kind === 'contract') {
+    var c = sel.contracts;
+    var stageTasks = [c.main].concat(c.subs);
+    var stageOn = fdDetailTab === 'stage' ? ' on' : '';
+    var extOn = fdDetailTab === 'ext' ? ' on' : '';
+    return '<div class="fd-tabs">' +
+      '<div class="fd-tab' + stageOn + '" data-g="stage" onclick="switchFdTab(\'stage\')">主合同内的阶段任务 <span class="fd-tab-n">' + stageTasks.length + '</span></div>' +
+      '<div class="fd-tab' + extOn + '" data-g="ext" onclick="switchFdTab(\'ext\')">临时派遣阶段任务 <span class="fd-tab-n">' + countDone(c.externals) + '/' + c.externals.length + '</span></div>' +
+      '</div><div id="fdDetailBody">' + fdDetailRows(sel, fdDetailTab) + '</div>';
+  }
+  var tRows = sel.tasks.length
+    ? sel.tasks.map(function (t) { return fdRow(t.name, '执行 ' + t.exec, badgeText(t.status), t.status); }).join('')
+    : '<div class="fd-empty">该流程项暂无任务</div>';
+  return '<div id="fdDetailBody">' + tRows + '</div>';
+}
+function fdDetailRows(sel, group) {
+  if (sel.kind !== 'contract') return '';
+  var c = sel.contracts;
+  if (group === 'ext') {
+    return c.externals.length
+      ? c.externals.map(function (e) { return fdRow(e.name, '执行 ' + e.exec, badgeText(e.status), e.status); }).join('')
+      : '<div class="fd-empty">暂无临时派遣阶段任务</div>';
+  }
+  var stageTasks = [c.main].concat(c.subs);
+  return stageTasks.map(function (s) { return fdRow(s.name, '阶段 ' + s.stage, badgeText(s.status), s.status); }).join('');
+}
+function switchFdTab(group) {
+  fdDetailTab = group;
+  var tabs = document.querySelectorAll('#fdDetail .fd-tab');
+  tabs.forEach(function (t) { t.classList.toggle('on', t.getAttribute('data-g') === group); });
+  var body = document.getElementById('fdDetailBody');
+  if (!body) return;
+  var sel = (itemCount === 8 ? ITEMS.concat(extraItems()) : ITEMS).filter(function (x) { return x.id === selectedId; })[0];
+  if (sel && sel.kind === 'contract') body.innerHTML = fdDetailRows(sel, group);
+}
+
+/* ===== 演示开关 ===== */
+function bindOpts(groupId, cb) {
+  var g = document.getElementById(groupId);
+  g.querySelectorAll('.dp-opt').forEach(function (o) {
+    o.addEventListener('click', function () {
+      g.querySelectorAll('.dp-opt').forEach(function (x) { x.classList.remove('on'); });
+      o.classList.add('on');
+      cb(o.getAttribute('data-v'));
+    });
+  });
+}
+bindOpts('optStatus', function (v) { overrideStatus = v; renderRail(); renderDetail(); syncDrawerIfOpen(); });
+bindOpts('optCount', function (v) { itemCount = parseInt(v, 10); refreshStats(); renderRail(); renderDetail(); setDetail(true); syncDrawerIfOpen(); });
+bindOpts('optDetail', function (v) {
+  drawerExpanded = (v === 'open');
+  var wrap = document.getElementById('fdDetailWrap');
+  if (wrap) wrap.style.display = drawerExpanded ? '' : 'none';
+  var btn = document.getElementById('fdExpandBtn');
+  if (btn) btn.textContent = drawerExpanded ? '收起明细' : '全部展开';
+});
+
+/* ===== 初始化 ===== */
+refreshStats();
+renderRail();
+renderDetail();
+setDetail(true);
+window.addEventListener('resize', updateMask);
+</script>
+</body>
+</html>

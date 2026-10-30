@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>家装平台小程序原型 - 对账单</title>
+    <link rel="stylesheet" href="common.css">
+    <link rel="stylesheet" href="css/statement-list.css">
+<style>
+    /* v2-native-capsule-style：微信原生胶囊占位（不可自定义，仅演示位置） */
+    .nav-bar .native-capsule {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 5px;
+        min-width: 46px;
+        height: 28px;
+        padding: 0 8px;
+        border: 1px dashed #cfcfcf;
+        border-radius: 14px;
+        color: #b3b3b3;
+        font-size: 13px;
+        line-height: 1;
+        user-select: none;
+        box-sizing: border-box;
+    }
+</style>
+</head>
+<body>
+    <div class="phone-frame">
+        <div class="status-bar">
+            <div class="time">9:41</div>
+            <div class="icons">📶 🔋</div>
+        </div>
+
+        <div class="nav-bar">
+            <div class="back" onclick="history.back()">← 返回</div>
+            <div class="title centered">对账单</div>
+            
+        
+            <div class="actions"><div class="native-capsule" title="微信原生胶囊：由微信客户端渲染，开发者不可自定义其内容"></div></div>
+        </div>
+            
+
+
+        <div class="page-content" id="pageContent">
+            <div class="dropdown-menu-wrapper">
+                <div class="dropdown-menu" id="dropdownMenu">
+                    <div class="dropdown-item" id="contractDropdown" onclick="toggleDropdown('contract')">
+                        <span class="dropdown-title">合同</span>
+                        <span class="dropdown-value" id="contractDropdownValue">全部</span>
+                        <span class="dropdown-arrow" id="contractDropdownArrow">▼</span>
+                    </div>
+                    <div class="dropdown-item" id="typeDropdown" onclick="toggleDropdown('type')">
+                        <span class="dropdown-title">类型</span>
+                        <span class="dropdown-value" id="typeDropdownValue">全部</span>
+                        <span class="dropdown-arrow" id="typeDropdownArrow">▼</span>
+                    </div>
+                    <div class="dropdown-item" id="statusDropdown" onclick="toggleDropdown('status')">
+                        <span class="dropdown-title">状态</span>
+                        <span class="dropdown-value" id="statusDropdownValue">全部</span>
+                        <span class="dropdown-arrow" id="statusDropdownArrow">▼</span>
+                    </div>
+                </div>
+                <div class="dropdown-overlay" id="dropdownOverlay" onclick="closeDropdown()"></div>
+                <div class="dropdown-content" id="contractDropdownContent">
+                    <div class="dropdown-option active" onclick="selectDropdownOption('contract', 'all', '全部')">全部</div>
+                    <div class="dropdown-option" onclick="selectDropdownOption('contract', '基础施工服务合同', '基础施工服务合同')">基础施工服务合同</div>
+                    <div class="dropdown-option" onclick="selectDropdownOption('contract', '设计服务合同', '设计服务合同')">设计服务合同</div>
+                </div>
+                <div class="dropdown-content" id="typeDropdownContent">
+                    <div class="dropdown-option active" onclick="selectDropdownOption('type', 'all', '全部')">全部</div>
+                    <div class="dropdown-option" onclick="selectDropdownOption('type', 'worker_wage', '工友工资')">工友工资</div>
+                    <div class="dropdown-option" onclick="selectDropdownOption('type', 'material', '辅料费')">辅料费</div>
+                    <div class="dropdown-option" onclick="selectDropdownOption('type', 'measure', '措施费')">措施费</div>
+                    <div class="dropdown-option" onclick="selectDropdownOption('type', 'insurance', '保险费')">保险费</div>
+                    <div class="dropdown-option" onclick="selectDropdownOption('type', 'foreman_wage', '工长工资')">工长工资</div>
+                </div>
+                <div class="dropdown-content" id="statusDropdownContent">
+                    <div class="dropdown-option active" onclick="selectDropdownOption('status', 'all', '全部')">全部</div>
+                    <div class="dropdown-option" onclick="selectDropdownOption('status', 'pending', '待我确认')">待我确认</div>
+                    <div class="dropdown-option" onclick="selectDropdownOption('status', 'effective', '已生效')">已生效</div>
+                    <div class="dropdown-option" onclick="selectDropdownOption('status', 'paid', '已支付')">已支付</div>
+                    <div class="dropdown-option" onclick="selectDropdownOption('status', 'rejected', '已驳回')">已驳回</div>
+                </div>
+            </div>
+
+            <div class="statement-summary">
+                <div class="summary-item">
+                    <div class="summary-value">¥ 141,000.00</div>
+                    <div class="summary-label">合同总额</div>
+                </div>
+                <div class="summary-divider"></div>
+                <div class="summary-item">
+                    <div class="summary-value">¥ 128,500.00</div>
+                    <div class="summary-label">已支付</div>
+                </div>
+                <div class="summary-divider"></div>
+                <div class="summary-item">
+                    <div class="summary-value pending">¥ 12,500.00</div>
+                    <div class="summary-label">待支付</div>
+                </div>
+            </div>
+
+            <div class="statement-list" id="statementList">
+                <div class="statement-card" data-id="1" data-status="pending" data-type="material" data-contract="基础施工服务合同" onclick="goToDetail('pending', 'material', 'confirmer')">
+                    <div class="card-header">
+                        <div class="type-tag material">辅料费</div>
+                        <div class="status-tag pending">待确认</div>
+                    </div>
+                    <div class="card-body">
+                        <div class="amount positive">¥ 4,500.00</div>
+                        <div class="contract-name">基础施工服务合同</div>
+                        <div class="description">现场水电实际超出原合同预估米数，进行实际增项测量结算</div>
+                    </div>
+                    <div class="card-footer">
+                        <div class="creator-info">
+                            <span class="creator-avatar">张</span>
+                            <span class="creator-name">张工长</span>
+                            <span class="create-time">提交于 2026-05-20 10:30</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="statement-card" data-id="2" data-status="effective" data-type="worker_wage" data-contract="基础施工服务合同" onclick="goToDetail('effective', 'worker_wage')">
+                    <div class="card-header">
+                        <div class="type-tag worker_wage">工友工资</div>
+                        <div class="status-tag effective">已生效</div>
+                    </div>
+                    <div class="card-body">
+                        <div class="amount positive">¥ 8,000.00</div>
+                        <div class="contract-name">基础施工服务合同</div>
+                        <div class="description">水电班组本周工资结算，含加班费用</div>
+                    </div>
+                    <div class="card-footer confirmed">
+                        <div class="confirmed-info">
+                            <span class="confirmer-avatar">李</span>
+                            <span class="confirmed-text">业主 <strong>我</strong> 已于 <strong>2026-05-19 14:30</strong> 确认</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="statement-card" data-id="3" data-status="rejected" data-type="measure" data-contract="基础施工服务合同" onclick="goToDetail('rejected', 'measure')">
+                    <div class="card-header">
+                        <div class="type-tag measure">措施费</div>
+                        <div class="status-tag rejected">已驳回</div>
+                    </div>
+                    <div class="card-body">
+                        <div class="amount positive">¥ 2,000.00</div>
+                        <div class="contract-name">基础施工服务合同</div>
+                        <div class="description">现场临时设施搭建费用</div>
+                    </div>
+                    <div class="reject-reason-box">
+                        <div class="reject-reason-header">
+                            <span class="reject-icon">❌</span>
+                            <span class="reject-title">驳回原因</span>
+                        </div>
+                        <div class="reject-reason-content">数量算错了，现场测量只有20米，请核对后重新发起。</div>
+                    </div>
+                    <div class="card-footer rejected">
+                        <div class="rejected-info">
+                            <span class="rejecter-avatar">李</span>
+                            <span class="rejected-text">业主 <strong>我</strong> 于 <strong>2026-05-18 16:00</strong> 驳回</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="statement-card" data-id="4" data-status="effective" data-type="insurance" data-contract="设计服务合同" onclick="goToDetail('effective', 'insurance')">
+                    <div class="card-header">
+                        <div class="type-tag insurance">保险费</div>
+                        <div class="status-tag effective">已生效</div>
+                    </div>
+                    <div class="card-body">
+                        <div class="amount positive">¥ 3,500.00</div>
+                        <div class="contract-name">设计服务合同</div>
+                        <div class="description">工程一切险及建工意外险</div>
+                    </div>
+                    <div class="card-footer confirmed">
+                        <div class="confirmed-info">
+                            <span class="confirmer-avatar">李</span>
+                            <span class="confirmed-text">业主 <strong>我</strong> 已于 <strong>2026-05-15 09:00</strong> 确认</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="statement-card" data-id="5" data-status="effective" data-type="foreman_wage" data-contract="基础施工服务合同" onclick="goToDetail('effective', 'foreman_wage')">
+                    <div class="card-header">
+                        <div class="type-tag foreman_wage">工长工资</div>
+                        <div class="status-tag effective">已生效</div>
+                    </div>
+                    <div class="card-body">
+                        <div class="amount negative">-¥ 1,500.00</div>
+                        <div class="contract-name">基础施工服务合同</div>
+                        <div class="description">冲销上笔错误录入，原账单编号：ZB20260515001</div>
+                    </div>
+                    <div class="card-footer confirmed">
+                        <div class="confirmed-info">
+                            <span class="confirmer-avatar">李</span>
+                            <span class="confirmed-text">业主 <strong>我</strong> 已于 <strong>2026-05-14 11:20</strong> 确认</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="statement-card" data-id="6" data-status="pending" data-type="worker_wage" data-contract="基础施工服务合同" onclick="goToDetail('pending', 'worker_wage', 'confirmer')">
+                    <div class="card-header">
+                        <div class="type-tag worker_wage">工友工资</div>
+                        <div class="status-tag pending">待确认</div>
+                    </div>
+                    <div class="card-body">
+                        <div class="amount positive">¥ 12,000.00</div>
+                        <div class="contract-name">基础施工服务合同</div>
+                        <div class="description">木工班组第二期工资结算</div>
+                    </div>
+                    <div class="card-footer">
+                        <div class="creator-info">
+                            <span class="creator-avatar">张</span>
+                            <span class="creator-name">张工长</span>
+                            <span class="create-time">提交于 2026-05-20 09:00</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="statement-card" data-id="7" data-status="paid" data-type="material" data-contract="设计服务合同" onclick="goToDetail('paid', 'material')">
+                    <div class="card-header">
+                        <div class="type-tag material">辅料费</div>
+                        <div class="status-tag paid">已支付</div>
+                    </div>
+                    <div class="card-body">
+                        <div class="amount positive">¥ 5,000.00</div>
+                        <div class="contract-name">设计服务合同</div>
+                        <div class="description">设计阶段材料采购费用</div>
+                    </div>
+                    <div class="card-footer paid">
+                        <div class="paid-info">
+                            <span class="paid-avatar">张</span>
+                            <span class="paid-text">服务方 <strong>张工长</strong> 已于 <strong>2026-05-18 16:30</strong> 上传支付凭证</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="empty-state" id="emptyState" style="display: none;">
+                <div class="empty-icon">📋</div>
+                <div class="empty-text">暂无对账单记录</div>
+                <div class="empty-hint">工长提交的对账单将显示在这里</div>
+            </div>
+
+            <div style="height: 60px;"></div>
+        </div>
+    </div>
+
+    <div class="toast-modal" id="toastModal">
+        <div class="toast-content" id="toastContent">操作成功</div>
+    </div>
+
+    <div class="page-nav">
+        <div class="page-nav-title">原型导航</div>
+        <a href="home.html" class="page-nav-item">首页</a>
+        <a href="project-detail.html" class="page-nav-item">项目详情</a>
+        <a href="statement-list.html" class="page-nav-item active">对账单</a>
+        <a href="contract-detail.html" class="page-nav-item">合同详情</a>
+        <a href="task-detail.html" class="page-nav-item">任务详情</a>
+    </div>
+
+    <script src="js/page-nav.js"></script>
+    <script src="js/statement-list.js"></script>
+</body>
+</html>

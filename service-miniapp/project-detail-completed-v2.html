@@ -1,0 +1,1371 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>家装平台小程序原型 - 项目详情（已完成-新版）</title>
+    <style>
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        /* 手机端小程序规范：隐藏所有滚动条（手机框内详情滚动、下拉面板、原型导航等） */
+        ::-webkit-scrollbar { width: 0 !important; height: 0 !important; display: none !important; }
+        * { -ms-overflow-style: none; scrollbar-width: none; }
+        :root {
+            --primary: #1677ff; --primary-bg: #e6f7ff; --primary-light: #4096ff;
+            --success: #52c41a; --success-bg: #f6ffed; --warning: #fa8c16; --warning-bg: #fff7e6;
+            --danger: #ff4d4f; --danger-bg: #fff2f0; --orange: #fa541c;
+            --text: #222; --text-2: #555; --text-3: #999; --bg: #f2f3f5;
+            --card: #fff; --border: #ececec; --shadow: 0 1px 6px rgba(0,0,0,.05);
+            /* 原型导航（common.css）规范变量，用于与其他页面原型导航样式统一 */
+            --primary-color: #1890FF; --bg-primary: #FFFFFF; --bg-secondary: #F5F5F5;
+            --text-primary: #262626; --text-secondary: #595959; --text-tertiary: #8C8C8C; --shadow-md: rgba(0,0,0,0.1);
+            /* 与 project-detail.css 对齐的渐变色（快捷入口图标用） */
+            --gradient-blue: linear-gradient(135deg, #1890FF 0%, #40A9FF 100%);
+            --gradient-green: linear-gradient(135deg, #52C41A 0%, #73D13D 100%);
+            --gradient-orange: linear-gradient(135deg, #FA8C16 0%, #FFA940 100%);
+            --gradient-purple: linear-gradient(135deg, #722ED1 0%, #9254DE 100%);
+            --gradient-gold: linear-gradient(135deg, #FAAD14 0%, #FFC53D 100%);
+            --gradient-cyan: linear-gradient(135deg, #13C2C2 0%, #36CFC9 100%);
+        }
+        body {
+            margin: 0; background: #e9ebee; min-height: 100vh;
+            font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
+            display: flex; align-items: flex-start; justify-content: center; padding: 24px; gap: 16px;
+        }
+
+        /* ===== 手机框 ===== */
+        .phone-frame {
+            width: 375px; height: 812px; background: var(--bg);
+            border-radius: 40px; overflow: hidden; position: relative; flex-shrink: 0;
+            border: 10px solid #1a1a1a;
+            box-shadow: 0 12px 40px rgba(0,0,0,.25); display: flex; flex-direction: column;
+        }
+        .stage { position: relative; flex-shrink: 0; }
+        .status-bar {
+            height: 44px; background: #fff; display: flex; align-items: center;
+            justify-content: space-between; padding: 0 22px; font-size: 14px;
+            font-weight: 600; color: #000; flex-shrink: 0;
+        }
+        .nav-bar {
+            height: 48px; background: #fff; display: flex; align-items: center;
+            position: relative; border-bottom: 1px solid var(--border); flex-shrink: 0;
+        }
+        .nav-bar .nb-back { position: absolute; left: 14px; font-size: 26px; line-height: 1; color: #1a1a1a; text-decoration: none; }
+        .nav-bar .title { flex: 1; text-align: center; font-size: 17px; font-weight: 600; color: #1a1a1a; }
+        .nav-bar .nb-actions { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); display: flex; align-items: center; }
+        /* 微信原生胶囊占位（由微信客户端渲染，开发者不可自定义其内容） */
+        .nav-bar .native-capsule {
+            display: inline-flex; align-items: center; justify-content: space-between;
+            min-width: 56px; height: 28px; padding: 0 10px;
+            border: 1px solid rgba(0,0,0,.08); border-radius: 14px;
+            background: rgba(255,255,255,.7); color: rgba(0,0,0,.6);
+            font-size: 12px; line-height: 1; user-select: none; box-sizing: border-box;
+        }
+        .nav-bar .native-capsule .nc-left,
+        .nav-bar .native-capsule .nc-right { display: inline-flex; align-items: center; justify-content: center; flex: 1; min-width: 16px; }
+        .nav-bar .native-capsule .nc-right { font-size: 10px; }
+        .nav-bar .native-capsule .nc-divider { width: 1px; height: 14px; background: rgba(0,0,0,.1); margin: 0 4px; }
+
+        /* ===== 顶部：项目切换条 + 角色分段 ===== */
+        .topbar {
+            flex-shrink: 0; background: #fff; border-bottom: 1px solid var(--border);
+            padding: 8px 12px; display: flex; align-items: center; gap: 10px; position: relative; z-index: 30;
+        }
+        .proj-switch {
+            flex: 1; display: flex; align-items: stretch;
+            background: #f5f7fa; border: 1px solid #e8edf3; border-radius: 12px; overflow: hidden;
+        }
+        .proj-info-zone {
+            flex: 1; min-width: 0; display: flex; align-items: center; gap: 8px; cursor: pointer;
+            padding: 8px 10px; transition: background .15s;
+        }
+        .proj-info-zone:active { background: #eef2f7; }
+        .proj-info-zone .info-arrow { font-size: 18px; color: var(--text-3); flex: 0 0 auto; line-height: 1; }
+        .proj-switch-left { display: flex; align-items: center; gap: 8px; min-width: 0; flex: 0 1 auto; }
+        .proj-name { font-size: 14px; font-weight: 600; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 110px; }
+        .proj-status { font-size: 11px; padding: 2px 8px; border-radius: 10px; background: var(--primary-bg); color: var(--primary); flex: 0 0 auto; }
+        .proj-switch-hero { flex: 1 1 auto; min-width: 0; text-align: right; font-size: 12px; color: var(--text-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding: 0 4px; }
+        .proj-switch-hero b { color: var(--primary); font-weight: 700; font-size: 14px; }
+        .proj-status.done { background: var(--success-bg); color: var(--success); }
+        .proj-switch-right {
+            display: flex; align-items: center; gap: 4px; flex: 0 0 auto; cursor: pointer;
+            padding: 8px 12px; border-left: 1px solid #e3e8ef; background: #fafbfc; transition: background .15s;
+        }
+        .proj-switch-right:active { background: #eef2f7; }
+        .switch-hint { font-size: 11px; color: var(--text-3); }
+        .switch-arrow { font-size: 12px; color: var(--text-3); transition: transform .25s; }
+        .switch-arrow.open { transform: rotate(180deg); }
+
+        /* ===== 角色演示开关（手机框外侧，参考「演示开关」效果） ===== */
+        .role-demo-switch {
+            position: absolute; left: calc(100% + 16px); top: 80px;
+            background: #fff; border: 1px solid #ffe7ba; border-radius: 12px;
+            padding: 12px 14px; box-shadow: 0 4px 16px rgba(0,0,0,.1); z-index: 100; width: 132px;
+        }
+        .role-demo-switch .switch-title { font-size: 12px; font-weight: 600; color: #333; margin-bottom: 8px; text-align: center; }
+        .role-demo-switch .switch-item { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 6px; }
+        .role-demo-switch .switch-status { color: var(--primary); font-weight: 600; font-size: 12px; white-space: nowrap; }
+        .role-demo-switch .switch-status.worker { color: var(--warning); }
+        .role-demo-switch .switch-hint { font-size: 10px; color: #999; text-align: center; line-height: 1.3; }
+        .switch { position: relative; display: inline-block; width: 36px; height: 20px; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider {
+            position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0;
+            background-color: #ccc; transition: .3s; border-radius: 20px;
+        }
+        .slider:before {
+            position: absolute; content: ""; height: 16px; width: 16px; left: 2px; bottom: 2px;
+            background-color: #fff; transition: .3s; border-radius: 50%;
+        }
+        .switch input:checked + .slider { background-color: var(--warning); }
+        .switch input:checked + .slider:before { transform: translateX(16px); }
+
+        /* ===== 认证状态演示开关（手机框右侧中间，对应「新建项目」） ===== */
+        .auth-demo-switch {
+            position: absolute; left: calc(100% + 16px); top: 50%; transform: translateY(-50%);
+            background: #fff; border: 1px solid #bae0ff; border-radius: 12px;
+            padding: 12px 14px; box-shadow: 0 4px 16px rgba(0,0,0,.1); z-index: 100; width: 132px;
+        }
+        .auth-demo-switch .switch-title { font-size: 12px; font-weight: 600; color: #333; margin-bottom: 8px; text-align: center; }
+        .auth-demo-switch .switch-item { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 6px; }
+        .auth-demo-switch .switch-status { color: var(--text-3); font-weight: 600; font-size: 12px; white-space: nowrap; }
+        .auth-demo-switch .switch-status.certified { color: var(--success); }
+        .auth-demo-switch .switch-hint { font-size: 10px; color: #999; text-align: center; line-height: 1.3; }
+        .auth-demo-switch .switch input:checked + .slider { background-color: var(--success); }
+
+        /* 认证提示弹窗（新建项目未认证时） */
+        .app-modal {
+            position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+            background-color: rgba(0,0,0,.5); display: none;
+            justify-content: center; align-items: center; z-index: 300;
+        }
+        .app-modal.show { display: flex; }
+        .modal-box { width: 280px; background: #fff; border-radius: 12px; padding: 24px 20px 16px; text-align: center; }
+        .modal-title { font-size: 16px; font-weight: 600; color: #333; margin-bottom: 16px; }
+        .modal-content { font-size: 14px; color: #666; line-height: 1.6; margin-bottom: 24px; }
+        .modal-content p { margin: 0; }
+        .modal-actions { display: flex; gap: 12px; }
+        .modal-btn {
+            flex: 1; height: 40px; border: none; border-radius: 8px; font-size: 14px;
+            cursor: pointer; transition: all .2s; display: flex; justify-content: center;
+            align-items: center; text-align: center; line-height: 1; padding: 0;
+            -webkit-appearance: none; font-family: inherit; font-weight: 500;
+        }
+        .modal-btn.cancel { background: #f5f5f5; color: #666; }
+        .modal-btn.confirm { background: var(--primary); color: #fff; }
+
+        /* ===== 项目下拉面板 ===== */
+        .proj-panel {
+            position: absolute; left: 0; right: 0; top: 100%; background: #fff;
+            max-height: 0; overflow: hidden; transition: max-height .3s ease; z-index: 25;
+            box-shadow: 0 8px 20px rgba(0,0,0,.12); border-radius: 0 0 16px 16px;
+        }
+        .proj-panel.open { max-height: 460px; display: flex; flex-direction: column; overflow: hidden; }
+        .proj-panel-inner { flex: 1; min-height: 0; overflow-y: auto; padding: 8px 12px 12px; }
+        .proj-option {
+            border: 1px solid var(--border); border-radius: 12px; padding: 10px 12px; margin-bottom: 8px; cursor: pointer;
+            transition: all .15s; background: #fff;
+        }
+        .proj-option:active { background: #f5f7fa; }
+        .proj-option.active { border-color: var(--primary); background: #f5faff; }
+        .po-top { display: flex; align-items: center; justify-content: space-between; }
+        .po-name { font-size: 14px; font-weight: 600; color: var(--text); }
+        .po-status { font-size: 11px; padding: 2px 8px; border-radius: 10px; background: var(--primary-bg); color: var(--primary); }
+        .po-status.done { background: var(--success-bg); color: var(--success); }
+        .po-addr { font-size: 12px; color: var(--text-3); margin: 4px 0; }
+        .po-stats { display: flex; gap: 14px; font-size: 12px; color: var(--text-2); margin-bottom: 6px; }
+        .po-bar { height: 4px; background: #eef0f3; border-radius: 2px; overflow: hidden; }
+        .po-bar-fill { height: 100%; background: var(--primary); border-radius: 2px; }
+        /* ===== 切换面板：状态筛选胶囊 + 新建项目 ===== */
+        .proj-panel-filter { flex-shrink: 0; display: flex; gap: 6px; padding: 8px 12px 6px; border-bottom: 1px solid var(--border); background: #fff; }
+        .pf-item {
+            flex: 1; text-align: center; font-size: 12px; padding: 5px 0; border-radius: 8px;
+            background: #f2f4f7; color: var(--text-2); cursor: pointer; transition: all .15s;
+        }
+        .pf-item.active { background: #333; color: #fff; font-weight: 600; }
+        .proj-panel-foot {
+            flex-shrink: 0; padding: 8px 12px 10px;
+            border-top: 1px solid var(--border); background: #fff;
+            box-shadow: 0 -2px 8px rgba(0,0,0,.04);
+        }
+        .proj-new-btn {
+            width: 100%; padding: 9px; border: none; border-radius: 10px;
+            background: var(--primary); color: #fff; font-size: 14px; font-weight: 600; cursor: pointer;
+            transition: opacity .15s;
+        }
+        .proj-new-btn:active { opacity: .85; }
+        .proj-empty { text-align: center; font-size: 12px; color: #999; padding: 18px 0; }
+
+        /* ===== 详情滚动区 ===== */
+        .detail-scroll { flex: 1; overflow-y: auto; padding: 10px 12px 56px; position: relative; }
+        .detail-fade { animation: fadeUp .28s ease both; }
+        @keyframes fadeUp { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+
+        /* ===== 通用卡片 ===== */
+        .card {
+            background: var(--card); border-radius: 14px; padding: 10px 12px; margin-bottom: 8px; box-shadow: var(--shadow);
+        }
+        .card-title {
+            display: flex; align-items: center; font-size: 15px; font-weight: 600; color: var(--text); margin-bottom: 7px; gap: 6px;
+        }
+        .card-title .badge-wrap { display: inline-flex; }
+        .card-title .badge {
+            background: var(--danger-bg); color: var(--danger); font-size: 11px; font-weight: 600;
+            min-width: 18px; height: 18px; border-radius: 9px; display: inline-flex; align-items: center; justify-content: center; padding: 0 5px;
+        }
+        .card-title .more { margin-left: auto; font-size: 12px; color: var(--text-3); font-weight: 400; }
+
+        /* ===== 待办 ===== */
+        .todo-content { }
+        .todo-item { display: flex; align-items: center; gap: 10px; padding: 7px 0; border-bottom: 1px solid #f5f5f5; }
+        .todo-item:last-child { border-bottom: none; }
+        .todo-item .icon { width: 34px; height: 34px; border-radius: 9px; display: flex; align-items: center; justify-content: center; font-size: 16px; flex: 0 0 auto; }
+        .todo-item .content { flex: 1; min-width: 0; }
+        .todo-item .title { font-size: 13px; color: var(--text); font-weight: 500; display: flex; align-items: center; gap: 6px; }
+        .todo-item .desc { font-size: 11px; color: var(--text-3); margin-top: 3px; }
+        .todo-item .status { font-size: 11px; padding: 3px 9px; border-radius: 10px; flex: 0 0 auto; font-weight: 500; }
+        .status.urgent { background: var(--danger-bg); color: var(--danger); }
+        .status.pending { background: var(--warning-bg); color: var(--warning); }
+        .status.in-progress { background: var(--primary-bg); color: var(--primary); }
+        .task-tag { font-size: 10px; padding: 1px 6px; border-radius: 4px; font-weight: 500; }
+        .task-tag.contract { background: #e6f7ff; color: #1677ff; }
+        .task-tag.task { background: #f6ffed; color: #52c41a; }
+        .todo-group-label { font-size: 12px; font-weight: 600; color: var(--text-3); margin: 10px 0 2px; }
+        .todo-group-label:first-child { margin-top: 0; }
+        .todo-card.worker { border-left: 3px solid var(--warning); }
+        .todo-card.worker .card-title { color: #d46b08; }
+
+        /* ===== 吸顶快捷入口 + 架构（与 project-detail.css / 源页对齐） ===== */
+        .sticky-header {
+            position: sticky; top: 0; z-index: 100;
+            background: rgba(255,255,255,.92);
+            -webkit-backdrop-filter: saturate(180%) blur(12px);
+            backdrop-filter: saturate(180%) blur(12px);
+            border-radius: 0 0 14px 14px;
+            padding: 5px 10px; margin-bottom: 4px;
+            box-shadow: 0 1px 4px rgba(0,0,0,.06);
+            transition: box-shadow .25s;
+        }
+        .sticky-header.with-shadow { box-shadow: 0 4px 16px rgba(0,0,0,.08); }
+
+        /* 快捷入口：4 项网格，常驻吸顶、始终可见（主操作不因滚动隐藏） */
+        .quick-nav {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+            padding: 2px 8px 0;
+            background: transparent;
+            position: relative;
+        }
+        /* 工人视角快捷入口：取消「更多」后 5 项同处一行（不影响非工人视角 4 项布局） */
+        .quick-nav.work-quick-nav { grid-template-columns: repeat(4, 1fr); }
+        .quick-nav-item {
+            display: flex; flex-direction: column; align-items: center;
+            cursor: pointer; padding: 4px 2px; border-radius: 8px;
+            transition: all .2s;
+        }
+        .quick-nav-item:active { transform: scale(0.95); background: var(--primary-bg); }
+        .quick-nav-item .icon {
+            width: 32px; height: 32px; border-radius: 10px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 15px; margin-bottom: 2px; color: #fff;
+            position: relative;
+        }
+        .quick-nav-item .icon.info { background: var(--gradient-blue); }
+        .quick-nav-item .icon.structure { background: var(--gradient-green); }
+        .quick-nav-item .icon.member { background: var(--gradient-orange); }
+        .quick-nav-item .icon.file { background: var(--gradient-purple); }
+        .quick-nav-item .icon.statement { background: var(--gradient-gold); }
+        .quick-nav-item .icon.tasks { background: var(--gradient-blue); }
+        .quick-nav-item .icon.activity { background: var(--gradient-cyan); }
+        .quick-nav-item .icon.contract { background: var(--gradient-orange); }
+        .quick-nav-item .icon.more { background: linear-gradient(135deg, #8C8C8C 0%, #BFBFBF 100%); }
+        .quick-nav-item .label { font-size: 11px; color: var(--text-2); text-align: center; line-height: 1.2; }
+        .quick-nav-item .nav-badge {
+            position: absolute;
+            top: -4px; right: -4px;
+            background: var(--danger); color: #fff;
+            font-size: 10px; min-width: 14px; height: 14px; border-radius: 7px;
+            padding: 0 3px;
+            display: inline-flex; align-items: center; justify-content: center;
+            white-space: nowrap;
+        }
+
+        /* 更多面板（次级入口）：默认折叠，平滑展开；绝不隐藏 4 个主入口 */
+        .more-panel {
+            display: grid; grid-template-columns: repeat(3, 1fr);
+            gap: 8px; padding: 0 8px;
+            max-height: 0; overflow: hidden; opacity: 0;
+            transition: max-height .3s ease, padding .3s ease, opacity .25s ease;
+        }
+        .more-panel.show { max-height: 120px; opacity: 1; padding: 10px 8px 6px; }
+        .quick-nav-item.more-open .icon.more { transform: rotate(45deg); }
+
+        /* 架构选择器 */
+        .level-selector {
+            margin-top: 2px; border-top: 1px solid #f0f0f0; padding-top: 2px;
+            position: relative; z-index: 50;
+        }
+        .level-dropdown { display: flex; align-items: center; justify-content: space-between; cursor: pointer; }
+        .level-dropdown .current { display: flex; align-items: center; }
+        .level-dropdown .current .icon {
+            width: 32px; height: 32px; border-radius: 8px; background: var(--gradient-blue);
+            display: flex; align-items: center; justify-content: center;
+            margin-right: 10px; font-size: 14px; color: #fff; flex: 0 0 auto;
+        }
+        .level-dropdown .text-row { display: flex; align-items: center; gap: 6px; }
+        .level-dropdown .text { font-size: 14px; font-weight: 600; color: var(--text); }
+        .level-dropdown .type-badge {
+            font-size: 10px; padding: 1px 6px; border-radius: 4px;
+            background: var(--primary-bg); color: var(--primary);
+        }
+        .level-dropdown .type-badge.workgroup { background: var(--success-bg); color: var(--success); }
+        .level-dropdown .arrow { color: var(--text-3); transition: transform .3s; }
+        .level-dropdown .arrow.open { transform: rotate(180deg); }
+        .breadcrumb-inline { display: flex; align-items: center; font-size: 11px; color: var(--text-3); margin-top: 2px; }
+        .breadcrumb-inline .breadcrumb-item { color: var(--text-3); }
+        .breadcrumb-inline .breadcrumb-item.active { color: var(--primary); font-weight: 500; }
+        .breadcrumb-inline .separator { margin: 0 4px; color: var(--text-3); }
+        .level-default-hint { font-size: 11px; color: var(--warning); margin-top: 2px; }
+        .level-options {
+            position: absolute; left: 0; right: 0; top: 100%;
+            background: #fff; border-radius: 0 0 12px 12px;
+            box-shadow: 0 4px 16px rgba(0,0,0,.12);
+            display: none; z-index: 100;
+        }
+        .level-options.open { display: block; }
+        .level-option { display: flex; align-items: center; padding: 10px 12px; cursor: pointer; }
+        .level-option:active { background: #f5f7fa; }
+        .level-option.selected { background: #f5faff; }
+        .level-option .icon {
+            width: 28px; height: 28px; border-radius: 6px; background: var(--gradient-blue);
+            display: flex; align-items: center; justify-content: center;
+            margin-right: 10px; font-size: 12px; color: #fff; flex: 0 0 auto;
+        }
+        .level-option .info { flex: 1; }
+        .level-option .name { font-size: 13px; font-weight: 500; color: var(--text); }
+        .level-option .count { font-size: 11px; color: var(--text-3); margin-top: 1px; }
+        .level-option .check { margin-left: auto; color: var(--primary); font-size: 14px; }
+
+        /* 通用箭头旋转 */
+        .arrow { transition: transform .2s; }
+        .arrow.open { transform: rotate(180deg); }
+        .activity-more-btn .arrow { transition: transform .2s; }
+
+        /* ===== 合同 / 任务统计（与「项目详情（进行中-新版）」v2 首屏优化一致） ===== */
+        .stats-row { display: block; margin: 0 10px 8px; }
+        .stats-row > .card { margin: 0 0 6px 0; padding: 6px 10px; }
+        .stats-row > .card:last-child { margin-bottom: 0; }
+        /* 今日动态与合同概览/任务统计保持一致的横向缩进 */
+        .card.indent-card { margin: 0 10px 8px; }
+        .contract-half { flex: 1.2; }
+        .task-half { flex: 1; }
+        /* 合同概览：2 统计横排（全宽，中间分隔线） */
+        .card.contract-half .contract-summary { display: flex; flex-direction: row; align-items: center; padding: 2px 0; }
+        .card.contract-half .contract-stat { flex: 1; display: flex; flex-direction: column; align-items: center; }
+        .card.contract-half .contract-stat .value { font-size: 14px; font-weight: 700; color: var(--text); }
+        .card.contract-half .contract-stat .value .separator { color: var(--text-3); margin: 0 1px; }
+        .card.contract-half .contract-stat .value .total { font-size: 11px; color: var(--text-3); font-weight: 400; }
+        .card.contract-half .contract-stat .label { font-size: 10px; color: var(--text-3); margin-top: 2px; }
+        .card.contract-half .contract-list { max-height: 0; overflow: hidden; transition: max-height .25s ease; }
+        .card.contract-half .contract-list.show { max-height: 220px; overflow-y: auto; }
+        .contract-item { display: flex; align-items: center; gap: 10px; padding: 7px 0; border-top: 1px solid #f0f0f0; cursor: pointer; transition: background .15s; }
+        .contract-item:active { background: #f7faff; }
+        .contract-item:first-child { border-top: none; }
+        .contract-item .info { flex: 1; min-width: 0; }
+        .contract-item .name { font-size: 13px; color: var(--text); font-weight: 500; }
+        .contract-item .meta { font-size: 11px; color: var(--text-3); margin-top: 2px; }
+        .contract-item .meta-row { display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--text-3); margin-top: 2px; }
+        .action-badge { font-size: 10px; padding: 1px 7px; border-radius: 8px; }
+        .action-badge.green { background: var(--success-bg); color: var(--success); }
+        .action-badge.orange { background: var(--warning-bg); color: var(--warning); }
+        .progress-wrap { width: 64px; flex: 0 0 auto; text-align: right; }
+        .progress-wrap .percent { font-size: 11px; color: var(--text-2); margin-bottom: 3px; }
+        .progress-wrap .bar { height: 4px; background: #eef0f3; border-radius: 2px; overflow: hidden; }
+        .progress-wrap .fill { height: 100%; background: var(--primary); border-radius: 2px; }
+        /* 任务统计：3 项横排（全宽，icon 居左、数值+标签纵向居右，单行紧凑） */
+        .card.task-half .task-stats { display: flex; flex-direction: row; gap: 6px; }
+        .card.task-half .task-stat-item { flex: 1; display: flex; flex-direction: row; align-items: center; justify-content: center; gap: 5px; padding: 3px 2px; }
+        .card.task-half .task-stat-item .icon-wrap { width: 22px; height: 22px; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 11px; margin-bottom: 0; flex: 0 0 auto; }
+        .icon-wrap.all { background: #e6f7ff; }
+        .icon-wrap.accept { background: #fff7e6; }
+        .icon-wrap.contract { background: #f6ffed; }
+        .card.task-half .task-stat-item .info { flex: none; display: block; text-align: left; line-height: 1.1; }
+        .card.task-half .task-stat-item .value { font-size: 14px; font-weight: 700; color: var(--text); }
+        .card.task-half .task-stat-item .value .separator { color: var(--text-3); }
+        .card.task-half .task-stat-item .value .total { font-size: 11px; color: var(--text-3); font-weight: 400; }
+        .card.task-half .task-stat-item .label { font-size: 10px; color: var(--text-3); margin-top: 0; }
+        /* 数据色彩化（与源页一致） */
+        .card.contract-half .contract-stat:nth-of-type(1) .value { color: var(--primary); }
+        .card.contract-half .contract-stat:nth-of-type(2) .value .current { color: var(--success); }
+        .card.task-half .task-stat-item:nth-of-type(1) .value { color: var(--primary); }
+        .card.task-half .task-stat-item:nth-of-type(2) .value { color: var(--warning); }
+        .card.task-half .task-stat-item:nth-of-type(3) .value { color: var(--orange); }
+        /* 非工人视角：合同概览卡高度略缩小（不影响工人视角） */
+        .card.contract-half:not(.worker) { padding: 5px 10px; }
+        .card.contract-half:not(.worker) .contract-summary { padding: 1px 0; }
+
+        /* 工人视角：合同卡 与 任务统计卡 视觉协调、整体适度增高，便于年长用户查看；不影响非工人视角 */
+        .card.contract-half.worker,
+        .card.task-half.worker {
+            min-height: 100px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        .card.contract-half.worker .contract-list { padding: 2px 0; }
+        .card.contract-half.worker .contract-item { padding: 5px 0; }
+        .card.contract-half.worker .contract-item .name { font-size: 14px; margin-bottom: 2px; }
+        .card.contract-half.worker .contract-item .meta-row { font-size: 12px; margin-top: 3px; }
+        .card.contract-half.worker .progress-wrap .percent { font-size: 12px; margin-bottom: 4px; }
+        .card.contract-half.worker .progress-wrap .bar { height: 5px; }
+        .card.task-half.worker .task-stats { gap: 6px; }
+        .card.task-half.worker .task-stat-item { flex-direction: column; align-items: center; justify-content: center; padding: 2px 2px; gap: 5px; }
+        .card.task-half.worker .task-stat-item .icon-wrap { width: 26px; height: 26px; border-radius: 7px; font-size: 13px; }
+        .card.task-half.worker .task-stat-item .info { text-align: center; line-height: 1.15; }
+        .card.task-half.worker .task-stat-item .value { font-size: 15px; }
+        .card.task-half.worker .task-stat-item .value .total { font-size: 12px; }
+        .card.task-half.worker .task-stat-item .label { font-size: 11px; margin-top: 1px; }
+        .todo-card.worker { margin-bottom: 12px; }
+        .todo-card.worker .todo-item { padding: 10px 0; }
+
+        /* ===== 我的任务（位于待办事项下方） ===== */
+        .my-task-card { cursor: pointer; padding: 8px 12px; margin-bottom: 8px; }
+        .my-task-card .card-title { margin-bottom: 4px; }
+        .my-task-card .my-task-stats { display: flex; flex-direction: row; align-items: stretch; }
+        .my-task-card .my-task-stat { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; padding: 2px 0; }
+        .my-task-card .my-task-stat .value { font-size: 18px; font-weight: 700; color: var(--text); line-height: 1; }
+        .my-task-card .my-task-stat .label { font-size: 11px; color: var(--text-3); margin-top: 1px; text-align: center; }
+        .my-task-card .my-task-divider { width: 1px; background: #f0f0f0; margin: 4px 0; }
+        .my-task-card .my-task-stat:first-child .value { color: var(--success, #52c41a); }
+        .my-task-card.worker .card-title { color: #d46b08; }
+
+        /* ===== 今日动态（与「项目详情（进行中-新版）」保持一致） ===== */
+        .activity-role-tag {
+            display: inline-block; font-size: 10px; padding: 0 6px; border-radius: 8px;
+            margin-left: 4px; vertical-align: middle; line-height: 14px; height: 14px; font-weight: 500;
+        }
+        .activity-role-tag.supervisor { background-color: #E6F7FF; color: #1890FF; }
+        .activity-role-tag.foreman { background-color: #F6FFED; color: #52C41A; }
+        .activity-role-tag.worker { background-color: #FFF7E6; color: #FA8C16; }
+        .activity-role-tag.designer { background-color: #F9F0FF; color: #722ED1; }
+        .activity-role-tag.owner { background-color: #FFF1F0; color: #F5222D; }
+        .activity-role-tag.project-manager { background-color: #E6F7FF; color: #1890FF; }
+        .activity-role-tag.plumbing-worker { background-color: #E6FFFB; color: #13C2C2; }
+        .activity-stage-tag {
+            display: inline-block; font-size: 10px; padding: 1px 6px; border-radius: 4px;
+            margin: 0 4px; font-weight: 500; line-height: 14px;
+        }
+        .activity-stage-tag.demolition { background-color: #FFF1F0; color: #F5222D; }
+        .activity-stage-tag.plumbing { background-color: #E6F7FF; color: #1890FF; }
+        .activity-stage-tag.carpentry { background-color: #FFF7E6; color: #FA8C16; }
+        .activity-stage-tag.tiling { background-color: #F9F0FF; color: #722ED1; }
+        .activity-stage-tag.painting { background-color: #FCFABE; color: #D4B106; }
+        .activity-stage-tag.installation { background-color: #F0F5FF; color: #2F54EB; }
+        .activity-stage-tag.cleanup { background-color: #F6FFED; color: #52C41A; }
+        .activity-stage-tag.design { background-color: #F9F0FF; color: #722ED1; }
+        .activity-list { max-height: 150px; overflow-y: auto; }
+        .activity-list.expanded { max-height: 320px; }
+        .activity-item { padding: 6px 0 6px 16px; position: relative; cursor: pointer; transition: background .15s; }
+        .activity-item:active { background: #f7faff; }
+        .activity-item::before { content: ''; position: absolute; left: 4px; top: 14px; width: 7px; height: 7px; border-radius: 50%; background: var(--primary); }
+        .activity-header { display: flex; align-items: center; gap: 8px; margin-bottom: 3px; }
+        .activity-avatar {
+            width: 26px; height: 26px; border-radius: 50%; font-size: 11px; color: #fff;
+            display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 0 0 2px rgba(255,255,255,.85), 0 1px 4px rgba(0,0,0,.12); flex: 0 0 auto;
+        }
+        .activity-info { flex: 1; min-width: 0; }
+        .activity-user { font-size: 12px; color: var(--text); }
+        .activity-time { font-size: 10px; color: var(--text-3); }
+        .activity-content { font-size: 12px; color: var(--text); margin-bottom: 3px; }
+        .activity-media { display: flex; gap: 4px; margin-top: 3px; flex-wrap: wrap; }
+        .activity-media-item { width: 48px; height: 48px; border-radius: 6px; flex: 0 0 auto; position: relative; }
+        .activity-more-btn { padding: 5px; font-size: 12px; margin-top: 3px; text-align: center; color: var(--primary); }
+        .hidden { display: none; }
+        /* 已完成态空态（待办 / 今日动态） */
+        .simple-empty-state { display: flex; flex-direction: column; align-items: center; padding: 16px 12px; }
+        .simple-empty-state .empty-icon { font-size: 28px; opacity: 0.4; margin-bottom: 6px; }
+        .simple-empty-state .empty-text { font-size: 12px; color: var(--text-3); }
+
+        /* ===== 原型导航 ===== */
+        .page-nav {
+            position: fixed; top: 20px; right: 20px; z-index: 1000;
+            width: 200px; background: var(--bg-primary); border-radius: 8px; padding: 16px; box-shadow: 0 2px 10px var(--shadow-md);
+            max-height: calc(100vh - 40px); overflow-y: auto; transition: all .3s;
+        }
+        .page-nav-title { font-size: 14px; font-weight: 600; margin: 0 0 12px; color: var(--text-primary); display: flex; justify-content: space-between; align-items: center; cursor: pointer; user-select: none; }
+        .page-nav-title .toggle-btn { font-size: 12px; color: var(--text-tertiary); transition: transform .3s; display: inline-block; }
+        .page-nav-title .toggle-btn.collapsed { transform: rotate(-90deg); }
+        .page-nav.collapsed { max-height: 60px; overflow: hidden; }
+        .page-nav.collapsed .page-nav-title { margin-bottom: 0; }
+        .page-nav a { display: block; padding: 8px 12px; margin: 4px 0; background-color: var(--bg-secondary); border-radius: 4px; text-decoration: none; color: var(--text-secondary); font-size: 12px; transition: all .2s; }
+        .page-nav a.active { background-color: var(--primary-color); color: #fff; }
+        .page-nav a:hover { background-color: var(--primary-color); color: #fff; }
+
+        /* 小程序底部主导航（复用 common.css 语义，但本页自包含不依赖外部样式） */
+        .tab-bar {
+            height: 50px;
+            background: var(--card);
+            display: flex;
+            border-top: 1px solid var(--border);
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+        }
+        .tab-item {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .tab-item .icon { font-size: 20px; margin-bottom: 2px; }
+        .tab-item .label { font-size: 10px; }
+        .tab-item.active { color: var(--primary); }
+        .tab-item:not(.active) { color: var(--text-3); }
+
+        /* ===== 服务流程（横向流程条 + 内联明细；回迁自 demo，对齐项目详情原型） ===== */
+        .qn-card { padding: 4px 12px; }
+        .quick-nav.qn-3 { grid-template-columns: repeat(3, 1fr); }
+        .flow-card { background: var(--card); border-radius: 14px; padding: 0; margin: 0 0 8px; box-shadow: var(--shadow); }
+        .flow-sticky { position: sticky; top: 0; z-index: 20; background: #fff; padding: 8px 12px 0; border-bottom: 1px solid transparent; transition: border-color 120ms ease-out; }
+        .flow-sticky.stuck { border-bottom-color: #f0f0f0; }
+        .flow-head { display: flex; align-items: center; gap: 6px; margin-bottom: 5px; }
+        .flow-head .fh-t { font-size: 15px; font-weight: 600; color: var(--text); }
+        .flow-head .fh-n { font-size: 11px; color: var(--text-2); }
+        .flow-stats { display: flex; align-items: center; gap: 12px; background: #f5f5f5; border-radius: 8px; padding: 4px 10px; margin-bottom: 5px; }
+        .flow-stats .fs-seg { display: flex; align-items: baseline; gap: 4px; }
+        .flow-stats .fs-num { font-size: 13px; font-weight: 500; color: var(--text); }
+        .flow-stats .fs-lab { font-size: 11px; color: var(--text-2); }
+        .flow-stats .fs-div { width: 1px; height: 12px; background: #d9d9d9; }
+        .rail-wrap { position: relative; margin-bottom: 5px; }
+        .flow-rail { display: flex; gap: 8px; overflow-x: auto; overflow-y: hidden; scroll-snap-type: x proximity; padding-bottom: 2px; }
+        .flow-item { flex: 0 0 auto; min-width: 50px; min-height: 38px; scroll-snap-align: center; border-radius: 10px; padding: 5px 6px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; background: transparent; transition: transform 160ms ease-out, background-color 160ms ease-out; }
+        .flow-item:active { background: #f5f7fa; }
+        .flow-item.on { min-width: 84px; background: var(--primary-bg); transform: scale(1.02); }
+        .flow-item .fi-dot { width: 10px; height: 10px; border-radius: 50%; }
+        .flow-item .fi-name { font-size: 11px; color: var(--text-2); line-height: 1.2; text-align: center; }
+        .flow-item.on .fi-name { font-size: 13px; font-weight: 500; color: var(--primary); }
+        .flow-item .fi-bar { width: 100%; height: 3px; border-radius: 2px; background: #d9d9d9; overflow: hidden; }
+        .flow-item .fi-bar i { display: block; height: 100%; border-radius: 2px; }
+        .flow-item .fi-prog { font-size: 11px; color: var(--text-3); line-height: 1.2; }
+        .flow-item.on .fi-prog { color: var(--primary); }
+        .rail-mask { position: absolute; right: 0; top: 0; bottom: 2px; width: 24px; background: linear-gradient(to left, #fff, rgba(255,255,255,0)); pointer-events: none; display: none; }
+        .flow-detail { background: #fafcff; border-radius: 0 0 14px 14px; }
+        .flow-detail.collapsed { display: none; }
+        .detail-inner { padding: 12px; border-left: 2px solid var(--primary); }
+        .detail-title { font-size: 13px; font-weight: 500; color: var(--text); margin-bottom: 8px; }
+        .d-sec { margin-bottom: 12px; }
+        .d-sec:last-child { margin-bottom: 0; }
+        .d-sec-h { font-size: 11px; color: var(--text-2); margin-bottom: 6px; }
+        .d-row { display: flex; align-items: center; gap: 8px; min-height: 44px; padding: 6px 0; border-top: 1px solid #f0f0f0; }
+        .d-row:first-of-type { border-top: none; }
+        .d-row:active { background: #f7faff; }
+        .d-row .d-name { flex: 1; min-width: 0; font-size: 12px; color: var(--text); line-height: 1.4; }
+        .d-row .d-meta { font-size: 11px; color: var(--text-2); line-height: 1.4; }
+        .d-row .d-go { font-size: 11px; color: var(--primary); flex-shrink: 0; }
+        .flow-detail .badge { font-size: 11px; font-weight: 500; border-radius: 999px; padding: 2px 8px; flex-shrink: 0; white-space: nowrap; }
+        .flow-detail .b-go { color: var(--primary); background: var(--primary-bg); }
+        .flow-detail .b-done { color: var(--success); background: var(--success-bg); }
+        .flow-detail .b-wait { color: var(--text-2); background: #f5f5f5; }
+        .flow-detail .b-stop { color: var(--danger); background: var(--danger-bg); }
+        .detail-empty { text-align: center; padding: 20px 12px; }
+        .detail-empty .de-t { font-size: 12px; color: var(--text-2); line-height: 1.5; margin-bottom: 12px; }
+        .add-btn { display: inline-block; border: 1px dashed var(--primary-light); color: var(--primary); font-size: 12px; border-radius: 8px; padding: 8px 16px; }
+    </style>
+</head>
+<body>
+    <div class="page-nav">
+        <div class="page-nav-title" onclick="togglePageNav()" title="收起 / 展开 原型导航">原型导航 <span class="toggle-btn" id="pageNavToggle">▼</span></div>
+        <a href="home.html">首页</a>
+        <a href="project-list.html">项目主页（进行中）</a>
+        <a href="project-detail-initial-v2.html">项目详情（初始-新版）</a>
+        <a href="project-detail-completed-v2.html" class="active">项目详情（已完成-新版）</a>
+        <a href="project-info.html">项目信息</a>
+        <a href="architecture.html">项目架构</a>
+        <a href="create-project.html">创建项目</a>
+        <a href="task-list.html">任务列表</a>
+        <a href="contract-detail.html">合同详情</a>
+        <a href="task-detail.html">任务详情（非工人）</a>
+        <a href="task-detail-shuidian.html">任务详情（水电）</a>
+    </div>
+
+    <div class="stage">
+    <div class="phone-frame">
+        <div class="status-bar">
+            <span class="time">9:41</span>
+            <div class="icons">📶 🔋</div>
+        </div>
+        <div class="nav-bar">
+            <div class="title">项目及详情</div>
+            <div class="nb-actions"><div class="native-capsule" title="微信原生胶囊：由微信客户端渲染，开发者不可自定义其内容"><span class="nc-left">⋯</span><span class="nc-divider"></span><span class="nc-right">○</span></div></div>
+        </div>
+
+        <!-- 顶部：项目切换条（角色切换已移至手机框外侧演示开关） -->
+        <div class="topbar">
+            <div class="proj-switch">
+                <!-- 左侧：点击查看当前项目信息（跳转 project-info 页） -->
+                <div class="proj-info-zone" onclick="viewProjectInfo()">
+                    <div class="proj-switch-left">
+                        <span class="proj-name" id="curProjName">—</span>
+                        <span class="proj-status" id="curProjStatus">—</span>
+                    </div>
+                    <div class="proj-switch-hero" id="topHero"></div>
+                    <span class="info-arrow">›</span>
+                </div>
+                <!-- 右侧：点击展开项目切换面板 -->
+                <div class="proj-switch-right" onclick="togglePanel()">
+                    <span class="switch-hint">切换</span>
+                    <span class="switch-arrow" id="switchArrow">▾</span>
+                </div>
+            </div>
+            <!-- 角色切换已移至手机框外侧「演示开关」 -->
+
+            <!-- 项目下拉面板：置于 topbar 内，相对切换条定位展开 -->
+            <div class="proj-panel" id="projPanel">
+                <div class="proj-panel-filter" id="projPanelFilter">
+                    <div class="pf-item active" data-filter="all" onclick="setPanelFilter('all', this)">全部</div>
+                    <div class="pf-item" data-filter="ongoing" onclick="setPanelFilter('ongoing', this)">进行中</div>
+                    <div class="pf-item" data-filter="done" onclick="setPanelFilter('done', this)">已完成</div>
+                </div>
+                <div class="proj-panel-inner" id="projPanelInner"></div>
+                <div class="proj-panel-foot">
+                    <button class="proj-new-btn" onclick="createProject()">＋ 新建项目</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 详情区 -->
+        <div class="detail-scroll" id="detailArea"></div>
+
+        <!-- 小程序主导航（项目为当前选中项） -->
+        <div class="tab-bar">
+            <div class="tab-item" onclick="location.href='home.html'">
+                <div class="icon">🏠</div>
+                <div class="label">首页</div>
+            </div>
+            <div class="tab-item active">
+                <div class="icon">📋</div>
+                <div class="label">项目</div>
+            </div>
+            <div class="tab-item" onclick="location.href='message.html'">
+                <div class="icon">💬</div>
+                <div class="label">消息</div>
+            </div>
+            <div class="tab-item" onclick="showToast('个人中心开发中')">
+                <div class="icon">👤</div>
+                <div class="label">我的</div>
+            </div>
+        </div>
+
+        <!-- 角色认证提示弹窗（新建项目需先完成认证） -->
+        <div class="app-modal" id="authRequiredModal">
+            <div class="modal-box">
+                <div class="modal-title">创建项目需先完成认证</div>
+                <div class="modal-content">
+                    <p>当前操作需先完成角色认证；</p>
+                    <p>认证通过后方可继续创建；</p>
+                </div>
+                <div class="modal-actions">
+                    <div class="modal-btn cancel" onclick="closeAuthModal()">取消</div>
+                    <div class="modal-btn confirm" onclick="goToAuthPage()">立即认证</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 角色演示开关：置于手机框外侧，参考项目列表页「演示开关」效果 -->
+    <div class="role-demo-switch">
+        <div class="switch-title">演示开关</div>
+        <div class="switch-item">
+            <span class="switch-status" id="roleStatus">非工人</span>
+            <label class="switch">
+                <input type="checkbox" id="roleSwitch" onchange="toggleRoleSwitch(this.checked)">
+                <span class="slider"></span>
+            </label>
+        </div>
+        <div class="switch-hint">切换角色视角</div>
+    </div>
+
+    <!-- 认证状态演示开关：手机框右侧中间，对应「新建项目」，切换后点击新建项目验证不同效果 -->
+    <div class="auth-demo-switch">
+        <div class="switch-title">认证演示</div>
+        <div class="switch-item">
+            <span class="switch-status" id="authStatus">未认证</span>
+            <label class="switch">
+                <input type="checkbox" id="authSwitch" onchange="toggleAuthStatus(this.checked)">
+                <span class="slider"></span>
+            </label>
+        </div>
+        <div class="switch-hint">切换后点击新建项目</div>
+    </div>
+    </div>
+
+    <script>
+        /* ===================== 原型导航 收起/展开 ===================== */
+        function togglePageNav() {
+            var nav = document.querySelector('.page-nav');
+            var btn = document.getElementById('pageNavToggle');
+            if (!nav) return;
+            var collapsed = nav.classList.toggle('collapsed');
+            if (btn) btn.classList.toggle('collapsed', collapsed);
+            try { localStorage.setItem('pageNavCollapsed', collapsed ? 'true' : 'false'); } catch (e) {}
+        }
+        (function restorePageNav() {
+            try {
+                if (localStorage.getItem('pageNavCollapsed') === 'true') {
+                    var nav = document.querySelector('.page-nav');
+                    var btn = document.getElementById('pageNavToggle');
+                    if (nav) nav.classList.add('collapsed');
+                    if (btn) btn.classList.add('collapsed');
+                }
+            } catch (e) {}
+        })();
+
+        /* ===================== 数据 ===================== */
+        var SHARED = {
+            nonworkerTodos: [
+                { tag: 'contract', title: '泥瓦工班组服务合同确认', desc: '泥瓦工作组 | 待确认', status: '待确认', cls: 'urgent', icon: '🔵', bg: '#E6F7FF' },
+                { tag: 'task', title: '吊顶安装', desc: '木工工作组 | 张三待确认', status: '待确认', cls: 'pending', icon: '🟢', bg: '#F6FFED', link: 'task-detail.html' }
+            ],
+            workerTaskTodos: [
+                { tag: 'contract', title: '泥瓦工班组服务合同确认', desc: '泥瓦工作组 | 待我确认', status: '待确认', cls: 'urgent', icon: '🔵', bg: '#E6F7FF' },
+                { tag: 'task', title: '墙面基层处理', desc: '油漆工作组 | 李四待确认', status: '待确认', cls: 'pending', icon: '🟢', bg: '#F6FFED' },
+                { tag: 'task', title: '地砖铺贴', desc: '泥瓦工作组 | 王五待确认', status: '待确认', cls: 'pending', icon: '🔵', bg: '#E6F7FF' }
+            ],
+            workerContractTodos: [
+                { tag: 'contract', title: '泥瓦工班组服务合同确认', desc: '泥瓦工作组 | 待我确认', status: '待我确认', cls: 'urgent', icon: '🔵', bg: '#E6F7FF' },
+                { tag: 'contract', title: '木作班组服务合同签约', desc: '木工工作组 | 待我签约', status: '待我签约', cls: 'pending', icon: '🔵', bg: '#E6F7FF' }
+            ],
+            // 已完工项目：全部 8 份合同已签约 · 进度 100%
+            contracts: [
+                { name: '水电班组服务合同', meta: '水电工作组 | 金额：8万', percent: 100, badge: '已签约', badgeCls: 'green', detail: 'worker-contract-detail.html' },
+                { name: '泥瓦工班组服务合同', meta: '泥瓦工作组 | 金额：12万', percent: 100, badge: '已签约', badgeCls: 'green', detail: 'worker-contract-detail.html' },
+                { name: '木作班组服务合同', meta: '木工工作组 | 金额：15万', percent: 100, badge: '已签约', badgeCls: 'green', detail: 'worker-contract-detail.html' },
+                { name: '油漆工班组服务合同', meta: '油漆工作组 | 金额：10万', percent: 100, badge: '已签约', badgeCls: 'green', detail: 'worker-contract-detail.html' },
+                { name: '防水班组服务合同', meta: '防水工作组 | 金额：6万', percent: 100, badge: '已签约', badgeCls: 'green', detail: 'worker-contract-detail.html' },
+                { name: '吊顶班组服务合同', meta: '吊顶工作组 | 金额：9万', percent: 100, badge: '已签约', badgeCls: 'green', detail: 'worker-contract-detail.html' },
+                { name: '橱柜班组服务合同', meta: '柜体工作组 | 金额：11万', percent: 100, badge: '已签约', badgeCls: 'green', detail: 'worker-contract-detail.html' },
+                { name: '墙面班组服务合同', meta: '墙面工作组 | 金额：7万', percent: 100, badge: '已签约', badgeCls: 'green', detail: 'worker-contract-detail.html' }
+            ],
+            // 非工人（基础施工服务合同）：仅非工人视角「合同概览」展示，点击跳转非工人合同详情页
+            baseContracts: [
+                { name: '基础施工服务合同', meta: '基础施工 | 金额：88万', percent: 100, badge: '已签约', badgeCls: 'green', detail: 'contract-detail.html' }
+            ],
+            levels: [
+                { name: '项目部', count: '4个工作组 · 8份合同', selected: false },
+                { name: '水电工作组', count: '3个施工组 · 2份合同', selected: false },
+                { name: '泥瓦工作组', count: '2个施工组 · 1份合同', selected: false },
+                { name: '木工工作组', count: '2个施工组 · 1份合同', selected: false },
+                { name: '油漆工作组', count: '1个施工组 · 1份合同', selected: false }
+            ],
+            // 已完工项目：以「项目已完工」动态收尾（无新增待办/动态）
+            activities: [
+                { text: '系统：项目「XX小区整体装修」全部合同已签约 · 任务全部完成', time: '昨天' }
+            ],
+            // 「我的任务」区块：我（当前视角角色）作为执行人的任务统计（原型示例数据）
+            myTasks: {
+                nonworker: { done: 24, total: 24 }, // 我（项目总）作为执行人的任务：已完成/全部（已完工项目全部完成）
+                worker: { done: 12, total: 12 }      // 我（工人）作为执行人的任务：已完成/全部（已完工项目全部完成）
+            }
+        };
+
+        var PROJECTS = [
+            { name: 'XX小区整体装修', status: '已完工', address: 'XX小区***号***室', days: 120, area: '75.0m² 2室1厅',
+              contractSigned: 8, contractTotal: 8, taskDone: 24, taskTotal: 24, trade: '泥瓦', todoCount: 0 },
+            { name: 'YY花园精装修', status: '进行中', address: 'YY花园***栋***单元', days: 35, area: '89.0m² 3室2厅',
+              contractSigned: 2, contractTotal: 3, taskDone: 8, taskTotal: 15, trade: '水电', todoCount: 3 },
+            { name: 'AA别墅装修', status: '已完工', address: 'AA别墅***号', days: 150, area: '200.0m² 别墅',
+              contractSigned: 6, contractTotal: 6, taskDone: 32, taskTotal: 32, trade: '木工', todoCount: 0 }
+        ];
+
+        var currentIndex = 0;
+        var currentRole = 'nonworker';
+        var panelFilter = 'all'; // 切换面板筛选项：all / ongoing / done
+
+        /* ===================== 渲染：项目切换条 ===================== */
+        function renderSwitchBar() {
+            var p = PROJECTS[currentIndex];
+            document.getElementById('curProjName').textContent = p.name;
+            var st = document.getElementById('curProjStatus');
+            st.textContent = p.status;
+            st.className = 'proj-status' + (p.status === '已完工' ? ' done' : '');
+        }
+
+        function renderPanel() {
+            // 按切换面板筛选项过滤项目：全部 / 进行中 / 已完成（数据中"已完工"等同"已完成"）
+            var list = PROJECTS.filter(function (p) {
+                if (panelFilter === 'ongoing') return p.status === '进行中';
+                if (panelFilter === 'done') return p.status === '已完工' || p.status === '已完成';
+                return true;
+            });
+            if (list.length === 0) {
+                document.getElementById('projPanelInner').innerHTML = '<div class="proj-empty">暂无匹配的项目</div>';
+                return;
+            }
+            var html = list.map(function (p, i) {
+                // 过滤后索引需回映射真实 PROJECTS 下标，以便 selectProject 正确选中
+                var realIdx = PROJECTS.indexOf(p);
+                var pct = Math.round(p.contractSigned / p.contractTotal * 100);
+                var active = realIdx === currentIndex ? ' active' : '';
+                var done = p.status === '已完工' ? ' done' : '';
+                return '<div class="proj-option' + active + '" onclick="selectProject(' + realIdx + ')">' +
+                    '<div class="po-top"><span class="po-name">' + p.name + '</span>' +
+                    '<span class="po-status' + done + '">' + p.status + '</span></div>' +
+                    '<div class="po-addr">📍 ' + p.address + '</div>' +
+                    '<div class="po-stats"><span>合同 ' + p.contractSigned + '/' + p.contractTotal + '</span>' +
+                    '<span>任务 ' + p.taskDone + '/' + p.taskTotal + '</span></div>' +
+                    '<div class="po-bar"><div class="po-bar-fill" style="width:' + pct + '%"></div></div>' +
+                    '</div>';
+            }).join('');
+            document.getElementById('projPanelInner').innerHTML = html;
+        }
+
+        /* 是否「已完工」态：所有已签约合同内任务均已完成 */
+        function isCompleted(p) { return p.status === '已完工' || p.status === '已完成'; }
+
+        /* ===================== 渲染：非工人详情 ===================== */
+        function renderNonWorker(p) {
+            var isDone = isCompleted(p);
+            // 待办：已完工态为空态；否则沿用示例数据
+            var todos = isDone
+                ? '<div class="simple-empty-state"><div class="empty-icon">📋</div><div class="empty-text">项目已完工，暂无待办 ☕</div></div>'
+                : (p.todoCount === 0
+                    ? '<div class="empty-state" style="font-size:12px;color:#999;padding:10px 0;text-align:center;">暂无待办</div>'
+                    : SHARED.nonworkerTodos.map(function (t) {
+                        return '<div class="todo-item"' + (t.link ? ' onclick="go(\'' + t.link + '\')" style="cursor:pointer"' : '') + '>' +
+                            '<div class="icon" style="background-color:' + t.bg + ';">' + t.icon + '</div>' +
+                            '<div class="content"><div class="title">' + t.title + ' <span class="task-tag ' + t.tag + '">' + (t.tag === 'contract' ? '合同' : '任务') + '</span></div>' +
+                            '<div class="desc">' + t.desc + '</div></div>' +
+                            '<div class="status ' + t.cls + '">' + t.status + '</div></div>';
+                    }).join(''));
+
+            var levels = SHARED.levels.map(function (l, i) {
+                return '<div class="level-option' + (i === 0 ? ' selected' : '') + '" onclick="pickLevel(this, event)">' +
+                    '<div class="icon">' + (i === 0 ? '🏢' : '⚡') + '</div>' +
+                    '<div class="info"><div class="name">' + l.name + '</div><div class="count">' + l.count + '</div></div>' +
+                    '<div class="check" style="visibility:' + (i === 0 ? 'visible' : 'hidden') + ';">✓</div></div>';
+            }).join('');
+
+            var contracts = SHARED.baseContracts.concat(SHARED.contracts).map(function (c) {
+                return '<div class="contract-item" onclick="navigate(\'' + c.detail + '\')">' +
+                    '<div class="info"><div class="name">' + c.name + '</div><div class="meta">' + c.meta + '</div></div>' +
+                    '<div class="progress-wrap"><div class="percent">' + c.percent + '%</div>' +
+                    '<div class="bar"><div class="fill" style="width:' + c.percent + '%"></div></div></div></div>';
+            }).join('');
+
+            // 今日动态：已完工态展示一条「项目已完工」收尾动态（已无待确认/执行中），非完工态用示例
+            var activityHTML = isDone
+                ? SHARED.activities.map(function (a) {
+                    return '<div class="activity-item">' +
+                        '<div class="activity-header"><div class="activity-avatar" style="background: linear-gradient(135deg, #52C41A 0%, #73D13D 100%);">系</div>' +
+                        '<div class="activity-info"><div class="activity-user">系统<span class="activity-role-tag project-manager">项目总</span></div><div class="activity-time">' + a.time + '</div></div></div>' +
+                        '<div class="activity-content">' + a.text + '</div></div>';
+                }).join('')
+                : '<div class="hidden"></div>';
+
+            return '<div class="detail-fade">' +
+                // 快捷入口（3 项：团队成员 / 资料 / 对账单）
+                '<div class="card qn-card">' +
+                    '<div class="quick-nav qn-3" id="quickNavNon">' +
+                        '<div class="quick-nav-item" onclick="go(\'team-members.html\')"><div class="icon structure">🏗️</div><div class="label">团队成员</div></div>' +
+                        '<div class="quick-nav-item" onclick="go(\'project-files.html\')"><div class="icon file">📁</div><div class="label">资料</div></div>' +
+                        '<div class="quick-nav-item" onclick="go(\'statement-list.html\')"><div class="icon statement">💰</div><div class="label">对账单</div></div>' +
+                    '</div>' +
+                '</div>' +
+                '<div class="card"><div class="card-title"><span>📋 待办事项</span>' +
+                    '<span class="badge-wrap"><span class="badge">' + p.todoCount + '</span></span>' +
+                    '<span class="more" onclick="openPage(\'todo-list.html\')">查看全部 ></span></div>' +
+                    '<div class="todo-content">' + todos + '</div></div>' +
+                '<div class="card my-task-card" onclick="openPage(\'task-list.html?role=exec\')"><div class="card-title"><span>📌 我的任务</span><span class="more">查看全部 ></span></div>' +
+                    '<div class="my-task-stats">' +
+                        '<div class="my-task-stat"><div class="value">' + SHARED.myTasks.nonworker.done + '</div><div class="label">已完成</div></div>' +
+                        '<div class="my-task-divider"></div>' +
+                        '<div class="my-task-stat"><div class="value">' + SHARED.myTasks.nonworker.total + '</div><div class="label">我作为执行人的全部任务</div></div>' +
+                    '</div></div>' +
+                // 服务流程（横向流程条 + 内联明细；回迁自 demo，由 flowMount() 注入）
+                '<div id="flowHost"></div>' +
+                // 合同概览 / 任务统计 已并入「服务流程」统计条（见 flowMount）
+                '' +
+                // 合同概览 / 任务统计 已并入「服务流程」统计条（见 flowMount），此处不再单独成卡
+                '' +
+                '<div class="card indent-card"><div class="card-title"><span>📝 今日动态</span><span class="more" onclick="go(\'activity-list.html\')">查看全部 ></span></div>' +
+                    activityHTML +
+                '</div>' +
+                '</div>';
+        }
+
+        /* ===================== 渲染：工人详情 ===================== */
+        function renderWorker(p) {
+            var isDone = isCompleted(p);
+            // 待办：已完工态为空态；否则沿用示例数据
+            var taskTodos = isDone
+                ? '<div class="simple-empty-state"><div class="empty-icon">📋</div><div class="empty-text">暂无待办，休息一下 ☕</div></div>'
+                : SHARED.workerTaskTodos.map(function (t) {
+                    return '<div class="todo-item"' + (t.link ? ' onclick="go(\'' + t.link + '\')" style="cursor:pointer"' : '') + '>' +
+                        '<div class="icon" style="background-color:' + t.bg + ';">' + t.icon + '</div>' +
+                        '<div class="content"><div class="title">' + t.title + ' <span class="task-tag ' + t.tag + '">' + (t.tag === 'contract' ? '合同' : '任务') + '</span></div>' +
+                        '<div class="desc">' + t.desc + '</div></div>' +
+                        '<div class="status ' + t.cls + '">' + t.status + '</div></div>';
+                }).join('');
+
+            var levels = SHARED.levels.map(function (l, i) {
+                var sel = l.name === p.trade + '工作组';
+                var icon = l.name === '项目部' ? '🏢' : '⚡';
+                return '<div class="level-option' + (sel ? ' selected' : '') + '" onclick="pickLevel(this, event)">' +
+                    '<div class="icon">' + icon + '</div>' +
+                    '<div class="info"><div class="name">' + l.name + '</div><div class="count">' + l.count + '</div></div>' +
+                    '<div class="check" style="visibility:' + (sel ? 'visible' : 'hidden') + ';">✓</div></div>';
+            }).join('');
+
+            // 工人视角合同：已完工统一展示全部 8 份（皆已签约）；非完工态从历史合同剔除「水电班组服务合同」示例
+            var contracts = (isDone ? SHARED.contracts : SHARED.contracts.filter(function (c) { return c.name !== '水电班组服务合同'; })).map(function (c) {
+                return '<div class="contract-item" onclick="navigate(\'' + c.detail + '\')">' +
+                    '<div class="info"><div class="name">' + c.name + '</div><div class="meta-row">' +
+                        '<span class="meta">' + c.meta + '</span><span class="action-badge ' + c.badgeCls + '">' + c.badge + '</span></div></div>' +
+                    '<div class="progress-wrap"><div class="percent">' + c.percent + '%</div>' +
+                    '<div class="bar"><div class="fill" style="width:' + c.percent + '%"></div></div></div></div>';
+            }).join('');
+
+            return '<div class="detail-fade">' +
+                // 快捷入口（3 项：团队成员 / 资料 / 对账单）
+                '<div class="card qn-card">' +
+                    '<div class="quick-nav qn-3" id="quickNavWork">' +
+                        '<div class="quick-nav-item" onclick="go(\'team-members.html\')"><div class="icon structure">🏗️</div><div class="label">团队成员</div></div>' +
+                        '<div class="quick-nav-item" onclick="go(\'project-files.html\')"><div class="icon file">📁</div><div class="label">资料</div></div>' +
+                        '<div class="quick-nav-item" onclick="go(\'statement-list.html\')"><div class="icon statement">💰</div><div class="label">对账单</div></div>' +
+                    '</div>' +
+                '</div>' +
+                '<div class="card todo-card worker"><div class="card-title"><span>📋 待办事项</span>' +
+                    '<span class="badge-wrap"><span class="badge">' + p.todoCount + '</span></span>' +
+                    '<span class="more" onclick="openPage(\'todo-list.html\')">查看全部 ></span></div>' +
+                    '<div class="todo-content">' + taskTodos + '</div></div>' +
+                '<div class="card my-task-card worker" onclick="openPage(\'task-list.html?role=exec\')"><div class="card-title"><span>📌 我的任务</span><span class="more">查看全部 ></span></div>' +
+                    '<div class="my-task-stats">' +
+                        '<div class="my-task-stat"><div class="value">' + SHARED.myTasks.worker.done + '</div><div class="label">已完成</div></div>' +
+                        '<div class="my-task-divider"></div>' +
+                        '<div class="my-task-stat"><div class="value">' + SHARED.myTasks.worker.total + '</div><div class="label">我作为执行人的全部任务</div></div>' +
+                    '</div></div>' +
+                // 服务流程（横向流程条 + 内联明细；回迁自 demo，由 flowMount() 注入）
+                '<div id="flowHost"></div>' +
+                // 合同概览 / 任务统计 已并入「服务流程」统计条（见 flowMount）
+                '' +
+                // 合同概览 / 任务统计 已并入「服务流程」统计条（见 flowMount），此处不再单独成卡
+                '' +
+                '</div>';
+        }
+
+        /* ===================== 顶部一行：项目名/切换 + 角色摘要 ===================== */
+        function renderTopHero(p) {
+            var el = document.getElementById('topHero');
+            // 非工人视角与工人视角的 proj-info-zone 展示内容保持统一：均用「项目信息」引导文案（点击左侧查看项目信息），避免角色间不一致
+            el.textContent = '项目信息';
+        }
+
+        /* ===================== 主渲染 ===================== */
+        function renderDetail() {
+            var p = PROJECTS[currentIndex];
+            renderTopHero(p);
+            var area = document.getElementById('detailArea');
+            area.innerHTML = currentRole === 'nonworker' ? renderNonWorker(p) : renderWorker(p);
+            flowMount();
+        }
+
+        /* ===================== 交互 ===================== */
+        function togglePanel() {
+            var panel = document.getElementById('projPanel');
+            var arrow = document.getElementById('switchArrow');
+            var open = panel.classList.toggle('open');
+            arrow.classList.toggle('open', open);
+        }
+
+        function selectProject(i) {
+            currentIndex = i;
+            renderSwitchBar();
+            renderPanel();
+            togglePanel(); // 收起
+            renderDetail();
+        }
+
+        /* 切换面板：状态筛选（全部 / 进行中 / 已完成） */
+        function setPanelFilter(f, el) {
+            panelFilter = f;
+            var items = document.querySelectorAll('#projPanelFilter .pf-item');
+            items.forEach(function (it) { it.classList.remove('active'); });
+            if (el) el.classList.add('active');
+            renderPanel();
+        }
+
+        /* 新建项目：参考「项目列表」创建图标逻辑（认证后跳转 / 未认证弹窗） */
+        var isUserCertified = false;
+        function createProject() {
+            if (isUserCertified) {
+                location.href = 'create-project.html';
+            } else {
+                document.getElementById('authRequiredModal').classList.add('show');
+            }
+        }
+        function closeAuthModal() {
+            document.getElementById('authRequiredModal').classList.remove('show');
+        }
+        function goToAuthPage() {
+            closeAuthModal();
+            location.href = 'promoter-auth.html';
+        }
+        function toggleAuthStatus(certified) {
+            isUserCertified = certified;
+            var statusEl = document.getElementById('authStatus');
+            if (certified) {
+                statusEl.textContent = '已认证';
+                statusEl.classList.add('certified');
+            } else {
+                statusEl.textContent = '未认证';
+                statusEl.classList.remove('certified');
+            }
+        }
+
+        function toggleRoleSwitch(checked) {
+            currentRole = checked ? 'worker' : 'nonworker';
+            var statusEl = document.getElementById('roleStatus');
+            statusEl.textContent = currentRole === 'worker' ? '工人' : '非工人';
+            statusEl.classList.toggle('worker', currentRole === 'worker');
+            renderDetail();
+        }
+
+        function toggleLevelOpts(el) {
+            var box = el.parentElement.querySelector('.level-options');
+            var arrow = el.querySelector('.arrow');
+            var open = box.classList.toggle('open');
+            arrow.classList.toggle('open', open);
+        }
+
+        /* 合同概览：查看合同 ▼ 折叠 / 展开合同列表（非工人视角 contractListNW） */
+        function toggleContractNW(el) {
+            var list = document.getElementById('contractListNW');
+            if (!list) return;
+            var shown = list.classList.toggle('show');
+            if (el) {
+                var arrow = el.querySelector('.arrow');
+                if (arrow) arrow.classList.toggle('open', shown);
+            }
+        }
+
+        /* 滚动联动：仅维护吸顶阴影（快捷入口常驻一行，不随滚动隐藏） */
+        (function initScrollFx() {
+            var scroller = document.getElementById('detailArea');
+            if (!scroller) return;
+            scroller.addEventListener('scroll', function () {
+                var top = scroller.scrollTop;
+                var sh = document.getElementById('stickyHeader');
+                if (sh) {
+                    if (top > 4) sh.classList.add('with-shadow');
+                    else sh.classList.remove('with-shadow');
+                }
+            }, { passive: true });
+        })();
+
+        function pickLevel(el, e) {
+            if (e) e.stopPropagation();
+            var opts = el.parentElement.querySelectorAll('.level-option');
+            opts.forEach(function (o) {
+                o.classList.remove('selected');
+                var c = o.querySelector('.check');
+                if (c) c.style.visibility = 'hidden';
+            });
+            el.classList.add('selected');
+            var c = el.querySelector('.check');
+            if (c) c.style.visibility = 'visible';
+
+            /* 回写顶部「当前层级」展示，并收起下拉框。
+               注意：.level-option 与 .level-dropdown 是 .level-selector 下的「兄弟」节点，
+               因此不能用 el.closest('.level-dropdown') 查找（会返回 null），需沿 .level-selector 定位。 */
+            var selector = el.closest('.level-selector');
+            if (!selector) return;
+            var dd = selector.querySelector('.level-dropdown');
+            if (!dd) return;
+            var icon = el.querySelector('.icon') ? el.querySelector('.icon').textContent : '';
+            var name = el.querySelector('.info .name') ? el.querySelector('.info .name').textContent : '';
+            var isProject = name === '项目部';
+            var cur = dd.querySelector('.current');
+            if (cur) {
+                var ci = cur.querySelector('.icon'); if (ci) ci.textContent = icon;
+                var tx = cur.querySelector('.text-row .text'); if (tx) tx.textContent = name;
+                var badge = cur.querySelector('.text-row .type-badge');
+                if (badge) { badge.textContent = isProject ? '项目部' : '工作组'; badge.className = 'type-badge ' + (isProject ? 'project' : 'workgroup'); }
+                var bc = cur.querySelector('.breadcrumb-inline .breadcrumb-item.active'); if (bc) bc.textContent = name;
+            }
+            var box = selector.querySelector('.level-options');
+            if (box) box.classList.remove('open');
+            var arrow = dd.querySelector('.arrow');
+            if (arrow) arrow.classList.remove('open');
+        }
+
+        /* 真实跳转至目标原型页（与「项目详情」页 data-href 机制一致：点击即跳转，不再仅弹提示） */
+        function navigate(href) { if (href) window.location.href = href; }
+        function go(href) { /* 统一走真实跳转（原占位提示已替换为实际页面导航） */ navigate(href); }
+        function openPage(href) { /* 真实跳转至目标原型页（待办事项/我的任务 查看全部 专用） */ window.location.href = href; }
+
+        function viewProjectInfo() {
+            // 恢复「点击查看项目信息」：跳转独立的项目信息原型页
+            window.location.href = 'project-info.html';
+        }
+
+        function showToast(msg) {
+            var t = document.createElement('div');
+            t.textContent = msg;
+            t.style.cssText = 'position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);background:rgba(0,0,0,.8);color:#fff;font-size:13px;padding:10px 16px;border-radius:8px;z-index:200;white-space:nowrap;';
+            document.querySelector('.phone-frame').appendChild(t);
+            setTimeout(function () { t.remove(); }, 1600);
+        }
+
+        /* ===================== 点击面板外部自动收起 ===================== */
+        document.addEventListener('click', function (e) {
+            var panel = document.getElementById('projPanel');
+            var topbar = document.querySelector('.topbar');
+            if (panel.classList.contains('open') && !topbar.contains(e.target)) {
+                togglePanel();
+            }
+        });
+
+        /* ===================== 服务流程（回迁自 demo，演示态数据 FLOW_ITEMS；真实模型后续替换） ===================== */
+        /* 状态色（演示态） */
+        function flowStatusStyle(s) {
+            switch (s) {
+                case '进行中': return { dot: '#1677ff', ring: '', badge: 'b-go', bar: '#1677ff' };
+                case '已完成': return { dot: '#52c41a', ring: '', badge: 'b-done', bar: '#52c41a' };
+                case '已终止': return { dot: '#fff', ring: '#ff4d4f', badge: 'b-stop', bar: '#ff4d4f' };
+                default:       return { dot: '#fff', ring: '#d9d9d9', badge: 'b-wait', bar: '#d9d9d9' };
+            }
+        }
+        function flowBadgeText(s) { return s === '未开始' ? '待开始' : s; }
+
+        /* 演示态数据（后续由真实模型替换） */
+        function flowBaseItems() {
+            return [
+                { id: 'lh', name: '量房', kind: 'task', status: '已完成', done: 3, total: 3,
+                    tasks: [
+                        { name: '原始尺寸复测', exec: '张设计', status: '已完成' },
+                        { name: '墙体结构勘测', exec: '李设计', status: '已完成' },
+                        { name: '设备点位确认', exec: '王设计', status: '已完成' }
+                    ] },
+                { id: 'cs', name: '初步设计', kind: 'task', status: '已完成', done: 4, total: 4,
+                    tasks: [
+                        { name: '方案文件·户型优化', exec: '张设计', status: '已完成' },
+                        { name: '内部评审', exec: '李设计', status: '已完成' },
+                        { name: '会审', exec: '王设计', status: '已完成' },
+                        { name: '方案定稿', exec: '张设计', status: '已完成' }
+                    ] },
+                { id: 'ht', name: '设计合同', kind: 'contract', status: '已完成', done: 2, total: 2,
+                    contracts: {
+                        main: { name: '设计服务合同', status: '已完成', stage: '2/2' },
+                        subs: [ { name: '软装设计分包', status: '已完成', stage: '1/1' } ],
+                        externals: [ { name: '设计交底', exec: '张设计', status: '已完成' } ]
+                    } },
+                { id: 'sg', name: '施工合同', kind: 'contract', status: '进行中', done: 5, total: 8,
+                    contracts: {
+                        main: { name: '基础施工服务合同', status: '进行中', stage: '5/8' },
+                        subs: [
+                            { name: '水电分包合同', status: '进行中', stage: '2/3' },
+                            { name: '木工分包合同', status: '未开始', stage: '0/2' },
+                            { name: '主材分包合同', status: '进行中', stage: '3/3' }
+                        ],
+                        externals: [
+                            { name: '工地巡检', exec: '王强', status: '已完成' },
+                            { name: '材料进场验收', exec: '李伟', status: '进行中' },
+                            { name: '隐蔽工程验收', exec: '赵敏', status: '未开始' },
+                            { name: '收口验收', exec: '孙磊', status: '未开始' }
+                        ]
+                    } },
+                { id: 'cz', name: '主材安装', kind: 'contract', status: '未开始', done: 0, total: 2,
+                    contracts: {
+                        main: { name: '主材安装合同', status: '未开始', stage: '0/3' },
+                        subs: [],
+                        externals: []
+                    } },
+                { id: 'sh', name: '售后', kind: 'task', status: '未开始', done: 0, total: 0, tasks: [] }
+            ];
+        }
+        function flowExtraItems() {
+            return [
+                { id: 'rz', name: '软装', kind: 'contract', status: '未开始', done: 0, total: 1,
+                    contracts: { main: { name: '软装采购合同', status: '未开始', stage: '0/2' }, subs: [], externals: [] } },
+                { id: 'ys', name: '竣工验收', kind: 'task', status: '未开始', done: 0, total: 0, tasks: [] }
+            ];
+        }
+
+        var flowItems = flowBaseItems();
+        var flowSelectedId = 'sg';      // 默认选中首个进行中项
+        var flowItemCount = 6;
+        var flowDetailOpen = true;
+
+        /* 注入服务流程卡结构并挂载 */
+        function flowMount() {
+            var host = document.getElementById('flowHost');
+            if (!host) return;
+
+            host.innerHTML =
+                '<div class="flow-card">' +
+                    '<div class="flow-sticky" id="flowSticky">' +
+                        '<div class="flow-head"><span class="fh-t">服务流程</span><span class="fh-n" id="mainLine">主线 0/0</span></div>' +
+                        '<div class="flow-stats">' +
+                            '<span class="fs-seg"><span class="fs-num" id="cNum">0/0</span><span class="fs-lab">合同 · <span id="cPct">0%</span></span></span>' +
+                            '<span class="fs-div"></span>' +
+                            '<span class="fs-seg"><span class="fs-num" id="tNum">0/0</span><span class="fs-lab">任务 · <span id="tPct">0%</span></span></span>' +
+                        '</div>' +
+                        '<div class="rail-wrap">' +
+                            '<div class="flow-rail" id="flowRail"></div>' +
+                            '<div class="rail-mask" id="railMask"></div>' +
+                        '</div>' +
+                    '</div>' +
+                    '<div class="flow-detail" id="flowDetail"></div>' +
+                '</div>';
+
+            flowRenderRail();
+            flowRenderDetail();
+            flowSetDetail(true);
+            flowRefreshStats();
+
+            /* sticky 吸顶分隔线联动：随详情区滚动切换 .stuck */
+            var scroller = document.getElementById('detailArea');
+            if (scroller) {
+                scroller.addEventListener('scroll', function () {
+                    var st = document.getElementById('flowSticky');
+                    if (st) st.classList.toggle('stuck', scroller.scrollTop > 4);
+                }, { passive: true });
+            }
+            window.addEventListener('resize', flowUpdateMask);
+        }
+
+        /* 渲染横滑流程条 */
+        function flowRenderRail() {
+            var rail = document.getElementById('flowRail');
+            if (!rail) return;
+            rail.innerHTML = '';
+            var list = flowItemCount === 8 ? flowItems.concat(flowExtraItems()) : flowItems;
+            list.forEach(function (it) {
+                var st = it.status;
+                var ss = flowStatusStyle(st);
+                var el = document.createElement('div');
+                el.className = 'flow-item' + (it.id === flowSelectedId ? ' on' : '');
+                el.setAttribute('data-id', it.id);
+                var prog = it.total > 0 ? (it.done + '/' + it.total) : '—';
+                var pct = it.total > 0 ? Math.round(it.done / it.total * 100) : 0;
+                el.innerHTML =
+                    '<span class="fi-dot" style="background:' + ss.dot + (ss.ring ? ';border:2px solid ' + ss.ring : '') + '"></span>' +
+                    '<span class="fi-name">' + it.name + '</span>' +
+                    '<span class="fi-bar"><i style="width:' + pct + '%;background:' + ss.bar + '"></i></span>' +
+                    '<span class="fi-prog">' + prog + '</span>';
+                el.addEventListener('click', function () { flowSelectItem(it.id); });
+                rail.appendChild(el);
+            });
+            flowUpdateMask();
+        }
+
+        function flowUpdateMask() {
+            var rail = document.getElementById('flowRail');
+            var mask = document.getElementById('railMask');
+            if (!rail || !mask) return;
+            mask.style.display = rail.scrollWidth > rail.clientWidth + 2 ? 'block' : 'none';
+        }
+
+        function flowSelectItem(id) {
+            if (id === flowSelectedId && flowDetailOpen) {
+                /* 再次点击已选中项 = 收起明细（保留选中态） */
+                flowSetDetail(false);
+                return;
+            }
+            flowSelectedId = id;
+            flowRenderRail();
+            flowRenderDetail();
+            flowSetDetail(true);
+            var el = document.querySelector('.flow-item.on');
+            if (el) el.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+        }
+
+        /* 渲染内联明细 */
+        function flowRenderDetail() {
+            var box = document.getElementById('flowDetail');
+            if (!box) return;
+            var item = (flowItemCount === 8 ? flowItems.concat(flowExtraItems()) : flowItems).filter(function (x) { return x.id === flowSelectedId; })[0];
+            if (!item) return;
+            var html = '<div class="detail-inner">';
+
+            if (item.kind === 'contract') {
+                var c = item.contracts;
+                html += '<div class="d-sec"><div class="detail-title">主合同</div>';
+                html += flowRowHtml(c.main.name, '阶段 ' + c.main.stage, flowBadgeText(c.main.status), c.main.status, true);
+                html += '</div><div class="d-sec"><div class="d-sec-h">子合同 · ' + c.subs.length + '</div>';
+                if (c.subs.length === 0) {
+                    html += '<div class="d-row"><span class="d-name" style="color:var(--text-3)">暂无子合同</span></div>';
+                } else {
+                    c.subs.forEach(function (s) { html += flowRowHtml(s.name, '阶段 ' + s.stage, flowBadgeText(s.status), s.status, true); });
+                }
+                html += '</div><div class="d-sec"><div class="d-sec-h">合同外任务 · 完成 ' + flowCountDone(c.externals) + '/' + c.externals.length + '</div>';
+                if (c.externals.length === 0) {
+                    html += '<div class="d-row"><span class="d-name" style="color:var(--text-3)">暂无合同外任务</span></div>';
+                } else {
+                    c.externals.forEach(function (e) { html += flowRowHtml(e.name, '执行 ' + e.exec, flowBadgeText(e.status), e.status, false); });
+                }
+                html += '</div>';
+            } else {
+                html += '<div class="d-sec"><div class="d-sec-h">任务 · ' + item.done + '/' + item.total + '</div>';
+                if (item.tasks.length === 0) {
+                    html += '</div><div class="detail-empty"><div class="de-t">该流程项暂无任务</div><div class="add-btn" onclick="showToast(\'添加任务\')">+ 添加任务</div></div>';
+                } else {
+                    item.tasks.forEach(function (t) { html += flowRowHtml(t.name, '执行 ' + t.exec, flowBadgeText(t.status), t.status, false); });
+                    html += '</div>';
+                }
+            }
+            html += '</div>';
+            box.innerHTML = html;
+        }
+
+        function flowRowHtml(name, meta, badge, status, isContract) {
+            var ss = flowStatusStyle(status);
+            return '<div class="d-row" onclick="showToast(\'' + (isContract ? '查看合同：' : '查看任务：') + name + '\')">' +
+                '<span class="d-name">' + name + '</span>' +
+                '<span class="d-meta">' + meta + '</span>' +
+                '<span class="badge ' + ss.badge + '">' + badge + '</span>' +
+                '<span class="d-go">›</span></div>';
+        }
+        function flowCountDone(arr) { return arr.filter(function (x) { return x.status === '已完成'; }).length; }
+
+        function flowSetDetail(open) {
+            flowDetailOpen = open;
+            var box = document.getElementById('flowDetail');
+            if (box) box.classList.toggle('collapsed', !open);
+        }
+
+        /* 统计条 / 主线进度 */
+        function flowRefreshStats() {
+            var list = flowItemCount === 8 ? flowItems.concat(flowExtraItems()) : flowItems;
+            var cTotal = 0, cDone = 0, tTotal = 0, tDone = 0, mainDone = 0;
+            list.forEach(function (it) {
+                if (it.kind === 'contract') {
+                    cTotal += 1 + it.contracts.subs.length;
+                    if (it.contracts.main.status === '进行中' || it.contracts.main.status === '已完成') cDone += 1;
+                    it.contracts.subs.forEach(function (s) { if (s.status === '进行中' || s.status === '已完成') cDone += 1; });
+                } else {
+                    tTotal += it.tasks.length;
+                    tDone += flowCountDone(it.tasks);
+                }
+                if (it.status === '已完成') mainDone += 1;
+            });
+            var cNum = document.getElementById('cNum'); if (cNum) cNum.textContent = cDone + '/' + cTotal;
+            var tNum = document.getElementById('tNum'); if (tNum) tNum.textContent = tDone + '/' + tTotal;
+            var cPct = document.getElementById('cPct'); if (cPct) cPct.textContent = (cTotal ? Math.round(cDone / cTotal * 100) : 0) + '%';
+            var tPct = document.getElementById('tPct'); if (tPct) tPct.textContent = (tTotal ? Math.round(tDone / tTotal * 100) : 0) + '%';
+            var mainLine = document.getElementById('mainLine'); if (mainLine) mainLine.textContent = '主线 ' + mainDone + '/' + list.length;
+        }
+
+        /* ===================== 初始化 ===================== */
+        renderSwitchBar();
+        renderPanel();
+        renderDetail();
+    </script>
+<script src="../shared/doc-viewer/doc-viewer.js"></script>
+</body>
+</html>

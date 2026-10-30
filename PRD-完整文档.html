@@ -1,0 +1,1311 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>良造家管理平台 - 完整PRD文档</title>
+    <style>
+        :root {
+            --primary-color: #1890FF;
+            --success-color: #52C41A;
+            --warning-color: #FA8C16;
+            --error-color: #FF4D4F;
+            --purple-color: #722ED1;
+            --text-primary: #262626;
+            --text-secondary: #595959;
+            --text-tertiary: #8C8C8C;
+            --border-color: #E8E8E8;
+            --bg-primary: #FFFFFF;
+            --bg-secondary: #FAFAFA;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.6;
+            color: var(--text-primary);
+            background-color: var(--bg-secondary);
+        }
+
+        /* 左右布局 */
+        .page-wrapper {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* 左侧目录 */
+        .sidebar-toc {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 280px;
+            height: 100vh;
+            background: var(--bg-primary);
+            border-right: 1px solid var(--border-color);
+            overflow-y: auto;
+            z-index: 100;
+            flex-shrink: 0;
+        }
+
+        .sidebar-toc::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .sidebar-toc::-webkit-scrollbar-thumb {
+            background: var(--border-color);
+            border-radius: 3px;
+        }
+
+        .sidebar-toc::-webkit-scrollbar-track {
+            background: var(--bg-secondary);
+        }
+
+        .sidebar-toc-title {
+            padding: 24px 24px 16px;
+            font-size: 18px;
+            font-weight: 600;
+            border-bottom: 1px solid var(--border-color);
+            position: sticky;
+            top: 0;
+            background: var(--bg-primary);
+            z-index: 1;
+        }
+
+        .sidebar-toc-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .sidebar-toc-list li {
+            border-bottom: none;
+        }
+
+        .sidebar-toc-list a {
+            display: block;
+            padding: 12px 24px;
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: all 0.2s ease;
+            border-left: 3px solid transparent;
+            font-size: 14px;
+        }
+
+        .sidebar-toc-list a:hover {
+            background: var(--bg-secondary);
+            color: var(--primary-color);
+            text-decoration: none;
+        }
+
+        .sidebar-toc-list a.active {
+            background: #E6F7FF;
+            color: var(--primary-color);
+            border-left-color: var(--primary-color);
+            font-weight: 500;
+        }
+
+        .toc-group {
+            padding: 8px 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .toc-group-title {
+            padding: 8px 24px;
+            font-size: 12px;
+            color: var(--text-tertiary);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* 主内容区域 */
+        .main-content {
+            flex: 1;
+            margin-left: 280px;
+            background: var(--bg-secondary);
+        }
+
+        .container { max-width: 1200px; margin: 0 auto; padding: 24px; }
+        .header {
+            background: linear-gradient(135deg, #1890FF 0%, #722ED1 50%, #52C41A 100%);
+            color: white;
+            padding: 64px 24px;
+            margin-bottom: 32px;
+            text-align: center;
+        }
+        .header h1 { font-size: 42px; margin-bottom: 16px; }
+        .header .meta { font-size: 16px; opacity: 0.9; margin-bottom: 24px; }
+        .header .version-info {
+            display: inline-flex;
+            gap: 24px;
+            background: rgba(255,255,255,0.15);
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+        .section {
+            background: var(--bg-primary);
+            border-radius: 8px;
+            padding: 32px;
+            margin-bottom: 24px;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+        }
+        .section-title {
+            font-size: 28px;
+            font-weight: 600;
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 3px solid var(--primary-color);
+        }
+        .subsection-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: var(--text-primary);
+        }
+        .overview-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 24px;
+            margin-bottom: 32px;
+        }
+        .overview-card {
+            background: linear-gradient(135deg, #F0F5FF 0%, #E6F7FF 100%);
+            border-radius: 12px;
+            padding: 24px;
+            text-align: center;
+        }
+        .overview-card .number {
+            font-size: 48px;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-bottom: 8px;
+        }
+        .overview-card .label {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+        .module-nav {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 32px;
+        }
+        .module-card {
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            padding: 24px;
+            transition: all 0.3s;
+            cursor: pointer;
+            text-decoration: none;
+            color: inherit;
+        }
+        .module-card:hover {
+            border-color: var(--primary-color);
+            box-shadow: 0 8px 24px rgba(24,144,255,0.15);
+            transform: translateY(-4px);
+        }
+        .module-card.contract { border-left: 4px solid var(--primary-color); }
+        .module-card.task { border-left: 4px solid var(--success-color); }
+        .module-card.project { border-left: 4px solid var(--purple-color); }
+        .module-card.other { border-left: 4px solid var(--warning-color); }
+        .module-card h3 { font-size: 20px; margin-bottom: 12px; }
+        .module-card.contract h3 { color: var(--primary-color); }
+        .module-card.task h3 { color: var(--success-color); }
+        .module-card.project h3 { color: var(--purple-color); }
+        .module-card.other h3 { color: var(--warning-color); }
+        .module-card p { font-size: 14px; color: var(--text-secondary); margin-bottom: 16px; }
+        .module-card .page-count {
+            display: inline-block;
+            padding: 4px 12px;
+            background: var(--bg-secondary);
+            border-radius: 20px;
+            font-size: 12px;
+            color: var(--text-tertiary);
+        }
+        .param-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 24px;
+        }
+        .param-table th, .param-table td {
+            padding: 12px 16px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .param-table th {
+            background: var(--bg-secondary);
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+        .status-flow {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 16px;
+            background: var(--bg-secondary);
+            border-radius: 8px;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+        }
+        .status-node {
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 500;
+            white-space: nowrap;
+        }
+        .status-node.draft { background: #F5F5F5; color: #8C8C8C; }
+        .status-node.pending { background: #E6FFFB; color: #13C2C2; }
+        .status-node.in-progress { background: #F9F0FF; color: #722ED1; }
+        .status-node.completed { background: #E6F7FF; color: #1890FF; }
+        .note {
+            background: #FFFBE6;
+            border-left: 4px solid var(--warning-color);
+            padding: 16px;
+            margin-bottom: 24px;
+            border-radius: 0 8px 8px 0;
+        }
+        .note-title { font-weight: 600; color: var(--warning-color); margin-bottom: 8px; }
+        .global-params {
+            background: #F6FFED;
+            border: 1px solid var(--success-color);
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 24px;
+        }
+        .global-params h4 { color: var(--success-color); margin-bottom: 12px; }
+        .footer {
+            text-align: center;
+            padding: 48px 0;
+            color: var(--text-tertiary);
+            border-top: 1px solid var(--border-color);
+            margin-top: 48px;
+        }
+    </style>
+</head>
+<body>
+    <!-- 左侧目录 -->
+    <nav class="sidebar-toc" id="sidebarToc">
+        <div class="sidebar-toc-title">文档目录</div>
+        <ul class="sidebar-toc-list">
+            <div class="toc-group">
+                <div class="toc-group-title">概览</div>
+                <li><a href="#overview">一、文档概述</a></li>
+                <li><a href="#product">二、产品概述</a></li>
+                <li><a href="#flow">三、关键交互流程</a></li>
+                <li><a href="#state-machine">四、状态机定义</a></li>
+                <li><a href="#validation">五、字段校验规则</a></li>
+            </div>
+            <div class="toc-group">
+                <div class="toc-group-title">模块文档</div>
+                <li><a href="#module-contract">📋 合同模块</a></li>
+                <li><a href="#module-task">✅ 任务模块</a></li>
+                <li><a href="#module-project">🏗️ 项目模块</a></li>
+                <li><a href="#module-other">⚙️ PC端其他模块</a></li>
+            </div>
+            <div class="toc-group">
+                <div class="toc-group-title">功能清单</div>
+                <li><a href="#feature-list">六、功能清单</a></li>
+                <li><a href="#message-feature">七、消息功能</a></li>
+            </div>
+            <div class="toc-group">
+                <div class="toc-group-title">设计规格</div>
+                <li><a href="#ui-design">八、UI设计系统参数</a></li>
+                <li><a href="#dev-guide">九、研发使用说明</a></li>
+                <li><a href="#file-list">十、交付文件清单</a></li>
+            </div>
+        </ul>
+    </nav>
+
+    <!-- 主内容区域 -->
+    <div class="main-content">
+        <div class="header">
+            <div class="container">
+                <h1>良造家管理平台</h1>
+                <h2 style="font-size: 24px; margin-bottom: 16px;">产品需求文档</h2>
+                <div class="version-info">
+                    <span>版本：v1.0</span>
+                    <span>日期：2026-07-23</span>
+                    <span>状态：已完成</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="container">
+            <!-- 文档概述 -->
+            <div class="section" id="overview">
+                <div class="section-title">一、文档概述</div>
+            
+            <div class="overview-grid">
+                <div class="overview-card">
+                    <div class="number">44</div>
+                    <div class="label">功能页面</div>
+                </div>
+                <div class="overview-card">
+                    <div class="number">3</div>
+                    <div class="label">终端平台</div>
+                </div>
+                <div class="overview-card">
+                    <div class="number">11</div>
+                    <div class="label">角色类型</div>
+                </div>
+                <div class="overview-card">
+                    <div class="number">5</div>
+                    <div class="label">状态机定义</div>
+                </div>
+            </div>
+
+            <p style="margin-bottom: 24px;">本文档包含良造家管理平台全部功能的交互规格，涵盖PC管理端和服务方小程序、业主小程序三个终端平台。</p>
+        </div>
+
+        <!-- 产品概述 -->
+        <div class="section" id="product">
+            <div class="section-title">二、产品概述</div>
+            
+            <div class="subsection" style="margin-bottom: 24px;">
+                <h4 style="margin-bottom: 12px; color: var(--text-primary);">产品背景</h4>
+                <p style="color: var(--text-secondary); line-height: 1.8;">随着家装行业的不断发展，传统的项目管理方式已无法满足现代家装项目的复杂需求。良造家管理平台旨在通过数字化手段，为家装项目提供一站式管理解决方案，实现项目全生命周期的可视化、规范化管理。</p>
+            </div>
+            
+            <div class="subsection" style="margin-bottom: 24px;">
+                <h4 style="margin-bottom: 12px; color: var(--text-primary);">产品定位</h4>
+                <p style="color: var(--text-secondary); line-height: 1.8;">良造家管理平台是一个面向家装行业的数字化管理工具，涵盖PC管理端和小程序端，为平台运营人员、服务方（设计师、施工团队、监理人员等）和业主提供全方位的项目管理功能。</p>
+            </div>
+            
+            <div class="subsection" style="margin-bottom: 24px;">
+                <h4 style="margin-bottom: 12px; color: var(--text-primary);">产品价值</h4>
+                <ul style="color: var(--text-secondary); line-height: 1.8; margin-left: 20px;">
+                    <li><strong>提升效率</strong>：通过数字化流程，减少人工操作，提高项目管理效率</li>
+                    <li><strong>规范管理</strong>：标准化合同流程和任务管理，确保项目质量</li>
+                    <li><strong>信息透明</strong>：实时同步项目进度，确保各方信息对称</li>
+                    <li><strong>便捷协作</strong>：支持多方协作，简化沟通流程</li>
+                    <li><strong>角色清晰</strong>：明确区分不同角色的职能和权限，避免操作混乱</li>
+                </ul>
+            </div>
+            
+            <div class="subsection">
+                <h4 style="margin-bottom: 12px; color: var(--text-primary);">用户角色定义</h4>
+                <table class="param-table">
+                    <tr>
+                        <th>端</th>
+                        <th>角色</th>
+                        <th>职能定位</th>
+                        <th>核心权限</th>
+                    </tr>
+                    <tr>
+                        <td>PC管理端</td>
+                        <td>运营角色</td>
+                        <td>平台运营管理人员，负责合同审核</td>
+                        <td>审核通过/驳回合同、查看合同详情、管理合同文本模板、管理阶段任务模板</td>
+                    </tr>
+                    <tr>
+                        <td rowspan="9">服务方小程序</td>
+                        <td>设计师</td>
+                        <td>设计服务提供者，负责设计方案</td>
+                        <td>参与设计相关任务、查看项目进度、执行/确认任务</td>
+                    </tr>
+                    <tr>
+                        <td>项目总</td>
+                        <td>项目管理总负责人，负责项目整体管理</td>
+                        <td>创建和管理项目、管理项目成员、查看合同和任务、管理对账单</td>
+                    </tr>
+                    <tr>
+                        <td>工长</td>
+                        <td>施工负责人，管理施工组</td>
+                        <td>管理施工组任务、执行/确认任务、提交验收、管理对账单</td>
+                    </tr>
+                    <tr>
+                        <td>拆除工</td>
+                        <td>拆改阶段施工人员</td>
+                        <td>执行拆除相关任务、上传执行记录、提交验收</td>
+                    </tr>
+                    <tr>
+                        <td>水电工</td>
+                        <td>水电阶段施工人员</td>
+                        <td>执行水电相关任务、上传执行记录、提交验收</td>
+                    </tr>
+                    <tr>
+                        <td>木作工</td>
+                        <td>木作阶段施工人员</td>
+                        <td>执行木作相关任务、上传执行记录、提交验收</td>
+                    </tr>
+                    <tr>
+                        <td>泥瓦工</td>
+                        <td>泥瓦阶段施工人员</td>
+                        <td>执行泥瓦相关任务、上传执行记录、提交验收</td>
+                    </tr>
+                    <tr>
+                        <td>油漆工</td>
+                        <td>油漆阶段施工人员</td>
+                        <td>执行油漆相关任务、上传执行记录、提交验收</td>
+                    </tr>
+                    <tr>
+                        <td>小零工</td>
+                        <td>零散施工人员</td>
+                        <td>执行零散任务、上传执行记录、提交验收</td>
+                    </tr>
+                    <tr>
+                        <td>业主小程序</td>
+                        <td>业主</td>
+                        <td>确认验收角色，负责查看进度和确认</td>
+                        <td>查看项目进度、确认验收任务、确认合同和变更、评价任务执行、确认对账单</td>
+                    </tr>
+                </table>
+            </div>
+
+            <div class="subsection" style="margin-top: 24px;">
+                <h4 style="margin-bottom: 12px; color: var(--text-primary);">合同类型</h4>
+                <table class="param-table">
+                    <tr>
+                        <th>合同类型</th>
+                        <th>说明</th>
+                        <th>对应角色</th>
+                    </tr>
+                    <tr>
+                        <td>基础施工服务合同</td>
+                        <td>涵盖项目基础施工服务的总合同</td>
+                        <td>项目总或工长</td>
+                    </tr>
+                    <tr>
+                        <td>设计服务合同</td>
+                        <td>提供设计方案及相关设计服务</td>
+                        <td>设计师</td>
+                    </tr>
+                    <tr>
+                        <td>拆除班组服务合同</td>
+                        <td>拆除阶段施工服务合同</td>
+                        <td>拆除工</td>
+                    </tr>
+                    <tr>
+                        <td>水电班组服务合同</td>
+                        <td>水电阶段施工服务合同</td>
+                        <td>水电工</td>
+                    </tr>
+                    <tr>
+                        <td>木作班组服务合同</td>
+                        <td>木作阶段施工服务合同</td>
+                        <td>木作工</td>
+                    </tr>
+                    <tr>
+                        <td>泥瓦工班组服务合同</td>
+                        <td>泥瓦阶段施工服务合同</td>
+                        <td>泥瓦工</td>
+                    </tr>
+                    <tr>
+                        <td>油漆工班组服务合同</td>
+                        <td>油漆阶段施工服务合同</td>
+                        <td>油漆工</td>
+                    </tr>
+                    <tr>
+                        <td>小零工服务合同</td>
+                        <td>零散施工任务服务合同</td>
+                        <td>小零工</td>
+                    </tr>
+                </table>
+            </div>
+
+            <div class="global-params">
+                <h4>✅ 已确认的全局参数</h4>
+                <table class="param-table">
+                    <tr>
+                        <th>参数</th>
+                        <th>值</th>
+                        <th>适用范围</th>
+                    </tr>
+                    <tr>
+                        <td>轻提示位置</td>
+                        <td>屏幕中部</td>
+                        <td>全部页面</td>
+                    </tr>
+                    <tr>
+                        <td>轻提示持续时间</td>
+                        <td>2秒</td>
+                        <td>全部页面</td>
+                    </tr>
+                    <tr>
+                        <td>列表每页条数</td>
+                        <td>10条</td>
+                        <td>全部列表页</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+
+        <!-- 关键交互流程 -->
+        <div class="section" id="flow">
+            <div class="section-title">三、关键交互流程</div>
+            
+            <div class="subsection" style="margin-bottom: 24px;">
+                <h4 style="margin-bottom: 12px; color: var(--text-primary);">PC端合同审核流程</h4>
+                <div class="note">
+                    <p>1. 运营人员登录后进入合同列表页</p>
+                    <p>2. 点击合同名称或"去审核"按钮进入合同详情页</p>
+                    <p>3. 查看合同基本信息、合同正文、阶段任务、附件</p>
+                    <p>4. 点击"审核通过"或"驳回"按钮</p>
+                    <p>5. 驳回时需填写驳回原因</p>
+                    <p>6. 审核后返回列表页，合同状态更新</p>
+                </div>
+            </div>
+            
+            <div class="subsection" style="margin-bottom: 24px;">
+                <h4 style="margin-bottom: 12px; color: var(--text-primary);">服务方任务执行流程</h4>
+                <div class="note">
+                    <p>1. 服务方用户进入任务列表页，查看待执行任务</p>
+                    <p>2. 点击任务卡片进入任务详情页</p>
+                    <p>3. 查看执行标准、确认标准、担责标准</p>
+                    <p>4. 点击"上传记录"上传执行过程照片/视频</p>
+                    <p>5. 执行完成后点击"提交验收"</p>
+                    <p>6. 等待确认人确认验收</p>
+                </div>
+            </div>
+            
+            <div class="subsection" style="margin-bottom: 24px;">
+                <h4 style="margin-bottom: 12px; color: var(--text-primary);">业主任务确认流程</h4>
+                <div class="note">
+                    <p>1. 业主用户进入首页，查看待确认事项</p>
+                    <p>2. 点击待确认任务进入任务详情页</p>
+                    <p>3. 查看执行人信息、执行记录（照片/视频）</p>
+                    <p>4. 确认合格：点击"确认验收"，可选填评价</p>
+                    <p>5. 不合格：点击"驳回"，填写驳回原因</p>
+                    <p>6. 驳回后任务返回执行中状态，需重新执行</p>
+                </div>
+            </div>
+            
+            <div class="subsection" style="margin-bottom: 24px;">
+                <h4 style="margin-bottom: 12px; color: var(--text-primary);">对账单确认流程</h4>
+                <div class="note">
+                    <p>服务方提交：</p>
+                    <p>1. 服务方进入对账单列表页，点击新增按钮</p>
+                    <p>2. 选择关联合同（自动带出确认人）</p>
+                    <p>3. 选择账单类型、输入金额、填写用途描述</p>
+                    <p>4. 提交后通知业主确认</p>
+                    <p style="margin-top: 12px;">业主确认：</p>
+                    <p>1. 业主进入对账单列表页，查看待确认对账单</p>
+                    <p>2. 点击卡片进入详情页</p>
+                    <p>3. 确认无误：点击"确认无误"</p>
+                    <p>4. 有问题：点击"驳回"，填写驳回原因</p>
+                    <p>5. 确认后状态变为"已生效"，等待服务方上传支付凭证</p>
+                </div>
+            </div>
+            
+            <div class="subsection">
+                <h4 style="margin-bottom: 12px; color: var(--text-primary);">异常处理规范</h4>
+                <table class="param-table">
+                    <tr>
+                        <th>异常类型</th>
+                        <th>提示文案</th>
+                        <th>适用场景</th>
+                    </tr>
+                    <tr>
+                        <td>必填项为空</td>
+                        <td>请填写XXX</td>
+                        <td>表单提交时校验</td>
+                    </tr>
+                    <tr>
+                        <td>数据格式错误</td>
+                        <td>XXX格式不正确</td>
+                        <td>输入格式校验</td>
+                    </tr>
+                    <tr>
+                        <td>网络错误</td>
+                        <td>加载失败，请稍后重试</td>
+                        <td>API请求失败</td>
+                    </tr>
+                    <tr>
+                        <td>操作失败</td>
+                        <td>操作失败，请稍后重试</td>
+                        <td>提交/保存失败</td>
+                    </tr>
+                    <tr>
+                        <td>空数据</td>
+                        <td>暂无XXX</td>
+                        <td>列表/卡片无数据</td>
+                    </tr>
+                    <tr>
+                        <td>筛选无结果</td>
+                        <td>没有符合条件的XXX</td>
+                        <td>筛选结果为空</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+
+        <!-- 状态机定义 -->
+        <div class="section" id="state-machine">
+            <div class="section-title">四、状态机定义</div>
+            
+            <h4 style="margin-bottom: 16px;">合同状态机（非工人合同）</h4>
+            <div class="status-flow">
+                <div class="status-node draft">拟定中</div>
+                <span>→</span>
+                <div class="status-node pending">平台审核</div>
+                <span>→</span>
+                <div class="status-node pending">确认中</div>
+                <span>→</span>
+                <div class="status-node in-progress">已确认</div>
+                <span>→</span>
+                <div class="status-node completed">已签约</div>
+            </div>
+            <div class="note">
+                <div class="note-title">驳回分支</div>
+                平台审核 → 平台审核驳回（运营驳回）→ 修改后重新提交 → 平台审核（回灌）<br>
+                <span style="color: var(--text-secondary); font-size: 13px;">PC 运营端以只读态 <code>reviewed_reject</code> 呈现已驳回合同；服务方小程序以 <code>platform_rejected</code> 呈现可编辑态。两者为同一合同不同视角。</span>
+            </div>
+            <div class="note">
+                <div class="note-title">变更流程（叠加于已签约）</div>
+                已签约 → 变更中 → 变更审核中 → 变更确认中 → 已签约（V2）<br>
+                变更审核中 → 变更已驳回（审核驳回）→ 重新发起 → 变更中（回灌）<br>
+                <span style="color: var(--text-secondary); font-size: 13px;">详见合同模块 <a href="PRD-合同模块详细规格.html#sec-5-9" target="_blank">§5.9 变更后合同状态流转</a>。</span>
+            </div>
+
+            <h4 style="margin-bottom: 16px; margin-top: 24px;">工人合同状态机（无平台审核）</h4>
+            <div class="status-flow">
+                <div class="status-node draft">拟定中</div>
+                <span>→</span>
+                <div class="status-node pending">确认中</div>
+                <span>→</span>
+                <div class="status-node in-progress">已确认</div>
+                <span>→</span>
+                <div class="status-node completed">已签约</div>
+            </div>
+            <div class="note">
+                <div class="note-title">回退分支</div>
+                已确认 → 发起方重新选择乙方 → 确认中（回灌）<br>
+                <span style="color: var(--text-secondary); font-size: 13px;">工人合同（班组服务合同）为非平台审核的轻量签约流程，状态机独立于非工人合同。详见合同模块 <a href="PRD-合同模块详细规格.html#sec-10-3" target="_blank">§10.3 工人合同状态机</a>。</span>
+            </div>
+
+            <h4 style="margin-bottom: 16px; margin-top: 24px;">任务状态机</h4>
+            <div class="status-flow">
+                <div class="status-node draft">待配置</div>
+                <span>→</span>
+                <div class="status-node draft">待开始</div>
+                <span>→</span>
+                <div class="status-node in-progress">执行中</div>
+                <span>→</span>
+                <div class="status-node pending">确认中</div>
+                <span>→</span>
+                <div class="status-node completed">已完成</div>
+            </div>
+            <div class="note">
+                <div class="note-title">驳回分支</div>
+                确认中 → 待开始（任一确认人驳回，状态回退；详情页以「驳回后待开始」渲染态呈现）<br>
+                <span style="color: var(--text-secondary); font-size: 13px;">「驳回后待开始」不是独立主状态，对应「待开始」的一种进入原因（确认结果 = 已驳回 触发回退）。</span>
+            </div>
+            <div class="note">
+                <div class="note-title">无确认人快捷完成</div>
+                执行中 → 已完成（未配置确认人时跳过「确认中」，直接完成）<br>
+                <span style="color: var(--text-secondary); font-size: 13px;">详见任务模块 <a href="PRD-任务模块详细规格.html#sub-1-3" target="_blank">§1.3 无确认人快捷完成</a>。</span>
+            </div>
+
+            <h4 style="margin-bottom: 16px; margin-top: 24px;">项目状态机</h4>
+            <div class="status-flow">
+                <div class="status-node in-progress">进行中</div>
+                <span>→</span>
+                <div class="status-node completed">已完成</div>
+            </div>
+            <div class="note">
+                <div class="note-title">回退规则</div>
+                已完成 → 进行中（服务方回退，如任务被驳回回流）→ 已完成（再次全部完成）<br>
+                <span style="color: var(--text-secondary); font-size: 13px;">详见项目模块 <a href="PRD-项目模块详细规格.html#sub-3-13" target="_blank">§3.13 已完成状态-状态流转与回退规则</a>。</span>
+            </div>
+
+            <h4 style="margin-bottom: 16px; margin-top: 24px;">对账单状态机</h4>
+            <div class="status-flow">
+                <div class="status-node pending">待确认</div>
+                <span>→</span>
+                <div class="status-node in-progress">已生效</div>
+                <span>→</span>
+                <div class="status-node completed">已支付</div>
+            </div>
+            <div class="note">
+                <div class="note-title">驳回分支</div>
+                待确认 → 已驳回（业主驳回）→ 修改后重新提交 → 待确认<br>
+                <span style="color: var(--text-secondary); font-size: 13px;">详见项目模块 <a href="PRD-项目模块详细规格.html#sub-9-6" target="_blank">§9.6 对账单状态流转</a>。</span>
+            </div>
+        </div>
+
+        <!-- 字段校验规则 -->
+        <div class="section" id="validation">
+            <div class="section-title">五、字段校验规则</div>
+            
+            <p style="margin-bottom: 24px; color: var(--text-secondary);">本章节定义表单字段的通用校验规则和前端交互规格。各模块特定校验规则（项目、合同、任务、对账单、评价等）详见对应模块PRD文档。</p>
+
+            <div class="module-nav" style="margin-bottom: 24px;">
+                <a href="PRD-合同模块详细规格.html#validation-rules" target="_blank" class="module-card contract" style="padding: 16px;">
+                    <h3 style="font-size: 16px; margin-bottom: 8px;">合同模块校验规则</h3>
+                    <p style="font-size: 13px; margin: 0;">合同名称、金额、附件、审核备注、驳回原因等</p>
+                </a>
+                <a href="PRD-任务模块详细规格.html#validation-rules" target="_blank" class="module-card task" style="padding: 16px;">
+                    <h3 style="font-size: 16px; margin-bottom: 8px;">任务模块校验规则</h3>
+                    <p style="font-size: 13px; margin: 0;">任务名称、执行记录、媒体文件、确认备注、驳回原因等</p>
+                </a>
+                <a href="PRD-项目模块详细规格.html#validation-rules" target="_blank" class="module-card project" style="padding: 16px;">
+                    <h3 style="font-size: 16px; margin-bottom: 8px;">项目模块校验规则</h3>
+                    <p style="font-size: 13px; margin: 0;">项目名称、地址、成员、对账单、评价等</p>
+                </a>
+            </div>
+            
+            <h4 style="margin-bottom: 16px;">通用校验规则</h4>
+            <table class="param-table" style="margin-bottom: 24px;">
+                <thead>
+                    <tr>
+                        <th>字段类型</th>
+                        <th>校验规则</th>
+                        <th>正则表达式</th>
+                        <th>错误提示</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>手机号</td>
+                        <td>1开头，第二位3-9，共11位</td>
+                        <td><code>^1[3-9]\d{9}$</code></td>
+                        <td>请输入正确的手机号</td>
+                    </tr>
+                    <tr>
+                        <td>金额（正数）</td>
+                        <td>最多2位小数，≤99,999,999.99</td>
+                        <td><code>^(\d{1,10})(\.\d{1,2})?$</code></td>
+                        <td>请输入正确的金额</td>
+                    </tr>
+                    <tr>
+                        <td>金额（可负）</td>
+                        <td>支持负数，最多2位小数</td>
+                        <td><code>^-?(\d{1,8})(\.\d{1,2})?$</code></td>
+                        <td>请输入正确的金额</td>
+                    </tr>
+                    <tr>
+                        <td>星级评分</td>
+                        <td>0.5的倍数，范围0.5-5.0</td>
+                        <td><code>^[0-5]\.0$|^[1-4]\.5$|^0\.5$</code></td>
+                        <td>请选择评分</td>
+                    </tr>
+                    <tr>
+                        <td>日期</td>
+                        <td>YYYY-MM-DD格式</td>
+                        <td><code>^\d{4}-\d{2}-\d{2}$</code></td>
+                        <td>请选择正确的日期</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h4 style="margin-bottom: 16px;">文件上传规则</h4>
+            <table class="param-table" style="margin-bottom: 24px;">
+                <thead>
+                    <tr>
+                        <th>文件类型</th>
+                        <th>支持格式</th>
+                        <th>大小限制</th>
+                        <th>数量限制</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>通用图片</td>
+                        <td>jpg, jpeg, png, webp</td>
+                        <td>≤10MB</td>
+                        <td>—</td>
+                    </tr>
+                    <tr>
+                        <td>视频</td>
+                        <td>mp4, mov</td>
+                        <td>≤100MB</td>
+                        <td>—</td>
+                    </tr>
+                    <tr>
+                        <td>文档</td>
+                        <td>pdf, doc, docx</td>
+                        <td>≤20MB</td>
+                        <td>—</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="note">
+                <div class="note-title">交互规格说明</div>
+                <p><strong>实时校验</strong>：输入时显示字数统计，失焦时校验格式，提交前全字段校验</p>
+                <p><strong>错误显示</strong>：输入框边框变红（#FF4D4F），下方显示红色提示文字</p>
+                <p><strong>金额输入</strong>：失焦时自动格式化为两位小数，大额显示"X.X万"</p>
+                <p><strong>星级评分</strong>：支持半星点击，点击星星左半边为x.0分，右半边为x.5分</p>
+                <p><strong>省市区选择</strong>：三级级联，仅支持北京、河南（南阳）、陕西（西安）三省市</p>
+            </div>
+        </div>
+
+        <!-- 模块导航 -->
+        <div class="section" id="module-docs">
+            <div class="section-title">模块规格文档</div>
+            
+            <div class="module-nav">
+                <a href="PRD-合同模块详细规格.html" class="module-card contract" id="module-contract">
+                    <h3>📋 合同模块</h3>
+                    <p>合同全生命周期管理，包括创建、编辑、审核、签约、变更等功能。涵盖PC端和小程序端。</p>
+                    <div class="page-count">4个页面</div>
+                </a>
+
+                <a href="PRD-任务模块详细规格.html" class="module-card task" id="module-task">
+                    <h3>✅ 任务模块</h3>
+                    <p>任务执行与验收流程，包括配置执行人、上传记录、确认验收、评价等功能。</p>
+                    <div class="page-count">6个页面</div>
+                </a>
+
+                <a href="PRD-项目模块详细规格.html" class="module-card project" id="module-project">
+                    <h3>🏗️ 项目模块</h3>
+                    <p>项目管理核心功能，包括项目概览、架构管理、成员管理、资料管理、对账单管理等。涵盖服务方和业主小程序。</p>
+                    <div class="page-count">17个页面</div>
+                </a>
+
+                <a href="PRD-PC端其他模块详细规格.html" class="module-card other" id="module-other">
+                    <h3>⚙️ PC端其他模块</h3>
+                    <p>合同文本模板、阶段任务模板等PC端管理功能。</p>
+                    <div class="page-count">4个页面</div>
+                </a>
+            </div>
+        </div>
+
+        <!-- 功能清单 -->
+        <div class="section" id="feature-list">
+            <div class="section-title">六、功能清单</div>
+            
+            <table class="param-table">
+                <thead>
+                    <tr>
+                        <th>功能领域</th>
+                        <th>功能名称</th>
+                        <th>涉及端</th>
+                        <th>涉及页面</th>
+                        <th>功能说明</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- 合同管理 -->
+                    <tr><td rowspan="7">合同管理</td><td>合同审核</td><td><a href="PRD-合同模块详细规格.html#page-list" target="_blank">PC管理端</a></td><td>合同审核列表页、合同详情页</td><td>合同状态筛选、关键词搜索、审核通过/驳回</td></tr>
+                    <tr><td>合同查看</td><td><a href="PRD-合同模块详细规格.html#page-mini-service" target="_blank">服务方小程序</a>、<a href="PRD-合同模块详细规格.html#page-mini-owner" target="_blank">业主小程序</a></td><td>合同详情页</td><td>查看合同信息、阶段任务、附件、补充条款</td></tr>
+                    <tr><td>合同签约</td><td><a href="PRD-合同模块详细规格.html#page-mini-service" target="_blank">服务方小程序</a>、<a href="PRD-合同模块详细规格.html#page-mini-owner" target="_blank">业主小程序</a></td><td>合同详情页</td><td>确认合同、签约操作</td></tr>
+                    <tr><td>合同预览</td><td><a href="PRD-合同模块详细规格.html#page-mini-service" target="_blank">服务方小程序</a></td><td>合同预览页</td><td>合同全文预览、下载</td></tr>
+                    <tr><td><strong>合同变更</strong></td><td><a href="PRD-合同模块详细规格.html#page-mini-service" target="_blank">服务方小程序</a>、<a href="PRD-合同模块详细规格.html#page-mini-owner" target="_blank">业主小程序</a></td><td>合同详情页</td><td>服务方发起变更、变更记录、变更内容高亮；业主查看变更内容、确认/驳回变更</td></tr>
+                    <tr><td>合同文本模板管理</td><td><a href="PRD-PC端其他模块详细规格.html#page-contract-template" target="_blank">PC管理端</a></td><td>合同文本模板管理页</td><td>合同正文模板增删改查</td></tr>
+                    <tr><td>阶段任务模板管理</td><td><a href="PRD-PC端其他模块详细规格.html#page-stage-template" target="_blank">PC管理端</a></td><td>阶段任务模板管理页</td><td>阶段任务模板增删改查</td></tr>
+
+                    <!-- 任务管理 -->
+                    <tr><td rowspan="6">任务管理</td><td>任务查看</td><td><a href="PRD-任务模块详细规格.html#page-task-list-service" target="_blank">服务方小程序</a>、<a href="PRD-任务模块详细规格.html#page-task-list-owner" target="_blank">业主小程序</a></td><td>任务列表页、任务详情页</td><td>任务筛选、状态查看、任务信息查看（含执行标准、确认标准、担责标准）</td></tr>
+                    <tr><td>任务执行</td><td><a href="PRD-任务模块详细规格.html#page-task-detail-service" target="_blank">服务方小程序</a></td><td>任务详情页</td><td>配置执行人、上传执行记录（照片/视频）、提交验收</td></tr>
+                    <tr><td>任务验收</td><td><a href="PRD-任务模块详细规格.html#page-task-detail-service" target="_blank">服务方小程序</a>、<a href="PRD-任务模块详细规格.html#page-task-detail-owner" target="_blank">业主小程序</a></td><td>任务详情页</td><td>验收确认、驳回（需填原因）、评价</td></tr>
+                    <tr><td>任务报告</td><td><a href="PRD-任务模块详细规格.html#page-task-report" target="_blank">服务方小程序</a>、<a href="PRD-任务模块详细规格.html#page-task-report" target="_blank">业主小程序</a></td><td>任务报告单页（见任务模块 §十）</td><td>任务执行记录、验收确认记录、确认人评价汇总查看与下载</td></tr>
+                    <tr><td>待办管理</td><td><a href="PRD-任务模块详细规格.html#page-todo-list-service" target="_blank">服务方小程序</a>、<a href="PRD-任务模块详细规格.html#page-todo-list-owner" target="_blank">业主小程序</a></td><td>全部待办页</td><td>待处理/待确认任务汇总</td></tr>
+                    <tr><td>工艺参考示例</td><td><a href="PRD-合同模块详细规格.html#craft-ref-spec" target="_blank">服务方小程序</a>、<a href="PRD-合同模块详细规格.html#craft-ref-spec" target="_blank">业主小程序</a>、<a href="PRD-合同模块详细规格.html#craft-ref-spec" target="_blank">PC管理端</a></td><td>合同详情页（任务详情弹窗）、任务详情页、阶段任务模板页</td><td>任务「执行标准 / 确认标准」下方的参考图片（每组最多 9 张、仅图片，点击可放大）；PC 端阶段任务模板可配置、任务列表以小图条查看；只读场景无图片时不展示该区块</td></tr>
+
+                    <!-- 项目管理 -->
+                    <tr><td rowspan="8">项目管理</td><td>项目概览</td><td><a href="PRD-项目模块详细规格.html#page-home-service" target="_blank">服务方小程序</a>、<a href="PRD-项目模块详细规格.html#page-detail-owner" target="_blank">业主小程序</a></td><td>首页、项目列表页、项目详情页</td><td>今日动态、快捷入口、项目列表查看筛选搜索、项目概览信息</td></tr>
+                    <tr><td>项目创建</td><td><a href="PRD-项目模块详细规格.html#page-create-service" target="_blank">服务方小程序</a></td><td>创建项目页</td><td>新建项目表单</td></tr>
+                    <tr><td>项目信息</td><td><a href="PRD-项目模块详细规格.html#page-info-service" target="_blank">服务方小程序</a>、<a href="PRD-项目模块详细规格.html#page-info-owner" target="_blank">业主小程序</a></td><td>项目信息页</td><td>服务方编辑/业主查看项目基本信息</td></tr>
+                    <tr><td>项目架构</td><td><a href="PRD-项目模块详细规格.html#page-architecture-service" target="_blank">服务方小程序</a>、<a href="PRD-项目模块详细规格.html#page-architecture-owner" target="_blank">业主小程序</a></td><td>项目架构页</td><td>服务方管理/业主查看三级架构（项目部→工作组→施工队）</td></tr>
+                    <tr><td>项目成员</td><td><a href="PRD-项目模块详细规格.html#page-member-service" target="_blank">服务方小程序</a>、<a href="PRD-项目模块详细规格.html#page-member-owner" target="_blank">业主小程序</a></td><td>项目成员页</td><td>成员管理/查看、邀请、权限设置</td></tr>
+                    <tr><td>项目资料</td><td><a href="PRD-项目模块详细规格.html#page-files-service" target="_blank">服务方小程序</a>、<a href="PRD-项目模块详细规格.html#page-files-owner" target="_blank">业主小程序</a></td><td>项目资料页</td><td>服务方文件分类管理及上传下载/业主只读查看</td></tr>
+                    <tr><td>项目动态</td><td><a href="PRD-项目模块详细规格.html#page-activity-service" target="_blank">服务方小程序</a>、<a href="PRD-项目模块详细规格.html#page-activity-owner" target="_blank">业主小程序</a></td><td>项目动态页</td><td>查看项目全部动态记录，按时间线展示任务、合同、文件等操作记录</td></tr>
+                    <tr><td>项目导航</td><td><a href="PRD-项目模块详细规格.html#page-detail-service" target="_blank">服务方小程序</a>、<a href="PRD-项目模块详细规格.html#page-detail-owner" target="_blank">业主小程序</a></td><td>项目详情页（施工路线抽屉）</td><td>基础施工服务合同已签约后展示入口；阶段任务树展开/收起，默认定位进行中任务（详见项目模块 §3.8 / §12.7）</td></tr>
+
+                    <!-- 待办管理 -->
+                    <tr><td rowspan="1">待办管理</td><td>待办事项</td><td><a href="PRD-任务模块详细规格.html#page-todo-list-service" target="_blank">服务方小程序</a>、<a href="PRD-任务模块详细规格.html#page-todo-list-owner" target="_blank">业主小程序</a></td><td>全部待办页</td><td>待处理/待确认任务汇总，快速跳转处理</td></tr>
+
+                    <!-- 对账单管理 -->
+                    <tr><td rowspan="2">对账单管理</td><td>对账单查看与新增</td><td><a href="PRD-项目模块详细规格.html#page-statement-list-service" target="_blank">服务方小程序</a>、<a href="PRD-项目模块详细规格.html#page-statement-list-owner" target="_blank">业主小程序</a></td><td>对账单列表页</td><td>服务方新增对账单、筛选查看；业主查看待确认对账单</td></tr>
+                    <tr><td>对账单确认与凭证</td><td><a href="PRD-项目模块详细规格.html#page-statement-detail-service" target="_blank">服务方小程序</a>、<a href="PRD-项目模块详细规格.html#page-statement-detail-owner" target="_blank">业主小程序</a></td><td>对账单详情页</td><td>业主确认/驳回对账单；服务方上传支付凭证</td></tr>
+
+                    <!-- 其他功能 -->
+                    <tr><td rowspan="2">其他功能</td><td>消息通知</td><td><a href="#message-feature">服务方小程序</a>、<a href="#message-feature">业主小程序</a></td><td>消息页</td><td>邀请（含角色确认，默认 Tab）/ 合同邀约（仅服务方）；业主端仅含邀请一个 Tab，任务类提醒归口「待办」。邀请接收与角色确认规则详见 <a href="#message-feature">七、消息功能</a></td></tr>
+                    <tr><td>分享导航</td><td>服务方小程序、业主小程序</td><td>分享导航页</td><td>分享链接导航</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- 消息功能（独立功能，跨模块） -->
+        <div class="section" id="message-feature">
+            <div class="section-title">七、消息功能</div>
+            <p>消息是平台内<strong>跨功能模块的独立能力</strong>，承载系统通知与各类业务提醒（加入项目邀请、工人合同邀约、系统公告等），可联动全部其他功能项。其中"任务指派 / 确认 / 驳回"等<strong>任务类提醒不再以消息 Tab 呈现，统一归口「待办」</strong>（详见《PRD-任务模块详细规格》）；消息页的<strong>布局、列表项与字段规格仅在本节描述</strong>（其他模块文档不重复），相关跨模块规则以引用为主以减少冗余。</p>
+
+            <div class="subsection" style="margin-bottom: 24px;">
+                <div class="subsection-title">7.1 页面定位与范围</div>
+                <p>消息页是服务方 / 业主小程序的统一消息中心，负责聚合来自各功能模块的业务消息并承载接收侧交互。其范围边界：</p>
+                <ul>
+                    <li><strong>覆盖范围</strong>：加入项目类邀请（两端）、工人合同邀约（仅服务方）。</li>
+                    <li><strong>不覆盖范围</strong>：任务类提醒（归口「待办」）；合同正文编辑 / 变更流程本身（归口《PRD-合同模块详细规格》）；邀请的发起方式与权限（归口《PRD-项目模块详细规格》7.5 / 7.6，本节仅描述接收侧）。</li>
+                    <li><strong>布局专有</strong>：消息页布局、列表项结构、卡片字段规格属消息页专有，仅在本节展开，其他文档不重复。</li>
+                    <li><strong>站外触达</strong>：用户离开小程序时，平台通过微信「服务通知（订阅消息）」推送提醒并直达小程序内对应页面，归口 <a href="#sub-7-10">7.10</a>，不属于消息页本身。</li>
+                </ul>
+            </div>
+
+            <div class="subsection" style="margin-bottom: 24px;">
+                <div class="subsection-title">7.2 消息页面布局</div>
+                <p>消息页采用标准小程序页面骨架（自顶向下）：</p>
+                <table class="param-table">
+                    <thead><tr><th>区域 / 组件</th><th>说明</th></tr></thead>
+                    <tbody>
+                        <tr><td>状态栏 + 导航栏</td><td>导航栏标题固定为"消息"；右侧为<strong>微信原生胶囊（⋯ ○）</strong>，由微信客户端渲染、开发者不可自定义其内容（仅占位展示）。</td></tr>
+                        <tr><td>消息分类 Tab 栏</td><td>位于导航栏下方，横向排列各消息分类（见 7.3）；当前 Tab 高亮，点击切换并重新渲染列表；支持 URL 参数 <code>?tab=</code> 直接定位（服务方）。<strong>仅当消息分类多于一个时展示</strong>：业主端仅含"邀请"一类，不展示分类 Tab 栏，消息直接列表渲染，未处理数量改由底部导航"消息"项角标呈现（见 7.5.3）。</td></tr>
+                        <tr><td>消息列表</td><td>中部可滚动区域，消息按<strong>日期（date）分组</strong>展示（分组标签如"今天 / 昨天 / 2024-01-15"），组内纵向排列消息卡片（Card）。</td></tr>
+                        <tr><td>消息卡片（Card）</td><td>单条消息的最小展示单元，结构见 7.4；含未读态视觉（左侧高亮条 / 强调底色）、状态徽标与操作按钮。</td></tr>
+                        <tr><td>底部 TabBar</td><td>小程序主导航（首页 / 项目或我的家 / 消息[高亮] / 我的）；消息页固定高亮"消息"项。</td></tr>
+                        <tr><td>弹窗（Modal）与轻提示（Toast）</td><td>覆盖于内容之上的通用层：确认弹窗（接受 / 拒绝邀请）、提示弹窗、选择加入角色弹窗；Toast 用于操作反馈（约 2s 自动消失）。</td></tr>
+                        <tr><td>原型导航 / 演示面板</td><td>仅原型页附加：侧边"原型导航"列出同端页面；"接受邀请演示控制"面板支持切换接收人已认证角色数（单 / 多角色）与扫码 / 微信邀请演示入口，属演示辅助、不计入产品范围。</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="subsection" style="margin-bottom: 24px;">
+                <div class="subsection-title">7.3 消息分类与 Tab 结构</div>
+                <p>两端 Tab 配置不同，默认均进入<strong>邀请</strong> Tab；各 Tab 仅渲染本分类消息，空分类显示"暂无消息"空状态。</p>
+                <table class="param-table">
+                    <thead><tr><th>端</th><th>Tab（默认）</th><th>数据来源</th><th>说明</th></tr></thead>
+                    <tbody>
+                        <tr><td>业主端</td><td>无分类 Tab（仅"邀请"一类）</td><td>本地 <code>messages.invite</code></td><td>仅一类消息，不展示分类 Tab 栏，直接列表渲染；未处理数量以底部导航"消息"项角标呈现（见 7.5.3）。</td></tr>
+                        <tr><td rowspan="2">服务方</td><td>邀请（默认）</td><td>本地 <code>messages.invite</code></td><td>同业主端；带未读角标。</td></tr>
+                        <tr><td>合同邀约</td><td><code>ContractStore</code>（合同邀约消息）</td><td>工人合同邀约，数据持久化于 localStorage；带未读角标。仅服务方含此 Tab。</td></tr>
+                    </tbody>
+                </table>
+                <div class="note" style="margin-top: 16px;">
+                    <div class="note-title">说明</div>
+                    <p>服务方消息页含<strong>邀请 / 合同邀约</strong>两个 Tab（不含系统消息、任务通知）；业主端仅"邀请"一类，<strong>不展示分类 Tab 栏</strong>，消息直接列表渲染、未处理数量以底部导航"消息"项角标呈现。两端均不设"任务通知"Tab，任务相关提醒归口「待办」。</p>
+                </div>
+            </div>
+
+            <div class="subsection" style="margin-bottom: 24px;">
+                <div class="subsection-title">7.4 消息列表项与字段规格</div>
+                <p>消息卡片通用展示：消息类型图标、发送方头像 / 名称、时间、标题、正文、详情区（按类型）、状态徽标 / 操作区。按消息类型分字段如下。</p>
+
+                <p style="margin-top: 16px;"><strong>7.4.1 邀请消息（<code>type=invite</code>）</strong></p>
+                <table class="param-table">
+                    <thead><tr><th>字段（标识符）</th><th>类型</th><th>说明</th></tr></thead>
+                    <tbody>
+                        <tr><td>消息标识（id）</td><td>字符串</td><td>消息唯一标识。</td></tr>
+                        <tr><td>发送方（sender）</td><td>字符串</td><td>邀请人姓名。</td></tr>
+                        <tr><td>发送方头像（senderAvatar）</td><td>字符串</td><td>头像（姓名首字或 emoji）。</td></tr>
+                        <tr><td>类型（type）</td><td>枚举</td><td>固定 <code>invite</code>。</td></tr>
+                        <tr><td>标题（title）</td><td>字符串</td><td>如"邀请您加入项目"。</td></tr>
+                        <tr><td>正文（content）</td><td>字符串</td><td>邀请摘要文案。</td></tr>
+                        <tr><td>时间（time）</td><td>字符串</td><td>展示时间（如"10:30""昨天 16:45"）。</td></tr>
+                        <tr><td>日期分组（date）</td><td>字符串</td><td>列表分组键（如"今天""昨天""2024-01-15"）。</td></tr>
+                        <tr><td>未读（unread）</td><td>布尔</td><td>未读态驱动卡片高亮与 Tab 角标。</td></tr>
+                        <tr><td>状态（status）</td><td>枚举</td><td>待处理（pending）/ 已接受（accepted）/ 已拒绝（rejected）/ 已过期（expired），见 7.5.1。</td></tr>
+                        <tr><td>项目（project）</td><td>对象</td><td>含 名称（name）/ 地址（address）/ 图标（icon）；已接受后可点击进入。</td></tr>
+                        <tr><td>邀请加入（group）</td><td>字符串</td><td>被邀请加入的组 / 工作组（如"水电工作组"）。</td></tr>
+                        <tr><td>邀请人（inviter）</td><td>字符串</td><td>邀请人及身份（如"张三（项目经理）"）。</td></tr>
+                    </tbody>
+                </table>
+
+                <p style="margin-top: 16px;"><strong>7.4.2 合同邀约消息（<code>type=contract_invite</code>，仅服务方）</strong></p>
+                <table class="param-table">
+                    <thead><tr><th>字段（标识符）</th><th>类型</th><th>说明</th></tr></thead>
+                    <tbody>
+                        <tr><td>消息标识（id）</td><td>字符串</td><td>如 <code>cmsg-{contractId}-{userId}</code>。</td></tr>
+                        <tr><td>类型（type）</td><td>枚举</td><td>固定 <code>contract_invite</code>。</td></tr>
+                        <tr><td>合同标识（contractId）</td><td>字符串</td><td>关联工人合同 id；点击"查看邀约"据此跳转。</td></tr>
+                        <tr><td>接收用户（toUserId）</td><td>字符串</td><td>被邀请人用户 id（接收方视角入参）。</td></tr>
+                        <tr><td>接收用户名（toUserName）</td><td>字符串</td><td>被邀请人姓名。</td></tr>
+                        <tr><td>发起方用户名（fromUserName）</td><td>字符串</td><td>发起方（工长·甲方）；运行时迁移旧"陈业主"→"陈庄（工长）"。</td></tr>
+                        <tr><td>发起方角色（fromUserRole）</td><td>字符串</td><td>如"工长"。</td></tr>
+                        <tr><td>合同名称（contractName）</td><td>字符串</td><td>工人合同名称。</td></tr>
+                        <tr><td>合同类型（contractType）</td><td>字符串</td><td>如"水电班组服务合同"。</td></tr>
+                        <tr><td>关联架构（group）</td><td>字符串</td><td>所属工程 / 架构层级（如"水电工程"）。</td></tr>
+                        <tr><td>状态（status）</td><td>枚举</td><td>待处理（pending）/ 已确认（accepted）/ 已拒绝（rejected）/ 已撤回（withdrawn）/ 抢单失败（lost），见 7.5.2。</td></tr>
+                        <tr><td>时间（time）/ 日期分组（date）/ 未读（unread）</td><td>字符串 / 布尔</td><td>同前；未读驱动 Tab 角标。</td></tr>
+                    </tbody>
+                </table>
+                <div class="note" style="margin-top: 16px;">
+                    <div class="note-title">说明</div>
+                    <p>合同邀约消息字段由 <code>ContractStore.addMessage</code> 写入（底层生成逻辑见《PRD-合同模块详细规格》服务方小程序工人合同章节，#page-mini-service，3.7–3.13）；消息页为只读渲染与跳转，不反向修改合同数据。</p>
+                </div>
+            </div>
+
+            <div class="subsection" style="margin-bottom: 24px;">
+                <div class="subsection-title">7.5 消息状态与展示规则</div>
+
+                <p style="margin-top: 8px;"><strong>7.5.1 邀请消息状态（<code>type=invite</code>）</strong></p>
+                <table class="param-table">
+                    <thead><tr><th>状态值（status）</th><th>文案</th><th>状态徽标</th><th>操作区</th></tr></thead>
+                    <tbody>
+                        <tr><td>待处理（pending）</td><td>待处理</td><td>无（卡片左侧未读条）</td><td>"拒绝" + "接受邀请" 按钮</td></tr>
+                        <tr><td>已接受（accepted）</td><td>已接受（✓）</td><td>绿色"已接受"</td><td>项目卡可点击"进入 ›"，无按钮</td></tr>
+                        <tr><td>已拒绝（rejected）</td><td>已拒绝（✕）</td><td>红色"已拒绝"</td><td>无</td></tr>
+                        <tr><td>已过期（expired）</td><td>已过期（⏰）</td><td>灰色"已过期"</td><td>无</td></tr>
+                    </tbody>
+                </table>
+
+                <p style="margin-top: 16px;"><strong>7.5.2 合同邀约消息状态（type=contract_invite，服务方）</strong></p>
+                <table class="param-table">
+                    <thead><tr><th>状态值（status）</th><th>文案</th><th>状态徽标 / 降级</th><th>操作区</th></tr></thead>
+                    <tbody>
+                        <tr><td>待处理（pending）</td><td>待处理</td><td>无（未读条）</td><td>"查看邀约" 按钮</td></tr>
+                        <tr><td>已确认（accepted）</td><td>已确认（✓）</td><td>绿色"已确认"</td><td>"查看邀约"</td></tr>
+                        <tr><td>已拒绝（rejected）</td><td>已拒绝（✕）</td><td>红色"已拒绝"（视觉降级）</td><td>无</td></tr>
+                        <tr><td>已撤回（withdrawn）</td><td>已撤回（↩）</td><td>灰色"已撤回" + 提示"该邀约已被发起方撤回，无需处理"</td><td>无</td></tr>
+                        <tr><td>抢单失败（lost）</td><td>抢单失败（⚡）</td><td>灰色"抢单失败" + 提示"该合同已被其他人员确认，您未获得本次合作"</td><td>无</td></tr>
+                    </tbody>
+                </table>
+                <div class="note" style="margin-top: 16px;">
+                    <div class="note-title">说明</div>
+                    <p>撤回（withdrawn）/ 抢单失败（lost）为合同侧并发首胜与发起方撤回的衍生态，消息页将其整体视觉降级（无操作按钮），仅作结果告知；底层状态机见《PRD-合同模块详细规格》工人合同确认 / 撤回 / 抢单失败（并发首胜）章节。</p>
+                </div>
+
+                <p style="margin-top: 16px;"><strong>7.5.3 未读角标规则</strong></p>
+                <ul>
+                    <li><strong>服务方 邀请 Tab 角标</strong>：未读（unread=true）的邀请消息计数；为 0 时隐藏。</li>
+                    <li><strong>合同邀约 Tab 角标</strong>：未读且状态为待处理（pending）的合同邀约计数；为 0 时隐藏。</li>
+                    <li><strong>业主端 底部导航"消息"角标</strong>：因业主端仅"邀请"一类、不展示分类 Tab 栏，未读（未处理）邀请消息计数直接展示于底部 TabBar"消息"项右上角（红色圆角角标）；为 0 时隐藏。该角标随"全部已读"或单条已读实时更新（<code>updateBadge</code> 统一维护）。</li>
+                </ul>
+            </div>
+
+            <div class="subsection" style="margin-bottom: 24px;">
+                <div class="subsection-title">7.6 交互逻辑与效果</div>
+                <ul>
+                    <li><strong>Tab 切换</strong>：<code>switchTab(tab)</code> 切换 active 并重渲染本分类列表；服务方演示面板仅"邀请"Tab 展示。</li>
+                    <li><strong>邀请接受 / 拒绝</strong>：点击"接受邀请"/"拒绝"→ 弹出确认弹窗（文案含项目名）→ 确认后消息状态更新、清除未读、刷新角标、重渲染；接受按 7.7 角色分支进入项目，拒绝轻提示"已拒绝邀请"。</li>
+                    <li><strong>角色分支选择</strong>：多角色弹"选择加入角色"弹窗；"取消"则停留列表、消息仍为"已接受"、可再次进入项目。</li>
+                    <li><strong>已接受进入项目</strong>：点项目卡或角色选择后调用 <code>goToProject(projectName)</code> 跳转项目详情页（轻提示"正在进入…"后约 0.6s 跳转）。</li>
+                    <li><strong>合同邀约查看</strong>：点"查看邀约"→ 跳转 <a href="service-miniapp/worker-contract-detail.html?viewer=receiver"><code>worker-contract-detail.html?viewer=receiver</code></a>（接收方视角，实际带 asUserId 参数），查看并响应工人合同邀约。</li>
+                    <li><strong>空状态</strong>：列表为空显示"暂无消息"图标与文案。</li>
+                    <li><strong>轻提示（Toast）</strong>：操作反馈（如"已加入…正在进入…""已全部标记为已读"）约 2s 自动消失。</li>
+                    <li><strong>外部跳转定位</strong>：支持 URL 参数 <code>?tab=contract</code> 直接进入对应 Tab（服务方）。</li>
+                    <li><strong>演示控制（仅原型）</strong>：单 / 多角色切换、扫码 / 微信好友邀请接收演示入口，便于演示角色分支差异。</li>
+                </ul>
+            </div>
+
+            <div class="subsection" style="margin-bottom: 24px;">
+                <div class="subsection-title">7.7 邀请接收与角色确认规则（<code>type=invite</code>）</div>
+                <p>消息中心收到的"加入项目"类邀请（type=invite），无论其发起方式为<strong>平台内选择 / 二维码 / 微信好友</strong>，被邀请人点击"接受邀请"后的处理统一遵循本规则（两端"邀请" Tab 共用）。本规则是"邀请链路"在接收侧的闭环，与《PRD-项目模块详细规格》7.5（邀请方式）、7.6（邀请身份区分与默认权限）同源。</p>
+                <table class="param-table">
+                    <thead><tr><th>步骤</th><th>行为</th><th>说明</th></tr></thead>
+                    <tbody>
+                        <tr><td>1. 触发确认</td><td>点击消息卡片"接受邀请"</td><td>弹出确认弹窗"确认接受邀请"（文案含项目名称）；"拒绝"则置为已拒绝，流程结束。</td></tr>
+                        <tr><td>2. 状态更新</td><td>确认接受</td><td>消息状态置为"已接受"，卡片更新为可点击进入项目（与 7.7 落地端一致）。</td></tr>
+                        <tr><td>3. 角色判断</td><td>读取被邀请人已认证角色数 <code>currentUser.verifiedRoles</code></td><td>依据 <code>users.certified_role_count</code> / 已认证角色列表判断分支（详见下方"角色分支"）。</td></tr>
+                        <tr><td>4. 进入项目</td><td>调用 <code>goToProject(projectName)</code></td><td>统一跳转项目详情页。</td></tr>
+                    </tbody>
+                </table>
+                <p style="margin-top: 16px;"><strong>角色分支（核心规则）</strong></p>
+                <ul>
+                    <li><strong>多个已认证角色（≥2）</strong>：弹出"选择加入角色"弹窗，列出被邀请人全部已认证角色；用户选择其一后，以<strong>该角色身份</strong>加入项目并进入项目详情页（轻提示"已以「角色」身份加入，正在进入..."）。</li>
+                    <li><strong>单一或无已认证角色（≤1）</strong>：无需选择，<strong>直接以默认身份加入并进入项目详情页</strong>（轻提示"已加入项目，正在进入..."）。</li>
+                </ul>
+                <p style="margin-top: 16px;"><strong>交互要点</strong></p>
+                <ul>
+                    <li><strong>取消选择</strong>：角色选择弹窗可"取消"，取消后停留在消息列表，消息仍为"已接受"状态，可后续从卡片再次进入项目。</li>
+                    <li><strong>身份归属与默认权限</strong>：被邀请人若为服务人员（member_category=service），接受后落库成员记录默认权限 <code>permission_level=basic</code>（仅基础公开数据、无治理权限），与 7.6 默认权限规则一致。</li>
+                    <li><strong>业主类不受限</strong>：被邀请人为业主 / 业主家人（member_category=owner）时，不受"多角色选择"约束，直接进入项目且默认获得<strong>全部权限</strong>（permission_level=full）。</li>
+                    <li><strong>一致性</strong>：本规则与 7.5（平台内选择需已认证至少一个角色方可被匹配）、7.6（身份分段与默认权限）共同构成完整的邀请能力，三端（服务方 / 业主小程序、PC 管理端）接收逻辑保持一致。</li>
+                </ul>
+                <div class="note" style="margin-top: 16px;">
+                    <div class="note-title">说明</div>
+                    <p>"已认证角色"指用户在平台已完成认证的角色（如水电工、木工、项目经理等），数量来源于 <code>users.certified_role_count</code>。仅当数量 ≥ 2 时触发角色选择，避免单角色 / 无角色用户产生多余操作步骤。</p>
+                </div>
+            </div>
+
+            <div class="subsection" style="margin-bottom: 24px;">
+                <div class="subsection-title">7.8 合同邀约消息（来自 ContractStore）</div>
+                <p>服务方"合同邀约" Tab 的数据由 <code>ContractStore</code> 提供：每创建一份工人合同并向被邀请人发出邀约时，由 <code>ContractStore.addMessage</code> 生成一条 <code>type=contract_invite</code> 消息（字段见 7.4.2）。其<strong>生成、确认（并发首胜）、撤回、抢单失败</strong>的底层逻辑归口《PRD-合同模块详细规格》服务方小程序工人合同章节（#page-mini-service，3.7–3.13），消息页仅负责：</p>
+                <ul>
+                    <li>按 <code>status</code> 渲染状态徽标与"查看邀约"跳转（见 7.5.2 / 7.6）；</li>
+                    <li>未读角标计算与"全部已读"清理（与邀请消息一并 <code>markAllRead</code>）；</li>
+                    <li>运行时数据迁移：自动将旧 localStorage 中残留的"陈业主"修正为"陈庄（工长）"；</li>
+                    <li>首次进入由 <code>ensureContractInviteDemo</code> 注入示例并强制对齐合同底层状态，保证卡片与合同详情视角一致。</li>
+                </ul>
+            </div>
+
+            <div class="subsection" style="margin-bottom: 24px;">
+                <div class="subsection-title">7.9 数据来源与持久化</div>
+                <ul>
+                    <li><strong>邀请消息</strong>：本地内存示例数据（<code>messages</code> 对象），演示用，刷新后重置；未读态在会话内维护。</li>
+                    <li><strong>合同邀约消息</strong>：持久化于 localStorage（<code>ContractStore</code>），跨会话保留；首次进入由示例脚本注入 6 条覆盖 查看邀约 / 已撤回 / 已拒绝 / 抢单失败 / 已确认 五类效果的示例。</li>
+                    <li><strong>未读同步</strong>：邀请消息未读在会话内维护；合同邀约未读持久化于 <code>ContractStore</code>，<code>markAllRead</code> 一并清除两类未读并刷新角标。</li>
+                </ul>
+            </div>
+
+            <div class="subsection" style="margin-bottom: 24px;" id="sub-7-10">
+                <div class="subsection-title">7.10 服务通知（微信订阅消息）</div>
+                <p><strong>定位</strong>：服务通知是平台在<strong>微信客户端层</strong>的触达通道——用户离开小程序时，平台通过微信合规通道（订阅消息）向用户微信的「服务通知」会话推送提醒；用户点开通知即<strong>直达小程序内对应页面（含状态视角参数）</strong>。它与消息页（站内聚合，见 7.1~7.9）、「待办」（站内任务归口，见《PRD-任务模块详细规格》）三者互补：消息页承载站内消息列表，待办承载站内任务处理，服务通知负责站外及时触达。</p>
+                <p><strong>与站内能力的边界</strong>：</p>
+                <ul>
+                    <li>服务通知<strong>不占用站内消息页 Tab</strong>（消息页仅 邀请 / 合同邀约，见 7.3）；推送记录留存于微信「服务通知」会话，平台侧不提供站内通知列表回看。</li>
+                    <li>任务类提醒（如确认人驳回 → 执行人重新执行）<strong>站内不生成待办</strong>，执行人提醒统一走服务通知（触发规则详见 <a href="PRD-任务模块详细规格.html" target="_blank">PRD-任务模块详细规格</a> §3.12 / §3.15(5)）。</li>
+                    <li>推送须符合微信订阅消息合规要求（用户订阅一次、推送一条；模板字段受平台审核约束）。</li>
+                </ul>
+                <p><strong>触发场景清单</strong>（按现有小程序功能盘点，点击跳转目标均已支持状态视角直达）：</p>
+                <table class="param-table">
+                    <thead><tr><th>通知项</th><th>接收方</th><th>触发时机</th><th>跳转目标</th><th>说明</th></tr></thead>
+                    <tbody>
+                        <tr>
+                            <td>工人合同邀约待确认</td>
+                            <td>被邀请人（意向乙方）</td>
+                            <td>发起方发送工人合同邀约后</td>
+                            <td><code>worker-contract-receive-inviting.html</code>（邀约响应页）</td>
+                            <td>含响应截止提醒（逾期视为放弃）</td>
+                        </tr>
+                        <tr>
+                            <td>任务被驳回·需重新执行</td>
+                            <td>任务执行人</td>
+                            <td>确认人驳回执行记录、任务回退「驳回后待开始」后</td>
+                            <td><code>task-detail.html?status=rejected_pending&amp;role=executor</code></td>
+                            <td>含驳回原因；触发规则以任务模块 §3.15(5) 为权威</td>
+                        </tr>
+                        <tr>
+                            <td>工人合同被拒绝</td>
+                            <td>发起方（工长·甲方）</td>
+                            <td>受邀方拒绝合同邀约后</td>
+                            <td><code>worker-contract-detail.html?status=worker_rejected</code>（发起方视角）</td>
+                            <td>含拒绝原因，便于发起方改邀他人</td>
+                        </tr>
+                        <tr>
+                            <td>合同变更待您确认</td>
+                            <td>受邀方（乙方）</td>
+                            <td>发起方提交合同变更、进入「待确认变更」后</td>
+                            <td><code>worker-contract-detail.html?status=change_confirming&amp;viewer=receiver</code>（受邀方视角）</td>
+                            <td>含变更摘要（金额 / 工期变动）</td>
+                        </tr>
+                        <tr>
+                            <td>合同变更已确认·新版本生效</td>
+                            <td>发起方（工长·甲方）</td>
+                            <td>受邀方确认变更、生成新版本（V2）已签约后</td>
+                            <td><code>worker-contract-detail.html?status=worker_signed</code></td>
+                            <td>提示双方按变更后约定履行</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div class="note" style="margin-top: 16px;">
+                    <div class="note-title">说明</div>
+                    <p>上表为服务通知总览（SSOT 归口本节）；各通知项的<strong>业务触发细节</strong>以对应模块文档为权威——任务驳回见《PRD-任务模块详细规格》§3.12 / §3.15(5)，合同邀约 / 变更流程见《PRD-合同模块详细规格》。后续新增通知项时先在本表登记，再在对应模块补触发规则。</p>
+                </div>
+                <p><strong>原型</strong>：<a href="service-miniapp/wechat-service-notice.html" target="_blank">service-miniapp/wechat-service-notice.html</a>（微信聊天列表 → 服务通知会话，演示上表五条推送及点击直达效果）。</p>
+            </div>
+        </div>
+
+        <!-- 设计系统参数 -->
+        <div class="section" id="ui-design">
+            <div class="section-title">八、UI设计系统参数</div>
+            
+            <table class="param-table">
+                <thead>
+                    <tr>
+                        <th>类别</th>
+                        <th>参数名</th>
+                        <th>值</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><td rowspan="6">颜色系统</td><td>主色</td><td>#1890FF</td></tr>
+                    <tr><td>成功色</td><td>#52C41A</td></tr>
+                    <tr><td>警告色</td><td>#FA8C16</td></tr>
+                    <tr><td>错误色</td><td>#FF4D4F</td></tr>
+                    <tr><td>文字主色</td><td>#262626</td></tr>
+                    <tr><td>文字次色</td><td>#595959</td></tr>
+                    <tr><td rowspan="3">字体</td><td>字体家族</td><td>-apple-system, PingFang SC, sans-serif</td></tr>
+                    <tr><td>基础字号</td><td>14px</td></tr>
+                    <tr><td>标题字号</td><td>16px-24px</td></tr>
+                    <tr><td rowspan="2">圆角</td><td>卡片圆角</td><td>8px</td></tr>
+                    <tr><td>按钮圆角</td><td>6px</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- 使用说明 -->
+        <div class="section" id="dev-guide">
+            <div class="section-title">九、研发使用说明</div>
+            
+            <div class="note">
+                <div class="note-title">文档结构说明</div>
+                每个页面规格文档包含以下章节：<br>
+                1. 页面概述（基本信息、业务目标）<br>
+                2. 页面结构（布局图、组件清单）<br>
+                3. 字段定义（数据来源、校验规则、显示规则）<br>
+                4. 组件规格（按钮、表单、卡片等详细规格）<br>
+                5. 交互流程（点击、提交、跳转等流程）<br>
+                6. 状态变化（状态映射表）<br>
+                7. 异常处理（错误提示、空状态）<br>
+                8. API对接（接口调用时机、参数、响应）<br>
+                9. 权限控制（角色权限矩阵）
+            </div>
+
+            <p><strong>建议开发顺序：</strong></p>
+            <ol style="margin-left: 20px; margin-bottom: 16px;">
+                <li>先实现PC端合同模块（登录→列表→详情→编辑）</li>
+                <li>再实现服务方小程序项目模块（首页→项目列表→项目详情）</li>
+                <li>然后实现任务模块（任务列表→任务详情→任务验收）</li>
+                <li>最后实现业主小程序和其他辅助功能</li>
+            </ol>
+
+            <p><strong>联调说明：</strong></p>
+            <ul style="margin-left: 20px;">
+                <li>前端根据文档实现页面，后端根据API规格实现接口</li>
+                <li>字段映射关系已在文档中明确，请严格按照映射实现</li>
+                <li>状态机已确认，请按照状态流转逻辑实现</li>
+            </ul>
+        </div>
+
+        <!-- 文件清单 -->
+        <div class="section" id="file-list">
+            <div class="section-title">十、交付文件清单</div>
+            
+            <table class="param-table">
+                <thead>
+                    <tr>
+                        <th>文件名</th>
+                        <th>说明</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><td><a href="PRD-完整文档.html">PRD-完整文档.html</a></td><td>本文档，总览和导航</td></tr>
+                    <tr><td><a href="PRD-合同模块详细规格.html">PRD-合同模块详细规格.html</a></td><td>合同模块页面规格（列表/详情PC完整规格/服务方/业主）</td></tr>
+                    <tr><td><a href="PRD-任务模块详细规格.html">PRD-任务模块详细规格.html</a></td><td>任务模块7个页面规格</td></tr>
+                    <tr><td><a href="PRD-项目模块详细规格.html">PRD-项目模块详细规格.html</a></td><td>项目模块19个页面规格</td></tr>
+                    <tr><td><a href="PRD-PC端其他模块详细规格.html">PRD-PC端其他模块详细规格.html</a></td><td>PC端其他模块规格</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+
+    <div class="footer">
+        <p>良造家管理平台 详细PRD规格文档</p>
+        <p style="margin-top: 8px; font-size: 12px;">版本 v1.0 · 2026-07-17 · 共计34个页面规格</p>
+    </div>
+    </div><!-- main-content结束 -->
+
+    <!-- 滚动高亮脚本 -->
+    <script>
+        // 滚动时高亮当前章节
+        const tocLinks = document.querySelectorAll('.sidebar-toc-list a');
+        const sections = document.querySelectorAll('.section[id]');
+
+        function updateActiveLink() {
+            let currentSection = '';
+            
+            sections.forEach(section => {
+                const rect = section.getBoundingClientRect();
+                if (rect.top <= 150) {
+                    currentSection = section.id;
+                }
+            });
+
+            tocLinks.forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('href') === '#' + currentSection) {
+                    link.classList.add('active');
+                }
+            });
+        }
+
+        window.addEventListener('scroll', updateActiveLink);
+        updateActiveLink(); // 初始化
+
+        // 点击目录项平滑滚动
+        tocLinks.forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                const targetId = this.getAttribute('href').slice(1);
+                const targetSection = document.getElementById(targetId);
+                if (targetSection) {
+                    targetSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-page-node-id="yI3sWXp8ZYOjIPwwIx2G48">
+<head data-page-node-id="IxrBGhW0fGSmUAUqmoertG">
+    <meta charset="UTF-8" data-page-node-id="SUMcUrsjMwcce0XscQ9yw5">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" data-page-node-id="P2UN218PMRJtY6FpAcLWhO">
+    <title>微信服务通知（订阅消息）演示 - 合同邀约 / 任务驳回重新执行</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: #cfcfcf;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            padding: 24px 0;
+            min-height: 100vh;
+        }
+        .wx-shell {
+            width: 375px;
+            height: 812px;
+            background: #ededed;
+            border-radius: 38px;
+            overflow: hidden;
+            position: relative;
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.25);
+            display: flex;
+            flex-direction: column;
+        }
+        .wx-statusbar {
+            height: 44px;
+            flex-shrink: 0;
+            background: #ededed;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 22px;
+            font-size: 14px;
+            font-weight: 600;
+            color: #000;
+        }
+        .wx-nav {
+            height: 46px;
+            flex-shrink: 0;
+            background: #ededed;
+            position: relative;
+            display: flex;
+            align-items: center;
+            border-bottom: 1px solid #dcdcdc;
+        }
+        .wx-nav .back {
+            position: absolute;
+            left: 14px;
+            font-size: 26px;
+            line-height: 1;
+            color: #1a1a1a;
+            cursor: pointer;
+            width: 30px;
+            text-align: center;
+        }
+        .wx-nav .title {
+            flex: 1;
+            text-align: center;
+            font-size: 17px;
+            font-weight: 600;
+            color: #000;
+        }
+        .wx-search {
+            padding: 8px 12px;
+            background: #ededed;
+            flex-shrink: 0;
+        }
+        .wx-search .box {
+            background: #dcdcdc;
+            border-radius: 6px;
+            text-align: center;
+            font-size: 13px;
+            color: #7d7d7d;
+            padding: 7px 0;
+        }
+        .wx-list {
+            flex: 1;
+            background: #fff;
+            overflow-y: auto;
+        }
+        .wx-item {
+            display: flex;
+            align-items: center;
+            padding: 13px 14px;
+            border-bottom: 1px solid #f2f2f2;
+            cursor: pointer;
+            position: relative;
+        }
+        .wx-item:active { background: #f6f6f6; }
+        .wx-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 9px;
+            background: #07C160;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            margin-right: 12px;
+            flex-shrink: 0;
+            position: relative;
+        }
+        .wx-avatar .dot {
+            position: absolute;
+            top: -6px;
+            right: -6px;
+            min-width: 19px;
+            height: 19px;
+            background: #fa5151;
+            color: #fff;
+            border-radius: 10px;
+            font-size: 11px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0 5px;
+            border: 2px solid #fff;
+            font-weight: 600;
+        }
+        .wx-info { flex: 1; min-width: 0; }
+        .wx-row1 {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 5px;
+        }
+        .wx-name { font-size: 16px; color: #000; font-weight: 500; }
+        .wx-time { font-size: 12px; color: #b2b2b2; }
+        .wx-preview {
+            font-size: 13px;
+            color: #888;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .wx-divider {
+            font-size: 12px;
+            color: #b2b2b2;
+            padding: 8px 14px 4px;
+            background: #ededed;
+        }
+        .wx-msg-row {
+            display: flex;
+            padding: 10px 14px;
+            align-items: flex-start;
+        }
+        .wx-msg-row.app { justify-content: flex-start; }
+        .wx-msg-row.me { justify-content: flex-end; }
+        .wx-bubble {
+            max-width: 76%;
+            background: #fff;
+            border-radius: 6px;
+            padding: 9px 12px;
+            font-size: 14px;
+            color: #1a1a1a;
+            line-height: 1.5;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
+            position: relative;
+        }
+        .wx-msg-row.me .wx-bubble { background: #95EC69; }
+        .wx-bubble .m-title { font-weight: 600; margin-bottom: 4px; }
+        .wx-bubble .m-sub { font-size: 12px; color: #666; }
+        .wx-bubble.invite {
+            border: 1px solid #07C160;
+            cursor: pointer;
+        }
+        .wx-bubble.invite:active { background: #f0fff5; }
+        .wx-bubble .m-go {
+            margin-top: 8px;
+            color: #07C160;
+            font-size: 13px;
+            font-weight: 600;
+        }
+        .hidden { display: none !important; }
+        .demo-tip {
+            position: fixed;
+            left: 50%;
+            transform: translateX(-50%);
+            bottom: 14px;
+            width: 430px;
+            max-width: 92vw;
+            background: rgba(0, 0, 0, 0.78);
+            color: #fff;
+            font-size: 12px;
+            line-height: 1.6;
+            padding: 10px 14px;
+            border-radius: 8px;
+        }
+        .demo-tip b { color: #95EC69; }
+    </style>
+</head>
+<body data-page-node-id="ZFbSOfoI8G2UlXPbICJNMf">
+    <div class="wx-shell" data-page-node-id="CktwJTlKzK2Aj4Q9gK4llb">
+        <div class="wx-statusbar" data-page-node-id="kNLlaLswgo8UQSh9RHKmLE">
+            <span data-page-node-id="JhQkrTTJDdH8KJawMnS540">9:41</span>
+            <span data-page-node-id="Xm7xE9JrrzymoTmFSIYvEV">📶 🔋</span>
+        </div>
+        <div class="wx-nav" data-page-node-id="rdwICGTLoB0iuECBN0EHir">
+            <div class="back" onclick="goBack()" data-page-node-id="iEG9ZlDBqATSkugoJzplFB">‹</div>
+            <div class="title" id="wxTitle" data-page-node-id="9Fa5XFG5S6T9k9kWSHVfY2">微信</div>
+        </div>
+
+        <!-- 视图1：微信聊天列表（服务通知入口） -->
+        <div class="wx-search" id="searchView" data-page-node-id="XFXgK8KkWLozBE4pxy6xCE"><div class="box" data-page-node-id="00OBnQ9077gkw72kGFpnIb">搜索</div></div>
+        <div class="wx-list" id="listView" data-page-node-id="QVqCQYWVApYf3dyuhjXN8f">
+            <div class="wx-divider" data-page-node-id="8tbRxXNkTeaBz9jsYRJBDC">服务通知</div>
+            <div class="wx-item" onclick="openServiceNotice()" data-page-node-id="UH3C6XuffzfYlUUIE4kzSZ">
+                <div class="wx-avatar" data-page-node-id="xbE3916CHSK1tpBCGcbNpw">🔔<span class="dot" data-page-node-id="WF43BhKzQHrxRRdDE1QY9i">5</span></div>
+                <div class="wx-info" data-page-node-id="0wJiu9AnQKVSP3OhUVoaPG">
+                    <div class="wx-row1" data-page-node-id="C5VfGzaQ5IdZ6SkFfaNUAa">
+                        <span class="wx-name" data-page-node-id="LprA1JXeAsEftqXP9uWvvC">服务通知</span>
+                        <span class="wx-time" data-page-node-id="dIi3r4OVVYuQkNHzvMykIX">09:38</span>
+                    </div>
+                    <div class="wx-preview" data-page-node-id="RMmTqa8cV1ltnUnZPFOJjZ">【家装平台】您的任务被确认人驳回，需重新执行</div>
+                </div>
+            </div>
+            <div class="wx-item" data-page-node-id="o2otyDPJ9sebMvWlKwHH2u">
+                <div class="wx-avatar" style="background:#10AEFF;" data-page-node-id="5crKogN9zsDcpDg2WMZ6u6">📢</div>
+                <div class="wx-info" data-page-node-id="F4dfnfgJIuKUSsq2DG0ynG">
+                    <div class="wx-row1" data-page-node-id="s4iKpInZAkap8sVyawTHxH">
+                        <span class="wx-name" data-page-node-id="JAHmPMrwGjsCHKDMHXClPn">订阅号消息</span>
+                        <span class="wx-time" data-page-node-id="L3SIiVfMVbH6N1BNxJnkGQ">昨天</span>
+                    </div>
+                    <div class="wx-preview" data-page-node-id="xAyJtEN0ArM7kHZPjDwIG3">多个公众号的图文更新</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 视图2：服务通知会话详情（家装平台推送） -->
+        <div class="wx-list hidden" id="detailView" data-page-node-id="mXedXCZIPEG2EI2RQHHb3H">
+            <div class="wx-divider" data-page-node-id="JsSinAIRVUQDZM80wt7VeK">今天 09:41</div>
+            <div class="wx-msg-row app" data-page-node-id="mEThwHZPIjnbAk9ftjRrnL">
+                <div class="wx-bubble invite" onclick="openTaskReexec()" data-page-node-id="5R2xDuajms8uvnuQafOHBx">
+                    <div class="m-title" data-page-node-id="Poa6FXs70ujEN6wAItY5tg">⚠️ 任务被驳回，需重新执行</div>
+                    <div class="m-sub" data-page-node-id="kqrbPjjEeewES1GXTdXrML">泥瓦分包 · 瓷砖铺贴 · 确认人 王监理 已驳回</div>
+                    <div class="m-sub" data-page-node-id="H3CTVWFFCtAP4G3KtkW5Ml">驳回原因：铺贴平整度不达标，需重新处理后再提交</div>
+                    <div class="m-go" data-page-node-id="BaADtbiFbGCTQZZUsGSHAb">点击查看并重新执行 ›</div>
+                </div>
+            </div>
+            <div class="wx-divider" data-page-node-id="nFq51sa49DpcvFoMg6BaKg">今天 09:38</div>
+            <div class="wx-msg-row app" data-page-node-id="gnnz5U9EDlADexCRxSbMEo">
+                <div class="wx-bubble invite" onclick="openMiniApp()" data-page-node-id="V8Qoi7SimoAIdMgWpY72am">
+                    <div class="m-title" data-page-node-id="DUcE6aARv2YBXKXiG6aWxK">🔔 工人合同邀约待确认</div>
+                    <div class="m-sub" data-page-node-id="WFcqo8RVARKNi6FqMnkLJn">泥瓦班组服务合同 · 金额 ¥12,800 · 甲方 陈庄</div>
+                    <div class="m-sub" data-page-node-id="5ggjagnZsFk5mqDDgpoINz">请于 08-07 前响应，逾期视为放弃</div>
+                    <div class="m-go" data-page-node-id="ZIk8maM6mQIeMmYnki7MRW">点击查看并响应 ›</div>
+                </div>
+            </div>
+            <div class="wx-divider" data-page-node-id="svcDivConfirmV2">今天 09:20</div>
+            <div class="wx-msg-row app" data-page-node-id="svcRowChangeSigned">
+                <div class="wx-bubble invite" onclick="openChangeSigned()" data-page-node-id="svcBubbleChangeSigned">
+                    <div class="m-title" data-page-node-id="svcTitleChangeSigned">✅ 合同变更已确认，新版本已生效（V2）</div>
+                    <div class="m-sub" data-page-node-id="svcSubChangeSigned1">水电班组服务合同 · 乙方 张水电 已确认变更</div>
+                    <div class="m-sub" data-page-node-id="svcSubChangeSigned2">已生成新版本（V2），双方按变更后约定履行</div>
+                    <div class="m-go" data-page-node-id="svcGoChangeSigned">点击查看已签约合同 ›</div>
+                </div>
+            </div>
+            <div class="wx-divider" data-page-node-id="svcDivChangeAsk">今天 09:15</div>
+            <div class="wx-msg-row app" data-page-node-id="svcRowChangeAsk">
+                <div class="wx-bubble invite" onclick="openChangeConfirming()" data-page-node-id="svcBubbleChangeAsk">
+                    <div class="m-title" data-page-node-id="svcTitleChangeAsk">📝 合同变更待您确认</div>
+                    <div class="m-sub" data-page-node-id="svcSubChangeAsk1">泥瓦班组服务合同 · 发起方 陈庄 已发起变更</div>
+                    <div class="m-sub" data-page-node-id="svcSubChangeAsk2">变更内容：合同金额 ¥12,800 → ¥13,500 · 工期 30 天 → 35 天</div>
+                    <div class="m-go" data-page-node-id="svcGoChangeAsk">点击查看并确认变更 ›</div>
+                </div>
+            </div>
+            <div class="wx-divider" data-page-node-id="svcDivRejected">今天 09:10</div>
+            <div class="wx-msg-row app" data-page-node-id="svcRowRejected">
+                <div class="wx-bubble invite" onclick="openContractRejected()" data-page-node-id="svcBubbleRejected">
+                    <div class="m-title" data-page-node-id="svcTitleRejected">🚫 工人合同被拒绝</div>
+                    <div class="m-sub" data-page-node-id="svcSubRejected1">水电班组服务合同 · 乙方 张水电 已拒绝</div>
+                    <div class="m-sub" data-page-node-id="svcSubRejected2">拒绝原因：近期已有其他项目安排，无法承接本合同</div>
+                    <div class="m-go" data-page-node-id="svcGoRejected">点击查看合同详情 ›</div>
+                </div>
+            </div>
+            <div class="wx-msg-row app" data-page-node-id="bHIC2RKHqXXOl0YNaZL5IO">
+                <div class="wx-bubble" data-page-node-id="shliFyLkq2332bCDXDUtve">
+                    <div class="m-title" data-page-node-id="zJCBjmOatXKirMchLDztcE">项目进度提醒</div>
+                    <div class="m-sub" data-page-node-id="FpMykPj0vLmuFYzAcHufNv">您参与的「XX小区整体装修」水电阶段已完工</div>
+                </div>
+            </div>
+            <div class="wx-msg-row me" data-page-node-id="8YQx2VnIGIkaTWoeyNix8C">
+                <div class="wx-bubble" data-page-node-id="AckCWFIZOlnGaKoA6XuNGm">收到，我去现场验收</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="demo-tip" data-page-node-id="dMq58aT2VybKDLpIPFXVpE">
+        <b data-page-node-id="qcs7tvQpO8GkzZcxb0LbUB">微信客户端层 · 服务通知（订阅消息）</b>：此界面并非小程序内页面，而是用户离开小程序时，平台通过微信合规通道（订阅消息）在「服务通知」推送提醒；点开即直达小程序内对应页面。演示五条：① 合同邀约待确认（推送给被邀请人，直达响应页）；② 任务被驳回·需重新执行（推送给执行人，直达任务详情「驳回后待开始」视角）；③ 合同变更已确认·新版本生效 V2（推送给发起方，直达已签约）；④ 合同变更待确认（推送给受邀方，直达「待确认变更」受邀方视角）；⑤ 工人合同被拒绝（推送给发起方，直达「已拒绝」发起方视角）。
+    </div>
+
+    <script>
+        function openServiceNotice() {
+            document.getElementById('searchView').classList.add('hidden');
+            document.getElementById('listView').classList.add('hidden');
+            document.getElementById('detailView').classList.remove('hidden');
+            document.getElementById('wxTitle').textContent = '服务通知';
+        }
+        function goBack() {
+            if (!document.getElementById('detailView').classList.contains('hidden')) {
+                document.getElementById('detailView').classList.add('hidden');
+                document.getElementById('listView').classList.remove('hidden');
+                document.getElementById('searchView').classList.remove('hidden');
+                document.getElementById('wxTitle').textContent = '微信';
+            }
+            // 列表页已是顶层（原型演示，无上级页面）
+        }
+        function openMiniApp() {
+            showToast('正在打开小程序…');
+            setTimeout(function () {
+                location.href = 'worker-contract-receive-inviting.html';
+            }, 500);
+        }
+        function openTaskReexec() {
+            showToast('正在打开小程序…');
+            setTimeout(function () {
+                location.href = 'task-detail.html?status=rejected_pending&role=executor';
+            }, 500);
+        }
+        // 合同方驳回：受邀方拒绝合同 → 通知发起方（甲方），直达已拒绝（发起方视角）
+        function openContractRejected() {
+            showToast('正在打开小程序…');
+            setTimeout(function () {
+                location.href = 'worker-contract-detail.html?status=worker_rejected';
+            }, 500);
+        }
+        // 合同发起变更：发起方提交变更 → 通知受邀方确认，直达待确认变更（受邀方视角）
+        function openChangeConfirming() {
+            showToast('正在打开小程序…');
+            setTimeout(function () {
+                location.href = 'worker-contract-detail.html?status=change_confirming&viewer=receiver';
+            }, 500);
+        }
+        // 变更已确认：受邀方确认变更生成 V2 → 通知发起方，直达已签约
+        function openChangeSigned() {
+            showToast('正在打开小程序…');
+            setTimeout(function () {
+                location.href = 'worker-contract-detail.html?status=worker_signed';
+            }, 500);
+        }
+        function showToast(msg) {
+            var t = document.createElement('div');
+            t.textContent = msg;
+            t.style.cssText = 'position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);background:rgba(0,0,0,.8);color:#fff;padding:10px 18px;border-radius:8px;font-size:14px;z-index:9999;';
+            document.body.appendChild(t);
+            setTimeout(function () { t.remove(); }, 1200);
+        }
+    </script>
+<script src="../shared/doc-viewer/doc-viewer.js"></script>
+</body>
+</html>

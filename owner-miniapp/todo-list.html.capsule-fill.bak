@@ -1,0 +1,581 @@
+﻿﻿﻿﻿﻿﻿﻿﻿﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>家装平台小程序原型 - 全部待办</title>
+    <link rel="stylesheet" href="common.css">
+    <style>
+        .page-content {
+            height: calc(100% - 44px - 44px);
+        }
+
+        .todo-filter-bar {
+            display: flex;
+            padding: 8px 12px;
+            gap: 6px;
+            background-color: var(--bg-primary);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .todo-filter-btn {
+            flex: 1;
+            padding: 6px 8px;
+            background-color: var(--bg-secondary);
+            border-radius: 16px;
+            font-size: 12px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            transition: all 0.2s;
+            border: 1px solid transparent;
+            white-space: nowrap;
+        }
+
+        .todo-filter-btn:hover {
+            background-color: #E6F7FF;
+        }
+
+        .todo-filter-btn.active {
+            background-color: var(--primary-color);
+            color: #FFFFFF;
+        }
+
+        .todo-filter-btn .badge {
+            background-color: rgba(255,255,255,0.3);
+            padding: 0 5px;
+            border-radius: 8px;
+            font-size: 10px;
+        }
+
+        .todo-filter-btn:not(.active) .badge {
+            background-color: var(--status-warning-bg);
+            color: var(--warning-color);
+        }
+
+        .todo-section {
+            background-color: var(--bg-primary);
+            margin-bottom: 8px;
+        }
+
+        .todo-list {
+            display: block;
+        }
+
+        .todo-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border-color);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .todo-item:last-child {
+            border-bottom: none;
+        }
+
+        .todo-item:hover {
+            background-color: #F5F5F5;
+        }
+
+        .todo-item .item-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 12px;
+            font-size: 16px;
+            flex-shrink: 0;
+        }
+
+        .todo-item .item-icon.contract {
+            background: linear-gradient(135deg, #1890FF 0%, #40A9FF 100%);
+        }
+
+        .todo-item .item-icon.temp {
+            background: linear-gradient(135deg, #722ED1 0%, #9254DE 100%);
+        }
+
+        .todo-item .item-content {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .todo-item .item-title {
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .todo-item .task-tag {
+            font-size: 10px;
+            padding: 1px 6px;
+            border-radius: 4px;
+            flex-shrink: 0;
+        }
+
+        .todo-item .task-tag.contract {
+            background-color: #E6F7FF;
+            color: #1890FF;
+        }
+
+        .todo-item .task-tag.temp {
+            background-color: #F9F0FF;
+            color: #722ED1;
+        }
+
+        .todo-item .task-tag.bill {
+            background-color: #FFFBE6;
+            color: #D48806;
+        }
+
+        .todo-item .item-icon.bill {
+            background: linear-gradient(135deg, #FAAD14 0%, #FFC53D 100%);
+        }
+
+        .todo-item .item-meta {
+            font-size: 12px;
+            color: var(--text-tertiary);
+            margin-top: 4px;
+        }
+
+        .todo-item .item-status {
+            font-size: 12px;
+            padding: 4px 10px;
+            border-radius: 12px;
+            flex-shrink: 0;
+            margin-left: 8px;
+        }
+
+        .todo-item .item-status.pending {
+            background-color: var(--status-warning-bg);
+            color: var(--warning-color);
+        }
+
+        .todo-item .item-status.confirming {
+            background-color: var(--status-primary-bg);
+            color: var(--primary-color);
+        }
+
+        .todo-item .item-status.urgent {
+            background-color: #FFF1F0;
+            color: var(--error-color);
+        }
+
+        .empty-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 48px 16px;
+            color: var(--text-tertiary);
+        }
+
+        .empty-state .icon {
+            font-size: 48px;
+            margin-bottom: 12px;
+            opacity: 0.6;
+        }
+
+        .empty-state .text {
+            font-size: 14px;
+        }
+
+        .fab {
+            position: fixed;
+            right: 20px;
+            bottom: 80px;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #1890FF 0%, #40A9FF 100%);
+            color: #FFFFFF;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            box-shadow: 0 4px 12px rgba(24, 144, 255, 0.4);
+            cursor: pointer;
+            z-index: 100;
+        }
+
+        .fab:hover {
+            transform: scale(1.1);
+        }
+    </style>
+<style>
+    /* v2-native-capsule-style：微信原生胶囊占位（不可自定义，仅演示位置） */
+    .nav-bar .native-capsule {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 5px;
+        min-width: 46px;
+        height: 28px;
+        padding: 0 8px;
+        border: 1px dashed #cfcfcf;
+        border-radius: 14px;
+        color: #b3b3b3;
+        font-size: 13px;
+        line-height: 1;
+        user-select: none;
+        box-sizing: border-box;
+    }
+</style>
+</head>
+<body>
+    <div class="phone-frame">
+        <div class="status-bar">
+            <div class="time">9:41</div>
+            <div class="icons">📶 🔋</div>
+        </div>
+        
+        <div class="nav-bar">
+            <div class="back" onclick="history.back()">← 返回</div>
+            <div class="title centered">全部待办</div>
+            
+            
+        
+            <div class="actions"><div class="native-capsule" title="微信原生胶囊：由微信客户端渲染，开发者不可自定义其内容"></div></div>
+        </div>
+            
+
+        
+        <div class="page-content">
+            <div class="todo-filter-bar">
+                <div class="todo-filter-btn active" onclick="filterTodo('all', this)">
+                    全部 <span class="badge">15</span>
+                </div>
+                <div class="todo-filter-btn" onclick="filterTodo('pending', this)">
+                    待处理 <span class="badge">12</span>
+                </div>
+                <div class="todo-filter-btn" onclick="filterTodo('completed', this)">
+                    已处理 <span class="badge">3</span>
+                </div>
+            </div>
+
+            <div class="todo-section" id="todoSection">
+                <div class="todo-list" id="todoList">
+                    <div class="todo-item" data-status="confirming" onclick="location.href='task-detail.html?status=confirming'">
+                        <div class="item-icon contract">🔵</div>
+                        <div class="item-content">
+                            <div class="item-title">
+                                开槽布线确认
+                                <span class="task-tag contract">合约</span>
+                            </div>
+                            <div class="item-meta">强电施工组 · 确认人：李监理</div>
+                        </div>
+                        <div class="item-status confirming">待确认</div>
+                    </div>
+                    <div class="todo-item" data-status="confirming" onclick="location.href='task-detail.html?status=confirming'">
+                        <div class="item-icon contract">🔵</div>
+                        <div class="item-content">
+                            <div class="item-title">
+                                墙面贴砖确认
+                                <span class="task-tag contract">合约</span>
+                            </div>
+                            <div class="item-meta">泥瓦工作组 · 确认人：王监理</div>
+                        </div>
+                        <div class="item-status confirming">待确认</div>
+                    </div>
+                    <div class="todo-item" data-status="confirming" onclick="location.href='task-detail.html?status=confirming'">
+                        <div class="item-icon contract">🟡</div>
+                        <div class="item-content">
+                            <div class="item-title">
+                                瓷砖铺贴确认
+                                <span class="task-tag contract">合约</span>
+                            </div>
+                            <div class="item-meta">泥瓦工作组 · 张三执行中</div>
+                        </div>
+                        <div class="item-status confirming">待确认</div>
+                    </div>
+                    <div class="todo-item" data-status="pending" onclick="location.href='contract-detail.html?status=confirming_receiver'">
+                        <div class="item-icon" style="background: linear-gradient(135deg, #13C2C2 0%, #36CFC9 100%);">📄</div>
+                        <div class="item-content">
+                            <div class="item-title">
+                                泥瓦分包合同确认
+                                <span class="task-tag" style="background-color: #E6FFFB; color: #13C2C2;">合同</span>
+                            </div>
+                            <div class="item-meta">泥瓦工作组 · 待确认合同内容</div>
+                        </div>
+                        <div class="item-status" style="background-color: #E6FFFB; color: #13C2C2;">待确认</div>
+                    </div>
+                    <div class="todo-item" data-status="pending" onclick="location.href='contract-detail.html?status=signing'">
+                        <div class="item-icon" style="background: linear-gradient(135deg, #722ED1 0%, #9254DE 100%);">📝</div>
+                        <div class="item-content">
+                            <div class="item-title">
+                                木工分包合同签约
+                                <span class="task-tag" style="background-color: #F9F0FF; color: #722ED1;">合同</span>
+                            </div>
+                            <div class="item-meta">木工工作组 · 待上传签约文件</div>
+                        </div>
+                        <div class="item-status" style="background-color: #F9F0FF; color: #722ED1;">待签约</div>
+                    </div>
+                    <div class="todo-item" data-status="pending" onclick="location.href='architecture.html'">
+                        <div class="item-icon" style="background: linear-gradient(135deg, #FA8C16 0%, #FFA940 100%);">👥</div>
+                        <div class="item-content">
+                            <div class="item-title">
+                                邀请加入强电施工组
+                                <span class="task-tag" style="background-color: #FFF7E6; color: #FA8C16;">架构</span>
+                            </div>
+                            <div class="item-meta">水电工作组 · 邀请李四加入</div>
+                        </div>
+                        <div class="item-status" style="background-color: #FFF7E6; color: #FA8C16;">待处理</div>
+                    </div>
+                    <div class="todo-item" data-status="pending" onclick="location.href='task-detail.html?status=confirming'">
+                        <div class="item-icon contract">🟢</div>
+                        <div class="item-content">
+                            <div class="item-title">
+                                吊顶安装
+                                <span class="task-tag contract">合约</span>
+                            </div>
+                            <div class="item-meta">木工工作组 · 待执行</div>
+                        </div>
+                        <div class="item-status pending">待执行</div>
+                    </div>
+                    <div class="todo-item" data-status="completed" onclick="location.href='task-detail.html?status=confirming'">
+                        <div class="item-icon" style="background: linear-gradient(135deg, #52C41A 0%, #73D13D 100%);">✅</div>
+                        <div class="item-content">
+                            <div class="item-title">
+                                材料采购
+                                <span class="task-tag contract">合约</span>
+                            </div>
+                            <div class="item-meta">执行人：张三 · 已完成</div>
+                        </div>
+                        <div class="item-status" style="background-color: var(--status-success-bg); color: var(--success-color);">已完成</div>
+                    </div>
+                    <div class="todo-item" data-status="completed" onclick="location.href='task-detail.html?status=confirming'">
+                        <div class="item-icon" style="background: linear-gradient(135deg, #52C41A 0%, #73D13D 100%);">✅</div>
+                        <div class="item-content">
+                            <div class="item-title">
+                                防水施工
+                                <span class="task-tag contract">合约</span>
+                            </div>
+                            <div class="item-meta">执行人：王五 · 已完成</div>
+                        </div>
+                        <div class="item-status" style="background-color: var(--status-success-bg); color: var(--success-color);">已完成</div>
+                    </div>
+                    <div class="todo-item" data-status="completed" onclick="location.href='task-detail.html?status=confirming'">
+                        <div class="item-icon" style="background: linear-gradient(135deg, #52C41A 0%, #73D13D 100%);">✅</div>
+                        <div class="item-content">
+                            <div class="item-title">
+                                墙面基层处理
+                                <span class="task-tag contract">合约</span>
+                            </div>
+                            <div class="item-meta">执行人：李四 · 已完成</div>
+                        </div>
+                        <div class="item-status" style="background-color: var(--status-success-bg); color: var(--success-color);">已完成</div>
+                    </div>
+                    <div class="todo-item" data-status="pending" onclick="location.href='contract-detail.html?status=change_confirming'">
+                        <div class="item-icon" style="background: linear-gradient(135deg, #FA8C16 0%, #FFA940 100%);">📝</div>
+                        <div class="item-content">
+                            <div class="item-title">
+                                水电合同变更确认
+                                <span class="task-tag" style="background-color: #FFF7E6; color: #FA8C16;">变更</span>
+                            </div>
+                            <div class="item-meta">水电工作组 · 待确认变更内容</div>
+                        </div>
+                        <div class="item-status" style="background-color: #FFF7E6; color: #FA8C16;">待确认</div>
+                    </div>
+                    <div class="todo-item" data-status="confirming" onclick="location.href='task-detail.html?status=confirming'">
+                        <div class="item-icon contract">🔵</div>
+                        <div class="item-content">
+                            <div class="item-title">
+                                水管打压测试确认
+                                <span class="task-tag contract">合约</span>
+                            </div>
+                            <div class="item-meta">水电工作组 · 确认人：张监理</div>
+                        </div>
+                        <div class="item-status confirming">待确认</div>
+                    </div>
+                    <div class="todo-item" data-status="pending" onclick="location.href='contract-detail.html?status=platform_reviewing'">
+                        <div class="item-icon" style="background: linear-gradient(135deg, #13C2C2 0%, #36CFC9 100%);">📋</div>
+                        <div class="item-content">
+                            <div class="item-title">
+                                油漆分包合同审核
+                                <span class="task-tag" style="background-color: #E6FFFB; color: #13C2C2;">审核</span>
+                            </div>
+                            <div class="item-meta">油漆工作组 · 平台审核中</div>
+                        </div>
+                        <div class="item-status" style="background-color: #E6FFFB; color: #13C2C2;">待审核</div>
+                    </div>
+                    <div class="todo-item" data-status="pending" onclick="location.href='task-detail.html?status=confirming'">
+                        <div class="item-icon temp">🟣</div>
+                        <div class="item-content">
+                            <div class="item-title">
+                                临时修补墙面裂缝
+                                <span class="task-tag temp">临时</span>
+                            </div>
+                            <div class="item-meta">泥瓦工作组 · 待接受任务</div>
+                        </div>
+                        <div class="item-status pending">待接受</div>
+                    </div>
+                    <div class="todo-item" data-status="confirming" onclick="location.href='task-detail.html?status=confirming'">
+                        <div class="item-icon contract">🟡</div>
+                        <div class="item-content">
+                            <div class="item-title">
+                                木门安装验收
+                                <span class="task-tag contract">合约</span>
+                            </div>
+                            <div class="item-meta">木工工作组 · 执行人：赵六</div>
+                        </div>
+                        <div class="item-status confirming">待确认</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="empty-state" id="emptyState" style="display: none;">
+                <div class="icon">📋</div>
+                <div class="text">暂无符合条件的待办事项</div>
+            </div>
+        </div>
+
+        <div class="fab" onclick="location.href='project-detail.html'">+</div>
+    </div>
+    
+    <div class="page-nav">
+        <div class="page-nav-title">原型导航</div>
+        <a href="home.html" class="page-nav-item">首页</a>
+        <a href="project-detail.html" class="page-nav-item">项目详情</a>
+        <a href="task-list.html" class="page-nav-item">任务列表</a>
+        <a href="todo-list.html" class="page-nav-item active">全部待办</a>
+        <a href="contract-detail.html" class="page-nav-item">合同详情</a>
+    </div>
+
+    <script>
+        let currentTodoFilter = 'all';
+
+        function filterTodo(type, btn) {
+            currentTodoFilter = type;
+            
+            document.querySelectorAll('.todo-filter-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            
+            const todoItems = document.querySelectorAll('#todoList .todo-item');
+            let visibleCount = 0;
+            
+            todoItems.forEach(item => {
+                const itemStatus = item.dataset.status;
+                
+                let visible = false;
+                
+                if (type === 'all') {
+                    visible = true;
+                } else if (type === 'pending') {
+                    visible = itemStatus !== 'completed';
+                } else if (type === 'completed') {
+                    visible = itemStatus === 'completed';
+                }
+                
+                item.style.display = visible ? 'flex' : 'none';
+                if (visible) visibleCount++;
+            });
+            
+            const todoSection = document.getElementById('todoSection');
+            const emptyState = document.getElementById('emptyState');
+            
+            if (visibleCount === 0) {
+                emptyState.style.display = 'flex';
+                todoSection.style.display = 'none';
+            } else {
+                emptyState.style.display = 'none';
+                todoSection.style.display = 'block';
+            }
+        }
+
+        renderOwnerTodos();
+        filterTodo('all', document.querySelector('.todo-filter-btn.active'));
+
+        // 渲染由服务方提交对账单后自动生成的「对账单确认」待办
+        function renderOwnerTodos() {
+            var KEY = 'lzj_owner_todos';
+            var list = [];
+            try { list = JSON.parse(localStorage.getItem(KEY)) || []; } catch (e) { list = []; }
+            var todoList = document.getElementById('todoList');
+            if (!todoList) return;
+
+            var frag = document.createDocumentFragment();
+            list.forEach(function(todo) {
+                var item = document.createElement('div');
+                item.className = 'todo-item';
+                item.dataset.status = todo.status || 'confirming';
+                item.dataset.todoId = todo.id;
+                item.onclick = function() { location.href = todo.target; };
+
+                var icon = document.createElement('div');
+                icon.className = 'item-icon bill';
+                icon.textContent = '💰';
+
+                var content = document.createElement('div');
+                content.className = 'item-content';
+                var title = document.createElement('div');
+                title.className = 'item-title';
+                title.textContent = todo.title;
+                var tag = document.createElement('span');
+                tag.className = 'task-tag bill';
+                tag.textContent = '对账单';
+                title.appendChild(tag);
+                var meta = document.createElement('div');
+                meta.className = 'item-meta';
+                meta.textContent = todo.meta || '';
+                content.appendChild(title);
+                content.appendChild(meta);
+
+                var status = document.createElement('div');
+                status.className = 'item-status confirming';
+                status.textContent = '待确认';
+
+                item.appendChild(icon);
+                item.appendChild(content);
+                item.appendChild(status);
+                frag.appendChild(item);
+            });
+
+            todoList.insertBefore(frag, todoList.firstChild);
+            updateTodoBadges();
+        }
+
+        // 根据当前待办项（含动态生成项）重新计算筛选角标数量
+        function updateTodoBadges() {
+            var items = document.querySelectorAll('#todoList .todo-item');
+            var all = items.length;
+            var pending = 0;
+            items.forEach(function(it) {
+                if (it.dataset.status !== 'completed') pending++;
+            });
+            var completed = all - pending;
+            var badges = document.querySelectorAll('.todo-filter-btn .badge');
+            if (badges.length >= 3) {
+                badges[0].textContent = all;
+                badges[1].textContent = pending;
+                badges[2].textContent = completed;
+            }
+        }
+
+        function toggleActionMenu() {
+            const actionMenu = document.getElementById('actionMenu');
+            if (actionMenu) {
+                actionMenu.classList.toggle('show');
+            }
+        }
+        
+        function closeActionMenu() {
+            const actionMenu = document.getElementById('actionMenu');
+            if (actionMenu) {
+                actionMenu.classList.remove('show');
+            }
+        }
+        
+        
+    </script>
+</body>
+</html>

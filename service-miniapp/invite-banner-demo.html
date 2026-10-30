@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>应用内顶部邀约通知条演示</title>
+    <!-- 复用全局公共样式（状态栏/导航栏/底部Tab/设计变量与原 message.html 完全一致） -->
+    <link rel="stylesheet" href="common.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html, body { height: 100%; overflow: hidden; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: #e9eef3;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 24px;
+            padding: 24px;
+        }
+
+        /* ===== 手机外框：即 message.html 的「手机」层级 ===== */
+        .device-wrap {
+            width: 375px;
+            height: 812px;
+            border-radius: 40px;
+            overflow: hidden;
+            position: relative;
+            flex-shrink: 0;
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.25);
+            background: var(--bg-primary);
+        }
+
+        /*
+         * 布局高度分配（精确总计 812px，杜绝溢出）：
+         *   status-bar  44
+         *   nav-bar     44
+         *   message-tabs 44
+         *   page-content 630  (overflow-y:auto，内部卡片可滚动)
+         *   tab-bar     50
+         *   合计 = 812px
+         */
+        .device-wrap .status-bar { height: 44px; }
+        .device-wrap .nav-bar { height: 44px; }
+        .device-wrap .message-tabs { height: 44px; }
+        .device-wrap .page-content {
+            height: 630px;
+            overflow-y: auto;
+            background-color: var(--bg-secondary);
+        }
+        .device-wrap .page-content::-webkit-scrollbar { display: none; }
+        .device-wrap .tab-bar { height: 50px; }
+
+        /* ===== 以下为 message.html 消息卡片相关样式（与源文件一致，内联保证自包含）===== */
+        .message-list { padding: 12px 16px; }
+
+        .message-card {
+            background-color: var(--bg-primary);
+            border-radius: 12px;
+            margin-bottom: 12px;
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+        .message-card:last-child { margin-bottom: 0; }
+        .message-card.unread { border-left: 3px solid var(--primary-color); }
+
+        .message-header { display: flex; align-items: center; padding: 12px; border-bottom: 1px solid var(--border-color); }
+        .message-avatar {
+            width: 40px; height: 40px; border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-light) 100%);
+            display: flex; align-items: center; justify-content: center;
+            color: #FFFFFF; font-size: 16px; margin-right: 12px; flex-shrink: 0;
+        }
+        .message-sender { flex: 1; }
+        .message-sender .name { font-size: 14px; font-weight: 600; color: var(--text-primary); display: flex; align-items: center; gap: 6px; }
+        .sender-role {
+            display: inline-flex; align-items: center; font-size: 11px; font-weight: 500;
+            color: var(--primary-color); background-color: var(--status-primary-bg);
+            padding: 1px 6px; border-radius: 4px; line-height: 1.4;
+        }
+        .message-sender .time { font-size: 11px; color: var(--text-tertiary); margin-top: 2px; }
+
+        .message-type-icon { width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 16px; }
+        .message-type-icon.invite { background-color: var(--status-primary-bg); }
+
+        .message-body { padding: 12px; }
+        .message-title { font-size: 15px; font-weight: 600; color: var(--text-primary); margin-bottom: 8px; }
+        .message-content { font-size: 13px; color: var(--text-secondary); line-height: 1.6; }
+
+        .invite-detail { background-color: var(--bg-secondary); border-radius: 8px; padding: 12px; margin-top: 12px; }
+        .invite-detail-item { display: flex; align-items: center; padding: 6px 0; }
+        .invite-detail-item .label { font-size: 12px; color: var(--text-tertiary); width: 70px; flex-shrink: 0; }
+        .invite-detail-item .value { font-size: 13px; color: var(--text-primary); flex: 1; }
+        .invite-detail-item .value.highlight { color: var(--primary-color); font-weight: 500; }
+
+        .invite-project-card {
+            display: flex; align-items: center; padding: 10px;
+            background-color: var(--bg-primary); border-radius: 8px; margin-top: 8px;
+            border: 1px solid var(--border-color);
+        }
+        .invite-project-card .project-icon {
+            width: 36px; height: 36px; border-radius: 6px;
+            background: linear-gradient(135deg, #1890FF 0%, #40A9FF 100%);
+            display: flex; align-items: center; justify-content: center;
+            color: #FFFFFF; font-size: 14px; margin-right: 10px;
+        }
+        .invite-project-card .project-info { flex: 1; }
+        .invite-project-card .project-name { font-size: 13px; font-weight: 600; color: var(--text-primary); }
+        .invite-project-card .project-address { font-size: 11px; color: var(--text-tertiary); margin-top: 2px; }
+
+        .message-actions { display: flex; gap: 12px; padding: 12px; border-top: 1px solid var(--border-color); background-color: var(--bg-secondary); }
+        .message-action-btn {
+            flex: 1; height: 36px; border-radius: 6px; font-size: 14px; font-weight: 500;
+            cursor: pointer; display: flex; align-items: center; justify-content: center;
+            border: none; transition: all 0.2s;
+        }
+        .message-action-btn.accept { background-color: var(--primary-color); color: #FFFFFF; }
+        .message-action-btn.accept:hover { background-color: var(--primary-light); }
+        .message-action-btn.reject { background-color: var(--bg-primary); color: var(--text-secondary); border: 1px solid var(--border-color); }
+        .message-action-btn.reject:hover { background-color: var(--status-error-bg); color: var(--error-color); border-color: var(--error-color); }
+
+        .message-status { display: flex; align-items: center; justify-content: center; padding: 12px; gap: 6px; }
+        .message-status .status-icon { font-size: 16px; }
+        .message-status .status-text { font-size: 13px; font-weight: 500; }
+        .message-status.accepted .status-icon, .message-status.accepted .status-text { color: var(--success-color); }
+
+        /* ===== 消息分类 Tab 样式（与 message.html 一致）===== */
+        .message-tabs {
+            display: flex;
+            background-color: var(--bg-primary);
+            border-bottom: 1px solid var(--border-color);
+        }
+        .message-tab {
+            flex: 1;
+            height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            position: relative;
+            transition: all 0.2s;
+        }
+        .message-tab.active {
+            color: var(--primary-color);
+            font-weight: 600;
+        }
+        .message-tab.active::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 24px;
+            height: 2px;
+            background-color: var(--primary-color);
+            border-radius: 1px;
+        }
+        .message-tab .badge {
+            position: absolute;
+            top: 8px;
+            right: calc(50% - 30px);
+            min-width: 16px;
+            height: 16px;
+            background-color: var(--error-color);
+            color: #FFFFFF;
+            font-size: 10px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0 4px;
+        }
+
+        /* ===== 微信原生胶囊按钮（与 message.html 一致）===== */
+        .nav-bar .native-capsule {
+            display: inline-flex;
+            align-items: center;
+            justify-content: space-between;
+            min-width: 56px;
+            height: 28px;
+            padding: 0 10px;
+            border: 1px solid rgba(0, 0, 0, 0.08);
+            border-radius: 14px;
+            background: rgba(255, 255, 255, 0.7);
+            color: rgba(0, 0, 0, 0.6);
+            font-size: 12px;
+            line-height: 1;
+            user-select: none;
+            box-sizing: border-box;
+        }
+        .nav-bar .native-capsule .nc-left,
+        .nav-bar .native-capsule .nc-right {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            flex: 1;
+            min-width: 16px;
+        }
+        .nav-bar .native-capsule .nc-right { font-size: 10px; }
+        .nav-bar .native-capsule .nc-divider {
+            width: 1px; height: 14px;
+            background: rgba(0, 0, 0, 0.1);
+            margin: 0 4px;
+        }
+
+        /* ===== 顶部邀约通知条（从手机框内侧顶部滑出）===== */
+        .invite-banner {
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            z-index: 300;
+            background: linear-gradient(135deg, #1890FF 0%, #40A9FF 100%);
+            color: #fff;
+            padding: 12px 14px;
+            display: flex; align-items: center; gap: 10px;
+            box-shadow: 0 4px 12px rgba(24, 144, 255, 0.35);
+            transform: translateY(-110%);
+            transition: transform 0.42s cubic-bezier(0.22, 1, 0.36, 1);
+            border-radius: 40px 40px 0 0;
+        }
+        .invite-banner.show { transform: translateY(0); }
+        .ib-icon {
+            width: 36px; height: 36px; border-radius: 8px;
+            background: rgba(255, 255, 255, 0.22);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 18px; flex-shrink: 0;
+        }
+        .ib-body { flex: 1; min-width: 0; }
+        .ib-title { font-size: 13px; font-weight: 600; margin-bottom: 2px; }
+        .ib-sub { font-size: 11px; opacity: 0.92; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .ib-actions { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+        .ib-btn { background: #fff; color: #1890FF; font-size: 12px; font-weight: 600; padding: 6px 12px; border-radius: 16px; border: 0; cursor: pointer; }
+        .ib-close {
+            width: 22px; height: 22px; border-radius: 50%;
+            background: rgba(255, 255, 255, 0.25); color: #fff;
+            border: 0; font-size: 14px; cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+        }
+
+        /* ===== 演示控制面板（右侧）===== */
+        .demo-panel {
+            width: 300px; max-height: 812px; overflow-y: auto; scrollbar-width: none;
+            background: #fff; border-radius: 12px; padding: 20px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12); align-self: center;
+        }
+        .demo-panel::-webkit-scrollbar { display: none; }
+        .demo-panel h3 { font-size: 16px; margin-bottom: 12px; color: #1a1a1a; }
+        .demo-panel p { font-size: 13px; color: #666; line-height: 1.7; margin-bottom: 14px; }
+        .demo-panel .replay {
+            display: block; width: 100%; padding: 11px;
+            background: #1890FF; color: #fff; border: 0; border-radius: 8px;
+            font-size: 14px; font-weight: 600; cursor: pointer;
+        }
+        .demo-panel .replay:active { background: #40a9ff; }
+        .demo-panel .note { margin-top: 12px; font-size: 12px; color: #999; line-height: 1.6; }
+    </style>
+</head>
+<body>
+    <!-- 手机外框：内部为真实消息页内容（复用 common.css + 内联消息卡片样式），无双层 .phone-frame、无 .page-nav -->
+    <div class="device-wrap">
+        <!-- 系统状态栏 -->
+        <div class="status-bar">
+            <div class="time">9:41</div>
+            <div class="icons">📶 🔋</div>
+        </div>
+
+        <!-- 导航栏 -->
+        <div class="nav-bar">
+            <div class="title">消息</div>
+            <div class="actions">
+                <div class="native-capsule" title="微信原生胶囊">
+                    <span class="nc-left">⋯</span><span class="nc-divider"></span><span class="nc-right">○</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 消息分类 Tab（合同邀约为当前展示） -->
+        <div class="message-tabs">
+            <div class="message-tab">邀请<span class="badge">4</span></div>
+            <div class="message-tab active">合同邀约</div>
+        </div>
+
+        <!-- 内容区（合同邀约消息列表） -->
+        <div class="page-content">
+            <div class="message-list">
+
+                <!-- 水电班组服务合同（与通知条金额一致） -->
+                <div class="message-card unread">
+                    <div class="message-header">
+                        <div class="message-avatar">陈</div>
+                        <div class="message-sender">
+                            <div class="name">陈庄<span class="sender-role">工长</span></div>
+                            <div class="time">10:24</div>
+                        </div>
+                        <div class="message-type-icon invite">✉️</div>
+                    </div>
+                    <div class="message-body">
+                        <div class="message-title">合同邀约</div>
+                        <div class="message-content">陈庄 邀请您确认加入工人合同「全屋水电改造合同」</div>
+                        <div class="invite-detail">
+                            <div class="invite-project-card">
+                                <div class="project-icon">🏠</div>
+                                <div class="project-info">
+                                    <div class="project-name">西安·紫薇田园都市</div>
+                                    <div class="project-address">陕西省西安市雁塔区</div>
+                                </div>
+                            </div>
+                            <div class="invite-detail-item"><span class="label">邀请加入</span><span class="value highlight">水电工程</span></div>
+                            <div class="invite-detail-item"><span class="label">邀请人</span><span class="value">陈庄（工长）</span></div>
+                            <div class="invite-detail-item"><span class="label">合同金额</span><span class="value highlight">¥12,600</span></div>
+                        </div>
+                    </div>
+                    <div class="message-actions">
+                        <button class="message-action-btn reject" onclick="handleReject('demo-shuidian')">拒绝</button>
+                        <button class="message-action-btn accept" onclick="handleAccept('demo-shuidian')">接受邀请</button>
+                    </div>
+                </div>
+
+                <!-- 拆除班组服务合同 -->
+                <div class="message-card">
+                    <div class="message-header">
+                        <div class="message-avatar">陈</div>
+                        <div class="message-sender">
+                            <div class="name">陈庄<span class="sender-role">工长</span></div>
+                            <div class="time">09:50</div>
+                        </div>
+                        <div class="message-type-icon invite">✉️</div>
+                    </div>
+                    <div class="message-body">
+                        <div class="message-title">合同邀约</div>
+                        <div class="message-content">陈庄 邀请您确认加入工人合同「客厅原墙拆除工程合同」</div>
+                        <div class="invite-detail">
+                            <div class="invite-project-card">
+                                <div class="project-icon">🏠</div>
+                                <div class="project-info">
+                                    <div class="project-name">西安·紫薇田园都市</div>
+                                    <div class="project-address">陕西省西安市雁塔区</div>
+                                </div>
+                            </div>
+                            <div class="invite-detail-item"><span class="label">邀请加入</span><span class="value highlight">拆除工程</span></div>
+                            <div class="invite-detail-item"><span class="label">邀请人</span><span class="value">陈庄（工长）</span></div>
+                            <div class="invite-detail-item"><span class="label">合同金额</span><span class="value highlight">¥4,800</span></div>
+                        </div>
+                    </div>
+                    <div class="message-actions">
+                        <button class="message-action-btn reject" onclick="handleReject('demo-demolition')">拒绝</button>
+                        <button class="message-action-btn accept" onclick="handleAccept('demo-demolition')">接受邀请</button>
+                    </div>
+                </div>
+
+                <!-- 木作班组服务合同（已确认状态示例） -->
+                <div class="message-card">
+                    <div class="message-header">
+                        <div class="message-avatar">陈</div>
+                        <div class="message-sender">
+                            <div class="name">陈庄<span class="sender-role">工长</span></div>
+                            <div class="time">昨日</div>
+                        </div>
+                        <div class="message-type-icon invite">✉️</div>
+                    </div>
+                    <div class="message-body">
+                        <div class="message-title">合同邀约</div>
+                        <div class="message-content">陈庄 邀请您确认加入工人合同「定制柜体木作合同」</div>
+                        <div class="invite-detail">
+                            <div class="invite-project-card">
+                                <div class="project-icon">🏠</div>
+                                <div class="project-info">
+                                    <div class="project-name">西安·紫薇田园都市</div>
+                                    <div class="project-address">陕西省西安市雁塔区</div>
+                                </div>
+                            </div>
+                            <div class="invite-detail-item"><span class="label">邀请加入</span><span class="value highlight">木作工程</span></div>
+                            <div class="invite-detail-item"><span class="label">邀请人</span><span class="value">陈庄（工长）</span></div>
+                            <div class="invite-detail-item"><span class="label">合同金额</span><span class="value highlight">¥9,800</span></div>
+                        </div>
+                    </div>
+                    <div class="message-status accepted">
+                        <span class="status-icon">✓</span><span class="status-text">已接受</span>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- 底部主导航 -->
+        <div class="tab-bar">
+            <div class="tab-item" onclick="showToast('首页开发中')">
+                <div class="icon">🏠</div><div class="label">首页</div>
+            </div>
+            <div class="tab-item" onclick="showToast('项目开发中')">
+                <div class="icon">📋</div><div class="label">项目</div>
+            </div>
+            <div class="tab-item active">
+                <div class="icon">💬</div><div class="label">消息</div>
+            </div>
+            <div class="tab-item" onclick="showToast('个人中心开发中')">
+                <div class="icon">👤</div><div class="label">我的</div>
+            </div>
+        </div>
+
+        <!-- 顶部邀约通知条（从框内顶部滑出） -->
+        <div class="invite-banner" id="inviteBanner">
+            <div class="ib-icon">&#128276;</div>
+            <div class="ib-body">
+                <div class="ib-title">工人合同邀约待确认</div>
+                <div class="ib-sub">水电班组服务合同 &middot; 金额 &yen;12,600</div>
+            </div>
+            <div class="ib-actions">
+                <button class="ib-btn" onclick="goRespond()">立即响应</button>
+                <button class="ib-close" onclick="closeBanner()">&#10005;</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 右侧演示说明面板 -->
+    <div class="demo-panel">
+        <h3>应用内顶部邀约通知条</h3>
+        <p>进入小程序前台（消息/首页）时，若存在待确认合同邀约，顶部自动<strong>滑出通知条</strong>：工种 + 合同名 + 金额 +「立即响应」。参考滴滴抢单的实时提醒，<strong>不阻断操作</strong>、不打断当前浏览；点「立即响应」直达合同详情响应页。</p>
+        <button class="replay" onclick="replayBanner()">重新演示滑出</button>
+        <div class="note">说明：此界面为小程序<strong>应用内（前台）</strong>层级（解决「打开小程序时即时提醒」），与「微信服务通知」的微信客户端层（解决「离开小程序也能收到」）互补。</div>
+    </div>
+
+    <script>
+        function showBanner() { document.getElementById('inviteBanner').classList.add('show'); }
+        function closeBanner() { document.getElementById('inviteBanner').classList.remove('show'); }
+        function replayBanner() {
+            var b = document.getElementById('inviteBanner');
+            b.classList.remove('show'); void b.offsetWidth; b.classList.add('show');
+        }
+        function goRespond() {
+            showToast('正在打开合同详情\u2026');
+            setTimeout(function () { location.href = 'worker-contract-detail.html?viewer=receiver'; }, 450);
+        }
+        function handleAccept(id) { showToast('已接受邀约：' + id); }
+        function handleReject(id) { showToast('已拒绝邀约：' + id); }
+        function showToast(msg) {
+            var t = document.createElement('div');
+            t.textContent = msg;
+            t.style.cssText = 'position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);background:rgba(0,0,0,.8);color:#fff;padding:10px 18px;border-radius:8px;font-size:14px;z-index:9999;';
+            document.body.appendChild(t);
+            setTimeout(function () { t.remove(); }, 1200);
+        }
+
+        window.addEventListener('load', function () { setTimeout(showBanner, 500); });
+    </script>
+<script src="../shared/doc-viewer/doc-viewer.js"></script>
+</body>
+</html>

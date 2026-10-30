@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>项目列表 - 空状态集成演示</title>
+    <link rel="stylesheet" href="common.css">
+    <link rel="stylesheet" href="../shared/empty-state.css">
+    <style>
+        /* 页面内容区高度 */
+        .page-content {
+            height: calc(100% - 44px - 44px - 50px);
+            overflow-y: auto;
+        }
+
+        /* 筛选 Tab 栏 */
+        .filter-tabs {
+            display: flex;
+            background-color: var(--bg-primary);
+            padding: 0 16px;
+            border-bottom: 1px solid var(--border-color);
+            flex-shrink: 0;
+        }
+
+        .filter-tab {
+            padding: 12px 16px;
+            font-size: 14px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            position: relative;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+
+        .filter-tab.active {
+            color: var(--primary-color);
+            font-weight: 600;
+        }
+
+        .filter-tab.active::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 16px;
+            right: 16px;
+            height: 2px;
+            background-color: var(--primary-color);
+        }
+
+        /* 项目卡片 */
+        .project-card {
+            margin: 12px 16px;
+            padding: 16px;
+            box-shadow: 0 1px 3px var(--shadow-color);
+            background: var(--bg-primary);
+            border-radius: 8px;
+        }
+
+        .project-card:hover {
+            border-color: var(--border-color);
+            box-shadow: 0 4px 12px var(--shadow-md);
+        }
+
+        .project-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .project-name {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .project-status {
+            font-size: 12px;
+            padding: 4px 12px;
+            border-radius: 12px;
+            background: var(--status-primary-bg);
+            color: var(--primary-color);
+        }
+
+        .project-status.completed {
+            background: var(--status-success-bg);
+            color: var(--success-color);
+        }
+
+        .project-info-item {
+            color: var(--text-secondary);
+            font-size: 13px;
+        }
+
+        .project-stats {
+            display: flex;
+            gap: 16px;
+            margin: 12px 0;
+        }
+
+        .stat-box {
+            flex: 1;
+            background-color: var(--bg-secondary);
+            border-radius: 8px;
+            padding: 10px 12px;
+        }
+
+        .stat-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 6px;
+        }
+
+        .stat-label {
+            font-size: 11px;
+            color: var(--text-tertiary);
+        }
+
+        .stat-value {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .stat-progress {
+            height: 4px;
+            background-color: var(--bg-tertiary);
+            border-radius: 2px;
+            overflow: hidden;
+        }
+
+        .stat-progress-bar {
+            height: 100%;
+            border-radius: 2px;
+            transition: width 0.3s;
+        }
+
+        .stat-progress-bar.contract {
+            background-color: var(--success-color);
+        }
+
+        .stat-progress-bar.task {
+            background-color: var(--primary-color);
+        }
+
+        .stat-footer {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 4px;
+            font-size: 10px;
+            color: var(--text-tertiary);
+        }
+
+        /* 悬浮创建按钮 */
+        .create-btn {
+            position: absolute;
+            bottom: 66px;
+            right: 16px;
+            width: 56px;
+            height: 56px;
+            background-color: var(--primary-color);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #FFFFFF;
+            font-size: 24px;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(24, 144, 255, 0.4);
+            transition: all 0.2s;
+            z-index: 100;
+            border: none;
+        }
+
+        .create-btn:hover {
+            transform: scale(1.1);
+        }
+
+        /* 列表容器 */
+        .list-container {
+            min-height: 300px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* 切换状态按钮（演示用） */
+        .demo-controls {
+            position: fixed;
+            bottom: 100px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 8px;
+            background: rgba(0,0,0,0.85);
+            padding: 8px 16px;
+            border-radius: 20px;
+            z-index: 9999;
+        }
+
+        .demo-btn {
+            padding: 6px 12px;
+            background: transparent;
+            border: 1px solid rgba(255,255,255,0.3);
+            color: #fff;
+            border-radius: 14px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .demo-btn:hover, .demo-btn.active {
+            background: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+
+        /* 空状态在手机框内的适配 */
+        .empty-state {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 32px 24px;
+        }
+
+        .empty-state .illustration {
+            width: 100px;
+            height: 100px;
+            margin-bottom: 16px;
+        }
+
+        .empty-state .empty-title {
+            font-size: 15px;
+            margin-bottom: 6px;
+        }
+
+        .empty-state .empty-desc {
+            font-size: 13px;
+            margin-bottom: 20px;
+            padding: 0 20px;
+        }
+
+        .empty-state .empty-action {
+            padding: 8px 20px;
+            font-size: 13px;
+        }
+    </style>
+<style>
+/* 微信原生胶囊占位（样式参考真机效果，由微信客户端实际渲染） */
+    .nav-bar .native-capsule {
+        display: inline-flex;
+        align-items: center;
+        justify-content: space-between;
+        min-width: 56px;
+        height: 28px;
+        padding: 0 10px;
+        border: 1px solid rgba(0, 0, 0, 0.08);
+        border-radius: 14px;
+        background: rgba(255, 255, 255, 0.7);
+        color: rgba(0, 0, 0, 0.6);
+        font-size: 12px;
+        line-height: 1;
+        user-select: none;
+        box-sizing: border-box;
+    }
+    .nav-bar .native-capsule .nc-left,
+    .nav-bar .native-capsule .nc-right {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex: 1;
+        min-width: 16px;
+    }
+    .nav-bar .native-capsule .nc-right {
+        font-size: 10px;
+    }
+    .nav-bar .native-capsule .nc-divider {
+        width: 1px;
+        height: 14px;
+        background: rgba(0, 0, 0, 0.1);
+        margin: 0 4px;
+    }
+</style>
+</head>
+<body>
+    <div class="page-nav">
+        <h3>页面导航</h3>
+        <a href="project-list.html">原版项目列表</a>
+        <a href="project-list-empty-demo.html" class="active">空状态集成演示</a>
+    </div>
+    
+    <div class="phone-frame">
+        <div class="status-bar">
+            <span class="time">9:41</span>
+            <div class="icons">
+                <span>📶</span>
+                <span>WiFi</span>
+                <span>🔋</span>
+            </div>
+        </div>
+        
+        <div class="nav-bar">
+            <div class="title">📋 项目列表</div>
+            
+        
+            <div class="actions"><div class="native-capsule" title="微信原生胶囊：由微信客户端渲染，开发者不可自定义其内容"><span class="nc-left">⋯</span><span class="nc-divider"></span><span class="nc-right">○</span></div></div>
+        </div>
+            
+
+        
+        <div class="page-content">
+            <div class="filter-tabs">
+                <div class="filter-tab active" data-status="all">全部</div>
+                <div class="filter-tab" data-status="in-progress">进行中</div>
+                <div class="filter-tab" data-status="completed">已完工</div>
+            </div>
+            
+            <!-- 列表容器：状态由JS动态切换 -->
+            <div class="list-container" id="listContainer">
+                <!-- 内容/空状态/加载中/无网络 由JS填充 -->
+            </div>
+        </div>
+        
+        <button class="create-btn" id="createBtn">+</button>
+        
+        <div class="tab-bar">
+            <div class="tab-item">
+                <div class="icon">🏠</div>
+                <div class="label">首页</div>
+            </div>
+            <div class="tab-item active">
+                <div class="icon">📋</div>
+                <div class="label">项目</div>
+            </div>
+            <div class="tab-item">
+                <div class="icon">💬</div>
+                <div class="label">消息</div>
+            </div>
+            <div class="tab-item">
+                <div class="icon">👤</div>
+                <div class="label">我的</div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 演示控制按钮 -->
+    <div class="demo-controls">
+        <button class="demo-btn active" data-state="content">有数据</button>
+        <button class="demo-btn" data-state="loading">加载中</button>
+        <button class="demo-btn" data-state="empty">空状态</button>
+        <button class="demo-btn" data-state="offline">无网络</button>
+    </div>
+    
+    <script src="../shared/empty-state.js"></script>
+    <script>
+        // 模拟项目数据
+        const projectData = [
+            {
+                name: 'XX小区整体装修',
+                address: 'XX小区***号***室',
+                status: 'in-progress',
+                statusText: '进行中',
+                contracts: { done: 4, total: 5 },
+                tasks: { done: 18, total: 24 }
+            },
+            {
+                name: 'YY花园精装修',
+                address: 'YY花园***栋***单元',
+                status: 'in-progress',
+                statusText: '进行中',
+                contracts: { done: 2, total: 3 },
+                tasks: { done: 8, total: 15 }
+            },
+            {
+                name: 'AA别墅装修',
+                address: 'AA别墅***号',
+                status: 'completed',
+                statusText: '已完工',
+                contracts: { done: 6, total: 6 },
+                tasks: { done: 32, total: 32 }
+            }
+        ];
+        
+        // 渲染项目列表
+        function renderProjectList(projects) {
+            const container = document.getElementById('listContainer');
+            container.innerHTML = '';
+            
+            if (projects.length === 0) return;
+            
+            projects.forEach(project => {
+                const card = document.createElement('div');
+                card.className = 'project-card';
+                card.dataset.status = project.status;
+                
+                const contractPercent = Math.round((project.contracts.done / project.contracts.total) * 100);
+                const taskPercent = Math.round((project.tasks.done / project.tasks.total) * 100);
+                
+                card.innerHTML = `
+                    <div class="project-header">
+                        <div class="project-name">${project.name}</div>
+                        <div class="project-status ${project.status === 'completed' ? 'completed' : ''}">${project.statusText}</div>
+                    </div>
+                    <div class="project-info">
+                        <span class="project-info-item">📍 ${project.address}</span>
+                    </div>
+                    <div class="project-stats">
+                        <div class="stat-box">
+                            <div class="stat-header">
+                                <span class="stat-label">合同</span>
+                                <span class="stat-value">${project.contracts.done}/${project.contracts.total}</span>
+                            </div>
+                            <div class="stat-progress">
+                                <div class="stat-progress-bar contract" style="width: ${contractPercent}%"></div>
+                            </div>
+                            <div class="stat-footer">
+                                <span>已签约${project.contracts.done}份</span>
+                                <span>共${project.contracts.total}份</span>
+                            </div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-header">
+                                <span class="stat-label">任务</span>
+                                <span class="stat-value">${project.tasks.done}/${project.tasks.total}</span>
+                            </div>
+                            <div class="stat-progress">
+                                <div class="stat-progress-bar task" style="width: ${taskPercent}%"></div>
+                            </div>
+                            <div class="stat-footer">
+                                <span>已完成${project.tasks.done}项</span>
+                                <span>共${project.tasks.total}项</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                container.appendChild(card);
+            });
+        }
+        
+        // 状态切换
+        let currentState = 'content';
+        const createBtn = document.getElementById('createBtn');
+        
+        function switchState(state) {
+            currentState = state;
+            const container = document.getElementById('listContainer');
+            
+            // 更新按钮状态
+            document.querySelectorAll('.demo-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.state === state);
+            });
+            
+            // 显示/隐藏创建按钮
+            createBtn.style.display = (state === 'content' || state === 'empty') ? 'flex' : 'none';
+            
+            switch(state) {
+                case 'content':
+                    renderProjectList(projectData);
+                    break;
+                    
+                case 'loading':
+                    EmptyState.showLoading(container, '加载中...');
+                    break;
+                    
+                case 'empty':
+                    EmptyState.show(container, {
+                        type: 'empty-project',
+                        title: '暂无项目',
+                        desc: '您还没有创建任何项目，点击下方按钮开始创建',
+                        actionText: '创建项目',
+                        onAction: () => {
+                            alert('跳转到创建项目页面');
+                        }
+                    });
+                    break;
+                    
+                case 'offline':
+                    EmptyState.showOffline(container, () => {
+                        // 模拟重试流程
+                        switchState('loading');
+                        setTimeout(() => switchState('content'), 1500);
+                    });
+                    break;
+            }
+        }
+        
+        // 绑定切换按钮事件
+        document.querySelectorAll('.demo-btn').forEach(btn => {
+            btn.addEventListener('click', () => switchState(btn.dataset.state));
+        });
+        
+        // 创建按钮点击
+        createBtn.addEventListener('click', () => {
+            alert('跳转到创建项目页面');
+        });
+        
+        // 筛选Tab切换
+        document.querySelectorAll('.filter-tab').forEach(tab => {
+            tab.addEventListener('click', function() {
+                document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
+                this.classList.add('active');
+                
+                const status = this.dataset.status;
+                
+                if (currentState === 'content') {
+                    const filtered = status === 'all' 
+                        ? projectData 
+                        : projectData.filter(p => p.status === status);
+                    renderProjectList(filtered);
+                    
+                    // 如果筛选后无数据，显示空状态
+                    if (filtered.length === 0) {
+                        const container = document.getElementById('listContainer');
+                        EmptyState.show(container, {
+                            type: 'empty-project',
+                            title: '暂无相关项目',
+                            desc: `当前筛选条件下没有${status === 'in-progress' ? '进行中' : '已完工'}的项目`
+                        });
+                    }
+                }
+            });
+        });
+        
+        // 初始化显示有数据状态
+        switchState('content');
+    </script>
+</body>
+</html>

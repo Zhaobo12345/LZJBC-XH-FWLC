@@ -1,0 +1,288 @@
+/**
+ * 合约库（仅作用于 6 类工人服务合同）
+ * --------------------------------------------------------------
+ * 本文件为「家装平台小程序原型」的本地持久化层（localStorage）。
+ * 仅对以下合同类型生效，基础施工服务合同 / 设计服务合同 走原有流程，不经过本库。
+ *
+ * 工人合同类型（与 PRD / create-contract.html 的 CONTRACT_TYPES.value 保持一致）：
+ *   demolition   拆除班组服务合同
+ *   shuidian     水电班组服务合同
+ *   muzuo        木作班组服务合同
+ *   niwa         泥瓦工班组服务合同
+ *   youqi        油漆工班组服务合同
+ *   xiaolingong  小零工服务合同
+ *
+ * 新流程（方案 B）：
+ *   创建时邀请 1~3 人（意向乙方）→ 状态「确认中」→ 被邀请人确认/抢单
+ *   → 第一位确认者成为乙方，自动加入「合同关联架构层级」→ 状态「已确认」
+ *   → 仍需「上传签约文件」→ 状态「已签约」
+ *   平台审核、超时、重新邀请均不存在；如需更改通过「撤回确认」退回拟定中重新提交。
+ *
+ * 并发防重（后端契约，原型仅做客户端首胜校验）：
+ *   真实后端应在 contract_invitations 表对 (contract_id, status='confirmed')
+ *   建立部分唯一约束，并在确认接口加分布式锁（如 Redis SETNX），保证「第一个确认的人为乙方」。
+ */
+(function (global) {
+    'use strict';
+
+    var CONTRACT_KEY = 'lzj_worker_contracts_v1';
+    var MESSAGE_KEY = 'lzj_contract_messages_v1';
+
+    var WORKER_TYPES = ['demolition', 'shuidian', 'muzuo', 'niwa', 'youqi', 'xiaolingong'];
+
+    function isWorkerType(t) {
+        return WORKER_TYPES.indexOf(t) > -1;
+    }
+
+    function readContracts() {
+        try {
+            return JSON.parse(global.localStorage.getItem(CONTRACT_KEY)) || {};
+        } catch (e) {
+            return {};
+        }
+    }
+
+    function writeContracts(obj) {
+        global.localStorage.setItem(CONTRACT_KEY, JSON.stringify(obj));
+    }
+
+    function getContract(id) {
+        if (!id) return null;
+        return readContracts()[id] || null;
+    }
+
+    function saveContract(c) {
+        if (!c || !c.id) return;
+        var all = readContracts();
+        all[c.id] = c;
+        writeContracts(all);
+    }
+
+    /**
+     * 创建工人合同（写入合约库）
+     * @param {Object} data { id, name, type, typeName, group, partyA, partyAName, amount, invited:[{userId,name,role}] }
+     */
+    function createContract(data) {
+        var invitations = (data.invited || []).map(function (m) {
+            return { userId: m.userId, name: m.name, role: m.role, status: 'pending' };
+        });
+        var contract = {
+            id: data.id,
+            name: data.name || '',
+            type: data.type || '',
+            typeName: data.typeName || '',
+            group: data.group || '',
+            partyA: data.partyA || '',
+            partyAName: data.partyAName || '',
+            amount: data.amount || '',
+            isWorker: true,
+            status: 'worker_inviting',
+            invitations: invitations,
+            partyB: '',
+            partyBName: '',
+            joinedArchitecture: '',
+            signed: false,
+            createdAt: Date.now()
+        };
+        saveContract(contract);
+        // 为每个被邀请人生成一条「合同邀约」消息
+        invitations.forEach(function (inv) {
+            addMessage({
+                id: 'cmsg-' + contract.id + '-' + inv.userId,
+                type: 'contract_invite',
+                contractId: contract.id,
+                toUserId: inv.userId,
+                toUserName: inv.name,
+                fromUserName: data.partyAName || '工长',
+                contractName: contract.name,
+                contractType: contract.typeName,
+                group: contract.group,
+                status: 'pending',
+                time: nowLabel(),
+                date: '今天',
+                unread: true
+            });
+        });
+        return contract;
+    }
+
+    /**
+     * 确认 / 抢单：首位确认者成为乙方（并发首胜校验）
+     * 返回 { ok, reason, contract }
+     *   reason: 'taken'   已被他人确认
+     *           'not_inviting' 当前不在邀请中
+     *           'not_invited'  非被邀请人
+     *           'already'      本人已处理过
+     */
+    function confirmInvitation(id, userId) {
+        var c = getContract(id);
+        if (!c) return { ok: false, reason: 'notfound' };
+        if (c.status !== 'worker_inviting') return { ok: false, reason: 'not_inviting' };
+
+        // —— 并发首胜校验（后端：部分唯一约束 + 分布式锁）——
+        var taken = c.invitations.some(function (i) { return i.status === 'confirmed'; });
+        if (taken) return { ok: false, reason: 'taken' };
+
+        var inv = c.invitations.filter(function (i) { return i.userId === userId; })[0];
+        if (!inv) return { ok: false, reason: 'not_invited' };
+        if (inv.status !== 'pending') return { ok: false, reason: 'already' };
+
+        inv.status = 'confirmed';
+        c.invitations.forEach(function (i) {
+            if (i.userId !== userId) i.status = 'rejected';
+        });
+        c.partyB = inv.userId;
+        c.partyBName = inv.name;
+        c.status = 'worker_confirmed';
+        c.joinedArchitecture = c.group || '';
+        saveContract(c);
+
+        updateMessage('cmsg-' + id + '-' + userId, { status: 'accepted', unread: false });
+        return { ok: true, contract: c };
+    }
+
+    function rejectInvitation(id, userId) {
+        var c = getContract(id);
+        if (!c) return { ok: false };
+        var inv = c.invitations.filter(function (i) { return i.userId === userId; })[0];
+        if (inv && inv.status === 'pending') {
+            inv.status = 'rejected';
+            saveContract(c);
+            updateMessage('cmsg-' + id + '-' + userId, { status: 'rejected', unread: false });
+        }
+        return { ok: true, contract: c };
+    }
+
+    /**
+     * 撤回确认：解除乙方、移出架构、退回拟定中（需重新填写并邀请）
+     */
+    function withdrawConfirm(id) {
+        var c = getContract(id);
+        if (!c) return { ok: false };
+        c.status = 'worker_draft';
+        c.partyB = '';
+        c.partyBName = '';
+        c.joinedArchitecture = '';
+        c.invitations = [];
+        saveContract(c);
+        c.invitations.forEach(function () {});
+        // 撤回后，原邀约消息标记为已撤回
+        (readMessages()).forEach(function (m) {
+            if (m.type === 'contract_invite' && m.contractId === id && m.status === 'pending') {
+                updateMessage(m.id, { status: 'withdrawn', unread: false });
+            }
+        });
+        return { ok: true, contract: c };
+    }
+
+    /**
+     * 重新提交邀约（从拟定中再次邀请）
+     */
+    function submitInvite(id, invited) {
+        var c = getContract(id);
+        if (!c) return { ok: false };
+        c.invitations = (invited || []).map(function (m) {
+            return { userId: m.userId, name: m.name, role: m.role, status: 'pending' };
+        });
+        c.status = 'worker_inviting';
+        saveContract(c);
+        c.invitations.forEach(function (inv) {
+            addMessage({
+                id: 'cmsg-' + c.id + '-' + inv.userId,
+                type: 'contract_invite',
+                contractId: c.id,
+                toUserId: inv.userId,
+                toUserName: inv.name,
+                fromUserName: c.partyAName || '工长',
+                contractName: c.name,
+                contractType: c.typeName,
+                group: c.group,
+                status: 'pending',
+                time: nowLabel(),
+                date: '今天',
+                unread: true
+            });
+        });
+        return { ok: true, contract: c };
+    }
+
+    function markSigned(id) {
+        var c = getContract(id);
+        if (!c) return;
+        c.status = 'worker_signed';
+        c.signed = true;
+        saveContract(c);
+    }
+
+    // ============== 消息 ==============
+    function readMessages() {
+        try {
+            return JSON.parse(global.localStorage.getItem(MESSAGE_KEY)) || [];
+        } catch (e) {
+            return [];
+        }
+    }
+
+    function writeMessages(arr) {
+        global.localStorage.setItem(MESSAGE_KEY, JSON.stringify(arr));
+    }
+
+    function addMessage(m) {
+        var all = readMessages();
+        // 同一 invite 消息去重
+        var exists = all.filter(function (x) { return x.id === m.id; })[0];
+        if (exists) {
+            Object.keys(m).forEach(function (k) { exists[k] = m[k]; });
+        } else {
+            all.unshift(m);
+        }
+        writeMessages(all);
+    }
+
+    function updateMessage(id, patch) {
+        var all = readMessages();
+        var m = all.filter(function (x) { return x.id === id; })[0];
+        if (m) {
+            Object.keys(patch).forEach(function (k) { m[k] = patch[k]; });
+            writeMessages(all);
+        }
+    }
+
+    function getMessages() {
+        return readMessages();
+    }
+
+    /**
+     * 清空全部工人合同与关联消息（仅供原型演示「重置」使用）
+     */
+    function clearAll() {
+        try { global.localStorage.removeItem(CONTRACT_KEY); } catch (e) {}
+        try { global.localStorage.removeItem(MESSAGE_KEY); } catch (e) {}
+    }
+
+    function nowLabel() {
+        var d = new Date();
+        var h = d.getHours();
+        var m = d.getMinutes();
+        return (h < 10 ? '0' + h : h) + ':' + (m < 10 ? '0' + m : m);
+    }
+
+    global.ContractStore = {
+        CONTRACT_KEY: CONTRACT_KEY,
+        MESSAGE_KEY: MESSAGE_KEY,
+        WORKER_TYPES: WORKER_TYPES,
+        isWorkerType: isWorkerType,
+        getContract: getContract,
+        saveContract: saveContract,
+        createContract: createContract,
+        confirmInvitation: confirmInvitation,
+        rejectInvitation: rejectInvitation,
+        withdrawConfirm: withdrawConfirm,
+        submitInvite: submitInvite,
+        markSigned: markSigned,
+        getMessages: getMessages,
+        clearAll: clearAll,
+        addMessage: addMessage,
+        updateMessage: updateMessage
+    };
+})(window);

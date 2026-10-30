@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>家装平台小程序原型 - 任务报告单（导航栏合规版）</title>
+    <link rel="stylesheet" href="common.css">
+    <link rel="stylesheet" href="css/task-report.css">
+
+    <style>
+        /* ============================================================
+           导航栏合规改造（v2 示范页，样式仅作用于本页面）
+           目标：不自绘模仿微信胶囊的 ⋯/✕，原菜单功能全部平移到页内合规位置
+           原页面 contract-detail.html / task-report.html 保持原样，未做任何改动
+           ============================================================ */
+
+        /* 微信原生胶囊占位（不可点击，仅标注真机上由微信渲染的位置） */
+        .nav-bar .native-capsule {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            padding: 3px 10px;
+            border: 1px dashed var(--border-color, #E5E6EB);
+            border-radius: 14px;
+            background-color: rgba(0, 0, 0, 0.02);
+            color: var(--text-tertiary, #C0C4CC);
+            font-size: 12px;
+            line-height: 1;
+            cursor: default;
+            user-select: none;
+        }
+
+        /* 页内文字版「更多」按钮 —— 位于内容区，不在导航栏，避开仿冒界面风险 */
+        .content-toolbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 4px 0;
+        }
+
+        .content-toolbar .tb-hint {
+            font-size: 12px;
+            color: var(--text-tertiary, #C0C4CC);
+        }
+
+        .text-more-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 13px;
+            color: var(--primary-color, #1677FF);
+            padding: 4px 8px;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        .text-more-btn:active { background-color: var(--bg-secondary, #F7F8FA); }
+
+        .text-more-btn .caret {
+            font-size: 10px;
+            transition: transform 0.2s;
+        }
+
+        .text-more-btn.open .caret { transform: rotate(180deg); }
+
+        .more-ops-panel {
+            display: none;
+            margin-top: 8px;
+            background-color: var(--bg-primary, #FFFFFF);
+            border: 1px solid var(--border-color, #E5E6EB);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .more-ops-panel.show { display: block; }
+
+        .more-ops-panel .op-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 11px 14px;
+            font-size: 14px;
+            color: var(--text-primary, #1D2129);
+            border-bottom: 1px solid var(--border-color, #F2F3F5);
+            cursor: pointer;
+        }
+
+        .more-ops-panel .op-item:last-child { border-bottom: none; }
+
+        .more-ops-panel .op-item:active { background-color: var(--bg-secondary, #F7F8FA); }
+
+        .more-ops-panel .op-item .op-icon { font-size: 15px; }
+
+        .more-ops-panel .op-item .op-tag {
+            margin-left: auto;
+            font-size: 10px;
+            color: var(--text-tertiary, #C0C4CC);
+            border: 1px solid var(--border-color, #E5E6EB);
+            border-radius: 4px;
+            padding: 1px 5px;
+        }
+    </style>
+
+    <style>
+        /* 报告操作栏：「下载报告 / 分享报告」由导航栏菜单平移为底部并排按钮 */
+        .content-area { height: calc(100% - 88px - 62px); }
+
+        .report-actions {
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            display: flex;
+            gap: 12px;
+            padding: 12px 16px;
+            background-color: var(--bg-primary, #FFFFFF);
+            box-shadow: 0 -2px 10px var(--shadow-md, rgba(0, 0, 0, 0.06));
+            z-index: 20;
+        }
+
+        .report-actions .report-btn {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            height: 38px;
+            border-radius: 8px;
+            font-size: 14px;
+            cursor: pointer;
+            border: 1px solid var(--primary-color, #1677FF);
+            color: var(--primary-color, #1677FF);
+            background-color: var(--bg-primary, #FFFFFF);
+        }
+
+        .report-actions .report-btn.primary {
+            background-color: var(--primary-color, #1677FF);
+            color: #FFFFFF;
+        }
+
+        .report-actions .report-btn:active { opacity: 0.85; }
+    </style>
+</head>
+<body>
+    <div class="phone-frame">
+        <div class="status-bar">
+            <div class="time">9:41</div>
+            <div class="icons">📶 🔋</div>
+        </div>
+        
+        <div class="nav-bar">
+            <div class="back" onclick="history.back()">← 返回</div>
+            <div class="title centered">任务报告单</div>
+            
+        
+            <div class="actions"><div class="native-capsule" title="微信原生胶囊：由微信客户端渲染，开发者不可自定义其内容"></div></div>
+        </div>
+        
+        <div class="content-area" id="contentArea">
+            <!-- 纸质单据容器 -->
+            <div class="paper-document">
+                <!-- 标题区 + 戳章 -->
+                <div class="document-header">
+                    <div class="document-title">施 工 任 务 报 告 单</div>
+                    <div class="stamp passed" id="statusStamp">
+                        <div class="stamp-border">
+                            <span class="stamp-text">已通过</span>
+                            <span class="stamp-star star-1">★</span>
+                            <span class="stamp-star star-2">★</span>
+                            <span class="stamp-star star-3">★</span>
+                            <span class="stamp-star star-4">★</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 编号和日期 -->
+                <div class="document-meta">
+                    <div class="meta-item">编号：HT-2024-001-001</div>
+                    <div class="meta-item">日期：2024年01月25日</div>
+                </div>
+                
+                <!-- 分隔线 -->
+                <div class="divider"></div>
+                
+                <!-- 基本信息 -->
+                <div class="section">
+                    <div class="section-title">一、基本信息</div>
+                    <div class="info-row">
+                        <div class="info-label">所属项目</div>
+                        <div class="info-value">XX小区整体装修工程</div>
+                    </div>
+                    <div class="info-row">
+                        <div class="info-label">所属阶段</div>
+                        <div class="info-value">布管布线阶段</div>
+                    </div>
+                    <div class="info-row">
+                        <div class="info-label">任务名称</div>
+                        <div class="info-value">穿线</div>
+                    </div>
+                    <div class="info-row">
+                        <div class="info-label">执行人</div>
+                        <div class="info-value">李四（工长）</div>
+                    </div>
+                    <div class="info-row">
+                        <div class="info-label">执行日期</div>
+                        <div class="info-value">2024年01月25日 至 2024年01月26日</div>
+                    </div>
+                </div>
+                
+                <!-- 分隔线 -->
+                <div class="divider"></div>
+                
+                <!-- 执行标准 -->
+                <div class="section">
+                    <div class="section-title">二、执行标准</div>
+                    <div class="standard-list">
+                        <div class="standard-item">1. 穿线前检查线管是否畅通</div>
+                        <div class="standard-item">2. 使用专用穿线器进行穿线</div>
+                        <div class="standard-item">3. 电线在管内不得有接头</div>
+                        <div class="standard-item">4. 穿线完成后进行绝缘测试</div>
+                    </div>
+                </div>
+                
+                <!-- 分隔线 -->
+                <div class="divider"></div>
+                
+                <!-- 确认标准 -->
+                <div class="section">
+                    <div class="section-title">三、确认标准</div>
+                    <div class="standard-list">
+                        <div class="standard-item">1. 电线规格符合设计要求</div>
+                        <div class="standard-item">2. 穿线数量符合规范</div>
+                        <div class="standard-item">3. 绝缘电阻测试合格</div>
+                        <div class="standard-item">4. 线头预留长度适当</div>
+                    </div>
+                </div>
+                
+                <!-- 分隔线 -->
+                <div class="divider"></div>
+                
+                <!-- 担责标准 -->
+                <div class="section">
+                    <div class="section-title">四、担责标准</div>
+                    <div class="standard-list">
+                        <div class="standard-item">1. 穿线不规范导致返工，由执行人承担费用</div>
+                        <div class="standard-item">2. 电线质量不合格，由材料供应商承担责任</div>
+                        <div class="standard-item">3. 确认人确认后发现问题，确认人承担连带责任</div>
+                    </div>
+                </div>
+                
+                <!-- 分隔线 -->
+                <div class="divider"></div>
+                
+                <!-- 执行情况 -->
+                <div class="section">
+                    <div class="section-title">五、执行情况</div>
+                    <div class="info-row">
+                        <div class="info-label">执行结果</div>
+                        <div class="info-value result-pass">合格</div>
+                    </div>
+                    <div class="info-row">
+                        <div class="info-label">施工内容</div>
+                        <div class="info-value">穿线工作已完成，共穿设强电线管12根，弱电线管6根。</div>
+                    </div>
+                </div>
+                
+                <!-- 执行人提交的现场照片 -->
+                <div class="section">
+                    <div class="section-subtitle">执行人提交的现场照片</div>
+                    <div class="photo-grid">
+                        <div class="photo-item">
+                            <div class="photo-placeholder">📷 施工现场照片1</div>
+                        </div>
+                        <div class="photo-item">
+                            <div class="photo-placeholder">📷 施工现场照片2</div>
+                        </div>
+                        <div class="photo-item">
+                            <div class="photo-placeholder">📷 施工现场照片3</div>
+                        </div>
+                        <div class="photo-item video">
+                            <div class="video-icon">▶</div>
+                            <div class="video-duration">0:15</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 分隔线 -->
+                <div class="divider"></div>
+                
+                <!-- 确认记录 -->
+                <div class="section">
+                    <div class="section-title">六、确认记录</div>
+                    <div class="confirm-table">
+                        <div class="table-row header">
+                            <div class="table-cell">确认人</div>
+                            <div class="table-cell">角色</div>
+                            <div class="table-cell">确认结果</div>
+                            <div class="table-cell">确认时间</div>
+                        </div>
+                        <div class="table-row">
+                            <div class="table-cell">张三</div>
+                            <div class="table-cell">项目总</div>
+                            <div class="table-cell result-pass">合格</div>
+                            <div class="table-cell">01-25 15:20</div>
+                        </div>
+                        <div class="table-row">
+                            <div class="table-cell">王五</div>
+                            <div class="table-cell">业主</div>
+                            <div class="table-cell result-pass">合格</div>
+                            <div class="table-cell">01-25 16:30</div>
+                        </div>
+                        <div class="table-row">
+                            <div class="table-cell">赵六</div>
+                            <div class="table-cell">设计师</div>
+                            <div class="table-cell result-pass">合格</div>
+                            <div class="table-cell">01-25 17:00</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 分隔线 -->
+                <div class="divider"></div>
+                
+                <!-- 确认人评价及附件 -->
+                <div class="section">
+                    <div class="section-title">七、确认人评价及附件</div>
+                    
+                    <!-- 确认人1 -->
+                    <div class="evaluator-block">
+                        <div class="evaluation-header">
+                            <span class="evaluator-name">张三</span>
+                            <span class="evaluator-role">项目总</span>
+                            <span class="eval-rating">★★★★☆</span>
+                        </div>
+                        <div class="evaluation-content">穿线工作符合标准，绝缘测试数据合格。</div>
+                        <div class="evaluator-media">
+                            <div class="media-label">确认人上传的图片：</div>
+                            <div class="photo-grid small">
+                                <div class="photo-item">
+                                    <div class="photo-placeholder">📷 确认照片1</div>
+                                </div>
+                                <div class="photo-item">
+                                    <div class="photo-placeholder">📷 确认照片2</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="evaluation-time">2024-01-25 15:20</div>
+                    </div>
+                    
+                    <!-- 确认人2 -->
+                    <div class="evaluator-block">
+                        <div class="evaluation-header">
+                            <span class="evaluator-name">王五</span>
+                            <span class="evaluator-role">业主</span>
+                            <span class="eval-no-rating">未评价</span>
+                        </div>
+                        <div class="evaluation-content no-content">暂无评价内容</div>
+                        <div class="evaluation-time">2024-01-25 16:30</div>
+                    </div>
+                    
+                    <!-- 确认人3 -->
+                    <div class="evaluator-block">
+                        <div class="evaluation-header">
+                            <span class="evaluator-name">赵六</span>
+                            <span class="evaluator-role">设计师</span>
+                            <span class="eval-rating">★★★★★</span>
+                        </div>
+                        <div class="evaluation-content">符合设计要求，确认。</div>
+                        <div class="evaluator-media">
+                            <div class="media-label">确认人上传的视频：</div>
+                            <div class="photo-grid small">
+                                <div class="photo-item video">
+                                    <div class="video-icon">▶</div>
+                                    <div class="video-duration">0:08</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="evaluation-time">2024-01-25 17:00</div>
+                    </div>
+                </div>
+                
+                <!-- 底部说明 -->
+                <div class="document-footer">
+                    <div class="footer-text">报告生成时间：2024年01月25日 17:05:30</div>
+                </div>
+            </div>
+        </div>
+        <!-- 报告操作：由导航栏 ⋯ 菜单平移为底部并排按钮 -->
+        <div class="report-actions">
+            <div class="report-btn" onclick="downloadReport()"><span>📥</span><span>下载报告</span></div>
+            <div class="report-btn primary" onclick="shareReport()"><span>📤</span><span>分享报告</span></div>
+        </div>
+    </div>
+    
+    <script src="js/task-report.js"></script>
+</body>
+</html>

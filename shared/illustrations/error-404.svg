@@ -1,0 +1,13 @@
+<!-- 404错误页 -->
+<svg viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <circle cx="60" cy="60" r="44" fill="#F0F5FF" stroke="#1890FF" stroke-width="2"/>
+  <text x="60" y="52" font-family="Arial" font-size="28" font-weight="bold" fill="#1890FF" text-anchor="middle">404</text>
+  <path d="M40 72H80" stroke="#1890FF" stroke-width="2" stroke-linecap="round"/>
+  <circle cx="44" cy="84" r="4" fill="#BFBFBF"/>
+  <circle cx="60" cy="84" r="4" fill="#BFBFBF"/>
+  <circle cx="76" cy="84" r="4" fill="#BFBFBF"/>
+  <path d="M32 28L24 20" stroke="#BFBFBF" stroke-width="2" stroke-linecap="round"/>
+  <path d="M88 28L96 20" stroke="#BFBFBF" stroke-width="2" stroke-linecap="round"/>
+  <path d="M32 92L24 100" stroke="#BFBFBF" stroke-width="2" stroke-linecap="round"/>
+  <path d="M88 92L96 100" stroke="#BFBFBF" stroke-width="2" stroke-linecap="round"/>
+</svg>

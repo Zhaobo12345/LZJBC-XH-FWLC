@@ -1,0 +1,150 @@
+/* 服务方项目列表页样式 */
+
+.page-content--with-tabbar {
+    height: calc(100% - 44px - 44px - 50px);
+}
+
+.filter-tabs {
+    display: flex;
+    background-color: var(--bg-primary);
+    padding: 12px;
+    gap: 8px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.filter-tab {
+    padding: 6px 16px;
+    border-radius: 16px;
+    font-size: 13px;
+    color: var(--text-secondary);
+    background-color: var(--bg-secondary);
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.filter-tab.active {
+    background-color: var(--primary-color);
+    color: #FFFFFF;
+}
+
+.project-list {
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.project-card {
+    background-color: var(--bg-primary);
+    border-radius: 12px;
+    padding: 16px;
+    box-shadow: 0 2px 8px var(--shadow-color);
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.project-card:hover {
+    box-shadow: 0 4px 12px var(--shadow-md);
+}
+
+.project-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.project-name {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.project-status {
+    font-size: 12px;
+    padding: 4px 10px;
+    border-radius: 4px;
+}
+
+.project-status.in-progress {
+    background-color: #E6F7FF;
+    color: #1890FF;
+}
+
+.project-status.completed {
+    background-color: #F6FFED;
+    color: #52C41A;
+}
+
+.project-info {
+    margin-bottom: 12px;
+}
+
+.info-item {
+    display: flex;
+    font-size: 13px;
+    margin-bottom: 4px;
+}
+
+.info-item .label {
+    color: var(--text-tertiary);
+    flex-shrink: 0;
+}
+
+.info-item .value {
+    color: var(--text-secondary);
+}
+
+.project-progress {
+    margin-bottom: 12px;
+}
+
+.project-progress .progress-bar {
+    height: 6px;
+    background-color: var(--border-color);
+    border-radius: 3px;
+    overflow: hidden;
+    margin-bottom: 6px;
+}
+
+.project-progress .progress {
+    height: 100%;
+    background: linear-gradient(90deg, #1890FF 0%, #40A9FF 100%);
+    border-radius: 3px;
+}
+
+.project-progress .progress-text {
+    font-size: 12px;
+    color: var(--text-tertiary);
+}
+
+.project-stats {
+    display: flex;
+    justify-content: space-around;
+    padding-top: 12px;
+    border-top: 1px solid var(--border-color);
+}
+
+.project-stats .stat {
+    text-align: center;
+}
+
+.project-stats .stat-value {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.project-stats .stat-value.warning {
+    color: #FA8C16;
+}
+
+.project-stats .stat-value.danger {
+    color: #FF4D4F;
+}
+
+.project-stats .stat-label {
+    font-size: 11px;
+    color: var(--text-tertiary);
+    margin-top: 2px;
+}

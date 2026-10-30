@@ -1,0 +1,799 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>家装平台PC端 - 合同详情</title>
+    <link rel="stylesheet" href="pc-common.css">
+    <link rel="stylesheet" href="pc-contract-detail.css">
+</head>
+<body>
+    <div class="pc-container">
+        <div class="pc-sidebar">
+            <div class="pc-sidebar-header">
+                <div class="pc-sidebar-logo">
+                    <span class="icon">🏗️</span>
+                    <span>良造家平台</span>
+                </div>
+            </div>
+            <div class="pc-sidebar-menu" id="sidebarMenu">
+                <a href="pc-contract-list.html" class="pc-menu-item main-nav active">
+                    <span class="icon">📋</span>
+                    <span class="label">合同审核管理</span>
+                </a>
+                <div class="pc-menu-group">
+                    <div class="pc-menu-group-title">模板管理</div>
+                    <a href="pc-contract-template.html" class="pc-menu-item">
+                        <span class="icon">📄</span>
+                        <span class="label">合同文本模板</span>
+                    </a>
+                    <a href="pc-stage-template.html" class="pc-menu-item">
+                        <span class="icon">📝</span>
+                        <span class="label">阶段任务模板</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="pc-main" id="pcMain">
+            <div class="pc-header">
+                <div class="pc-header-left">
+                    <div class="pc-breadcrumb">
+                        <a href="pc-contract-list.html" class="item">合同管理</a>
+                        <span class="separator">/</span>
+                        <span class="item current">合同详情</span>
+                    </div>
+                </div>
+                <div class="pc-header-right">
+                    <div class="pc-user-dropdown">
+                        <div class="pc-user-info" onclick="toggleUserDropdown()">
+                            <div class="pc-user-avatar" id="userAvatar">运</div>
+                            <span class="pc-user-name" id="userName">运营人员</span>
+                            <span style="font-size: 12px; color: var(--text-tertiary);">▼</span>
+                        </div>
+                        <div class="pc-user-dropdown-menu" id="userDropdownMenu">
+                            <div class="pc-dropdown-item danger" onclick="logout()">
+                                <span class="pc-dropdown-icon">🚪</span>
+                                <span>退出登录</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pc-content">
+                <div class="status-banner pending-review" id="statusBanner">
+                    <div class="status-left">
+                        <div class="status-info">
+                            <h2 id="statusTitle">⏳ 合同待审核</h2>
+                            <p id="statusDesc">已提交确认申请，平台运营人员正在审核中</p>
+                        </div>
+                        <div class="status-actions" id="statusActions"></div>
+                    </div>
+                    <div class="status-review-actions" id="statusReviewActions" style="display:none;">
+                        <button class="pc-btn pc-btn-default" onclick="showRejectInput()">驳回</button>
+                        <button class="pc-btn pc-btn-primary" onclick="approveContract()">审核通过</button>
+                    </div>
+                </div>
+
+                <div class="change-reason-banner" id="changeReasonBanner" style="display: none;">
+                    <div class="banner-header">
+                        <span class="banner-icon">📝</span>
+                        <span class="banner-title">变更原因</span>
+                    </div>
+                    <div class="banner-content" id="changeReasonContent">
+                        因业主需求变更，需要增加部分施工点位，涉及合同金额调整。新增卫生间施工点位5个，厨房施工点位3个，阳台施工点位2个。
+                    </div>
+                </div>
+
+                <div class="reject-reason-banner" id="rejectReasonBanner">
+                    <div class="banner-header">
+                        <span class="banner-icon">❌</span>
+                        <span class="banner-title">审核驳回</span>
+                        <span class="banner-meta" id="rejectTime">驳回时间：2024-01-10 16:00</span>
+                    </div>
+                    <div class="banner-content" id="rejectReasonContent">
+                        合同金额填写有误，请核实后重新提交。合同条款中关于付款方式的描述需要更加明确，建议增加具体的付款节点和金额比例。
+                    </div>
+                </div>
+
+                <div class="contract-detail-container">
+                    <div class="contract-main">
+                        <!-- 基本信息：合并展示（审核字段+合同字段），三列三行 -->
+                        <div class="contract-info-bar" id="contractInfoBar">
+                            <div class="info-bar-row">
+                                <div class="info-bar-item">
+                                    <span class="info-bar-label">合同名称</span>
+                                    <span class="info-bar-value">基础施工服务合同</span>
+                                </div>
+                                <div class="info-bar-item">
+                                    <span class="info-bar-label">合同编号</span>
+                                    <span class="info-bar-value">BJSDSWHT000001</span>
+                                </div>
+                                <div class="info-bar-item">
+                                    <span class="info-bar-label">合同类型</span>
+                                    <span class="info-bar-value">基础施工服务合同</span>
+                                </div>
+                            </div>
+                            <div class="info-bar-row">
+                                <div class="info-bar-item">
+                                    <span class="info-bar-label">关联工作组</span>
+                                    <span class="info-bar-value">基础施工组</span>
+                                </div>
+                                <div class="info-bar-item">
+                                    <span class="info-bar-label">关联项目</span>
+                                    <span class="info-bar-value" style="font-size:12px;">西安阳光里小区<br><span style="color:var(--text-tertiary);">西安市雁塔区长安南路188号</span></span>
+                                </div>
+                                <div class="info-bar-item">
+                                    <span class="info-bar-label">合同金额</span>
+                                    <span class="info-bar-value" id="infoBarAmount" style="color: var(--error-color); font-weight: 600;">¥150,000.00</span>
+                                </div>
+                            </div>
+                            <div class="info-bar-row">
+                                <div class="info-bar-item">
+                                    <span class="info-bar-label">提交人</span>
+                                    <span class="info-bar-value">陈庄（工长）</span>
+                                </div>
+                                <div class="info-bar-item">
+                                    <span class="info-bar-label">提交时间</span>
+                                    <span class="info-bar-value">2024-01-10 15:30</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="detail-tabs">
+                            <div class="detail-tab active" onclick="switchTab('content', event)">合同正文</div>
+                            <div class="detail-tab" onclick="switchTab('stages', event)">阶段任务</div>
+                            <div class="detail-tab" onclick="switchTab('changes', event)">变更记录</div>
+                        </div>
+
+                        <div class="tab-content" id="overviewTab" style="display:none;"></div>
+                        <div class="tab-content active" id="contentTab">
+                            <div class="contract-preview">
+                                <h3>基础施工服务合同</h3>
+                                
+                                <p><strong>甲方：</strong>陈庄（工长）</p>
+                                <p><strong>乙方：</strong>王强（施工方）</p>
+                                <br>
+                                
+                                <p>根据《中华人民共和国合同法》及相关法律法规，甲乙双方本着平等、自愿、公平、诚实信用的原则，就基础施工事宜，经协商一致，签订本合同。</p>
+                                <br>
+                                
+                                <h4>第一条 工程概况</h4>
+                                <p>1.1 工程名称：西安阳光里小区基础施工</p>
+                                <p>1.2 工程地点：西安市雁塔区</p>
+                                <p>1.3 承包范围：墙体拆改、墙面基础、防水等基础施工</p>
+                                <br>
+                                
+                                <h4>第二条 合同价款</h4>
+                                <div class="change-highlight" id="contractPriceChange" style="display: none;">
+                                    <div class="change-highlight-title">
+                                        <span>🔄</span>
+                                        <span>变更内容</span>
+                                    </div>
+                                    <div class="change-highlight-content">
+                                        合同价款由 <span class="old-value">¥150,000.00</span> 变更为 <span class="new-value">¥180,000.00</span>
+                                    </div>
+                                </div>
+                                <p>2.1 本合同总价款为人民币壹拾捌万元整（¥180,000.00）</p>
+                                <p>2.2 合同价款为固定总价，不因市场价格波动而调整</p>
+                                <br>
+                                
+                                <h4>第三条 工期</h4>
+                                <p>3.1 工期总日历天数：45天</p>
+                                <p>3.2 开工日期：以甲方书面通知为准</p>
+                                <p>3.3 竣工日期：开工日期后45日内</p>
+                                
+                                <div class="change-highlight" id="contractAdditionChange" style="display: none;">
+                                    <div class="change-highlight-title">
+                                        <span>🔄</span>
+                                        <span>新增条款</span>
+                                    </div>
+                                    <div class="change-highlight-content">
+                                        <h4 style="margin-top: 0;">第四条 变更条款</h4>
+                                        <p>4.1 因业主需求变更，新增施工点位10个，其中卫生间5个、厨房3个、阳台2个</p>
+                                        <p>4.2 新增点位安装费用已计入合同总价</p>
+                                        <p>4.3 新增点位安装工期为5个工作日</p>
+                                    </div>
+                                </div>
+
+                                <div class="contract-section-divider"></div>
+                                <h4>补充条款</h4>
+                                <div id="extraClausesContent">
+                                    <p style="color: var(--text-tertiary); font-style: italic;">暂无补充条款</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="tab-content" id="stagesTab">
+                            <div class="pc-card">
+                                <div class="pc-card-header">
+                                    <div class="pc-card-title">阶段任务管理</div>
+                                </div>
+                                <div class="pc-card-body" id="stagesContent">
+                                    <div class="change-summary-card" id="changeSummaryCard" style="display: none;">
+                                        <div class="change-summary-title">
+                                            <span>📊</span>
+                                            <span>变更内容摘要</span>
+                                        </div>
+                                        <div class="change-summary-list">
+                                            <div class="change-summary-item">
+                                                <span class="dot"></span>
+                                                <span class="content">合同金额：<span class="deleted">¥150,000.00</span> → <span class="added">¥180,000.00</span>（增加¥30,000.00）</span>
+                                            </div>
+                                            <div class="change-summary-item">
+                                                <span class="dot"></span>
+                                                <span class="content">新增阶段：<span class="highlight">阶段三 - 新增点位安装</span></span>
+                                            </div>
+                                            <div class="change-summary-item">
+                                                <span class="dot"></span>
+                                                <span class="content">新增任务：<span class="highlight">新增点位布线、新增点位验收</span></span>
+                                            </div>
+                                            <div class="change-summary-item">
+                                                <span class="dot"></span>
+                                                <span class="content">修改任务：给水管道（修改执行标准）</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="stage-section">
+                                        <div class="stage-header">
+                                            <div class="stage-title">
+                                                <span class="stage-icon">📋</span>
+                                                <span class="stage-name">阶段一：材料进场</span>
+                                            </div>
+                                            <div class="stage-meta">
+                                                <span class="stage-status completed">✅ 已完成</span>
+                                                <span class="stage-progress">2/2 任务</span>
+                                            </div>
+                                        </div>
+                                        <div class="stage-tasks">
+                                            <div class="task-row completed" data-exec-refs='[{"src": "../shared/images/site-1.png", "title": "材料进场验收示范"}, {"src": "../shared/images/site-2.png", "title": "材料清单逐项核对示范"}, {"src": "../shared/images/site-3.png", "title": "材料质量证明查验示范"}]' data-confirm-refs='[{"src": "../shared/images/site-1.png", "title": "验收签字确认示范"}, {"src": "../shared/images/site-2.png", "title": "材料台账登记示范"}, {"src": "../shared/images/site-4.png", "title": "不合格材料标识示范"}]' onclick="showTaskDetail(this, '材料验收', '王强', '陈庄', '按照材料清单核对材料品牌、规格、数量，确保材料质量符合国家标准', '核对材料是否与清单一致，检查材料质量证明文件', '材料验收不合格由采购方负责退换')">
+                                                <div class="task-info">
+                                                    <span class="task-status-icon">✓</span>
+                                                    <span class="task-name">材料验收</span>
+                                                </div>
+                                                <div class="task-meta">
+                                                    <span class="task-executor">执行人：王强</span>
+                                                    <span class="task-time">2024-01-20 完成</span>
+                                                </div>
+                                            </div>
+                                            <div class="task-row completed" onclick="showTaskDetail(this, '材料入库', '王强', '陈庄', '将验收合格的材料分类存放，做好标识和记录', '核对入库材料数量和存放位置，确认入库记录准确', '入库材料丢失由保管人负责')">
+                                                <div class="task-info">
+                                                    <span class="task-status-icon">✓</span>
+                                                    <span class="task-name">材料入库</span>
+                                                </div>
+                                                <div class="task-meta">
+                                                    <span class="task-executor">执行人：王强</span>
+                                                    <span class="task-time">2024-01-21 完成</span>
+                                                </div>
+                                            </div>
+                                            <div class="task-row deleted-change" onclick="showToast('任务已删除：图纸会审')">
+                                                <div class="task-info">
+                                                    <span class="task-status-icon" style="opacity:0.5;">✕</span>
+                                                    <span class="task-name" style="text-decoration:line-through;color:var(--text-tertiary);">图纸会审</span>
+                                                    <span class="task-change-badge deleted">已删除</span>
+                                                </div>
+                                                <div class="task-meta">
+                                                    <span class="task-executor">执行人：王强</span>
+                                                    <span class="task-time" style="text-decoration:line-through;color:var(--text-tertiary);">已取消</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="stage-section stage-modified" id="stage2Section">
+                                        <div class="stage-header">
+                                            <div class="stage-title">
+                                                <span class="stage-icon">📋</span>
+                                                <span class="stage-name">阶段二：布管布线</span>
+                                                <span class="stage-change-badge modified" id="stage2ChangeBadge" style="display: none;">已修改</span>
+                                            </div>
+                                            <div class="stage-meta">
+                                                <span class="stage-status in-progress">⏳ 进行中</span>
+                                                <span class="stage-progress">2/4 任务</span>
+                                            </div>
+                                        </div>
+                                        <div class="stage-tasks">
+                                            <div class="task-row completed" data-exec-refs='[{"src": "../shared/images/site-1.png", "title": "横平竖直布管示范"}, {"src": "../shared/images/site-3.png", "title": "管线固定卡扣示范"}, {"src": "../shared/images/site-4.png", "title": "转弯弧度处理示范"}]' data-confirm-refs='[{"src": "../shared/images/site-2.png", "title": "管路走向复核示范"}, {"src": "../shared/images/site-1.png", "title": "线管保护措施示范"}, {"src": "../shared/images/site-3.png", "title": "隐蔽验收记录示范"}]' onclick="showTaskDetail(this, '强电布管', '赵刚', '张陈庄、王强', '按照设计图纸进行强电布管施工，确保管线走向合理、固定牢固', '检查布管是否符合设计要求，管线是否通畅', '施工质量问题由施工方负责返工')">
+                                                <div class="task-info">
+                                                    <span class="task-status-icon">✓</span>
+                                                    <span class="task-name">强电布管</span>
+                                                </div>
+                                                <div class="task-meta">
+                                                    <span class="task-executor">执行人：赵刚</span>
+                                                    <span class="task-time">2024-01-25 完成</span>
+                                                </div>
+                                            </div>
+                                            <div class="task-row completed" onclick="showTaskDetail(this, '弱电布线', '赵刚', '陈庄', '按照设计图纸进行弱电布线施工，确保线路走向合理、标识清晰', '检查布线是否符合设计要求，线路是否通畅', '施工质量问题由施工方负责返工')">
+                                                <div class="task-info">
+                                                    <span class="task-status-icon">✓</span>
+                                                    <span class="task-name">弱电布线</span>
+                                                </div>
+                                                <div class="task-meta">
+                                                    <span class="task-executor">执行人：赵刚</span>
+                                                    <span class="task-time">2024-01-27 完成</span>
+                                                </div>
+                                            </div>
+                                            <div class="task-row pending task-modified" id="taskWaterPipe" data-exec-refs='[{"src": "../shared/images/site-1.png", "title": "给水管路排布示范"}, {"src": "../shared/images/site-2.png", "title": "管卡固定间距示范"}, {"src": "../shared/images/site-3.png", "title": "压力测试作业示范"}]' onclick="showTaskDetail(this, '给水管道', '赵刚', '张陈庄、业主', '按照设计图纸进行给水管道施工，确保管道走向合理、无渗漏。新增：卫生间点位5个、厨房点位3个、阳台点位2个', '检查管道是否符合设计要求，进行压力测试', '管道渗漏由施工方负责维修')">
+                                                <div class="task-info">
+                                                    <span class="task-status-icon">⏸</span>
+                                                    <span class="task-name">给水管道</span>
+                                                    <span class="task-change-badge modified" id="taskWaterPipeBadge" style="display: none;">已修改</span>
+                                                </div>
+                                                <div class="task-meta">
+                                                    <span class="task-executor">执行人：赵刚</span>
+                                                    <span class="task-time">待开始</span>
+                                                </div>
+                                            </div>
+                                            <div class="task-row pending" onclick="showTaskDetail(this, '排水管道', '赵刚', '陈庄', '按照设计图纸进行排水管道施工，确保管道坡度符合要求、排水通畅', '检查管道是否符合设计要求，进行通水测试', '排水不畅由施工方负责整改')">
+                                                <div class="task-info">
+                                                    <span class="task-status-icon">⏸</span>
+                                                    <span class="task-name">排水管道</span>
+                                                </div>
+                                                <div class="task-meta">
+                                                    <span class="task-executor">执行人：赵刚</span>
+                                                    <span class="task-time">待开始</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="stage-section stage-added" id="stage3NewSection" style="display: none;">
+                                        <div class="stage-header">
+                                            <div class="stage-title">
+                                                <span class="stage-icon">📋</span>
+                                                <span class="stage-name">阶段三：新增点位安装</span>
+                                                <span class="stage-change-badge added">新增</span>
+                                            </div>
+                                            <div class="stage-meta">
+                                                <span class="stage-status pending">⏸ 待开始</span>
+                                                <span class="stage-progress">0/2 任务</span>
+                                            </div>
+                                        </div>
+                                        <div class="stage-tasks">
+                                            <div class="task-row pending task-added" onclick="showTaskDetail(this, '新增点位布线', '赵刚', '张陈庄、业主', '按照变更要求进行新增点位布线施工，包括卫生间5个、厨房3个、阳台2个点位', '检查新增点位布线是否符合设计要求，线路是否通畅', '新增点位施工质量问题由施工方负责返工')">
+                                                <div class="task-info">
+                                                    <span class="task-status-icon">⏸</span>
+                                                    <span class="task-name">新增点位布线</span>
+                                                    <span class="task-change-badge added">新增</span>
+                                                </div>
+                                                <div class="task-meta">
+                                                    <span class="task-executor">执行人：赵刚</span>
+                                                    <span class="task-time">待开始</span>
+                                                </div>
+                                            </div>
+                                            <div class="task-row pending task-added" onclick="showTaskDetail(this, '新增点位验收', '孙磊', '张陈庄、业主', '对新增点位进行验收，确保点位位置准确、功能正常', '检查新增点位是否符合设计要求，各项功能是否正常', '验收不合格由施工方负责整改')">
+                                                <div class="task-info">
+                                                    <span class="task-status-icon">⏸</span>
+                                                    <span class="task-name">新增点位验收</span>
+                                                    <span class="task-change-badge added">新增</span>
+                                                </div>
+                                                <div class="task-meta">
+                                                    <span class="task-executor">执行人：孙磊</span>
+                                                    <span class="task-time">待开始</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="stage-section" id="stage3OriginalSection">
+                                        <div class="stage-header">
+                                            <div class="stage-title">
+                                                <span class="stage-icon">📋</span>
+                                                <span class="stage-name">阶段三：验收调试</span>
+                                            </div>
+                                            <div class="stage-meta">
+                                                <span class="stage-status pending">⏸ 待开始</span>
+                                                <span class="stage-progress">0/3 任务</span>
+                                            </div>
+                                        </div>
+                                        <div class="stage-tasks">
+                                            <div class="task-row pending" data-exec-refs='[{"src": "../shared/images/site-1.png", "title": "回路通电检测示范"}, {"src": "../shared/images/site-2.png", "title": "绝缘电阻测试示范"}, {"src": "../shared/images/site-4.png", "title": "配电箱标识示范"}]' data-confirm-refs='[{"src": "../shared/images/site-3.png", "title": "回路功能复核示范"}, {"src": "../shared/images/site-1.png", "title": "测试记录填写示范"}]' onclick="showTaskDetail(this, '通电测试', '孙磊', '张陈庄、业主', '对强电系统进行通电测试，确保各回路正常工作', '检查各回路是否正常，电压电流是否符合要求', '测试不合格由施工方负责整改')">
+                                                <div class="task-info">
+                                                    <span class="task-status-icon">⏸</span>
+                                                    <span class="task-name">通电测试</span>
+                                                </div>
+                                                <div class="task-meta">
+                                                    <span class="task-executor">执行人：孙磊</span>
+                                                    <span class="task-time">待开始</span>
+                                                </div>
+                                            </div>
+                                            <div class="task-row pending" onclick="showTaskDetail(this, '通水测试', '孙磊', '张陈庄、业主', '对给排水系统进行通水测试，确保各管路正常工作', '检查各管路是否正常，水压流量是否符合要求', '测试不合格由施工方负责整改')">
+                                                <div class="task-info">
+                                                    <span class="task-status-icon">⏸</span>
+                                                    <span class="task-name">通水测试</span>
+                                                </div>
+                                                <div class="task-meta">
+                                                    <span class="task-executor">执行人：孙磊</span>
+                                                    <span class="task-time">待开始</span>
+                                                </div>
+                                            </div>
+                                            <div class="task-row pending" onclick="showTaskDetail(this, '整体验收', '孙磊', '张陈庄、业主、监理', '对整个水电工程进行整体验收，确保工程质量符合合同要求', '检查工程质量是否符合合同要求，各项测试是否合格', '验收不合格由施工方负责整改')">
+                                                <div class="task-info">
+                                                    <span class="task-status-icon">⏸</span>
+                                                    <span class="task-name">整体验收</span>
+                                                </div>
+                                                <div class="task-meta">
+                                                    <span class="task-executor">执行人：孙磊</span>
+                                                    <span class="task-time">待开始</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="tab-content" id="changesTab">
+                            <div class="pc-card">
+                                <div class="pc-card-header">
+                                    <div class="pc-card-title">变更记录</div>
+                                </div>
+                                <div class="pc-card-body" id="changesContent">
+                                    <div class="change-record-item" id="changeRecord1">
+                                        <div class="change-record-header">
+                                            <div class="change-record-title">
+                                                <span class="change-record-icon">🔄</span>
+                                                <span>第一次变更</span>
+                                            </div>
+                                            <span class="change-record-status pending">待平台审核</span>
+                                        </div>
+                                        <div class="change-record-body">
+                                            <div class="change-record-row">
+                                                <span class="change-record-label">变更原因</span>
+                                                <span class="change-record-value">因业主需求变更，需要增加部分施工点位，涉及合同金额调整。新增卫生间施工点位5个，厨房施工点位3个，阳台施工点位2个。</span>
+                                            </div>
+                                            <div class="change-record-row">
+                                                <span class="change-record-label">发起人</span>
+                                                <span class="change-record-value">陈庄（工长）</span>
+                                            </div>
+                                            <div class="change-record-row">
+                                                <span class="change-record-label">发起时间</span>
+                                                <span class="change-record-value">2024-02-01 14:00</span>
+                                            </div>
+                                            <div class="change-record-row">
+                                                <span class="change-record-label">变更内容</span>
+                                                <span class="change-record-value">
+                                                    <div style="margin-bottom: 8px;">• 合同金额：<span class="deleted">¥150,000.00</span><span class="added">¥180,000.00</span></div>
+                                                    <div style="margin-bottom: 8px;">• 合同正文：新增第四条变更条款</div>
+                                                    <div style="margin-bottom: 8px;">• 新增阶段：阶段三 - 新增点位安装</div>
+                                                    <div style="margin-bottom: 8px;">• 新增任务：新增点位布线、新增点位验收</div>
+                                                    <div>• 修改任务：给水管道（修改执行标准）</div>
+                                                </span>
+                                            </div>
+                                            <div class="change-record-row">
+                                                <span class="change-record-label">变更状态</span>
+                                                <span class="change-record-value"><span style="color: #FA8C16;">待平台审核</span></span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="change-record-item" id="changeRecord2">
+                                        <div class="change-record-header">
+                                            <div class="change-record-title">
+                                                <span class="change-record-icon">🔄</span>
+                                                <span>变更记录 #1</span>
+                                            </div>
+                                            <span class="change-record-status completed">已生效</span>
+                                        </div>
+                                        <div class="change-record-body">
+                                            <div class="change-record-row">
+                                                <span class="change-record-label">变更原因</span>
+                                                <span class="change-record-value">现场墙体实际情况与图纸存在偏差，需调整阶段二部分任务顺序并增加弱电箱安装任务</span>
+                                            </div>
+                                            <div class="change-record-row">
+                                                <span class="change-record-label">发起人</span>
+                                                <span class="change-record-value">陈庄（工长）</span>
+                                            </div>
+                                            <div class="change-record-row">
+                                                <span class="change-record-label">发起时间</span>
+                                                <span class="change-record-value">2024-01-25 09:00</span>
+                                            </div>
+                                            <div class="change-record-row">
+                                                <span class="change-record-label">审核时间</span>
+                                                <span class="change-record-value">2024-01-25 14:30（运营人员）</span>
+                                            </div>
+                                            <div class="change-record-row">
+                                                <span class="change-record-label">变更内容</span>
+                                                <span class="change-record-value">
+                                                    <div style="margin-bottom: 8px;">• 阶段二新增任务：弱电箱安装</div>
+                                                    <div style="margin-bottom: 8px;">• 阶段二任务顺序调整</div>
+                                                    <div>• 工期延长：45天 → 50天（+5天）</div>
+                                                </span>
+                                            </div>
+                                            <div class="change-record-row">
+                                                <span class="change-record-label">变更状态</span>
+                                                <span class="change-record-value"><span class="added">✅ 审核已通过 · 变更已生效</span></span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="change-record-item" id="changeRecord3" style="display: none;">
+                                        <div class="change-record-header">
+                                            <div class="change-record-title">
+                                                <span class="change-record-icon">🔄</span>
+                                                <span>变更记录 #2</span>
+                                            </div>
+                                            <span class="change-record-status rejected">已驳回</span>
+                                        </div>
+                                        <div class="change-record-body">
+                                            <div class="change-record-row">
+                                                <span class="change-record-label">变更原因</span>
+                                                <span class="change-record-value">业主要求新增阳台防水施工项目，涉及合同金额与工期调整</span>
+                                            </div>
+                                            <div class="change-record-row">
+                                                <span class="change-record-label">发起人</span>
+                                                <span class="change-record-value">陈庄（工长）</span>
+                                            </div>
+                                            <div class="change-record-row">
+                                                <span class="change-record-label">发起时间</span>
+                                                <span class="change-record-value">2024-03-01 10:00</span>
+                                            </div>
+                                            <div class="change-record-row">
+                                                <span class="change-record-label">驳回时间</span>
+                                                <span class="change-record-value">2024-03-02 16:00（运营人员）</span>
+                                            </div>
+                                            <div class="change-record-row">
+                                                <span class="change-record-label">变更内容</span>
+                                                <span class="change-record-value">
+                                                    <div style="margin-bottom: 8px;">• 合同金额变更：¥150,000.00 → <span class="deleted">¥180,000.00</span></div>
+                                                    <div style="margin-bottom: 8px;">• 新增阶段：阳台防水施工</div>
+                                                    <div>• 工期延长：45天 → 55天（+10天）</div>
+                                                </span>
+                                            </div>
+                                            <div class="change-record-row">
+                                                <span class="change-record-label">驳回原因</span>
+                                                <span class="change-record-value">合同金额变更幅度过大（超过20%），需甲方补充书面确认材料后重新提交变更申请</span>
+                                            </div>
+                                            <div class="change-record-row">
+                                                <span class="change-record-label">变更状态</span>
+                                                <span class="change-record-value"><span style="color:#FF4D4F;">❌ 审核已驳回</span></span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div id="noChangeRecord" style="display: none;">
+                                        <p style="color: var(--text-tertiary); text-align: center; padding: 40px;">
+                                            合同签约后可查看变更记录
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="contract-sidebar">
+                        <div class="sidebar-card">
+                            <div class="sidebar-card-header">
+                                <span class="sidebar-card-title">签约双方</span>
+                            </div>
+                            <div class="sidebar-card-body">
+                                <div class="party-info">
+                                    <div class="party-item">
+                                        <div class="party-avatar">👤</div>
+                                        <div class="party-detail">
+                                            <div class="party-name">陈庄</div>
+                                            <div class="party-role">甲方 · 工长</div>
+                                            <div class="party-contact">138****8888</div>
+                                        </div>
+                                    </div>
+                                    <div class="party-item">
+                                        <div class="party-avatar">👤</div>
+                                        <div class="party-detail">
+                                            <div class="party-name">王强</div>
+                                            <div class="party-role">乙方 · 施工组长</div>
+                                            <div class="party-contact">139****6666</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="sidebar-card">
+                            <div class="sidebar-card-header">
+                                <span class="sidebar-card-title">附件文件</span>
+                                <span style="font-size: 12px; color: var(--text-tertiary);">4个文件</span>
+                            </div>
+                            <div class="sidebar-card-body">
+                                <div class="attachment-file-item" onclick="previewAttachment('pdf','基础施工服务合同.pdf','2.3MB','PDF 文档')" style="cursor:pointer;">
+                                    <span class="file-icon">📄</span>
+                                    <span class="file-name">基础施工服务合同.pdf</span>
+                                    <span class="file-size">2.3MB</span>
+                                </div>
+                                <div class="attachment-file-item" onclick="previewAttachment('image','施工图纸.dwg','5.8MB','DWG 施工图（位图预览）')" style="cursor:pointer;">
+                                    <span class="file-icon">🖼️</span>
+                                    <span class="file-name">施工图纸.dwg</span>
+                                    <span class="file-size">5.8MB</span>
+                                </div>
+                                <div class="attachment-file-item" onclick="previewAttachment('table','材料清单.xlsx','156KB','Excel 表格')" style="cursor:pointer;">
+                                    <span class="file-icon">📊</span>
+                                    <span class="file-name">材料清单.xlsx</span>
+                                    <span class="file-size">156KB</span>
+                                </div>
+                                <div class="attachment-file-item" onclick="previewAttachment('image','现场量房照片.jpg','1.5MB','JPG 图片')" style="cursor:pointer;">
+                                    <span class="file-icon">📷</span>
+                                    <span class="file-name">现场量房照片.jpg</span>
+                                    <span class="file-size">1.5MB</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="sidebar-card">
+                            <div class="sidebar-card-header">
+                                <span class="sidebar-card-title">操作记录</span>
+                            </div>
+                            <div class="sidebar-card-body">
+                                <div class="operation-log" id="operationLog">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="pc-page-nav-wrapper" id="pageNavWrapper">
+        <div class="pc-page-nav-toggle" onclick="togglePageNav()">◀</div>
+        <div class="pc-page-nav" id="pageNav">
+            <div class="pc-page-nav-title">
+                PC端原型导航
+                <span class="badge">PC</span>
+            </div>
+            <div class="pc-page-nav-group" id="statusSelectorGroup">
+                <div class="pc-page-nav-group-title" id="statusSelectorTitle">页面导航</div>
+                <select class="nav-status-select" id="statusSelector" onchange="handlePageChange(this.value)">
+                    <option value="mini_program">小程序首页</option>
+                </select>
+            </div>
+            <div class="pc-page-nav-group" id="pageNavGroup">
+                <div class="pc-page-nav-group-title">页面导航</div>
+                <a href="pc-contract-list.html" class="pc-page-nav-item" id="navContractList">合同审核管理</a>
+                <a href="pc-contract-template.html" class="pc-page-nav-item" id="navContractTemplate">合同文本模板</a>
+                <a href="pc-stage-template.html" class="pc-page-nav-item" id="navStageTemplate">阶段任务模板</a>
+            </div>
+        </div>
+    </div>
+
+    <script src="../shared/validation.js"></script>
+    <script>
+  // 烘焙默认状态：无查询参数时以 platform_reviewing 重载
+  if (!window.location.search) {
+    window.location.search = '?id=1&status=platform_reviewing';
+  }
+</script>
+<script src="pc-contract-detail.js"></script>
+<script src="pc-craft-ref.js"></script>
+    <script>
+        // 根据URL参数条件性隐藏变更记录tab
+        function hideChangeRecordTab() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const id = urlParams.get('id');
+            const status = urlParams.get('status');
+            const role = urlParams.get('role');
+            
+            // 需要隐藏变更记录tab的条件
+            const conditions = [
+                { id: '2', status: 'platform_reviewing', role: 'operator' },
+                { id: '1', status: 'platform_reviewing', role: 'operator' },
+                { id: '9', status: 'reviewed_pass', role: 'operator' },
+                { id: '10', status: 'reviewed_reject', role: 'operator' }
+            ];
+            
+            // 检查是否匹配任何条件
+            const shouldHide = conditions.some(condition => 
+                id === condition.id && 
+                status === condition.status && 
+                role === condition.role
+            );
+            
+            if (shouldHide) {
+                const changeTab = document.querySelector('.detail-tab[onclick="switchTab(\'changes\', event)"]');
+                if (changeTab) {
+                    changeTab.style.display = 'none';
+                }
+            }
+        }
+        
+        // 页面加载时执行
+        window.addEventListener('DOMContentLoaded', hideChangeRecordTab);
+    </script>
+
+    <!-- 任务详情弹窗 -->
+    <div class="task-detail-modal" id="taskDetailModal" onclick="closeTaskDetail()">
+        <div class="task-detail-content" onclick="event.stopPropagation()">
+            <div class="task-detail-header">
+                <h3 class="task-detail-title" id="taskDetailTitle">任务详情</h3>
+                <button class="task-detail-close" onclick="closeTaskDetail()">×</button>
+            </div>
+            <div class="task-detail-body">
+                <div class="task-detail-section">
+                    <h4>📋 任务信息</h4>
+                    <div class="task-detail-row">
+                        <span class="task-detail-label">执行人：</span>
+                        <span class="task-detail-value" id="taskDetailExecutor"></span>
+                    </div>
+                    <div class="task-detail-row">
+                        <span class="task-detail-label">验收人：</span>
+                        <div class="task-detail-value" id="taskDetailConfirmers"></div>
+                    </div>
+                </div>
+                <div class="task-detail-section">
+                    <h4>📝 执行标准</h4>
+                    <p class="task-detail-standard" id="taskDetailExecuteStandard"></p>
+                    <div class="pc-craft-block" id="taskDetailExecCraftRef"></div>
+                </div>
+                <div class="task-detail-section">
+                    <h4>✅ 验收标准</h4>
+                    <p class="task-detail-standard" id="taskDetailConfirmStandard"></p>
+                    <div class="pc-craft-block" id="taskDetailConfirmCraftRef"></div>
+                </div>
+                <div class="task-detail-section">
+                    <h4>⚖️ 责任标准</h4>
+                    <p class="task-detail-standard" id="taskDetailResponsibleStandard"></p>
+                </div>
+            </div>
+            <div class="pc-modal-footer">
+                <button class="pc-btn pc-btn-default" onclick="closeTaskDetail()">关闭</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 确认操作弹窗 -->
+    <div class="pc-modal-overlay" id="confirmModal" onclick="closeConfirmModal()">
+        <div class="pc-modal pc-modal-sm" onclick="event.stopPropagation()">
+            <div class="pc-modal-header">
+                <h3 class="pc-modal-title" id="confirmModalTitle">确认</h3>
+                <button class="pc-modal-close" onclick="closeConfirmModal()">×</button>
+            </div>
+            <div class="pc-modal-body">
+                <p id="confirmModalContent" style="font-size: 14px; color: var(--text-secondary);"></p>
+            </div>
+            <div class="pc-modal-footer">
+                <button class="pc-btn pc-btn-default" onclick="closeConfirmModal()">取消</button>
+                <button class="pc-btn pc-btn-primary" onclick="confirmAction()">确定</button>
+            </div>
+        </div>
+    </div>
+<!-- 驳回原因弹窗 -->
+    <div class="pc-modal-overlay" id="rejectModal" onclick="closeRejectModal()">
+        <div class="pc-modal" style="width:500px;" onclick="event.stopPropagation()">
+            <div class="pc-modal-header">
+                <h3 class="pc-modal-title" id="rejectModalTitle">驳回合同</h3>
+                <button class="pc-modal-close" onclick="closeRejectModal()">×</button>
+            </div>
+            <div class="pc-modal-body reject-modal-body">
+                <div class="review-info" style="margin-bottom:16px;">
+                    <div class="review-info-item"><span class="review-info-label">合同名称</span><span class="review-info-value">基础施工服务合同</span></div>
+                    <div class="review-info-item"><span class="review-info-label">关联项目</span><span class="review-info-value">西安阳光里小区 · 西安市雁塔区长安南路188号</span></div>
+                </div>
+                <label style="font-size:13px;color:var(--text-secondary);margin-bottom:8px;display:block;">驳回原因<span style="color:var(--error-color);">*</span></label>
+                <textarea id="rejectReasonModal" placeholder="请输入驳回原因，将通知提交人进行修改"></textarea>
+                <p id="rejectReasonError" style="color:var(--error-color);font-size:12px;margin-top:4px;display:none;">请输入驳回原因</p>
+            </div>
+            <div class="pc-modal-footer">
+                <button class="pc-btn pc-btn-default" onclick="closeRejectModal()">取消</button>
+                <button class="pc-btn pc-btn-danger" onclick="confirmRejectFromModal()">确认驳回</button>
+            </div>
+        </div>
+    </div>
+<!-- 附件预览弹窗 -->
+    <div class="pc-modal-overlay" id="attachmentPreviewModal" onclick="closeAttachmentPreview()">
+        <div class="pc-modal" style="width:600px;" onclick="event.stopPropagation()">
+            <div class="pc-modal-header">
+                <h3 class="pc-modal-title" id="attachmentPreviewTitle">📄 文件预览</h3>
+                <button class="pc-modal-close" onclick="closeAttachmentPreview()">×</button>
+            </div>
+            <div class="pc-modal-body" id="attachmentPreviewBody" style="max-height:60vh;overflow:auto;padding:0;"></div>
+            <div class="pc-modal-footer">
+                <button class="pc-btn pc-btn-default" onclick="closeAttachmentPreview()">关闭</button>
+            </div>
+        </div>
+    </div>
+    <script src="pc-common.js"></script>
+    <script src="../common.js"></script>
+    <script src="pc-contract-detail.js"></script>
+<script src="../shared/doc-viewer/doc-viewer.js"></script>
+</body>
+</html>

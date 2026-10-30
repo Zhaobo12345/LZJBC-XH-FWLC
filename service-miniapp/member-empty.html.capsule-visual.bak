@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>家装平台小程序原型 - 项目成员（初始状态）</title>
+    <link rel="stylesheet" href="common.css">
+    <style>
+        .page-content {
+            height: calc(100% - 44px);
+            background-color: var(--bg-secondary);
+            overflow-y: auto;
+        }
+
+        .member-header {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-light) 100%);
+            padding: 16px;
+            color: #FFFFFF;
+        }
+
+        .member-header .header-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .member-header .project-name {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .member-header .member-count {
+            font-size: 12px;
+            opacity: 0.9;
+        }
+
+        .invite-btn-inline {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            padding: 6px 12px;
+            background-color: rgba(255,255,255,0.2);
+            color: #FFFFFF;
+            border-radius: 14px;
+            font-size: 12px;
+            cursor: pointer;
+            border: 1px solid rgba(255,255,255,0.3);
+            transition: all 0.2s;
+        }
+
+        .invite-btn-inline:hover {
+            background-color: rgba(255,255,255,0.3);
+        }
+
+        .member-list {
+            padding: 12px 16px 80px;
+        }
+
+        .member-group {
+            margin-bottom: 16px;
+        }
+
+        .member-group .group-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px 0;
+            margin-bottom: 8px;
+        }
+
+        .member-group .group-name {
+            font-size: 13px;
+            color: var(--text-tertiary);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .member-group .group-name .icon {
+            font-size: 14px;
+        }
+
+        .member-group .group-count {
+            font-size: 12px;
+            color: var(--text-tertiary);
+            background-color: var(--bg-secondary);
+            padding: 2px 8px;
+            border-radius: 10px;
+        }
+
+        .member-card {
+            display: flex;
+            align-items: center;
+            padding: 12px;
+            background-color: var(--bg-primary);
+            border-radius: 8px;
+            margin-bottom: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .member-card:hover {
+            background-color: #E6F7FF;
+        }
+
+        .member-card:last-child {
+            margin-bottom: 0;
+        }
+
+        .member-card .avatar {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-light) 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #FFFFFF;
+            font-size: 16px;
+            margin-right: 12px;
+            flex-shrink: 0;
+        }
+
+        .member-card .info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .member-card .name-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 4px;
+        }
+
+        .member-card .name {
+            font-size: 15px;
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        .member-card .role-tag {
+            display: inline-flex;
+            align-items: center;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 500;
+            background-color: #F9F0FF;
+            color: #722ED1;
+        }
+
+        .member-card .meta {
+            font-size: 12px;
+            color: var(--text-tertiary);
+        }
+        /* 权限角标右侧箭头 */
+        .permission-tag {
+            position: relative;
+            padding-right: 18px;
+            cursor: pointer;
+        }
+
+        .permission-tag::after {
+            content: '›';
+            position: absolute;
+            right: 6px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-tertiary);
+            font-size: 12px;
+        }
+
+        .member-card .creator-tag {
+            display: inline-flex;
+            align-items: center;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 500;
+            background-color: #FFF7E6;
+            color: #FA8C16;
+        }
+
+        .empty-hint {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 32px 16px;
+            color: var(--text-tertiary);
+        }
+
+        .empty-hint .hint-icon {
+            font-size: 36px;
+            margin-bottom: 12px;
+            opacity: 0.5;
+        }
+
+        .empty-hint .hint-text {
+            font-size: 13px;
+            text-align: center;
+            line-height: 1.6;
+        }
+    </style>
+<style>
+/* 微信原生胶囊占位（样式参考真机效果，由微信客户端实际渲染） */
+    .nav-bar .native-capsule {
+        display: inline-flex;
+        align-items: center;
+        justify-content: space-between;
+        min-width: 56px;
+        height: 28px;
+        padding: 0 10px;
+        border: 1px solid rgba(0, 0, 0, 0.08);
+        border-radius: 14px;
+        background: rgba(255, 255, 255, 0.7);
+        color: rgba(0, 0, 0, 0.6);
+        font-size: 12px;
+        line-height: 1;
+        user-select: none;
+        box-sizing: border-box;
+    }
+    .nav-bar .native-capsule .nc-left,
+    .nav-bar .native-capsule .nc-right {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex: 1;
+        min-width: 16px;
+    }
+    .nav-bar .native-capsule .nc-right {
+        font-size: 10px;
+    }
+    .nav-bar .native-capsule .nc-divider {
+        width: 1px;
+        height: 14px;
+        background: rgba(0, 0, 0, 0.1);
+        margin: 0 4px;
+    }
+</style>
+</head>
+<body>
+    <div class="phone-frame">
+        <div class="status-bar">
+            <div class="time">9:41</div>
+            <div class="icons">📶 🔋</div>
+        </div>
+
+        <div class="nav-bar">
+            <div class="back" onclick="location.href='project-detail-new.html'">← 返回</div>
+            <div class="title centered">项目成员</div>
+            
+        
+            <div class="actions"><div class="native-capsule" title="微信原生胶囊：由微信客户端渲染，开发者不可自定义其内容"><span class="nc-left">⋯</span><span class="nc-divider"></span><span class="nc-right">○</span></div></div>
+        </div>
+            
+
+
+        <div class="page-content">
+            <div class="member-header">
+                <div class="project-name">XX小区整体装修</div>
+                <div class="header-row">
+                    <div class="member-count">1位成员</div>
+                    <div class="invite-btn-inline" onclick="alert('邀请成员')">
+                        <span>+</span>
+                        <span>邀请成员</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="member-list">
+                <div class="member-group">
+                    <div class="group-header">
+                        <div class="group-name"><span class="icon">🏢</span> 项目部</div>
+                        <div class="group-count">1人</div>
+                    </div>
+                    <div class="member-card" id="creatorCard">
+                        <div class="avatar" id="creatorAvatar">张</div>
+                        <div class="info">
+                            <div class="name-row">
+                                <span class="name" id="creatorName">张经理</span>
+                                <span class="creator-tag">创建人</span>
+                            </div>
+                            <div class="meta" id="creatorRoles">角色：全部</div>
+                        </div>
+                        <div class="permission-badge">
+                            <div class="permission-tag data" onclick="showPermission('数据')">数据：全部</div>
+                            <div class="permission-tag manage" onclick="showPermission('治理')">治理：全部</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="empty-hint">
+                    <div class="hint-icon">👥</div>
+                    <div class="hint-text">暂无其他成员，邀请团队加入</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        // 填充创建人信息：优先使用 newProjectData.customerName，回退到'创建人'
+        (function() {
+            try {
+                var raw = localStorage.getItem('newProjectData');
+                var project = raw ? JSON.parse(raw) : {};
+                var creator = (project.customerName && project.customerName.trim()) ? project.customerName : (project.projectName || '创建人');
+                var avatar = creator.charAt(0) || '创';
+                var nameEl = document.getElementById('creatorName');
+                var avatarEl = document.getElementById('creatorAvatar');
+                var rolesEl = document.getElementById('creatorRoles');
+                if (avatarEl) avatarEl.textContent = avatar;
+                if (nameEl) nameEl.textContent = creator;
+                if (rolesEl) {
+                    // 从 project.creatorRoles 获取角色数组；若无则默认展示 ['项目总','工长']
+                    var roles = (project.creatorRoles && Array.isArray(project.creatorRoles) && project.creatorRoles.length) ? project.creatorRoles : ['项目总','工长'];
+                    rolesEl.innerHTML = roles.map(function(r){ return '<span class="role-tag">' + (r ? r : '') + '</span>'; }).join(' ');
+                }
+            } catch (e) { }
+        })();
+
+        function showPermission(type) {
+            alert(type + ' 权限：全部\n点击此处可进入权限设置（演示）');
+        }
+    </script>
+</body>
+</html>

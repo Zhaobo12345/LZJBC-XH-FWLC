@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>业主端小程序原型 - 邀请加入项目（接收侧）</title>
+    <link rel="stylesheet" href="common.css">
+    <style>
+        /* ===== 演示控制面板（手机框外右侧，与成员页 / 消息页同款） ===== */
+        .demo-control-panel {
+            position: fixed;
+            top: 130px;
+            left: calc(50% + 198px + 16px);
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 16px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+            z-index: 9999;
+            min-width: 210px;
+        }
+        .demo-control-panel .panel-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 12px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .demo-control-panel .control-label {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+        }
+        .demo-control-panel .control-group { margin-bottom: 14px; }
+        .demo-control-panel .segmented-control {
+            display: flex;
+            background: var(--bg-secondary);
+            border-radius: 8px;
+            padding: 3px;
+            gap: 3px;
+        }
+        .demo-control-panel .segment {
+            flex: 1;
+            text-align: center;
+            padding: 6px 8px;
+            font-size: 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            color: var(--text-secondary);
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+        .demo-control-panel .segment.active {
+            background: var(--primary-color);
+            color: #fff;
+        }
+        .demo-control-panel .status-text {
+            font-size: 11px;
+            margin-top: 4px;
+            padding: 6px 8px;
+            border-radius: 4px;
+            text-align: center;
+            line-height: 1.4;
+        }
+        .demo-control-panel .status-text.valid { background: #F6FFED; color: #389E0D; }
+        .demo-control-panel .status-text.expired { background: #FFF1F0; color: #CF1322; }
+        .demo-control-panel .status-text.single { background: #E6F7FF; color: #0050B3; }
+        .demo-control-panel .status-text.multi { background: #F9F0FF; color: #722ED1; }
+        .demo-control-panel .panel-tip {
+            font-size: 11px;
+            color: var(--text-tertiary);
+            line-height: 1.5;
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px dashed var(--border-color);
+        }
+
+        /* ===== 落地页背景（项目详情简化态） ===== */
+        .landing-hint {
+            margin: 12px;
+            padding: 10px 12px;
+            background: var(--status-primary-bg);
+            border-radius: 8px;
+            font-size: 12px;
+            color: #0050B3;
+            line-height: 1.5;
+        }
+        .project-hero {
+            margin: 12px;
+            padding: 16px;
+            background: linear-gradient(135deg, #1890FF 0%, #40A9FF 100%);
+            border-radius: 12px;
+            color: #fff;
+        }
+        .project-hero .name { font-size: 18px; font-weight: 600; margin-bottom: 6px; }
+        .project-hero .meta { font-size: 12px; opacity: 0.9; line-height: 1.6; }
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 11px 0;
+            border-bottom: 1px solid var(--border-color);
+            font-size: 13px;
+        }
+        .info-row:last-child { border-bottom: none; }
+        .info-row .label { color: var(--text-tertiary); }
+        .info-row .value { color: var(--text-primary); font-weight: 500; }
+
+        .result-panel {
+            margin: 12px;
+            padding: 20px 16px;
+            border-radius: 12px;
+            text-align: center;
+        }
+        .result-panel .r-icon { font-size: 34px; margin-bottom: 8px; }
+        .result-panel .r-title { font-size: 15px; font-weight: 600; margin-bottom: 6px; }
+        .result-panel .r-desc { font-size: 12px; line-height: 1.6; margin-bottom: 14px; }
+        .result-panel.success { background: var(--status-success-bg); }
+        .result-panel.success .r-title { color: #389E0D; }
+        .result-panel.success .r-desc { color: #52944F; }
+        .result-panel.blocked { background: var(--bg-secondary); }
+        .result-panel.blocked .r-title { color: var(--text-secondary); }
+        .result-panel.blocked .r-desc { color: var(--text-tertiary); }
+        .result-btn {
+            display: inline-block;
+            padding: 9px 22px;
+            border-radius: 20px;
+            background: var(--primary-color);
+            color: #fff;
+            font-size: 13px;
+            text-decoration: none;
+            border: none;
+            cursor: pointer;
+        }
+        .result-btn.ghost {
+            background: var(--bg-primary);
+            color: var(--text-secondary);
+            border: 1px solid var(--border-color);
+        }
+
+        .page-content.dimmed { filter: grayscale(0.15); }
+
+        /* ===== 加入确认弹窗 ===== */
+        .join-modal .modal-box { width: 300px; }
+        .join-source {
+            margin: 0 20px 12px;
+            padding: 7px 10px;
+            background: var(--status-primary-bg);
+            border-radius: 6px;
+            font-size: 12px;
+            color: #0050B3;
+            text-align: center;
+        }
+        .join-info {
+            margin: 0 20px 16px;
+            padding: 12px;
+            background: var(--bg-secondary);
+            border-radius: 8px;
+        }
+        .join-info .j-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            font-size: 13px;
+            margin-bottom: 9px;
+            gap: 12px;
+        }
+        .join-info .j-row:last-child { margin-bottom: 0; }
+        .join-info .j-label { color: var(--text-tertiary); flex-shrink: 0; }
+        .join-info .j-value { color: var(--text-primary); font-weight: 500; text-align: right; }
+        .join-perm {
+            margin: 0 20px 18px;
+            font-size: 12px;
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+        .join-perm .p-title { color: var(--text-tertiary); margin-bottom: 4px; }
+        .scope-tip {
+            margin: 0 20px 14px;
+            padding: 8px 10px;
+            background: var(--status-warning-bg);
+            border-radius: 6px;
+            font-size: 12px;
+            color: #D48806;
+            line-height: 1.5;
+        }
+
+        /* 角色选择弹窗（多角色，与消息页同款） */
+        .role-select-list {
+            margin: 8px 20px 4px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .role-select-item {
+            padding: 12px 14px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            background-color: var(--bg-primary);
+            font-size: 14px;
+            color: var(--text-primary);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .role-select-item:hover,
+        .role-select-item:active {
+            border-color: var(--primary-color);
+            background-color: var(--bg-secondary);
+            color: var(--primary-color);
+        }
+
+        .expired-box { text-align: center; padding: 26px 20px 8px; }
+        .expired-box .e-icon { font-size: 42px; margin-bottom: 10px; }
+        .expired-box .e-title { font-size: 16px; font-weight: 600; color: var(--text-primary); margin-bottom: 8px; }
+        .expired-box .e-desc { font-size: 13px; color: var(--text-secondary); line-height: 1.6; }
+    </style>
+<style>
+    /* v2-native-capsule-style：微信原生胶囊占位（不可自定义，仅演示位置） */
+    .nav-bar .native-capsule {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 5px;
+        min-width: 46px;
+        height: 28px;
+        padding: 0 8px;
+        border: 1px dashed #cfcfcf;
+        border-radius: 14px;
+        color: #b3b3b3;
+        font-size: 13px;
+        line-height: 1;
+        user-select: none;
+        box-sizing: border-box;
+    }
+</style>
+</head>
+<body>
+    <div class="phone-frame">
+        <div class="status-bar">
+            <div class="time">9:41</div>
+            <div class="icons">📶 🔋</div>
+        </div>
+
+        <div class="nav-bar">
+            <div class="back" onclick="location.href='message.html'">← 返回</div>
+            <div class="title centered">XX小区整体装修</div>
+        
+            <div class="actions"><div class="native-capsule" title="微信原生胶囊：由微信客户端渲染，开发者不可自定义其内容"></div></div>
+        </div>
+            
+
+
+        <div class="page-content dimmed" id="pageContent">
+            <div class="landing-hint" id="landingHint">
+                📷 已通过扫描二维码进入小程序，自动跳转至项目详情页
+            </div>
+
+            <div class="project-hero">
+                <div class="name">XX小区整体装修</div>
+                <div class="meta">项目编号：XM202603150001<br>项目地址：XX市XX区XX小区 3 栋 1801</div>
+            </div>
+
+            <!-- 加入结果区（拒绝/失效后展示；确认加入为直接跳转项目详情页，无成功卡片） -->
+            <div class="result-panel blocked" id="resultBlocked" style="display: none;">
+                <div class="r-icon" id="blockedIcon">🚫</div>
+                <div class="r-title" id="blockedTitle">未加入项目</div>
+                <div class="r-desc" id="blockedDesc">您已拒绝本次邀请，如需加入请联系邀请人重新发起邀请</div>
+                <button class="result-btn ghost" onclick="location.href='message.html'">返回消息中心</button>
+            </div>
+
+            <div class="card">
+                <div class="card-title"><span>📋 项目信息</span></div>
+                <div class="info-row"><span class="label">业主</span><span class="value">李先生</span></div>
+                <div class="info-row"><span class="label">项目状态</span><span class="value">施工中</span></div>
+                <div class="info-row"><span class="label">开工日期</span><span class="value">2026-03-20</span></div>
+                <div class="info-row"><span class="label">整体进度</span><span class="value">65%</span></div>
+            </div>
+
+            <div class="card">
+                <div class="card-title"><span>🏠 服务方信息</span></div>
+                <div class="info-row"><span class="label">承接单位</span><span class="value">XX装饰工程有限公司</span></div>
+                <div class="info-row"><span class="label">项目经理</span><span class="value">张三</span></div>
+            </div>
+        </div>
+
+        <!-- 加入确认弹窗 -->
+        <div class="app-modal join-modal show" id="joinModal">
+            <div class="modal-box">
+                <div class="modal-title">加入项目确认</div>
+                <div class="join-source" id="joinSourceText">📷 通过扫描二维码进入</div>
+                <div class="join-info">
+                    <div class="j-row">
+                        <span class="j-label">项目名称</span>
+                        <span class="j-value">XX小区整体装修</span>
+                    </div>
+                    <div class="j-row">
+                        <span class="j-label">邀请人</span>
+                        <span class="j-value">张三（项目经理）</span>
+                    </div>
+                </div>
+                <div class="join-perm">
+                    <div class="p-title">加入后默认权限</div>
+                    <div id="joinPermText">全部权限</div>
+                </div>
+                <div class="scope-tip">
+                    ⚠️ 业主身份不进入施工组，不参与任务派发与合同流转
+                </div>
+                <div class="modal-actions">
+                    <button class="modal-btn cancel" onclick="rejectInvite()">拒绝</button>
+                    <button class="modal-btn confirm" onclick="acceptInvite()">确认加入</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 角色选择弹窗（当前接收人已认证多角色时，确认加入后弹出） -->
+        <div class="app-modal" id="roleSelectModal">
+            <div class="modal-box">
+                <div class="modal-title">选择加入角色</div>
+                <div class="modal-content">您已认证多个角色，请选择加入该项目时使用的角色：</div>
+                <div class="role-select-list" id="roleSelectList"></div>
+                <div class="modal-actions">
+                    <button class="modal-btn cancel" onclick="closeRoleSelectModal()">取消</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 邀请失效弹窗 -->
+        <div class="app-modal" id="expiredModal">
+            <div class="modal-box">
+                <div class="expired-box">
+                    <div class="e-icon">⏰</div>
+                    <div class="e-title">邀请已失效</div>
+                    <div class="e-desc" id="expiredDesc">该二维码有效期为 7 天，已超过有效期。<br>请联系邀请人重新发起邀请</div>
+                </div>
+                <button class="modal-single-btn" onclick="closeExpired()">我知道了</button>
+            </div>
+        </div>
+
+        <div class="app-toast" id="appToast"></div>
+    </div>
+
+    <div class="page-nav">
+        <div class="page-nav-title">原型导航</div>
+        <a href="home.html" class="page-nav-item">首页</a>
+        <a href="project-detail.html" class="page-nav-item">项目详情</a>
+        <a href="member.html" class="page-nav-item">项目成员</a>
+        <a href="message.html" class="page-nav-item">消息</a>
+        <a href="architecture.html" class="page-nav-item">项目架构</a>
+        <a href="invite-join.html" class="page-nav-item active">邀请加入项目</a>
+    </div>
+
+    <div class="demo-control-panel" id="inviteDemoPanel">
+        <div class="panel-title">接收邀请演示控制</div>
+
+        <div class="control-group">
+            <div class="control-label">邀请来源</div>
+            <div class="segmented-control" id="sourceSeg">
+                <div class="segment active" data-source="qrcode" onclick="setDemoSource('qrcode')">二维码</div>
+                <div class="segment" data-source="wechat" onclick="setDemoSource('wechat')">微信好友</div>
+            </div>
+        </div>
+
+        <div class="control-group" id="roleModeGroup">
+            <div class="control-label">当前接收人已认证角色</div>
+            <div class="segmented-control" id="roleModeSeg">
+                <div class="segment active" data-mode="single" onclick="setDemoRoleMode('single')">单角色</div>
+                <div class="segment" data-mode="multi" onclick="setDemoRoleMode('multi')">多角色</div>
+            </div>
+            <div class="status-text single" id="roleModeStatus">单角色：确认加入后直接跳转项目详情页</div>
+        </div>
+
+        <div class="control-group" style="margin-bottom: 0;">
+            <div class="control-label">邀请状态</div>
+            <div class="segmented-control" id="stateSeg">
+                <div class="segment active" data-state="valid" onclick="setDemoState('valid')">有效</div>
+                <div class="segment" data-state="expired" onclick="setDemoState('expired')">已失效</div>
+            </div>
+            <div class="status-text valid" id="stateStatus">有效：弹出加入确认，确认后加入并获默认权限</div>
+        </div>
+
+        <div class="panel-tip">仅原型演示用：正式产品由二维码 / 分享卡片携带的邀请参数决定来源与有效期；接收人已认证角色数由其平台认证记录决定。业主端加入身份固定为"业主"，默认权限为全部权限。</div>
+    </div>
+
+    <script>
+        let demoSource = 'qrcode';    // qrcode | wechat
+        let demoState = 'valid';      // valid | expired
+        let demoRoleMode = 'single';  // single | multi（当前接收人已认证角色数）
+
+        // 当前接收人已认证的角色（多角色演示数据：既是业主，也认证了服务角色）
+        const RECEIVER_ROLES = ['业主', '水电工', '木工'];
+
+        const SOURCE_TEXT = {
+            qrcode: { hint: '📷 已通过扫描二维码进入小程序，自动跳转至项目详情页', modal: '📷 通过扫描二维码进入', expired: '该二维码有效期为 7 天，已超过有效期。<br>请联系邀请人重新发起邀请' },
+            wechat: { hint: '💬 已通过微信好友邀请卡片进入小程序，自动跳转至项目详情页', modal: '💬 通过微信好友邀请卡片进入', expired: '该邀请卡片有效期为 7 天，已超过有效期。<br>请联系邀请人重新发起邀请' }
+        };
+
+        function renderDemo() {
+            const src = SOURCE_TEXT[demoSource];
+
+            document.getElementById('landingHint').innerHTML = src.hint;
+            document.getElementById('joinSourceText').innerHTML = src.modal;
+            document.getElementById('expiredDesc').innerHTML = src.expired;
+
+            document.getElementById('resultBlocked').style.display = 'none';
+            document.getElementById('roleSelectModal').classList.remove('show');
+            document.getElementById('pageContent').classList.add('dimmed');
+
+            if (demoState === 'expired') {
+                document.getElementById('joinModal').classList.remove('show');
+                document.getElementById('expiredModal').classList.add('show');
+            } else {
+                document.getElementById('expiredModal').classList.remove('show');
+                document.getElementById('joinModal').classList.add('show');
+            }
+        }
+
+        function setDemoSource(source) {
+            demoSource = source;
+            document.querySelectorAll('#sourceSeg .segment').forEach(s => {
+                s.classList.toggle('active', s.dataset.source === source);
+            });
+            renderDemo();
+        }
+
+        function setDemoRoleMode(mode) {
+            demoRoleMode = mode;
+            document.querySelectorAll('#roleModeSeg .segment').forEach(s => {
+                s.classList.toggle('active', s.dataset.mode === mode);
+            });
+            const status = document.getElementById('roleModeStatus');
+            if (mode === 'multi') {
+                status.textContent = '多角色：确认加入后先选择角色再跳转项目详情页';
+                status.className = 'status-text multi';
+            } else {
+                status.textContent = '单角色：确认加入后直接跳转项目详情页';
+                status.className = 'status-text single';
+            }
+            renderDemo();
+        }
+
+        function setDemoState(state) {
+            demoState = state;
+            document.querySelectorAll('#stateSeg .segment').forEach(s => {
+                s.classList.toggle('active', s.dataset.state === state);
+            });
+            const status = document.getElementById('stateStatus');
+            if (state === 'expired') {
+                status.textContent = '已失效：超过 7 天有效期，提示"邀请已失效"';
+                status.className = 'status-text expired';
+            } else {
+                status.textContent = '有效：弹出加入确认，确认后加入并获默认权限';
+                status.className = 'status-text valid';
+            }
+            renderDemo();
+        }
+
+        function acceptInvite() {
+            document.getElementById('joinModal').classList.remove('show');
+            // 已认证多角色：先选择加入角色，再跳转项目详情页
+            if (demoRoleMode === 'multi') {
+                openRoleSelectModal();
+                return;
+            }
+            joinAndGoDetail();
+        }
+
+        function joinAndGoDetail(role) {
+            document.getElementById('pageContent').classList.remove('dimmed');
+            document.getElementById('resultBlocked').style.display = 'none';
+            showToast(role ? `已以「${role}」身份加入项目，正在进入...` : '已加入项目，正在进入...');
+            setTimeout(() => { location.href = 'project-detail.html'; }, 600);
+        }
+
+        function openRoleSelectModal() {
+            const list = document.getElementById('roleSelectList');
+            list.innerHTML = RECEIVER_ROLES.map(role =>
+                `<div class="role-select-item" onclick="selectJoinRole('${role}')">${role}</div>`
+            ).join('');
+            document.getElementById('roleSelectModal').classList.add('show');
+        }
+
+        function selectJoinRole(role) {
+            document.getElementById('roleSelectModal').classList.remove('show');
+            joinAndGoDetail(role);
+        }
+
+        function closeRoleSelectModal() {
+            // 取消选择角色时重新弹出加入确认，供再次操作
+            document.getElementById('roleSelectModal').classList.remove('show');
+            document.getElementById('joinModal').classList.add('show');
+        }
+
+        function rejectInvite() {
+            document.getElementById('joinModal').classList.remove('show');
+            document.getElementById('pageContent').classList.remove('dimmed');
+            document.getElementById('blockedIcon').textContent = '🚫';
+            document.getElementById('blockedTitle').textContent = '未加入项目';
+            document.getElementById('blockedDesc').textContent = '您已拒绝本次邀请，如需加入请联系邀请人重新发起邀请';
+            document.getElementById('resultBlocked').style.display = 'block';
+            showToast('已拒绝');
+        }
+
+        function closeExpired() {
+            document.getElementById('expiredModal').classList.remove('show');
+            document.getElementById('pageContent').classList.remove('dimmed');
+            document.getElementById('blockedIcon').textContent = '⏰';
+            document.getElementById('blockedTitle').textContent = '邀请已失效';
+            document.getElementById('blockedDesc').textContent = '该邀请有效期为 7 天，已超过有效期，请联系邀请人重新发起邀请';
+            document.getElementById('resultBlocked').style.display = 'block';
+            showToast('邀请已失效，正在返回首页...');
+            setTimeout(() => { location.href = 'home.html'; }, 600);
+        }
+
+        function showToast(message) {
+            const toast = document.getElementById('appToast');
+            toast.textContent = message;
+            toast.classList.add('show');
+            setTimeout(() => { toast.classList.remove('show'); }, 2000);
+        }
+
+        (function init() {
+            const params = new URLSearchParams(location.search);
+            const s = params.get('source');
+            const st = params.get('state');
+            const r = params.get('role');
+            if (s === 'wechat' || s === 'qrcode') demoSource = s;
+            if (st === 'expired' || st === 'valid') demoState = st;
+            if (r === 'single' || r === 'multi') demoRoleMode = r;
+
+            document.querySelectorAll('#sourceSeg .segment').forEach(x => x.classList.toggle('active', x.dataset.source === demoSource));
+            document.querySelectorAll('#stateSeg .segment').forEach(x => x.classList.toggle('active', x.dataset.state === demoState));
+            setDemoRoleMode(demoRoleMode);
+            setDemoState(demoState);
+        })();
+    </script>
+</body>
+</html>

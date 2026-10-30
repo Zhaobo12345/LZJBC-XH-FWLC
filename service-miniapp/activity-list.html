@@ -1,0 +1,1160 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>项目动态</title>
+    <link rel="stylesheet" href="common.css">
+    <style>
+        .page-content {
+            height: calc(100% - 44px);
+            background-color: var(--bg-secondary);
+            overflow-y: auto;
+            padding-bottom: 80px;
+        }
+
+        .filter-header {
+            background-color: var(--bg-primary);
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .filter-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .date-filter {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex: 1;
+        }
+
+        .date-filter-select {
+            flex: 1;
+            height: 32px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 0 10px;
+            font-size: 12px;
+            color: var(--text-primary);
+            background-color: var(--bg-primary);
+            cursor: pointer;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23999' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 8px center;
+        }
+
+        .date-filter-select:focus {
+            border-color: var(--primary-color);
+            outline: none;
+        }
+
+        .date-range-picker {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex: 1;
+            margin-top: 8px;
+        }
+
+        .date-input {
+            flex: 1;
+            height: 32px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 0 10px;
+            font-size: 12px;
+            color: var(--text-primary);
+            background-color: var(--bg-primary);
+            width: 100%;
+        }
+
+        .date-input:focus {
+            border-color: var(--primary-color);
+            outline: none;
+        }
+
+        .date-input-wrapper {
+            flex: 1;
+            position: relative;
+        }
+
+        .date-placeholder {
+            position: absolute;
+            left: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 12px;
+            color: var(--text-tertiary);
+            pointer-events: none;
+        }
+
+        .date-input::-webkit-datetime-edit {
+            opacity: 1;
+        }
+
+        .date-input::-webkit-datetime-edit-fields-wrapper {
+            display: flex;
+        }
+
+        .date-input::-webkit-datetime-edit-text {
+            color: var(--text-tertiary);
+            padding: 0;
+        }
+
+        .date-input::-webkit-datetime-edit-month-field,
+        .date-input::-webkit-datetime-edit-day-field,
+        .date-input::-webkit-datetime-edit-year-field {
+            color: var(--text-primary);
+            font-size: 12px;
+        }
+
+        .date-input:not(:placeholder-shown) + .date-placeholder,
+        .date-input.has-value + .date-placeholder {
+            display: none;
+        }
+
+        .date-input::-webkit-calendar-picker-indicator {
+            cursor: pointer;
+            opacity: 0.6;
+            margin-left: 4px;
+        }
+
+        .date-input::-webkit-calendar-picker-indicator:hover {
+            opacity: 1;
+        }
+
+        .date-separator {
+            color: var(--text-tertiary);
+            font-size: 13px;
+        }
+
+        .activity-stats {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 16px;
+            background-color: var(--bg-primary);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .activity-count {
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+
+        .activity-count .num {
+            color: var(--primary-color);
+            font-weight: 600;
+        }
+
+        .filter-tags {
+            display: flex;
+            gap: 8px;
+        }
+
+        .filter-tag {
+            padding: 4px 10px;
+            background-color: var(--bg-secondary);
+            border-radius: 12px;
+            font-size: 12px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .filter-tag.active {
+            background-color: var(--primary-color);
+            color: #FFFFFF;
+        }
+
+        /* 架构层级筛选标签（来自项目详情跳转携带，可移除） */
+        .level-filter-row {
+            display: flex;
+            padding: 8px 16px 0;
+        }
+        .level-filter-row .level-remove {
+            margin-left: 6px;
+            cursor: pointer;
+            opacity: 0.7;
+            font-weight: 600;
+        }
+
+        .activity-list {
+            padding: 12px 16px;
+        }
+
+        .activity-date-group {
+            margin-bottom: 16px;
+        }
+
+        .activity-date-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 0;
+            margin-bottom: 8px;
+        }
+
+        .activity-date-header .date {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .activity-date-header .count {
+            font-size: 12px;
+            color: var(--text-tertiary);
+            background-color: var(--bg-secondary);
+            padding: 2px 8px;
+            border-radius: 10px;
+        }
+
+        .activity-card {
+            background-color: var(--bg-primary);
+            border-radius: 12px;
+            margin-bottom: 12px;
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+        }
+
+        .activity-card:hover {
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .activity-card:last-child {
+            margin-bottom: 0;
+        }
+
+        .activity-card.no-permission {
+            opacity: 0.6;
+        }
+
+        .activity-card.no-permission::after {
+            content: '🔒';
+            position: absolute;
+            right: 12px;
+            top: 12px;
+            font-size: 14px;
+        }
+
+        .activity-header {
+            display: flex;
+            align-items: center;
+            padding: 12px;
+        }
+
+        .activity-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-light) 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #FFFFFF;
+            font-size: 14px;
+            margin-right: 12px;
+            flex-shrink: 0;
+        }
+
+        .activity-info {
+            flex: 1;
+        }
+
+        .activity-user {
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        .activity-meta {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 2px;
+        }
+
+        .activity-time {
+            font-size: 12px;
+            color: var(--text-tertiary);
+        }
+
+        .activity-source {
+            font-size: 11px;
+            color: var(--text-tertiary);
+            background-color: var(--bg-secondary);
+            padding: 1px 6px;
+            border-radius: 4px;
+        }
+
+        .activity-type-badge {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            flex-shrink: 0;
+        }
+
+        .activity-type-badge.contract {
+            background-color: var(--status-primary-bg);
+            color: var(--primary-color);
+        }
+
+        .activity-type-badge.task {
+            background-color: var(--status-warning-bg);
+            color: var(--warning-color);
+        }
+
+        .activity-type-badge.temp-task {
+            background-color: #F9F0FF;
+            color: var(--purple-color);
+        }
+
+        .activity-type-badge.system {
+            background-color: var(--status-success-bg);
+            color: var(--success-color);
+        }
+
+        .activity-body {
+            padding: 0 12px 12px;
+        }
+
+        .activity-content {
+            font-size: 14px;
+            color: var(--text-primary);
+            line-height: 1.6;
+            margin-bottom: 8px;
+        }
+
+        .activity-media {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .activity-media-item {
+            width: 60px;
+            height: 60px;
+            border-radius: 6px;
+            background-size: cover;
+            background-position: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .activity-media-item:hover {
+            background-color: var(--bg-tertiary);
+        }
+
+        .activity-media-item.video {
+            position: relative;
+        }
+
+        .activity-media-item.video::after {
+            content: '▶';
+            position: absolute;
+            font-size: 12px;
+            color: #FFFFFF;
+            background-color: rgba(0,0,0,0.5);
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .activity-footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px 12px;
+            background-color: var(--bg-secondary);
+            border-top: 1px solid var(--border-color);
+        }
+
+        .activity-action-hint {
+            font-size: 12px;
+            color: var(--primary-color);
+        }
+
+        .activity-permission-hint {
+            font-size: 12px;
+            color: var(--text-tertiary);
+        }
+
+        .empty-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 60px 20px;
+            color: var(--text-tertiary);
+        }
+
+        .empty-state .empty-icon {
+            font-size: 64px;
+            margin-bottom: 16px;
+            opacity: 0.6;
+        }
+
+        .empty-state .empty-text {
+            font-size: 14px;
+        }
+
+        .app-modal {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-color: rgba(0,0,0,0.5);
+            z-index: 200;
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .app-modal.show {
+            display: flex;
+        }
+
+        .app-modal .modal-box {
+            width: 85%;
+            max-width: 300px;
+            background-color: var(--bg-primary);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .app-modal .modal-title {
+            font-size: 16px;
+            font-weight: 600;
+            text-align: center;
+            padding: 20px 16px 12px;
+        }
+
+        .app-modal .modal-content {
+            font-size: 14px;
+            color: var(--text-secondary);
+            text-align: center;
+            padding: 0 16px 20px;
+            line-height: 1.5;
+        }
+
+        .app-modal .modal-actions {
+            display: flex;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .app-modal .modal-btn {
+            flex: 1;
+            height: 48px;
+            border-radius: 0;
+            font-size: 16px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-family: inherit;
+        }
+
+        .app-modal .modal-btn:first-child {
+            border-right: 1px solid var(--border-color);
+        }
+
+        .app-modal .modal-btn.cancel {
+            color: var(--text-secondary);
+        }
+
+        .app-modal .modal-btn.confirm {
+            color: var(--primary-color);
+            font-weight: 600;
+        }
+
+        .app-toast {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: rgba(0,0,0,0.7);
+            color: #FFFFFF;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-size: 14px;
+            z-index: 300;
+            display: none;
+            text-align: center;
+            max-width: 200px;
+        }
+
+        .app-toast.show {
+            display: block;
+        }
+
+        .load-more {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+            color: var(--text-tertiary);
+            font-size: 13px;
+            cursor: pointer;
+        }
+
+        .load-more.loading {
+            color: var(--primary-color);
+        }
+
+        /* ===== 动态角色标签（与项目详情页（进行中-新版）保持一致） ===== */
+        .activity-role-tag {
+            display: inline-block;
+            font-size: 10px;
+            padding: 0 6px;
+            border-radius: 8px;
+            margin-left: 4px;
+            vertical-align: middle;
+            line-height: 14px;
+            height: 14px;
+            font-weight: 500;
+        }
+        .activity-role-tag.project-manager { background-color: #E6F7FF; color: #1890FF; }
+        .activity-role-tag.designer { background-color: #F9F0FF; color: #722ED1; }
+        .activity-role-tag.foreman { background-color: #F6FFED; color: #52C41A; }
+        .activity-role-tag.demolish-worker { background-color: #FFF1F0; color: #F5222D; }
+        .activity-role-tag.plumbing-worker { background-color: #E6FFFB; color: #13C2C2; }
+        .activity-role-tag.carpentry-worker { background-color: #FFF7E6; color: #FA8C16; }
+        .activity-role-tag.tiling-worker { background-color: #FFF0F6; color: #C41D7F; }
+        .activity-role-tag.painting-worker { background-color: #FCFABE; color: #D4B106; }
+        .activity-role-tag.oddjob-worker { background-color: #F0F5FF; color: #2F54EB; }
+        .activity-role-tag.owner { background-color: #FFF2E8; color: #FA541C; }
+
+        /* ===== 动态阶段标签（与项目详情页（进行中-新版）保持一致） ===== */
+        .activity-stage-tag {
+            display: inline-block;
+            font-size: 10px;
+            padding: 1px 6px;
+            border-radius: 4px;
+            margin: 0 4px;
+            font-weight: 500;
+            line-height: 14px;
+        }
+        .activity-stage-tag.demolition { background-color: #FFF1F0; color: #F5222D; }
+        .activity-stage-tag.plumbing { background-color: #E6F7FF; color: #1890FF; }
+        .activity-stage-tag.carpentry { background-color: #FFF7E6; color: #FA8C16; }
+        .activity-stage-tag.tiling { background-color: #F9F0FF; color: #722ED1; }
+        .activity-stage-tag.painting { background-color: #FCFABE; color: #D4B106; }
+        .activity-stage-tag.installation { background-color: #F0F5FF; color: #2F54EB; }
+        .activity-stage-tag.cleanup { background-color: #F6FFED; color: #52C41A; }
+        .activity-stage-tag.design { background-color: #F9F0FF; color: #722ED1; }
+        .activity-stage-tag.base { background-color: #F5F5F5; color: #595959; }
+    </style>
+</head>
+<body>
+    <div class="phone-frame">
+        <div class="status-bar">
+            <div class="time">9:41</div>
+            <div class="icons">📶 🔋</div>
+        </div>
+
+        <div class="nav-bar">
+            <div class="back" onclick="history.back()">← 返回</div>
+            <div class="title centered">项目动态</div>
+            <div class="actions">
+                <div class="action-btn" onclick="closeMiniProgram()">✕</div>
+            </div>
+        </div>
+
+        <div class="page-content">
+            <div class="filter-header">
+                <div class="filter-row">
+                    <div class="date-filter">
+                        <select class="date-filter-select" id="dateFilter" onchange="filterByDate(this.value)">
+                            <option value="all">全部时间</option>
+                            <option value="today">今天</option>
+                            <option value="yesterday">昨天</option>
+                            <option value="week">近7天</option>
+                            <option value="month">近30天</option>
+                            <option value="custom">自定义</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="date-range-picker" id="dateRangePicker" style="display: none;">
+                    <div class="date-input-wrapper">
+                        <input type="date" class="date-input" id="startDate" onchange="applyCustomDateFilter()">
+                        <span class="date-placeholder" id="startDatePlaceholder">年/月/日</span>
+                    </div>
+                    <span class="date-separator">至</span>
+                    <div class="date-input-wrapper">
+                        <input type="date" class="date-input" id="endDate" onchange="applyCustomDateFilter()">
+                        <span class="date-placeholder" id="endDatePlaceholder">年/月/日</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="activity-stats">
+                <div class="activity-count">共 <span class="num" id="totalCount">0</span> 条动态</div>
+                <div class="filter-tags">
+                    <div class="filter-tag active" onclick="filterByType('all', this)">全部</div>
+                    <div class="filter-tag" onclick="filterByType('task', this)">任务</div>
+                    <div class="filter-tag" onclick="filterByType('contract', this)">合同</div>
+                </div>
+            </div>
+
+            <!-- 架构层级筛选标签（来自项目详情跳转携带，无参数时不渲染） -->
+            <div class="level-filter-row" id="levelFilterRow" style="display: none;">
+                <div class="filter-tag active" id="levelFilterTag"></div>
+            </div>
+
+            <div class="activity-list" id="activityList">
+            </div>
+
+            <div class="load-more" id="loadMore" onclick="loadMore()">
+                加载更多
+            </div>
+        </div>
+
+        <div class="app-modal" id="permissionModal">
+            <div class="modal-box">
+                <div class="modal-title">无查看权限</div>
+                <div class="modal-content" id="permissionContent">您没有权限查看该动态记录，请联系项目管理人员获取权限。</div>
+                <div class="modal-actions">
+                    <button class="modal-btn confirm" onclick="closePermissionModal()">知道了</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="app-toast" id="appToast"></div>
+    </div>
+
+    <div class="page-nav">
+        <div class="page-nav-title">原型导航</div>
+        <a href="home.html" class="page-nav-item">首页</a>
+        <a href="project-list.html" class="page-nav-item">项目主页（进行中）</a>
+        <a href="project-list.html" class="page-nav-item">项目主页（进行中）</a>
+        <a href="activity-list.html" class="page-nav-item active">项目动态</a>
+        <a href="task-list.html" class="page-nav-item">任务列表</a>
+        <a href="contract-detail.html" class="page-nav-item">合同详情</a>
+    </div>
+
+    <script>
+        function getDateString(daysAgo) {
+            const date = new Date();
+            date.setDate(date.getDate() - daysAgo);
+            return date.toISOString().split('T')[0];
+        }
+
+        const activities = [
+            {
+                id: 1,
+                date: getDateString(0),
+                dateLabel: '今天',
+                user: '陈庄',
+                avatar: '陈',
+                avatarColor: 'linear-gradient(135deg, #1890FF 0%, #40A9FF 100%)',
+                time: '10:30',
+                role: '项目总',
+                roleClass: 'project-manager',
+                type: 'task',
+                typeLabel: '任务确认',
+                content: '确认了<span class="activity-stage-tag plumbing">水电</span>开槽布线',
+                source: '水电班组服务合同',
+                level: '水电工作组',
+                hasMedia: true,
+                mediaCount: 3,
+                hasPermission: true
+            },
+            {
+                id: 2,
+                date: getDateString(0),
+                dateLabel: '今天',
+                user: '张工长',
+                avatar: '张',
+                avatarColor: 'linear-gradient(135deg, #52C41A 0%, #73D13D 100%)',
+                time: '09:15',
+                role: '工长',
+                roleClass: 'foreman',
+                type: 'task',
+                typeLabel: '任务提交',
+                content: '完成了<span class="activity-stage-tag plumbing">水电</span>开槽布线 的施工',
+                source: '水电班组服务合同',
+                level: '水电工作组',
+                hasMedia: true,
+                mediaCount: 2,
+                hasPermission: true
+            },
+            {
+                id: 3,
+                date: getDateString(0),
+                dateLabel: '今天',
+                user: '王水电',
+                avatar: '王',
+                avatarColor: 'linear-gradient(135deg, #13C2C2 0%, #36CFC9 100%)',
+                time: '08:30',
+                role: '水电工',
+                roleClass: 'plumbing-worker',
+                type: 'task',
+                typeLabel: '任务完成',
+                content: '水电改造 已完成',
+                source: '水电班组服务合同',
+                level: '水电工作组',
+                hasMedia: false,
+                mediaCount: 0,
+                hasPermission: true
+            },
+            {
+                id: 4,
+                date: getDateString(0),
+                dateLabel: '今天',
+                user: '陈设计',
+                avatar: '陈',
+                avatarColor: 'linear-gradient(135deg, #722ED1 0%, #9254DE 100%)',
+                time: '08:00',
+                role: '设计师',
+                roleClass: 'designer',
+                type: 'contract',
+                typeLabel: '合同签约',
+                content: '设计服务合同签约完成',
+                source: '设计服务合同',
+                level: '项目部',
+                hasMedia: true,
+                mediaCount: 1,
+                hasPermission: true
+            },
+            {
+                id: 5,
+                date: getDateString(1),
+                dateLabel: '昨天',
+                user: '陈庄',
+                avatar: '陈',
+                avatarColor: 'linear-gradient(135deg, #1890FF 0%, #40A9FF 100%)',
+                time: '16:20',
+                role: '项目总',
+                roleClass: 'project-manager',
+                type: 'task',
+                typeLabel: '任务确认',
+                content: '确认了<span class="activity-stage-tag plumbing">水电</span>材料进场',
+                source: '水电班组服务合同',
+                level: '水电工作组',
+                hasMedia: false,
+                mediaCount: 0,
+                hasPermission: true
+            },
+            {
+                id: 6,
+                date: getDateString(1),
+                dateLabel: '昨天',
+                user: '张工长',
+                avatar: '张',
+                avatarColor: 'linear-gradient(135deg, #52C41A 0%, #73D13D 100%)',
+                time: '14:00',
+                role: '工长',
+                roleClass: 'foreman',
+                type: 'contract',
+                typeLabel: '合同签约',
+                content: '水电班组服务合同签约完成',
+                source: '水电班组服务合同',
+                level: '水电工作组',
+                hasMedia: true,
+                mediaCount: 1,
+                hasPermission: true
+            },
+            {
+                id: 7,
+                date: getDateString(1),
+                dateLabel: '昨天',
+                user: '赵泥瓦',
+                avatar: '赵',
+                avatarColor: 'linear-gradient(135deg, #C41D7F 0%, #EB2F96 100%)',
+                time: '10:20',
+                role: '泥瓦工',
+                roleClass: 'tiling-worker',
+                type: 'contract',
+                typeLabel: '合同签约',
+                content: '泥瓦工班组服务合同签约完成',
+                source: '泥瓦工班组服务合同',
+                level: '泥瓦工作组',
+                hasMedia: false,
+                mediaCount: 0,
+                hasPermission: false
+            },
+            {
+                id: 8,
+                date: getDateString(2),
+                dateLabel: '前天',
+                user: '张工长',
+                avatar: '张',
+                avatarColor: 'linear-gradient(135deg, #52C41A 0%, #73D13D 100%)',
+                time: '14:05',
+                role: '工长',
+                roleClass: 'foreman',
+                type: 'task',
+                typeLabel: '任务提交',
+                content: '完成了<span class="activity-stage-tag base">基础施工</span>阶段开工 的施工',
+                source: '基础施工服务合同',
+                level: '项目部',
+                hasMedia: false,
+                mediaCount: 0,
+                hasPermission: true
+            },
+            {
+                id: 9,
+                date: getDateString(3),
+                dateLabel: '3天前',
+                user: '陈庄',
+                avatar: '陈',
+                avatarColor: 'linear-gradient(135deg, #1890FF 0%, #40A9FF 100%)',
+                time: '15:10',
+                role: '项目总',
+                roleClass: 'project-manager',
+                type: 'task',
+                typeLabel: '任务驳回',
+                content: '驳回了<span class="activity-stage-tag carpentry">木作</span>柜体安装',
+                source: '木作班组服务合同',
+                level: '木工工作组',
+                hasMedia: false,
+                mediaCount: 0,
+                hasPermission: true
+            },
+            {
+                id: 11,
+                date: getDateString(10),
+                dateLabel: '10天前',
+                user: '陈设计',
+                avatar: '陈',
+                avatarColor: 'linear-gradient(135deg, #722ED1 0%, #9254DE 100%)',
+                time: '11:40',
+                role: '设计师',
+                roleClass: 'designer',
+                type: 'contract',
+                typeLabel: '合同签约',
+                content: '设计服务合同签约完成',
+                source: '设计服务合同',
+                level: '项目部',
+                hasMedia: true,
+                mediaCount: 1,
+                hasPermission: true
+            }
+        ];
+
+        let currentTypeFilter = 'all';
+        let currentDateFilter = 'all';
+        let currentLevelFilter = null;
+        let displayedCount = 10;
+
+        function renderActivities() {
+            const activityList = document.getElementById('activityList');
+            let filteredActivities = activities;
+
+            if (currentLevelFilter) {
+                filteredActivities = filteredActivities.filter(a => a.level === currentLevelFilter);
+            }
+
+            if (currentTypeFilter !== 'all') {
+                filteredActivities = filteredActivities.filter(a => a.type === currentTypeFilter);
+            }
+
+            if (currentDateFilter === 'custom') {
+                const startDateInput = document.getElementById('startDate').value;
+                const endDateInput = document.getElementById('endDate').value;
+
+                if (startDateInput || endDateInput) {
+                    filteredActivities = filteredActivities.filter(a => {
+                        const actDate = new Date(a.date);
+
+                        if (startDateInput && endDateInput) {
+                            const startDate = new Date(startDateInput);
+                            const endDate = new Date(endDateInput);
+                            return actDate >= startDate && actDate <= endDate;
+                        } else if (startDateInput) {
+                            const startDate = new Date(startDateInput);
+                            return actDate >= startDate;
+                        } else if (endDateInput) {
+                            const endDate = new Date(endDateInput);
+                            return actDate <= endDate;
+                        }
+                        return true;
+                    });
+                }
+            } else if (currentDateFilter !== 'all') {
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+
+                filteredActivities = filteredActivities.filter(a => {
+                    const actDate = new Date(a.date);
+                    actDate.setHours(0, 0, 0, 0);
+
+                    switch (currentDateFilter) {
+                        case 'today':
+                            return actDate.getTime() === today.getTime();
+                        case 'yesterday':
+                            const yesterday = new Date(today);
+                            yesterday.setDate(yesterday.getDate() - 1);
+                            return actDate.getTime() === yesterday.getTime();
+                        case 'week':
+                            const weekAgo = new Date(today);
+                            weekAgo.setDate(weekAgo.getDate() - 7);
+                            return actDate >= weekAgo;
+                        case 'month':
+                            const monthAgo = new Date(today);
+                            monthAgo.setDate(monthAgo.getDate() - 30);
+                            return actDate >= monthAgo;
+                        default:
+                            return true;
+                    }
+                });
+            }
+
+            const groupedActivities = {};
+            filteredActivities.forEach(activity => {
+                if (!groupedActivities[activity.dateLabel]) {
+                    groupedActivities[activity.dateLabel] = [];
+                }
+                groupedActivities[activity.dateLabel].push(activity);
+            });
+
+            document.getElementById('totalCount').textContent = filteredActivities.length;
+
+            if (filteredActivities.length === 0) {
+                activityList.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-icon">📅</div>
+                        <div class="empty-text">无动态</div>
+                    </div>
+                `;
+                document.getElementById('loadMore').style.display = 'none';
+                return;
+            }
+
+            let html = '';
+            const dateOrder = ['今天', '昨天', '前天', '3天前', '5天前', '10天前', '20天前'];
+
+            dateOrder.forEach(dateLabel => {
+                if (groupedActivities[dateLabel] && groupedActivities[dateLabel].length > 0) {
+                    html += `
+                        <div class="activity-date-group">
+                            <div class="activity-date-header">
+                                <span class="date">${dateLabel}</span>
+                                <span class="count">${groupedActivities[dateLabel].length}条</span>
+                            </div>
+                    `;
+
+                    groupedActivities[dateLabel].forEach(activity => {
+                        html += renderActivityCard(activity);
+                    });
+
+                    html += '</div>';
+                }
+            });
+
+            activityList.innerHTML = html;
+
+            document.getElementById('loadMore').style.display = filteredActivities.length > 10 ? 'flex' : 'none';
+        }
+
+        function renderActivityCard(activity) {
+            const roleTagHtml = activity.roleClass
+                ? `<span class="activity-role-tag ${activity.roleClass}">${activity.role}</span>`
+                : '';
+
+            let mediaHtml = '';
+            if (activity.hasMedia) {
+                const taskImages = [
+                    '../shared/images/site-1.png',
+                    '../shared/images/site-2.png',
+                    '../shared/images/site-3.png',
+                    '../shared/images/site-4.png'
+                ];
+                const contractImages = [
+                    '../shared/images/site-2.png',
+                    '../shared/images/site-4.png'
+                ];
+
+                mediaHtml = `
+                    <div class="activity-media">
+                        ${Array(activity.mediaCount).fill(0).map((_, i) => {
+                            const isVideo = i === 2 && activity.mediaCount > 2;
+                            const images = activity.type === 'contract' ? contractImages : taskImages;
+                            const imageUrl = images[i % images.length];
+                            return `<div class="activity-media-item${isVideo ? ' video' : ''}" style="background-image: url('${imageUrl}'); background-color: var(--bg-secondary); background-size: cover; background-position: center;"></div>`;
+                        }).join('')}
+                    </div>
+                `;
+            }
+
+            const footerHtml = activity.hasPermission
+                ? `<span class="activity-action-hint">点击查看详情</span>`
+                : `<span class="activity-permission-hint">🔒 无查看权限</span>`;
+
+            return `
+                <div class="activity-card ${!activity.hasPermission ? 'no-permission' : ''}"
+                     onclick="handleActivityClick(${activity.id}, '${activity.type}', ${activity.hasPermission})">
+                    <div class="activity-header">
+                        <div class="activity-avatar" style="background: ${activity.avatarColor};">${activity.avatar}</div>
+                        <div class="activity-info">
+                            <div class="activity-user">${activity.user}${roleTagHtml}</div>
+                            <div class="activity-meta">
+                                <span class="activity-time">${activity.time}</span>
+                                <span class="activity-source">${activity.source}</span>
+                            </div>
+                        </div>
+                        <div class="activity-type-badge ${activity.type}">${activity.typeLabel}</div>
+                    </div>
+                    <div class="activity-body">
+                        <div class="activity-content">${activity.content}</div>
+                        ${mediaHtml}
+                    </div>
+                    <div class="activity-footer">
+                        ${footerHtml}
+                    </div>
+                </div>
+            `;
+        }
+
+        function filterByDate(value) {
+            currentDateFilter = value;
+            const dateRangePicker = document.getElementById('dateRangePicker');
+
+            if (value === 'custom') {
+                dateRangePicker.style.display = 'flex';
+
+                const endDateInput = document.getElementById('endDate');
+                if (!endDateInput.value) {
+                    const today = new Date();
+                    const todayStr = today.toISOString().split('T')[0];
+                    endDateInput.value = todayStr;
+                    endDateInput.classList.add('has-value');
+                    document.getElementById('endDatePlaceholder').style.display = 'none';
+                }
+            } else {
+                dateRangePicker.style.display = 'none';
+                renderActivities();
+            }
+        }
+
+        function applyCustomDateFilter() {
+            const startDateInput = document.getElementById('startDate');
+            const endDateInput = document.getElementById('endDate');
+
+            if (startDateInput.value) {
+                startDateInput.classList.add('has-value');
+                document.getElementById('startDatePlaceholder').style.display = 'none';
+            } else {
+                startDateInput.classList.remove('has-value');
+                document.getElementById('startDatePlaceholder').style.display = 'block';
+            }
+
+            if (endDateInput.value) {
+                endDateInput.classList.add('has-value');
+                document.getElementById('endDatePlaceholder').style.display = 'none';
+            } else {
+                endDateInput.classList.remove('has-value');
+                document.getElementById('endDatePlaceholder').style.display = 'block';
+            }
+
+            if (currentDateFilter === 'custom') {
+                renderActivities();
+            }
+        }
+
+        function filterByType(type, element) {
+            currentTypeFilter = type;
+
+            document.querySelectorAll('.filter-tag').forEach(tag => {
+                tag.classList.remove('active');
+            });
+            element.classList.add('active');
+
+            renderActivities();
+        }
+
+        function handleActivityClick(activityId, type, hasPermission) {
+            if (!hasPermission) {
+                showPermissionModal();
+                return;
+            }
+
+            const activity = activities.find(a => a.id === activityId);
+            if (!activity) return;
+
+            switch (type) {
+                case 'contract':
+                    location.href = 'contract-detail.html';
+                    break;
+                case 'task':
+                    location.href = 'task-detail.html';
+                    break;
+            }
+        }
+
+        function showPermissionModal() {
+            document.getElementById('permissionContent').textContent =
+                '您没有权限查看该动态记录，请联系项目管理人员获取权限。';
+            document.getElementById('permissionModal').classList.add('show');
+        }
+
+        function closePermissionModal() {
+            document.getElementById('permissionModal').classList.remove('show');
+        }
+
+        function showToast(message) {
+            const toast = document.getElementById('appToast');
+            toast.textContent = message;
+            toast.classList.add('show');
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 2000);
+        }
+
+        function loadMore() {
+            showToast('加载更多动态...');
+        }
+
+        function closeMiniProgram() {
+            showToast('关闭小程序');
+        }
+
+        document.getElementById('permissionModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closePermissionModal();
+            }
+        });
+
+        function clearLevelFilter() {
+            currentLevelFilter = null;
+            const row = document.getElementById('levelFilterRow');
+            if (row) row.style.display = 'none';
+            renderActivities();
+        }
+
+        // 架构层级初始化（来自项目详情跳转携带；项目部=不带参数）
+        (function initLevelFilter() {
+            try {
+                const lv = new URLSearchParams(location.search).get('level');
+                if (lv && lv !== '项目部') {
+                    currentLevelFilter = lv;
+                    const row = document.getElementById('levelFilterRow');
+                    const tag = document.getElementById('levelFilterTag');
+                    if (row && tag) {
+                        tag.innerHTML = '架构层级：' + lv ;
+                        row.style.display = 'flex';
+                    }
+                }
+            } catch (e) {}
+        })();
+
+        renderActivities();
+    </script>
+<script src="../shared/doc-viewer/doc-viewer.js"></script>
+</body>
+</html>

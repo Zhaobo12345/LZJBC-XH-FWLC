@@ -1,0 +1,756 @@
+/**
+ * 工人合同详情页（独立页面 · 方案 B）
+ * 仅服务于 拆除/水电/木作/泥瓦/油漆/小零工 六类工人合同。
+ * 基础施工服务合同 / 设计服务合同 走原 contract-detail.html，不经过本页。
+ *
+ * 与「合同详情（合规版）」保持同一套原型导航与微信小程序规范：
+ *   - 右侧「原型导航」含「合同状态切换（工人合同）」分组，按工人流程展示各状态页面效果；
+ *   - 区分发起方 / 受邀方两种视角，受邀方视角可逐一查看每位被邀人页面效果；
+ *   - 打开页面直接进入合同详情（默认以「水电班组服务合同」为示例），不再展示独立的合同说明/创建页；
+ *   - 页面主体含「合同内容 / 阶段任务 / 附件」三区块（对齐合规版 section-tabs 结构）。
+ */
+(function (global) {
+    'use strict';
+
+    var WORKER_CANDIDATES = [
+        { id: 'm-owner', name: '陈业主', role: '业主' },
+        { id: 'm-designer', name: '王设计', role: '设计师' },
+        { id: 'm-pm', name: '刘项目总', role: '项目总' },
+        { id: 'm-lead', name: '孙工长', role: '工长' },
+        { id: 'm-demolition', name: '钱拆除', role: '拆除工' },
+        { id: 'm-shuidian', name: '张水电', role: '水电工' },
+        { id: 'm-muzuo', name: '李木作', role: '木作工' },
+        { id: 'm-niwa', name: '周泥瓦', role: '泥瓦工' },
+        { id: 'm-youqi', name: '吴油漆', role: '油漆工' },
+        { id: 'm-xiaolingong', name: '郑零工', role: '小零工' }
+    ];
+
+    var STATUS_CONFIG = {
+        worker_inviting_sender: {
+            text: '确认中', bannerClass: 'confirming',
+            desc: '已邀请意向乙方参与此合同，等待对方确认/抢单（第一位确认者成为合同乙方）。',
+            actions: [{ text: '撤回确认', type: 'warning', action: 'worker_withdraw' }]
+        },
+        worker_inviting_receiver: {
+            text: '确认中', bannerClass: 'confirming',
+            desc: '您被邀请参与此合同，等待您确认/抢单。第一位确认者成为合同乙方。',
+            actions: [
+                { text: '拒绝', type: 'secondary', action: 'worker_reject' },
+                { text: '确认加入', type: 'primary', action: 'worker_confirm' }
+            ]
+        },
+        worker_confirmed_sender: {
+            text: '已确认', bannerClass: 'confirmed',
+            desc: '乙方已确认，已自动加入项目架构层级。请等待乙方上传签约文件。',
+            actions: [{ text: '撤回确认', type: 'warning', action: 'worker_withdraw' }]
+        },
+        worker_confirmed_receiver: {
+            text: '已确认', bannerClass: 'confirmed',
+            desc: '您已成为本合同乙方，已自动加入项目架构层级。请上传签约文件，上传后合同正式生效。',
+            actions: [{ text: '上传签约文件', type: 'primary', action: 'upload' }]
+        },
+        worker_lost_receiver: {
+            text: '已确认', bannerClass: 'confirmed',
+            desc: '该合同已被其他人员确认（抢单失败），您未成为本合同乙方。',
+            actions: []
+        },
+        worker_draft: {
+            text: '拟定中', bannerClass: 'draft',
+            desc: '合同已撤回至拟定中。可直接修改下方「意向乙方（1-3 人）」后重新提交邀约。',
+            actions: [{ text: '提交邀约', type: 'success', action: 'worker_resubmit' }]
+        },
+        worker_signed: {
+            text: '已签约', bannerClass: 'signed',
+            desc: '合同已正式生效（乙方已上传签约文件并自动加入项目架构层级）。',
+            actions: [{ text: '合同已生效', type: 'primary', action: 'view', disabled: true }]
+        }
+    };
+
+    var ACTION_TEXT = {
+        worker_withdraw: { title: '撤回合同邀约', message: '确定要撤回确认吗？撤回后合同退回拟定中，可就地修改意向乙方后重新提交邀约。' },
+        worker_reject: { title: '拒绝邀请', message: '确定要拒绝此合同邀约吗？拒绝后您不会成为本合同乙方。' },
+        worker_confirm: { title: '确认加入合同', message: '确定要确认加入此合同吗？确认后您将成为本合同乙方，并自动加入项目架构层级。' },
+        worker_resubmit: { title: '重新提交邀约', message: '确定要提交当前意向乙方名单吗？将向所选意向乙方重新发送合同邀约。' }
+    };
+
+    var state = {
+        workerId: '',
+        viewer: 'sender',
+        asUserId: '',
+        contract: null,
+        status: 'worker_inviting_sender',
+        editInvited: []
+    };
+
+    var pendingConfirm = null; // { title, message, onConfirm }
+
+    // 演示用合同模板（原型「更多 → 切换合同类型」入口）
+    var DEMO_TYPES = [
+        { type: 'demolition',  typeName: '拆除班组服务合同',   group: '拆除工程', name: '客厅原墙拆除工程合同', amount: 4800,  invited: ['m-demolition', 'm-shuidian', 'm-niwa'] },
+        { type: 'shuidian',    typeName: '水电班组服务合同',   group: '水电工程', name: '全屋水电改造合同',     amount: 12600, invited: ['m-shuidian', 'm-muzuo', 'm-niwa'] },
+        { type: 'muzuo',       typeName: '木作班组服务合同',   group: '木作工程', name: '定制柜体木作合同',     amount: 9800,  invited: ['m-muzuo', 'm-youqi', 'm-xiaolingong'] },
+        { type: 'niwa',        typeName: '泥瓦工班组服务合同', group: '泥瓦工程', name: '厨卫贴砖泥瓦合同',     amount: 7600,  invited: ['m-niwa', 'm-shuidian', 'm-demolition'] },
+        { type: 'youqi',       typeName: '油漆工班组服务合同', group: '油漆工程', name: '墙面乳胶漆油漆合同',   amount: 6400,  invited: ['m-youqi', 'm-muzuo', 'm-xiaolingong'] },
+        { type: 'xiaolingong', typeName: '小零工服务合同',     group: '零星工程', name: '后期安装小零工合同',   amount: 2200,  invited: ['m-xiaolingong', 'm-youqi', 'm-niwa'] }
+    ];
+
+    // 默认示例合同（无 id 进入时直接展示）
+    var DEFAULT_DEMO_TYPE = 'shuidian';
+
+    // 合同内容 / 阶段任务 示例模板（按合同类型），对齐合规版展示
+    var STAGE_TEMPLATES = {
+        shuidian: {
+            contentIntro: '工程内容：强电、弱电、给排水等水电工程，含材料进场、布管布线、设备安装及收尾验收。',
+            stages: [
+                { name: '材料进场阶段', order: '并行执行', tasks: [ { name: '材料采购', exec: '张水电', conf: '陈业主' }, { name: '材料报验', exec: '张水电', conf: '陈业主' } ] },
+                { name: '布管布线阶段', order: '顺序执行', tasks: [ { name: '开槽布管', exec: '张水电', conf: '陈业主' }, { name: '穿线接线', exec: '张水电', conf: '陈业主' }, { name: '阶段确认', exec: '张水电', conf: '陈业主' } ] },
+                { name: '安装阶段', order: '顺序执行', tasks: [ { name: '开关插座安装', exec: '张水电', conf: '陈业主' } ] },
+                { name: '收尾阶段', order: '顺序执行', tasks: [ { name: '通水通电测试', exec: '张水电', conf: '陈业主' }, { name: '阶段确认', exec: '张水电', conf: '陈业主' } ] }
+            ]
+        },
+        demolition: {
+            contentIntro: '工程内容：室内原墙体、饰面拆除及建筑垃圾清运，含防护交底与现场平整。',
+            stages: [
+                { name: '原墙拆除阶段', order: '顺序执行', tasks: [ { name: '防护交底', exec: '钱拆除', conf: '陈业主' }, { name: '墙体拆除', exec: '钱拆除', conf: '陈业主' } ] },
+                { name: '垃圾清运阶段', order: '顺序执行', tasks: [ { name: '建筑垃圾清运', exec: '钱拆除', conf: '陈业主' }, { name: '现场平整', exec: '钱拆除', conf: '陈业主' } ] },
+                { name: '收尾阶段', order: '顺序执行', tasks: [ { name: '阶段确认', exec: '钱拆除', conf: '陈业主' } ] }
+            ]
+        },
+        muzuo: {
+            contentIntro: '工程内容：木作基层、定制柜体制作与安装，含测量放样、五金安装及收尾。',
+            stages: [
+                { name: '测量放样阶段', order: '并行执行', tasks: [ { name: '现场测量', exec: '李木作', conf: '陈业主' }, { name: '深化图纸', exec: '李木作', conf: '陈业主' } ] },
+                { name: '木工制作阶段', order: '顺序执行', tasks: [ { name: '基层制作', exec: '李木作', conf: '陈业主' }, { name: '柜体安装', exec: '李木作', conf: '陈业主' } ] },
+                { name: '安装阶段', order: '顺序执行', tasks: [ { name: '五金安装', exec: '李木作', conf: '陈业主' } ] },
+                { name: '收尾阶段', order: '顺序执行', tasks: [ { name: '阶段确认', exec: '李木作', conf: '陈业主' } ] }
+            ]
+        },
+        niwa: {
+            contentIntro: '工程内容：地面找平、防水施工与墙地砖铺贴，含美缝清理。',
+            stages: [
+                { name: '基层处理阶段', order: '顺序执行', tasks: [ { name: '地面找平', exec: '周泥瓦', conf: '陈业主' }, { name: '防水施工', exec: '周泥瓦', conf: '陈业主' } ] },
+                { name: '贴砖阶段', order: '顺序执行', tasks: [ { name: '墙砖铺贴', exec: '周泥瓦', conf: '陈业主' }, { name: '地砖铺贴', exec: '周泥瓦', conf: '陈业主' }, { name: '阶段确认', exec: '周泥瓦', conf: '陈业主' } ] },
+                { name: '收尾阶段', order: '顺序执行', tasks: [ { name: '美缝清理', exec: '周泥瓦', conf: '陈业主' } ] }
+            ]
+        },
+        youqi: {
+            contentIntro: '工程内容：墙面基层处理、腻子批刮与乳胶漆涂刷，含清理保护。',
+            stages: [
+                { name: '基层处理阶段', order: '顺序执行', tasks: [ { name: '墙面铲除', exec: '吴油漆', conf: '陈业主' }, { name: '批刮腻子', exec: '吴油漆', conf: '陈业主' } ] },
+                { name: '腻子阶段', order: '顺序执行', tasks: [ { name: '打磨', exec: '吴油漆', conf: '陈业主' }, { name: '底漆', exec: '吴油漆', conf: '陈业主' } ] },
+                { name: '油漆阶段', order: '顺序执行', tasks: [ { name: '面漆涂刷', exec: '吴油漆', conf: '陈业主' }, { name: '阶段确认', exec: '吴油漆', conf: '陈业主' } ] },
+                { name: '收尾阶段', order: '顺序执行', tasks: [ { name: '清理保护', exec: '吴油漆', conf: '陈业主' } ] }
+            ]
+        },
+        xiaolingong: {
+            contentIntro: '工程内容：零星安装、修补等小零工作业，含工具进场与安全防护。',
+            stages: [
+                { name: '安装准备阶段', order: '并行执行', tasks: [ { name: '工具进场', exec: '郑零工', conf: '陈业主' }, { name: '安全防护', exec: '郑零工', conf: '陈业主' } ] },
+                { name: '零星作业阶段', order: '顺序执行', tasks: [ { name: '零星安装', exec: '郑零工', conf: '陈业主' }, { name: '修补作业', exec: '郑零工', conf: '陈业主' } ] },
+                { name: '收尾阶段', order: '顺序执行', tasks: [ { name: '阶段确认', exec: '郑零工', conf: '陈业主' } ] }
+            ]
+        }
+    };
+
+    // ============== 工具 ==============
+    function $(id) { return document.getElementById(id); }
+    function getParam(n) { return new URLSearchParams(global.location.search).get(n); }
+    function escapeHtml(s) {
+        if (s === null || s === undefined) return '';
+        return String(s).replace(/[&<>"']/g, function (c) {
+            return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+        });
+    }
+    function showToast(msg) {
+        var t = $('appToast');
+        if (!t) return;
+        t.textContent = msg;
+        t.classList.add('show');
+        global.setTimeout(function () { t.classList.remove('show'); }, 2000);
+    }
+    function showConfirm(title, message, onConfirm) {
+        pendingConfirm = { title: title, message: message, onConfirm: onConfirm };
+        $('confirmTitle').textContent = title;
+        $('confirmContent').textContent = message;
+        var btn = $('confirmBtn');
+        btn.textContent = '确认';
+        btn.className = 'modal-btn danger';
+        $('confirmModal').classList.add('show');
+    }
+    function closeConfirm() { $('confirmModal').classList.remove('show'); }
+    function runConfirm() {
+        var fn = pendingConfirm && pendingConfirm.onConfirm;
+        closeConfirm();
+        if (fn) fn();
+    }
+
+    // ============== 初始化 ==============
+    function init() {
+        state.workerId = getParam('id') || '';
+        state.viewer = getParam('viewer') || 'sender';
+        state.asUserId = getParam('asUserId') || '';
+        if (!global.ContractStore) { renderNotFound(); return; }
+        if (!state.workerId) {
+            // 无 id：直接展示示例合同（水电班组服务合同），不再展示独立的合同说明/创建页
+            state.workerId = ensureDemoSeed(DEFAULT_DEMO_TYPE);
+            state.viewer = 'sender';
+            state.asUserId = '';
+        }
+        state.contract = global.ContractStore.getContract(state.workerId);
+        if (!state.contract) { renderNotFound(); return; }
+        $('notFound').style.display = 'none';
+        $('mainView').style.display = 'block';
+        updateStatus(computeStatus());
+        bindModalDismiss();
+    }
+
+    function renderNotFound() {
+        $('notFound').style.display = 'block';
+        $('mainView').style.display = 'none';
+    }
+
+    // 示例合同播种（幂等：固定 id，已存在则复用）
+    function ensureDemoSeed(type) {
+        var d = DEMO_TYPES.filter(function (x) { return x.type === type; })[0];
+        if (!d) d = DEMO_TYPES[1];
+        var id = 'demo-' + d.type + '-example';
+        var existing = global.ContractStore.getContract(id);
+        if (existing) return id;
+        var invited = d.invited.map(function (uid) {
+            var m = WORKER_CANDIDATES.filter(function (x) { return x.id === uid; })[0];
+            return { userId: m.id, name: m.name, role: m.role };
+        });
+        global.ContractStore.createContract({
+            id: id, name: d.name, type: d.type, typeName: d.typeName,
+            group: d.group, partyA: 'm-owner', partyAName: '陈业主',
+            amount: d.amount, invited: invited
+        });
+        return id;
+    }
+
+    function createDemo(type) {
+        var d = DEMO_TYPES.filter(function (x) { return x.type === type; })[0];
+        if (!d || !global.ContractStore) return;
+        var id = 'demo-' + type + '-' + Date.now();
+        var invited = d.invited.map(function (uid) {
+            var m = WORKER_CANDIDATES.filter(function (x) { return x.id === uid; })[0];
+            return { userId: m.id, name: m.name, role: m.role };
+        });
+        global.ContractStore.createContract({
+            id: id, name: d.name, type: d.type, typeName: d.typeName,
+            group: d.group, partyA: 'm-owner', partyAName: '陈业主',
+            amount: d.amount, invited: invited
+        });
+        global.location.href = 'worker-contract-detail.html?id=' + encodeURIComponent(id) + '&viewer=sender';
+    }
+
+    function resetDemo() {
+        if (global.ContractStore && global.ContractStore.clearAll) global.ContractStore.clearAll();
+        global.location.href = 'worker-contract-detail.html';
+    }
+
+    function bindModalDismiss() {
+        var modal = $('confirmModal');
+        if (modal) {
+            modal.addEventListener('click', function (e) {
+                if (e.target === modal) closeConfirm();
+            });
+        }
+    }
+
+    // ============== 状态计算 ==============
+    function computeStatus() {
+        var c = state.contract;
+        if (state.viewer === 'receiver') {
+            if (c.status === 'worker_confirmed') {
+                var conf = c.invitations.filter(function (i) { return i.status === 'confirmed'; })[0];
+                if (conf && conf.userId === state.asUserId) return 'worker_confirmed_receiver';
+                return 'worker_lost_receiver';
+            }
+            if (c.status === 'worker_inviting') return 'worker_inviting_receiver';
+            if (c.status === 'worker_draft') return 'worker_draft';
+            if (c.status === 'worker_signed') return 'worker_signed';
+            return 'worker_draft';
+        }
+        if (c.status === 'worker_inviting') return 'worker_inviting_sender';
+        if (c.status === 'worker_confirmed') return 'worker_confirmed_sender';
+        if (c.status === 'worker_draft') return 'worker_draft';
+        if (c.status === 'worker_signed') return 'worker_signed';
+        return 'worker_draft';
+    }
+
+    // 预览态：根据当前选中状态推导「已确认乙方」的 userId（用于元信息/架构提示展示）
+    function previewConfirmedId() {
+        var st = state.status;
+        var c = state.contract;
+        var firstId = (c.invitations[0] || {}).userId || '';
+        if (st === 'worker_confirmed_sender' || st === 'worker_signed') return firstId;
+        if (st === 'worker_confirmed_receiver') return state.asUserId;
+        if (st === 'worker_lost_receiver') {
+            var other = c.invitations.filter(function (i) { return i.userId !== state.asUserId; })[0];
+            return other ? other.userId : firstId;
+        }
+        return '';
+    }
+
+    // 预览态：单个受邀人在名单中的展示状态
+    function inviteDisplayStatus(inv) {
+        var st = state.status;
+        var c = state.contract;
+        var asId = state.asUserId;
+        var firstId = (c.invitations[0] || {}).userId || '';
+        if (st === 'worker_inviting_sender' || st === 'worker_inviting_receiver' || st === 'worker_draft') {
+            return inv.status; // 真实数据
+        }
+        if (st === 'worker_confirmed_sender') return inv.userId === firstId ? 'confirmed' : (inv.status === 'rejected' ? 'rejected' : 'pending');
+        if (st === 'worker_confirmed_receiver') return inv.userId === asId ? 'confirmed' : (inv.status === 'rejected' ? 'rejected' : 'pending');
+        if (st === 'worker_lost_receiver') {
+            if (inv.userId === asId) return 'lost';
+            var winner = c.invitations.filter(function (i) { return i.userId !== asId; })[0];
+            if (winner && inv.userId === winner.userId) return 'confirmed';
+            return inv.status === 'rejected' ? 'rejected' : 'pending';
+        }
+        if (st === 'worker_signed') return inv.userId === firstId ? 'confirmed' : (inv.status === 'rejected' ? 'rejected' : 'pending');
+        return inv.status;
+    }
+
+    // 右侧导航「状态切换」直接预览任意状态（按状态推导视角）
+    function updateStatus(status) {
+        state.status = status;
+        var cfg = STATUS_CONFIG[status] || STATUS_CONFIG.worker_draft;
+
+        // 视角跟随状态：受邀方状态需有有效 asUserId
+        if (status.indexOf('_receiver') > -1) {
+            state.viewer = 'receiver';
+            var firstId = (state.contract.invitations[0] || {}).userId || '';
+            var valid = state.contract.invitations.some(function (i) { return i.userId === state.asUserId; });
+            if (!valid) state.asUserId = firstId;
+        } else if (status.indexOf('_sender') > -1) {
+            state.viewer = 'sender';
+            state.asUserId = '';
+        }
+
+        $('bannerText').textContent = cfg.text;
+        $('bannerDesc').textContent = cfg.desc;
+        $('statusBanner').className = 'wc-banner ' + (cfg.bannerClass || 'draft');
+
+        renderMeta();
+        renderFlow(status);
+        renderLists(status);
+
+        var isDraft = (status === 'worker_draft');
+        $('inviteListBox').style.display = isDraft ? 'none' : 'block';
+        $('inviteEditPanel').style.display = isDraft ? 'block' : 'none';
+        if (isDraft) initEditPanel();
+
+        renderArchNote();
+        renderActions(cfg);
+
+        renderContentSection();
+        renderStagesSection();
+        renderAttachmentsSection();
+    }
+
+    function renderMeta() {
+        var c = state.contract;
+        var html = '';
+        html += metaRow('合同名称', c.name);
+        html += metaRow('合同类型', c.typeName);
+        html += metaRow('所属架构层级', c.group || '—');
+        if (c.amount) html += metaRow('合同金额', c.amount + ' 元');
+        if (c.partyAName) html += metaRow('甲方', c.partyAName);
+        var pId = previewConfirmedId();
+        if (pId) {
+            var p = c.invitations.filter(function (i) { return i.userId === pId; })[0];
+            if (p) html += metaRow('乙方', p.name);
+        } else if (c.partyBName) {
+            html += metaRow('乙方', c.partyBName);
+        }
+        $('workerContractMeta').innerHTML = html;
+    }
+    function metaRow(label, value) {
+        return '<div class="meta-row"><span class="meta-label">' + escapeHtml(label) +
+            '</span><span class="meta-value">' + escapeHtml(value) + '</span></div>';
+    }
+
+    function renderFlow(status) {
+        var steps = [
+            { key: 'inviting', label: '确认中', icon: '🤝' },
+            { key: 'confirmed', label: '已确认', icon: '✅' },
+            { key: 'signed', label: '已签约', icon: '📄' }
+        ];
+        var order = ['inviting', 'confirmed', 'signed'];
+        var current = 'inviting';
+        if (status.indexOf('confirmed') > -1) current = 'confirmed';
+        if (status === 'worker_signed') current = 'signed';
+        var curIdx = order.indexOf(current);
+
+        var html = '<div class="worker-flow">';
+        steps.forEach(function (s, i) {
+            var cls = i < curIdx ? 'done' : (i === curIdx ? 'current' : '');
+            html += '<div class="wf-step ' + cls + '"><div class="wf-circle">' + s.icon + '</div><div class="wf-label">' + s.label + '</div></div>';
+            if (i < steps.length - 1) {
+                html += '<div class="wf-line ' + (i < curIdx ? 'done' : '') + '"></div>';
+            }
+        });
+        html += '</div>';
+
+        var box = $('workerFlowBox');
+        box.innerHTML = html;
+    }
+
+    function renderLists(status) {
+        var box = $('inviteListBox');
+        box.innerHTML = '';
+        var c = state.contract;
+        c.invitations.forEach(function (inv) {
+            var me = (inv.userId === state.asUserId);
+            var ds = inviteDisplayStatus(inv);
+            var stText = '待确认', stCls = 'pending';
+            if (ds === 'confirmed') { stText = '已确认（乙方）'; stCls = 'confirmed'; }
+            else if (ds === 'rejected') { stText = '已拒绝'; stCls = 'rejected'; }
+            else if (ds === 'lost') { stText = '抢单失败'; stCls = 'taken'; }
+            var row = document.createElement('div');
+            row.className = 'invite-row' + (me ? ' is-me' : '');
+            row.innerHTML =
+                '<div class="invite-avatar">' + escapeHtml(inv.name ? inv.name.charAt(0) : '?') + '</div>' +
+                '<div class="invite-info"><div class="invite-name">' + escapeHtml(inv.name) + (me ? '（我）' : '') + '</div>' +
+                '<div class="invite-role">' + escapeHtml(inv.role) + '</div></div>' +
+                '<div class="invite-status ' + stCls + '">' + stText + '</div>';
+            box.appendChild(row);
+        });
+    }
+
+    function renderArchNote() {
+        var c = state.contract;
+        var arch = $('workerArchNote');
+        var show = (state.status === 'worker_confirmed_sender' || state.status === 'worker_confirmed_receiver' || state.status === 'worker_signed');
+        if (show && c.group) {
+            var pId = previewConfirmedId();
+            var p = pId ? (c.invitations.filter(function (i) { return i.userId === pId; })[0] || {}) : {};
+            arch.style.display = 'block';
+            arch.innerHTML = '✅ 乙方「' + escapeHtml(p.name || '—') + '」已自动加入项目架构层级：' + escapeHtml(c.group);
+        } else {
+            arch.style.display = 'none';
+        }
+    }
+
+    // ============== 合同内容 / 阶段任务 / 附件 ==============
+    function switchSection(tabEl, key) {
+        var tabs = document.querySelectorAll('.section-tab');
+        for (var i = 0; i < tabs.length; i++) tabs[i].classList.remove('active');
+        if (tabEl) tabEl.classList.add('active');
+        var keys = ['content', 'stages', 'attachments'];
+        keys.forEach(function (k) {
+            var el = $(k + 'Section');
+            if (el) {
+                if (k === key) el.classList.add('show');
+                else el.classList.remove('show');
+            }
+        });
+    }
+
+    function renderContentSection() {
+        var c = state.contract;
+        var tpl = STAGE_TEMPLATES[c.type] || STAGE_TEMPLATES.shuidian;
+        var html = '<div class="card">' +
+            '<div class="card-title"><span>📄 合同正文</span></div>' +
+            '<div class="text-content">根据《中华人民共和国民法典》及相关法律法规的规定，甲乙双方本着平等、自愿、公平、诚实信用的原则，就' + escapeHtml(c.typeName) + '事宜协商一致，订立本合同。<br><br>' +
+            '一、工程概况<br>工程名称：' + escapeHtml(c.name) + '<br>工程地点：XX市XX区XX路XX号<br>' + escapeHtml(tpl.contentIntro) + '<br><br>' +
+            '二、双方权利义务<br>甲方应按约定支付工程款；乙方应按标准施工，并自确认加入后自动归入项目架构层级「' + escapeHtml(c.group) + '」。' +
+            '</div></div>' +
+            '<div class="card">' +
+            '<div class="card-title"><span>📝 补充条款</span></div>' +
+            '<div class="text-content">1. 乙方应严格按照施工图纸进行施工，如有变更需经甲方书面确认。<br>' +
+            '2. 材料进场需经甲方或监理方验收合格后方可使用。<br>' +
+            '3. 隐蔽工程验收合格后方可进行下一道工序。</div></div>';
+        $('contentSection').innerHTML = html;
+    }
+
+    function renderStagesSection() {
+        var c = state.contract;
+        var tpl = STAGE_TEMPLATES[c.type] || STAGE_TEMPLATES.shuidian;
+        var stageHtml = tpl.stages.map(function (s, i) {
+            var tasks = s.tasks.map(function (t) {
+                return '<div class="task-item"><div class="task-info">' +
+                    '<div class="task-name">' + escapeHtml(t.name) + '</div>' +
+                    '<div class="task-meta-row"><span class="task-meta-item"><span class="role-tag executor">执行</span> ' + escapeHtml(t.exec) + '</span>' +
+                    '<span class="task-meta-item"><span class="role-tag confirmer">确认</span> ' + escapeHtml(t.conf) + '</span></div>' +
+                    '</div></div>';
+            }).join('');
+            return '<div class="stage-item"><div class="stage-header" onclick="WCP.toggleStage(this)">' +
+                '<div class="stage-icon">' + (i + 1) + '</div>' +
+                '<div class="stage-info"><div class="stage-name">' + escapeHtml(s.name) + '</div>' +
+                '<div class="stage-meta">' + s.tasks.length + '个任务 · 待开始</div>' +
+                '<div class="stage-order-tag" style="background-color:#FFF7E6;color:#FA8C16;">' + escapeHtml(s.order || '并行执行') + '</div></div>' +
+                '<div class="arrow expanded">▼</div></div>' +
+                '<div class="stage-tasks show">' + tasks + '</div></div>';
+        }).join('');
+        var html = '<div class="card"><div class="card-title"><span>📊 阶段任务 (' + tpl.stages.length + '个阶段)</span></div>' + stageHtml + '</div>';
+        $('stagesSection').innerHTML = html;
+    }
+
+    function toggleStage(header) {
+        var tasks = header.parentElement.querySelector('.stage-tasks');
+        var arrow = header.querySelector('.arrow');
+        if (!tasks) return;
+        var collapsed = tasks.style.display === 'none';
+        tasks.style.display = collapsed ? 'block' : 'none';
+        if (arrow) arrow.classList.toggle('expanded', collapsed);
+    }
+
+    function renderAttachmentsSection() {
+        var c = state.contract;
+        var fileName = escapeHtml(c.typeName) + '.pdf';
+        var signHtml = renderSignArea();
+        var attachHtml = '<div class="attachment-item"><div class="file-icon">📄</div>' +
+            '<div class="file-info"><div class="file-name">' + fileName + '</div><div class="file-meta">2.3MB · 2024-01-10上传</div></div>' +
+            '<div class="download-btn" onclick="WCP.showToast(\'下载文件\')">⬇</div></div>' +
+            '<div class="attachment-item"><div class="file-icon">🖼️</div>' +
+            '<div class="file-info"><div class="file-name">量房照片.jpg</div><div class="file-meta">1.5MB · 2024-01-10上传</div></div>' +
+            '<div class="download-btn" onclick="WCP.showToast(\'预览图片\')">👁️</div></div>' +
+            '<div class="attachment-item"><div class="file-icon">📊</div>' +
+            '<div class="file-info"><div class="file-name">材料清单.xlsx</div><div class="file-meta">156KB · 2024-01-12上传</div></div>' +
+            '<div class="download-btn" onclick="WCP.showToast(\'下载文件\')">⬇</div></div>' +
+            '<div class="attachment-item"><div class="file-icon">📐</div>' +
+            '<div class="file-info"><div class="file-name">施工图纸.dwg</div><div class="file-meta">5.8MB · 2024-01-12上传</div></div>' +
+            '<div class="download-btn" onclick="WCP.showToast(\'下载文件\')">⬇</div></div>';
+        var html = '<div class="card"><div class="card-title"><span>📝 签约文件</span></div>' + signHtml + '</div>' +
+            '<div class="card"><div class="card-title"><span>📎 合同附件</span></div>' + attachHtml + '</div>';
+        $('attachmentsSection').innerHTML = html;
+    }
+
+    // 签约文件区（附件区内），依据状态展示
+    function renderSignArea() {
+        var status = state.status;
+        if (status === 'worker_signed') {
+            return '<div class="attachment-item"><div class="file-icon">📄</div>' +
+                '<div class="file-info"><div class="file-name">' + escapeHtml(state.contract.typeName) + '_签约文件.pdf</div>' +
+                '<div class="file-meta">乙方上传 · 合同已生效</div></div>' +
+                '<div class="download-btn" onclick="WCP.showToast(\'预览文件\')">👁️</div></div>';
+        }
+        if (status === 'worker_confirmed_receiver') {
+            return '<div class="sign-file-drop">请上传已签署的纸质合同扫描件 / 照片' +
+                '<div class="sf-btn" onclick="WCP.pickSignFile()">选择文件并上传</div></div>';
+        }
+        if (status === 'worker_confirmed_sender') {
+            return '<div class="sign-file-wait">等待乙方上传签约文件后合同正式生效。</div>';
+        }
+        return '<div class="sign-file-wait">暂无签约文件。</div>';
+    }
+
+    function pickSignFile() { $('signFileInput').click(); }
+    function onSignFilePicked(e) {
+        var f = e.target && e.target.files && e.target.files[0];
+        if (!f) return;
+        if (global.ContractStore && state.workerId) {
+            global.ContractStore.markSigned(state.workerId);
+            state.contract = global.ContractStore.getContract(state.workerId);
+        }
+        showToast('签约文件已上传，合同已生效');
+        updateStatus('worker_signed');
+        e.target.value = '';
+    }
+
+    // ============== 底部操作 ==============
+    function renderActions(cfg) {
+        var box = $('bottomActions');
+        box.innerHTML = '';
+        box.style.display = 'flex';
+        (cfg.actions || []).forEach(function (a) {
+            var btn = document.createElement('button');
+            btn.className = 'wc-action-btn ' + (a.type || 'primary');
+            btn.textContent = a.text;
+            if (a.disabled) btn.disabled = true;
+            btn.onclick = function () { handleAction(a.action); };
+            box.appendChild(btn);
+        });
+        if ((cfg.actions || []).length === 0) box.style.display = 'none';
+    }
+
+    function handleAction(action) {
+        if (action === 'view') return;
+        if (action === 'upload') { pickSignFile(); return; }
+        if (action === 'worker_resubmit') { saveAndResubmit(); return; }
+
+        var info = ACTION_TEXT[action];
+        if (!info) return;
+        showConfirm(info.title, info.message, function () {
+            if (action === 'worker_withdraw') {
+                global.ContractStore.withdrawConfirm(state.workerId);
+                state.contract = global.ContractStore.getContract(state.workerId);
+                showToast('已撤回确认，合同退回拟定中');
+                updateStatus(computeStatus());
+            } else if (action === 'worker_reject') {
+                global.ContractStore.rejectInvitation(state.workerId, state.asUserId);
+                state.contract = global.ContractStore.getContract(state.workerId);
+                showToast('已拒绝该合同邀约');
+                updateStatus(computeStatus());
+            } else if (action === 'worker_confirm') {
+                var r = global.ContractStore.confirmInvitation(state.workerId, state.asUserId);
+                state.contract = global.ContractStore.getContract(state.workerId);
+                if (r.ok) {
+                    showToast('确认成功！您已成为本合同乙方，已自动加入项目架构层级');
+                } else if (r.reason === 'taken' || r.reason === 'not_inviting') {
+                    showToast('已被他人确认（抢单失败）');
+                } else if (r.reason === 'already') {
+                    showToast('您已处理过该邀约');
+                } else {
+                    showToast('确认失败，请稍后重试');
+                }
+                updateStatus(computeStatus());
+            }
+        });
+    }
+
+    // ============== 拟定中：内联「意向乙方」编辑面板 ==============
+    function initEditPanel() {
+        state.editInvited = (state.contract.invitations || []).map(function (i) {
+            return { userId: i.userId, name: i.name, role: i.role };
+        });
+        renderEditChips();
+        renderEditList();
+    }
+
+    function toggleEditPanel() {
+        var p = $('editInvitePanelBox');
+        var open = p.classList.contains('open');
+        if (open) { p.classList.remove('open'); return; }
+        p.classList.add('open');
+        var s = $('editInviteSearch');
+        s.value = '';
+        renderEditList();
+        if (s.focus) s.focus();
+    }
+
+    function filterEdit() { renderEditList(); }
+
+    function renderEditList() {
+        var listEl = $('editInviteList');
+        var emptyEl = $('editInviteEmpty');
+        var keyword = ($('editInviteSearch').value || '').trim().toLowerCase();
+        listEl.innerHTML = '';
+        var matched = WORKER_CANDIDATES.filter(function (m) {
+            if (!keyword) return true;
+            return m.name.toLowerCase().indexOf(keyword) > -1 ||
+                m.role.toLowerCase().indexOf(keyword) > -1;
+        });
+        if (matched.length === 0) { emptyEl.style.display = 'block'; return; }
+        emptyEl.style.display = 'none';
+        var full = state.editInvited.length >= 3;
+        matched.forEach(function (m) {
+            var selected = state.editInvited.some(function (x) { return x.userId === m.id; });
+            var item = document.createElement('div');
+            item.className = 'member-picker-item' + (selected ? ' selected' : '') + (full && !selected ? ' disabled' : '');
+            item.innerHTML = '<span>' + escapeHtml(m.name) + '（' + escapeHtml(m.role) + '）</span>' +
+                (selected ? '<span class="check">✓</span>' : '');
+            item.onclick = function () { toggleEditMember(m); };
+            listEl.appendChild(item);
+        });
+    }
+
+    function toggleEditMember(m) {
+        var idx = state.editInvited.map(function (x) { return x.userId; }).indexOf(m.id);
+        if (idx > -1) {
+            state.editInvited.splice(idx, 1);
+        } else {
+            if (state.editInvited.length >= 3) {
+                showToast('最多邀请 3 名意向乙方');
+                return;
+            }
+            state.editInvited.push({ userId: m.id, name: m.name, role: m.role });
+        }
+        renderEditChips();
+        renderEditList();
+    }
+
+    function renderEditChips() {
+        var chipsEl = $('inviteEditChips');
+        var countEl = $('inviteCount');
+        var valEl = $('editInviteValue');
+        chipsEl.innerHTML = '';
+        if (state.editInvited.length === 0) {
+            valEl.textContent = '点击添加意向乙方';
+            if (countEl) countEl.textContent = '（至少 1 人）';
+        } else {
+            valEl.textContent = '已选 ' + state.editInvited.length + ' / 3 人';
+            if (countEl) countEl.textContent = '';
+        }
+        state.editInvited.forEach(function (m) {
+            var chip = document.createElement('span');
+            chip.className = 'invite-chip';
+            chip.innerHTML = escapeHtml(m.name) + '（' + escapeHtml(m.role) + '）<span class="x" data-id="' + m.userId + '">✕</span>';
+            chip.querySelector('.x').onclick = function (ev) {
+                ev.stopPropagation();
+                var target = WORKER_CANDIDATES.filter(function (x) { return x.id === m.userId; })[0];
+                if (target) toggleEditMember(target);
+            };
+            chipsEl.appendChild(chip);
+        });
+    }
+
+    function saveAndResubmit() {
+        if (state.editInvited.length < 1 || state.editInvited.length > 3) {
+            showToast('请邀请 1-3 名意向乙方');
+            return;
+        }
+        var info = ACTION_TEXT.worker_resubmit;
+        showConfirm(info.title, info.message, function () {
+            global.ContractStore.submitInvite(state.workerId, state.editInvited);
+            state.contract = global.ContractStore.getContract(state.workerId);
+            showToast('已重新提交邀约');
+            updateStatus(computeStatus());
+        });
+    }
+
+    // ============== 原型导航：状态分组折叠 / 更多菜单 ==============
+    function toggleStatusGroup(header) {
+        var content = header.parentElement.querySelector('.status-group-content');
+        var icon = header.querySelector('.status-group-icon');
+        if (!content || !icon) return;
+        var hidden = content.style.display === 'none';
+        content.style.display = hidden ? 'block' : 'none';
+        icon.textContent = hidden ? '▼' : '▶';
+    }
+
+    function toggleMoreOps() {
+        var p = $('moreOpsPanel');
+        var b = $('moreOpsBtn');
+        if (!p) return;
+        p.classList.toggle('show');
+        if (b) b.classList.toggle('open');
+    }
+    function closeMoreOps() {
+        var p = $('moreOpsPanel');
+        var b = $('moreOpsBtn');
+        if (p) p.classList.remove('show');
+        if (b) b.classList.remove('open');
+    }
+
+    // 全局暴露（供 HTML onclick 调用）
+    global.WCP = {
+        init: init,
+        updateStatus: updateStatus,
+        toggleStatusGroup: toggleStatusGroup,
+        toggleEditPanel: toggleEditPanel,
+        filterEdit: filterEdit,
+        saveAndResubmit: saveAndResubmit,
+        showToast: showToast,
+        closeConfirm: closeConfirm,
+        runConfirm: runConfirm,
+        pickSignFile: pickSignFile,
+        onSignFilePicked: onSignFilePicked,
+        switchSection: switchSection,
+        toggleStage: toggleStage,
+        createDemo: createDemo,
+        resetDemo: resetDemo,
+        toggleMoreOps: toggleMoreOps,
+        closeMoreOps: closeMoreOps
+    };
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init);
+    } else {
+        init();
+    }
+})(window);

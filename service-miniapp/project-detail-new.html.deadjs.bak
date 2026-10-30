@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>家装平台小程序原型 - 新项目详情（筹备中）</title>
+    <link rel="stylesheet" href="common.css">
+    <link rel="stylesheet" href="css/project-detail.css">
+    <style>
+        /* 新项目引导提示条 */
+        .guide-tip-bar {
+            display: flex;
+            align-items: center;
+            padding: 10px 12px;
+            background: linear-gradient(135deg, #F6FFED 0%, #D9F7BE 100%);
+            border-bottom: 1px solid #B7EB8F;
+            position: relative;
+        }
+        .guide-tip-bar .tip-icon {
+            font-size: 16px;
+            margin-right: 8px;
+            flex-shrink: 0;
+        }
+        .guide-tip-bar .tip-text {
+            flex: 1;
+            font-size: 12px;
+            color: #389E0D;
+            line-height: 1.4;
+        }
+        .guide-tip-bar .tip-text strong {
+            font-weight: 600;
+        }
+        .guide-tip-bar .close-btn {
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            color: #8C8C8C;
+            cursor: pointer;
+            margin-left: 8px;
+            flex-shrink: 0;
+            border-radius: 50%;
+            transition: background-color 0.2s;
+        }
+        .guide-tip-bar .close-btn:hover {
+            background-color: rgba(0,0,0,0.06);
+        }
+        .guide-tip-bar.hidden {
+            display: none;
+        }
+
+        /* 架构预览卡片 */
+        .arch-preview {
+            margin-top: 8px;
+        }
+        .arch-node {
+            display: flex;
+            align-items: center;
+            padding: 10px 12px;
+            background-color: var(--bg-secondary);
+            border-radius: 8px;
+            margin-bottom: 8px;
+        }
+        .arch-node .node-icon {
+            width: 28px;
+            height: 28px;
+            border-radius: 6px;
+            background: var(--gradient-blue);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            margin-right: 10px;
+            flex-shrink: 0;
+        }
+        .arch-node .node-info {
+            flex: 1;
+        }
+        .arch-node .node-name {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+        .arch-node .node-type {
+            font-size: 11px;
+            color: var(--text-tertiary);
+            margin-top: 1px;
+        }
+        .arch-node .node-progress {
+            text-align: right;
+        }
+        .arch-node .node-percent {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+        .arch-node .node-bar {
+            width: 50px;
+            height: 3px;
+            background-color: var(--bg-tertiary);
+            border-radius: 2px;
+            margin-top: 3px;
+            overflow: hidden;
+        }
+        .arch-node .node-bar .fill {
+            height: 100%;
+            background-color: var(--primary-color);
+            border-radius: 2px;
+        }
+        .arch-view-all {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 8px 12px;
+            font-size: 12px;
+            color: var(--primary-color);
+            cursor: pointer;
+            border-radius: 6px;
+            transition: background-color 0.2s;
+        }
+        .arch-view-all:hover {
+            background-color: var(--status-primary-bg);
+        }
+        .arch-view-all .arrow {
+            margin-left: 4px;
+            font-size: 10px;
+        }
+
+        /* 合同空状态 */
+        .contract-empty-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 16px 12px;
+        }
+        .contract-empty-state .empty-icon {
+            font-size: 36px;
+            opacity: 0.5;
+            margin-bottom: 8px;
+        }
+        .contract-empty-state .empty-text {
+            font-size: 12px;
+            color: var(--text-tertiary);
+            margin-bottom: 10px;
+            text-align: center;
+        }
+        .contract-empty-state .add-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 6px 16px;
+            background-color: var(--primary-color);
+            color: #FFFFFF;
+            border-radius: 16px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        .contract-empty-state .add-btn:hover {
+            background-color: var(--primary-light);
+        }
+
+        /* 通用空状态（用于待办、动态） */
+        .simple-empty-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px 12px;
+        }
+        .simple-empty-state .empty-icon {
+            font-size: 32px;
+            opacity: 0.4;
+            margin-bottom: 6px;
+        }
+        .simple-empty-state .empty-text {
+            font-size: 12px;
+            color: var(--text-tertiary);
+        }
+    </style>
+<style>
+    /* v2-native-capsule-style：微信原生胶囊占位（不可自定义，仅演示位置） */
+    .nav-bar .native-capsule {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 5px;
+        min-width: 46px;
+        height: 28px;
+        padding: 0 8px;
+        border: 1px dashed #cfcfcf;
+        border-radius: 14px;
+        color: #b3b3b3;
+        font-size: 13px;
+        line-height: 1;
+        user-select: none;
+        box-sizing: border-box;
+    }
+</style>
+</head>
+<body>
+    <div class="phone-frame">
+        <div class="status-bar">
+            <div class="time">9:41</div>
+            <div class="icons">📶 🔋</div>
+        </div>
+
+        <div class="nav-bar">
+            <div class="back">← 返回</div>
+            <div class="title centered">XX小区整体装修</div>
+            
+            
+        
+            <div class="actions"><div class="native-capsule" title="微信原生胶囊：由微信客户端渲染，开发者不可自定义其内容"></div></div>
+        </div>
+            
+
+
+        <div class="page-content" id="pageContent">
+            <!-- 顶部引导提示条 -->
+            <div class="guide-tip-bar" id="guideTipBar">
+                <span class="tip-icon">🎉</span>
+                <span class="tip-text">项目创建成功，请<strong>添加架构层级</strong>创建合同</span>
+                <span class="close-btn" id="guideTipClose">✕</span>
+            </div>
+
+            <div class="sticky-header" id="stickyHeader">
+                <div class="quick-nav" id="quickNav">
+                    <div class="pin-btn" id="pinBtn">📌 固定</div>
+                    <div class="quick-nav-item" data-href="project-info.html">
+                        <div class="icon info">📋</div>
+                        <div class="label">项目信息</div>
+                    </div>
+                    <div class="quick-nav-item" data-href="architecture-empty.html">
+                        <div class="icon structure">🏗️</div>
+                        <div class="label">架构</div>
+                    </div>
+                    <div class="quick-nav-item" data-href="member-empty.html">
+                        <div class="icon member">👥</div>
+                        <div class="label">成员</div>
+                    </div>
+                    <div class="quick-nav-item" data-href="project-files-empty.html">
+                        <div class="icon file">📁</div>
+                        <div class="label">资料</div>
+                    </div>
+                    <div class="quick-nav-item" data-href="statement-list-empty.html">
+                        <div class="icon statement">💰</div>
+                        <div class="label">对账单</div>
+                    </div>
+                </div>
+
+                <div class="quick-nav-toggle" id="quickNavToggle">
+                    <div class="toggle-btn">
+                        <div class="dots">
+                            <div class="dot"></div>
+                            <div class="dot"></div>
+                            <div class="dot"></div>
+                            <div class="dot"></div>
+                        </div>
+                        <span id="toggleText">收起快捷入口</span>
+                        <span class="arrow expanded" id="toggleArrow">▼</span>
+                    </div>
+                </div>
+
+                <div class="level-selector" id="levelSelector">
+                    <div class="level-dropdown">
+                        <div class="current">
+                            <div class="icon" id="levelIcon">🏢</div>
+                            <div>
+                                <div class="text-row">
+                                    <div class="text" id="levelText">项目部</div>
+                                    <div class="type-badge project" id="levelType">项目部</div>
+                                </div>
+                                <div class="breadcrumb-inline" id="breadcrumbInline">
+                                    <span class="breadcrumb-item active">项目部</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="arrow" id="levelArrow">▼</div>
+                    </div>
+                    <div class="level-options" id="levelOptions">
+                    </div>
+                </div>
+            </div>
+
+            <!-- 合同概览卡片 -->
+            <div class="card">
+                <div class="card-title">
+                    <span>📄 合同概览</span>
+                    <span class="more">
+                        查看合同
+                        <span class="arrow">▼</span>
+                    </span>
+                </div>
+                <div class="contract-summary">
+                    <div class="contract-stat">
+                        <div class="value"><span class="current">0</span><span class="separator">/</span><span class="total">0</span></div>
+                        <div class="label">合同签约</div>
+                    </div>
+                    <div class="contract-stat">
+                        <div class="value"><span class="current">0</span><span class="total">%</span></div>
+                        <div class="label">总进度</div>
+                    </div>
+                </div>
+                <div class="contract-list" id="contractList">
+                </div>
+                <div class="contract-empty-state">
+                    <div class="empty-icon">📄</div>
+                    <div class="empty-text">暂无合同，请先添加架构层级</div>
+                    <div class="add-btn" onclick="location.href='architecture-empty.html'">
+                        <span>➕</span>
+                        <span>添加架构</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 任务统计卡片 -->
+            <div class="card">
+                <div class="card-title">
+                    <span>📊 任务统计</span>
+                    <span class="more" data-href="task-list-empty.html">查看全部 ></span>
+                </div>
+                <div class="task-stats">
+                    <div class="task-stat-item">
+                        <div class="icon-wrap all">📋</div>
+                        <div class="info">
+                            <div class="value"><span class="current">0</span><span class="separator">/</span><span class="total">0</span></div>
+                            <div class="label">全部任务</div>
+                        </div>
+                    </div>
+                    <div class="task-stat-item">
+                        <div class="icon-wrap accept">⏳</div>
+                        <div class="info">
+                            <div class="value">0</div>
+                            <div class="label">确认中任务</div>
+                        </div>
+                    </div>
+                    <div class="task-stat-item">
+                        <div class="icon-wrap contract">▶</div>
+                        <div class="info">
+                            <div class="value">0</div>
+                            <div class="label">执行中任务</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 待办事项卡片 -->
+            <div class="card">
+                <div class="card-title">
+                    <span>📋 待办事项</span>
+                    <span class="more" data-href="todo-list-empty.html">查看全部 ></span>
+                </div>
+                <div class="simple-empty-state">
+                    <div class="empty-icon">📋</div>
+                    <div class="empty-text">暂无待办</div>
+                </div>
+            </div>
+
+            <!-- 今日动态卡片 -->
+            <div class="card">
+                <div class="card-title">
+                    <span>📝 今日动态</span>
+                    <span class="more" data-href="activity-list-empty.html">查看全部 ></span>
+                </div>
+                <div class="simple-empty-state">
+                    <div class="empty-icon">📝</div>
+                    <div class="empty-text">暂无动态</div>
+                </div>
+            </div>
+
+            <div style="height: 20px;"></div>
+        </div>
+        
+        <div class="custom-toast-modal" id="customToastModal">
+            <div class="modal-box">
+                <div class="modal-body" id="customToastMessage">
+                    操作成功
+                </div>
+                <div class="modal-footer">
+                    <div class="modal-btn">知道了</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="page-nav">
+        <div class="page-nav-title">原型导航</div>
+        <a href="home.html" class="page-nav-item">首页</a>
+        <a href="project-list.html" class="page-nav-item">项目列表</a>
+        <a href="project-detail-new.html" class="page-nav-item active">初始项目详情页</a>
+        <a href="project-detail.html" class="page-nav-item">项目详情（进行中）</a>
+        <a href="project-info.html" class="page-nav-item">项目信息</a>
+        <a href="architecture.html" class="page-nav-item">项目架构</a>
+        <a href="create-project.html" class="page-nav-item">创建项目</a>
+    </div>
+
+    <script src="js/page-nav.js"></script>
+    <script>
+    (function() {
+        // 状态管理
+        var state = {
+            quickNavExpanded: true,
+            userManualExpand: false
+        };
+
+        // 缓存 DOM 元素
+        var elements = {};
+
+        function cacheElements() {
+            elements.pageContent = document.getElementById('pageContent');
+            elements.stickyHeader = document.getElementById('stickyHeader');
+            elements.quickNav = document.getElementById('quickNav');
+            elements.quickNavToggle = document.getElementById('quickNavToggle');
+            elements.toggleText = document.getElementById('toggleText');
+            elements.toggleArrow = document.getElementById('toggleArrow');
+            elements.pinBtn = document.getElementById('pinBtn');
+            elements.guideTipBar = document.getElementById('guideTipBar');
+            elements.guideTipClose = document.getElementById('guideTipClose');
+            elements.actionMenu = document.getElementById('actionMenu');
+            elements.customToastModal = document.getElementById('customToastModal');
+            elements.customToastMessage = document.getElementById('customToastMessage');
+        }
+
+        // 节流函数
+        function throttle(fn, delay) {
+            var lastTime = 0;
+            return function() {
+                var now = Date.now();
+                if (now - lastTime >= delay) {
+                    lastTime = now;
+                    fn.apply(this, arguments);
+                }
+            };
+        }
+
+        // 显示自定义提示
+        function showCustomToast(message) {
+            if (elements.customToastMessage && elements.customToastModal) {
+                elements.customToastMessage.innerHTML = message.replace(/\n/g, '<br>');
+                elements.customToastModal.classList.add('show');
+            }
+        }
+
+        // 关闭自定义提示
+        function closeCustomToast() {
+            if (elements.customToastModal) {
+                elements.customToastModal.classList.remove('show');
+            }
+        }
+
+        // 切换快捷入口显示
+        function toggleQuickNav() {
+            if (state.quickNavExpanded) {
+                if (elements.quickNav) elements.quickNav.classList.add('collapsed');
+                if (elements.toggleText) elements.toggleText.textContent = '展开快捷入口';
+                if (elements.toggleArrow) elements.toggleArrow.classList.remove('expanded');
+                state.quickNavExpanded = false;
+                state.userManualExpand = false;
+            } else {
+                if (elements.quickNav) elements.quickNav.classList.remove('collapsed');
+                if (elements.toggleText) elements.toggleText.textContent = '收起快捷入口';
+                if (elements.toggleArrow) elements.toggleArrow.classList.add('expanded');
+                state.quickNavExpanded = true;
+                state.userManualExpand = true;
+            }
+        }
+
+        // 切换快捷入口固定状态
+        function togglePinQuickNav(event) {
+            if (event) event.stopPropagation();
+            if (!elements.quickNav || !elements.pinBtn) return;
+
+            if (elements.quickNav.classList.contains('pinned')) {
+                elements.quickNav.classList.remove('pinned');
+                elements.pinBtn.textContent = '📌 固定';
+            } else {
+                elements.quickNav.classList.add('pinned');
+                elements.pinBtn.textContent = '📌 取消固定';
+            }
+        }
+
+        // 处理滚动事件
+        function handleScroll() {
+            if (!elements.pageContent) return;
+            var scrollTop = elements.pageContent.scrollTop;
+
+            if (scrollTop > 50) {
+                if (state.quickNavExpanded && !state.userManualExpand) {
+                    if (elements.quickNav) elements.quickNav.classList.add('collapsed');
+                    if (elements.quickNavToggle) elements.quickNavToggle.classList.add('show');
+                    state.quickNavExpanded = false;
+                    if (elements.toggleText) elements.toggleText.textContent = '展开快捷入口';
+                    if (elements.toggleArrow) elements.toggleArrow.classList.remove('expanded');
+                }
+                if (elements.stickyHeader) elements.stickyHeader.classList.add('with-shadow');
+            } else {
+                if (!state.quickNavExpanded) {
+                    if (elements.quickNav) elements.quickNav.classList.remove('collapsed');
+                    if (elements.quickNavToggle) elements.quickNavToggle.classList.remove('show');
+                    state.quickNavExpanded = true;
+                    if (elements.toggleText) elements.toggleText.textContent = '收起快捷入口';
+                    if (elements.toggleArrow) elements.toggleArrow.classList.add('expanded');
+                    state.userManualExpand = false;
+                }
+                if (elements.stickyHeader) elements.stickyHeader.classList.remove('with-shadow');
+            }
+        }
+
+        // 切换操作菜单
+        function toggleActionMenu() {
+            if (elements.actionMenu) {
+                elements.actionMenu.classList.toggle('show');
+            }
+        }
+
+        function loadProjectData() {
+            var rawData = localStorage.getItem('newProjectData');
+            if (!rawData) return;
+            try {
+                var data = JSON.parse(rawData);
+                if (data.projectName) {
+                    var titleEl = document.querySelector('.nav-bar .title.centered');
+                    if (titleEl) titleEl.textContent = data.projectName;
+                }
+            } catch (e) {
+                console.warn('加载项目数据失败', e);
+            }
+        }
+
+        // 绑定事件
+        function bindEvents() {
+            // 滚动事件
+            if (elements.pageContent) {
+                elements.pageContent.addEventListener('scroll', throttle(handleScroll, 100));
+            }
+
+            // 引导提示条关闭
+            if (elements.guideTipClose) {
+                elements.guideTipClose.addEventListener('click', function() {
+                    if (elements.guideTipBar) {
+                        elements.guideTipBar.classList.add('hidden');
+                    }
+                });
+            }
+
+            // 快捷入口点击
+            if (elements.quickNav) {
+                elements.quickNav.addEventListener('click', function(e) {
+                    var item = e.target.closest('.quick-nav-item');
+                    if (item) {
+                        var href = item.dataset.href;
+                        if (href) location.href = href;
+                        return;
+                    }
+                    var pinBtn = e.target.closest('.pin-btn');
+                    if (pinBtn) {
+                        togglePinQuickNav(e);
+                    }
+                });
+            }
+
+            // 快捷入口切换按钮
+            if (elements.quickNavToggle) {
+                elements.quickNavToggle.addEventListener('click', toggleQuickNav);
+            }
+
+            // 导航栏操作按钮
+            var actionBtns = document.querySelectorAll('.nav-bar .action-btn');
+            actionBtns.forEach(function(btn, index) {
+                btn.addEventListener('click', function() {
+                    if (index === 0) {
+                        toggleActionMenu();
+                    } else if (index === 1) {
+                        showCustomToast('关闭小程序');
+                    }
+                });
+            });
+
+            // 操作菜单项
+            if (elements.actionMenu) {
+                elements.actionMenu.addEventListener('click', function(e) {
+                    var item = e.target.closest('.action-menu-item');
+                    if (item) {
+                        showCustomToast(item.textContent.trim());
+                    }
+                });
+            }
+
+            // 点击外部关闭菜单
+            document.addEventListener('click', function(e) {
+                if (elements.actionMenu && !e.target.closest('.actions') && !e.target.closest('.action-menu')) {
+                    elements.actionMenu.classList.remove('show');
+                }
+            });
+
+            // Toast 关闭按钮
+            var toastCloseBtn = document.querySelector('.modal-btn');
+            if (toastCloseBtn) {
+                toastCloseBtn.addEventListener('click', closeCustomToast);
+            }
+
+            // 返回按钮
+            var backBtn = document.querySelector('.nav-bar .back');
+            if (backBtn) {
+                backBtn.addEventListener('click', function() {
+                    history.back();
+                });
+            }
+
+            // 查看全部链接
+            var moreLinks = document.querySelectorAll('.card-title .more');
+            moreLinks.forEach(function(link) {
+                link.addEventListener('click', function() {
+                    var href = link.dataset.href;
+                    if (href) {
+                        location.href = href;
+                    }
+                });
+            });
+        }
+
+        // 初始化
+        function init() {
+            cacheElements();
+            loadProjectData();
+            bindEvents();
+        }
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', init);
+        } else {
+            init();
+        }
+    })();
+    </script>
+</body>
+</html>

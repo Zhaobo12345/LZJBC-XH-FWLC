@@ -1,0 +1,1633 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>家装平台PC端 - 阶段任务模板管理</title>
+    <link rel="stylesheet" href="pc-common.css">
+    <style>
+        .template-container {
+            display: flex;
+            gap: 24px;
+            height: calc(100vh - 130px);
+        }
+
+        .template-sidebar {
+            width: 240px;
+            background-color: var(--bg-primary);
+            border-radius: 8px;
+            padding: 16px;
+            flex-shrink: 0;
+            box-shadow: 0 1px 2px var(--shadow-color);
+        }
+
+        .template-sidebar-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 12px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid var(--border-light);
+        }
+
+        .category-tree-item {
+            padding: 10px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            margin-bottom: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+
+        .category-tree-item:hover {
+            background-color: var(--bg-secondary);
+        }
+
+        .category-tree-item.active {
+            background-color: var(--status-primary-bg);
+            color: var(--primary-color);
+        }
+
+        .category-tree-item .count {
+            font-size: 12px;
+            color: var(--text-tertiary);
+            background-color: var(--bg-secondary);
+            padding: 2px 6px;
+            border-radius: 10px;
+        }
+
+        .category-tree-item.active .count {
+            background-color: var(--primary-color);
+            color: #fff;
+        }
+
+        .template-main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .template-toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .template-search {
+            display: flex;
+            gap: 12px;
+        }
+
+        .template-search input {
+            width: 280px;
+            height: 36px;
+            padding: 0 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            font-size: 14px;
+        }
+
+        .template-search input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+
+        .template-list {
+            flex: 1;
+            background-color: var(--bg-primary);
+            border-radius: 8px;
+            overflow-y: auto;
+            box-shadow: 0 1px 2px var(--shadow-color);
+            padding: 16px;
+        }
+
+        .template-card {
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            margin-bottom: 16px;
+            overflow: hidden;
+        }
+
+        .template-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px;
+            background-color: var(--bg-secondary);
+            cursor: pointer;
+        }
+
+        .template-card-header:hover {
+            background-color: var(--bg-tertiary);
+        }
+
+        .template-card-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .template-card-name {
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .template-card-meta {
+            display: flex;
+            gap: 12px;
+            font-size: 12px;
+            color: var(--text-tertiary);
+        }
+
+        .template-card-meta span {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .template-card-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .template-card-body {
+            padding: 16px;
+            display: none;
+        }
+
+        .template-card.expanded .template-card-body {
+            display: block;
+        }
+
+        .template-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12px;
+            padding: 4px 10px;
+            border-radius: 12px;
+        }
+
+        .template-status .dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+        }
+
+        .template-status.active {
+            background-color: #F6FFED;
+            color: #52C41A;
+        }
+
+        .template-status.active .dot {
+            background-color: #52C41A;
+        }
+
+        .template-status.disabled {
+            background-color: #F5F5F5;
+            color: #8C8C8C;
+        }
+
+        .template-status.disabled .dot {
+            background-color: #8C8C8C;
+        }
+
+        .template-status.draft {
+            background-color: #FFF7E6;
+            color: #FA8C16;
+        }
+
+        .template-status.draft .dot {
+            background-color: #FA8C16;
+        }
+
+        .pc-btn-toggle.publish {
+            color: #FA8C16;
+            border-color: #FFD591;
+            background-color: #FFF7E6;
+        }
+
+        .pc-btn-toggle.publish:hover {
+            color: #FFFFFF;
+            background-color: #FA8C16;
+            border-color: #FA8C16;
+        }
+
+        .template-card.disabled {
+            opacity: 0.6;
+        }
+
+        .template-card.disabled .template-card-name {
+            color: var(--text-tertiary);
+        }
+
+        .pc-btn-toggle {
+            padding: 4px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            cursor: pointer;
+            border: none;
+            transition: all 0.2s;
+        }
+
+        .pc-btn-toggle.disable {
+            background-color: #FFF1F0;
+            color: #FF4D4F;
+            border: 1px solid #FFA39E;
+        }
+
+        .pc-btn-toggle.disable:hover {
+            background-color: #FF4D4F;
+            color: #FFFFFF;
+        }
+
+        .pc-btn-toggle.enable {
+            background-color: #F6FFED;
+            color: #52C41A;
+            border: 1px solid #B7EB8F;
+        }
+
+        .pc-btn-toggle.enable:hover {
+            background-color: #52C41A;
+            color: #FFFFFF;
+        }
+
+        .stage-preview {
+            margin-bottom: 16px;
+        }
+
+        .stage-preview-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 12px;
+            background-color: var(--bg-secondary);
+            border-radius: 6px;
+            margin-bottom: 8px;
+        }
+
+        .stage-number {
+            width: 24px;
+            height: 24px;
+            background-color: var(--primary-color);
+            color: #fff;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 600;
+            flex-shrink: 0;
+        }
+
+        .stage-content {
+            flex: 1;
+        }
+
+        .stage-name {
+            font-weight: 500;
+            color: var(--text-primary);
+            margin-bottom: 4px;
+        }
+
+        .stage-tasks {
+            font-size: 12px;
+            color: var(--text-tertiary);
+        }
+
+        .edit-modal-content {
+            display: flex;
+            flex-direction: row;
+            height: 100%;
+        }
+
+        .edit-modal-sidebar {
+            width: 280px;
+            border-right: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .edit-modal-main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+            background-color: var(--bg-primary);
+        }
+
+        .stage-list-panel {
+            padding: 16px;
+            overflow-y: auto;
+        }
+
+        .stage-list-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px;
+            background-color: var(--bg-secondary);
+            border-radius: 6px;
+            margin-bottom: 8px;
+            cursor: pointer;
+        }
+
+        .stage-list-item:hover {
+            background-color: var(--bg-tertiary);
+        }
+
+        .stage-list-item.active {
+            background-color: var(--status-primary-bg);
+            border: 1px solid var(--primary-color);
+        }
+
+        .stage-list-item .name {
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        .stage-list-item .meta {
+            font-size: 12px;
+            color: var(--text-tertiary);
+        }
+
+        .stage-delete-btn {
+            width: 18px;
+            height: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-tertiary);
+            font-size: 14px;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .stage-delete-btn:hover {
+            background-color: var(--error-color);
+            color: #fff;
+        }
+
+        .add-stage-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            padding: 12px;
+            border: 2px dashed var(--border-color);
+            border-radius: 6px;
+            cursor: pointer;
+            color: var(--text-tertiary);
+            margin-top: 8px;
+        }
+
+        .add-stage-btn:hover {
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+        }
+
+        .stage-edit-panel {
+            flex: 1;
+            padding: 24px;
+            overflow-y: auto;
+            background-color: var(--bg-primary);
+            min-height: 100%;
+        }
+
+        .task-list {
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            margin-top: 16px;
+        }
+
+        .task-list-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 16px;
+            background-color: var(--bg-secondary);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .task-list-header h4 {
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .task-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border-light);
+        }
+
+        .task-item:last-child {
+            border-bottom: none;
+        }
+
+        .task-item-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .task-item-name {
+            font-size: 14px;
+            color: var(--text-primary);
+        }
+
+        .add-task-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            padding: 12px;
+            color: var(--primary-color);
+            cursor: pointer;
+            font-size: 13px;
+        }
+
+        .add-task-btn:hover {
+            background-color: var(--status-primary-bg);
+        }
+
+        .task-edit-modal {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0,0,0,0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+        }
+
+        .task-edit-modal.show {
+            display: flex;
+        }
+
+        .task-edit-box {
+            width: 500px;
+            background-color: var(--bg-primary);
+            border-radius: 8px;
+            padding: 24px;
+        }
+
+        .task-edit-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="pc-container">
+        <div class="pc-sidebar">
+            <div class="pc-sidebar-header">
+                <div class="pc-sidebar-logo">
+                    <span class="icon">🏗️</span>
+                    <span>良造家平台</span>
+                </div>
+            </div>
+            <div class="pc-sidebar-menu" id="sidebarMenu">
+                <a href="pc-contract-list.html" class="pc-menu-item main-nav">
+                    <span class="icon">📋</span>
+                    <span class="label">合同审核管理</span>
+                </a>
+                <div class="pc-menu-group">
+                    <div class="pc-menu-group-title">模板管理</div>
+                    <a href="pc-contract-template.html" class="pc-menu-item">
+                        <span class="icon">📄</span>
+                        <span class="label">合同文本模板</span>
+                    </a>
+                    <a href="pc-stage-template.html" class="pc-menu-item active">
+                        <span class="icon">📝</span>
+                        <span class="label">阶段任务模板</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="pc-main" id="pcMain">
+            <div class="pc-header">
+                <div class="pc-header-left">
+                    <div class="pc-breadcrumb">
+                        <span class="item">模板管理</span>
+                        <span class="separator">/</span>
+                        <span class="item current">阶段任务模板</span>
+                    </div>
+                </div>
+                <div class="pc-header-right">
+                    <div class="pc-user-dropdown">
+                        <div class="pc-user-info" onclick="toggleUserDropdown()">
+                            <div class="pc-user-avatar" id="userAvatar">运</div>
+                            <span class="pc-user-name" id="userName">运营人员</span>
+                            <span style="font-size: 12px; color: var(--text-tertiary);">▼</span>
+                        </div>
+                        <div class="pc-user-dropdown-menu" id="userDropdownMenu">
+                            <div class="pc-dropdown-item danger" onclick="logout()">
+                                <span class="pc-dropdown-icon">🚪</span>
+                                <span>退出登录</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pc-content">
+                <div class="pc-content-header">
+                    <div class="pc-page-title">阶段任务模板</div>
+                    <div class="pc-content-actions">
+                        <button class="pc-btn pc-btn-primary" onclick="showCreateModal()">
+                            + 新建模板
+                        </button>
+                    </div>
+                </div>
+
+                <div class="template-container">
+                    <div class="template-sidebar">
+                        <div class="template-sidebar-title">模板类型</div>
+                        <div class="category-tree">
+                            <div class="category-tree-item active">
+                                <span>全部模板</span>
+                                <span class="count">18</span>
+                            </div>
+                                                        <div class="category-tree-item">
+                                <span>基础施工服务合同</span>
+                                <span class="count">3</span>
+                            </div>
+                            <div class="category-tree-item">
+                                <span>设计服务合同</span>
+                                <span class="count">2</span>
+                            </div>
+                            <div class="category-tree-item">
+                                <span>拆除班组服务合同</span>
+                                <span class="count">2</span>
+                            </div>
+                            <div class="category-tree-item">
+                                <span>水电班组服务合同</span>
+                                <span class="count">3</span>
+                            </div>
+                            <div class="category-tree-item">
+                                <span>木作班组服务合同</span>
+                                <span class="count">2</span>
+                            </div>
+                            <div class="category-tree-item">
+                                <span>泥瓦工班组服务合同</span>
+                                <span class="count">2</span>
+                            </div>
+                            <div class="category-tree-item">
+                                <span>油漆工班组服务合同</span>
+                                <span class="count">2</span>
+                            </div>
+                            <div class="category-tree-item">
+                                <span>小零工服务合同</span>
+                                <span class="count">2</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="template-main">
+                        <div class="template-toolbar">
+                            <div class="template-search">
+                                <input type="text" id="searchName" placeholder="搜索模板名称...">
+                                                                <select class="pc-form-select" id="filterCity" style="width: 120px;">
+<option value="">全部城市</option>
+<option value="全国">全国</option>
+<option value="北京市">北京市</option>
+<option value="南阳市">南阳市</option>
+<option value="西安市">西安市</option>
+</select>
+                                <select class="pc-form-select" id="filterStatus" style="width: 120px;">
+<option value="">全部状态</option>
+<option value="启用">启用</option>
+<option value="停用">停用</option>
+</select>
+<button class="pc-btn pc-btn-primary" onclick="applyFilters()">搜索</button>
+<button class="pc-btn pc-btn-default" onclick="resetFilters()">重置</button>
+                            </div>
+                        </div>
+
+                        <div class="template-list">
+                            <div class="template-card expanded" data-id="1" data-status="active" data-refs="156">
+                                <div class="template-card-header" onclick="toggleCard(this)">
+                                    <div class="template-card-info">
+                                        <span class="template-card-name">水电施工阶段模板</span>
+                                        <div class="template-card-meta">
+                                            <span>类型：水电班组服务合同</span>
+                                            <span>城市：北京市</span>
+                                            <span>📋 3个阶段</span>
+                                            <span>📝 8个任务</span>
+                                        </div>
+                                    </div>
+                                    <div class="template-card-actions">
+                                        <button class="pc-btn pc-btn-text pc-btn-sm" onclick="event.stopPropagation(); editTemplate(1)">编辑</button>
+                                        <button class="pc-btn-toggle disable" id="toggleBtn1" onclick="event.stopPropagation(); toggleTemplateStatus(1)">禁用</button>
+                                        <span style="color: var(--text-tertiary); margin-left: 8px;">▼</span>
+                                    </div>
+                                </div>
+                                <div class="template-card-body">
+                                    <div class="stage-preview">
+                                        <div class="stage-preview-item">
+                                            <div class="stage-number">1</div>
+                                            <div class="stage-content">
+                                                <div class="stage-name">材料进场</div>
+                                                <div class="stage-tasks">任务：材料验收、材料入库 | 按序执行</div>
+                                            </div>
+                                        </div>
+                                        <div class="stage-preview-item">
+                                            <div class="stage-number">2</div>
+                                            <div class="stage-content">
+                                                <div class="stage-name">布管布线</div>
+                                                <div class="stage-tasks">任务：强电布管、弱电布线、给水管道、排水管道</div>
+                                            </div>
+                                        </div>
+                                        <div class="stage-preview-item">
+                                            <div class="stage-number">3</div>
+                                            <div class="stage-content">
+                                                <div class="stage-name">验收调试</div>
+                                                <div class="stage-tasks">任务：通电测试、通水测试、整体验收 | 按序执行</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="flex-between" style="font-size: 12px; color: var(--text-tertiary);">
+                                        <span>引用次数：156次 | 更新时间：2024-01-10 14:30</span>
+                                        <span class="template-status active" id="status1"><span class="dot"></span>启用中</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="template-card" data-id="2" data-status="active" data-refs="98">
+                                <div class="template-card-header" onclick="toggleCard(this)">
+                                    <div class="template-card-info">
+                                        <span class="template-card-name">泥瓦施工阶段模板</span>
+                                        <div class="template-card-meta">
+                                            <span>类型：泥瓦工班组服务合同</span>
+                                            <span>城市：南阳市</span>
+                                            <span>📋 4个阶段</span>
+                                            <span>📝 10个任务</span>
+                                        </div>
+                                    </div>
+                                    <div class="template-card-actions">
+                                        <button class="pc-btn pc-btn-text pc-btn-sm" onclick="event.stopPropagation(); editTemplate(2)">编辑</button>
+                                        <button class="pc-btn-toggle disable" id="toggleBtn2" onclick="event.stopPropagation(); toggleTemplateStatus(2)">禁用</button>
+                                        <span style="color: var(--text-tertiary); margin-left: 8px;">▶</span>
+                                    </div>
+                                </div>
+                                <div class="template-card-body">
+                                    <div class="stage-preview">
+                                        <div class="stage-preview-item">
+                                            <div class="stage-number">1</div>
+                                            <div class="stage-content">
+                                                <div class="stage-name">基层处理</div>
+                                                <div class="stage-tasks">任务：墙面找平、地面找平</div>
+                                            </div>
+                                        </div>
+                                        <div class="stage-preview-item">
+                                            <div class="stage-number">2</div>
+                                            <div class="stage-content">
+                                                <div class="stage-name">防水施工</div>
+                                                <div class="stage-tasks">任务：防水涂刷、闭水试验 | 按序执行</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="flex-between" style="font-size: 12px; color: var(--text-tertiary);">
+                                        <span>引用次数：98次 | 更新时间：2024-01-08 10:20</span>
+                                        <span class="template-status active" id="status2"><span class="dot"></span>启用中</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="template-card" data-id="3" data-status="active" data-refs="52">
+                                <div class="template-card-header" onclick="toggleCard(this)">
+                                    <div class="template-card-info">
+                                        <span class="template-card-name">木工施工阶段模板</span>
+                                        <div class="template-card-meta">
+                                            <span>类型：木作班组服务合同</span>
+                                            <span>城市：全国</span>
+                                            <span>📋 3个阶段</span>
+                                            <span>📝 7个任务</span>
+                                        </div>
+                                    </div>
+                                    <div class="template-card-actions">
+                                        <button class="pc-btn pc-btn-text pc-btn-sm" onclick="event.stopPropagation(); editTemplate(3)">编辑</button>
+                                        <button class="pc-btn-toggle disable" id="toggleBtn3" onclick="event.stopPropagation(); toggleTemplateStatus(3)">禁用</button>
+                                        <span style="color: var(--text-tertiary); margin-left: 8px;">▶</span>
+                                    </div>
+                                </div>
+                                <div class="template-card-body">
+                                    <div class="flex-between" style="font-size: 12px; color: var(--text-tertiary);">
+                                        <span>引用次数：52次 | 更新时间：2024-01-05 16:45</span>
+                                        <span class="template-status active" id="status3"><span class="dot"></span>启用中</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="template-card" data-id="4" data-status="active" data-refs="38">
+                                <div class="template-card-header" onclick="toggleCard(this)">
+                                    <div class="template-card-info">
+                                        <span class="template-card-name">油漆施工阶段模板</span>
+                                        <div class="template-card-meta">
+                                            <span>类型：油漆工班组服务合同</span>
+                                            <span>城市：西安市</span>
+                                            <span>📋 2个阶段</span>
+                                            <span>📝 5个任务</span>
+                                        </div>
+                                    </div>
+                                    <div class="template-card-actions">
+                                        <button class="pc-btn pc-btn-text pc-btn-sm" onclick="event.stopPropagation(); editTemplate(4)">编辑</button>
+                                        <button class="pc-btn-toggle disable" id="toggleBtn4" onclick="event.stopPropagation(); toggleTemplateStatus(4)">禁用</button>
+                                        <span style="color: var(--text-tertiary); margin-left: 8px;">▶</span>
+                                    </div>
+                                </div>
+                                <div class="template-card-body">
+                                    <div class="flex-between" style="font-size: 12px; color: var(--text-tertiary);">
+                                        <span>引用次数：38次 | 更新时间：2024-01-03 09:15</span>
+                                        <span class="template-status active" id="status4"><span class="dot"></span>启用中</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="pc-pagination">
+                            <span id="resultCount" style="color: var(--text-tertiary); font-size: 13px;">共 18 条</span>
+                            <div class="pc-pagination-item disabled">‹</div>
+                            <div class="pc-pagination-item active">1</div>
+                            <div class="pc-pagination-item">2</div>
+                            <div class="pc-pagination-item">›</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="pc-page-nav-wrapper" id="pageNavWrapper">
+        <div class="pc-page-nav-toggle" onclick="togglePageNav()">◀</div>
+        <div class="pc-page-nav" id="pageNav">
+            <div class="pc-page-nav-title">
+                PC端原型导航
+                <span class="badge">PC</span>
+            </div>
+            
+            <div class="pc-page-nav-group">
+                <div class="pc-page-nav-group-title">模板管理</div>
+                <a href="pc-contract-template.html" class="pc-page-nav-item">合同文本模板</a>
+                <a href="pc-stage-template.html" class="pc-page-nav-item active">阶段任务模板</a>
+            </div>
+            <div class="pc-page-nav-group">
+                <div class="pc-page-nav-group-title">合同管理</div>
+                <a href="pc-contract-list.html" class="pc-page-nav-item">合同审核管理</a>
+                <a href="pc-contract-detail.html" class="pc-page-nav-item">合同详情</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="pc-modal-overlay" id="createModal">
+        <div class="pc-modal" style="width: 100%; height: 100%; max-width: 100%; max-height: 100%; border-radius: 0;">
+            <div class="pc-modal-header">
+                <div class="pc-modal-title" id="templateModalTitle">新建阶段任务模板</div>
+                <div class="pc-modal-close" onclick="closeCreateModal()">×</div>
+            </div>
+            <div class="pc-modal-body" style="padding: 0; height: calc(100vh - 120px); display: flex; flex-direction: column;">
+                <div class="template-info-bar" style="padding: 16px 20px; border-bottom: 1px solid var(--border-color); background: var(--bg-secondary);">
+                    <div style="display: flex; gap: 24px; flex-wrap: wrap; align-items: flex-end;">
+                        <div class="pc-form-group" style="margin-bottom: 0; flex: 1; min-width: 200px;">
+                            <label class="pc-form-label">模板名称<span class="required">*</span></label>
+                            <input type="text" class="pc-form-input" id="templateName" placeholder="请输入模板名称">
+                        </div>
+                        <div class="pc-form-group" style="margin-bottom: 0; width: 150px;">
+                            <label class="pc-form-label">模板类型<span class="required">*</span></label>
+                                                        <select class="pc-form-select" id="templateType">
+                                <option value="">请选择</option>
+                                <option>基础施工服务合同</option>
+                                <option>设计服务合同</option>
+                                <option>拆除班组服务合同</option>
+                                <option>水电班组服务合同</option>
+                                <option>木作班组服务合同</option>
+                                <option>泥瓦工班组服务合同</option>
+                                <option>油漆工班组服务合同</option>
+                                <option>小零工服务合同</option>
+                            </select>
+                        </div>
+                        <div class="pc-form-group" style="margin-bottom: 0; width: 120px;">
+                            <label class="pc-form-label">适用城市<span class="required">*</span></label>
+                                                        <select class="pc-form-select" id="templateCity">
+                                <option value="">请选择</option>
+                                <option>全国</option>
+                                <option>北京市</option>
+                                <option>南阳市</option>
+                                <option>西安市</option>
+                            </select>
+                        </div>
+                        <div class="pc-form-group" style="margin-bottom: 0; flex: 2; min-width: 300px;">
+                            <label class="pc-form-label">模板说明</label>
+                            <input type="text" class="pc-form-input" id="templateDesc" placeholder="请输入模板说明（选填）">
+                        </div>
+                    </div>
+                </div>
+                <div class="edit-modal-content" style="flex: 1; display: flex;">
+                    <div class="edit-modal-sidebar" style="width: 280px; border-right: 1px solid var(--border-color); display: flex; flex-direction: column; background-color: var(--bg-secondary);">
+                        <div class="stage-list-panel" style="flex: 1; padding: 16px; overflow-y: auto;">
+                            <div style="font-size: 13px; color: var(--text-tertiary); margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center;">
+                                <span>阶段列表</span>
+                                <span style="font-size: 12px;" id="stageCount">共0个阶段</span>
+                            </div>
+                            <div id="stageListContent">
+                            </div>
+                            <div class="add-stage-btn" onclick="addNewStage()">
+                                <span>+ 添加阶段</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="edit-modal-main" style="flex: 1; overflow-y: auto;">
+                        <div class="stage-edit-panel">
+                            <div class="pc-form-group">
+                                <label class="pc-form-label">阶段名称<span class="required">*</span></label>
+                                <input type="text" class="pc-form-input" id="stageName" placeholder="请输入阶段名称" oninput="onStageNameInput()">
+                            </div>
+                            <div class="pc-form-group">
+                                <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                                    <input type="checkbox" id="stageOrder" checked onchange="onStageOrderChange()"> 按序执行（任务按完成状态自动排序）
+                                </label>
+                            </div>
+
+                            <div class="task-list" id="taskListContainer">
+                                <div class="task-list-header">
+                                    <h4>任务列表</h4>
+                                    <button class="pc-btn pc-btn-primary pc-btn-sm" onclick="showTaskEditModal()">+ 添加任务</button>
+                                </div>
+                                <div id="taskListContent">
+                                </div>
+                                <div class="add-task-btn" onclick="showTaskEditModal()">
+                                    <span>+ 添加任务</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="pc-modal-footer">
+                <button class="pc-btn pc-btn-default" onclick="closeCreateModal()">取消</button>
+                <button class="pc-btn pc-btn-default" onclick="saveDraft()">保存草稿</button>
+                <button class="pc-btn pc-btn-primary" onclick="saveTemplate()">保存并发布</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="pc-modal-overlay" id="taskEditModal">
+        <div class="pc-modal" style="width: 700px; max-width: 90%;">
+            <div class="pc-modal-header">
+                <div class="pc-modal-title" id="taskModalTitle">添加任务</div>
+                <div class="pc-modal-close" onclick="closeTaskEditModal()">×</div>
+            </div>
+            <div class="pc-modal-body">
+                <div class="pc-form-group">
+                    <label class="pc-form-label">任务名称<span class="required">*</span></label>
+                    <input type="text" class="pc-form-input" id="taskName" placeholder="请输入任务名称">
+                </div>
+                <div class="pc-form-group">
+                    <label class="pc-form-label">执行标准<span class="required">*</span></label>
+                    <textarea class="pc-form-textarea" id="taskExecStandard" placeholder="请输入执行标准"></textarea>
+                    <div class="pc-craft-ref" id="taskExecCraftRef"></div>
+                </div>
+                <div class="pc-form-group">
+                    <label class="pc-form-label">确认标准<span class="required">*</span></label>
+                    <textarea class="pc-form-textarea" id="taskConfirmStandard" placeholder="请输入确认标准"></textarea>
+                    <div class="pc-craft-ref" id="taskConfirmCraftRef"></div>
+                </div>
+                <div class="pc-form-group">
+                    <label class="pc-form-label">担责标准<span class="required">*</span></label>
+                    <textarea class="pc-form-textarea" id="taskRespStandard" placeholder="请输入担责标准"></textarea>
+                </div>
+            </div>
+            <div class="pc-modal-footer">
+                <button class="pc-btn pc-btn-default" onclick="closeTaskEditModal()">取消</button>
+                <button class="pc-btn pc-btn-primary" onclick="saveTask()">保存</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="pc-craft-ref.js"></script>
+    <script>
+        function toggleUserDropdown() {
+            const menu = document.getElementById('userDropdownMenu');
+            menu.classList.toggle('show');
+        }
+
+        function logout() {
+            if (confirm('确定要退出登录吗？')) {
+                window.location.href = 'pc-contract-list.html';
+            }
+        }
+
+        document.addEventListener('click', function(e) {
+            const dropdown = document.querySelector('.pc-user-dropdown');
+            const menu = document.getElementById('userDropdownMenu');
+            if (dropdown && menu && !dropdown.contains(e.target)) {
+                menu.classList.remove('show');
+            }
+        });
+
+        function togglePageNav() {
+            const wrapper = document.getElementById('pageNavWrapper');
+            const nav = document.getElementById('pageNav');
+            const toggle = wrapper.querySelector('.pc-page-nav-toggle');
+            nav.classList.toggle('collapsed');
+            wrapper.classList.toggle('collapsed');
+            if (nav.classList.contains('collapsed')) {
+                toggle.textContent = '▶';
+            } else {
+                toggle.textContent = '◀';
+            }
+        }
+
+        function toggleCard(header) {
+            const card = header.parentElement;
+            const arrow = header.querySelector('.template-card-actions span:last-child');
+            card.classList.toggle('expanded');
+            if (card.classList.contains('expanded')) {
+                arrow.textContent = '▼';
+            } else {
+                arrow.textContent = '▶';
+            }
+        }
+
+        var currentEditId = null;
+        var stageTemplateMeta = {};
+        // 弹窗编辑会话中的阶段数据（统一数据模型：[{name, order, tasks:[{name,execStandard,confirmStandard,respStandard}]}]）
+        var currentStages = [];
+        var currentStageIndex = -1;
+
+        function registerSeedCards() {
+            document.querySelectorAll('.template-card[data-id]').forEach(function (c) {
+                var id = parseInt(c.getAttribute('data-id'), 10);
+                if (isNaN(id) || stageTemplateMeta[id]) return;
+                var nameEl = c.querySelector('.template-card-name');
+                var spans = c.querySelectorAll('.template-card-meta span');
+                var type = spans.length > 0 ? spans[0].textContent.replace('类型：', '').trim() : '';
+                var city = spans.length > 1 ? spans[1].textContent.replace('城市：', '').trim() : '';
+                var name = nameEl ? nameEl.textContent.trim() : '';
+                var status = c.getAttribute('data-status') === 'active' ? 'active' : 'disabled';
+                var refs = parseInt(c.getAttribute('data-refs') || '0', 10) || 0;
+                stageTemplateMeta[id] = { name: name, type: type, city: city, status: status, refs: refs, desc: '', updateTime: '', stageCount: 0, taskCount: 0 };
+            });
+        }
+
+        function showCreateModal() {
+            currentEditId = null;
+            currentStages = [];
+            currentStageIndex = -1;
+            document.getElementById('templateModalTitle').textContent = '新建阶段任务模板';
+            document.getElementById('templateName').value = '';
+            document.getElementById('templateType').value = '';
+            document.getElementById('templateCity').value = '';
+            document.getElementById('templateDesc').value = '';
+            document.getElementById('stageName').value = '';
+            document.getElementById('stageOrder').checked = false;
+            renderModalStages();
+            renderTaskList([]);
+            document.getElementById('createModal').classList.add('show');
+        }
+
+        function closeCreateModal() {
+            document.getElementById('createModal').classList.remove('show');
+        }
+
+        function cloneStages(arr) {
+            return (arr || []).map(function (s) {
+                return {
+                    name: s.name,
+                    order: !!s.order,
+                    tasks: (s.tasks || []).map(function (t) {
+                        return {
+                            name: t.name,
+                            execStandard: t.execStandard || '',
+                            confirmStandard: t.confirmStandard || '',
+                            respStandard: t.respStandard || '',
+                            execRefs: (t.execRefs || []).slice(),
+                            confirmRefs: (t.confirmRefs || []).slice()
+                        };
+                    })
+                };
+            });
+        }
+
+        function stageDataToStages() {
+            return Object.keys(stageData).sort(function (a, b) { return a - b; }).map(function (k) { return stageData[k]; });
+        }
+
+        // 渲染弹窗左侧阶段列表（基于 currentStages 统一模型）
+        function renderModalStages() {
+            var box = document.getElementById('stageListContent');
+            var badge = document.getElementById('stageCount');
+            if (!box) return;
+            box.innerHTML = '';
+            currentStages.forEach(function (s, idx) {
+                var item = document.createElement('div');
+                item.className = 'stage-list-item' + (idx === currentStageIndex ? ' active' : '');
+                item.onclick = function () { selectStage(idx); };
+                item.innerHTML = ''
+                    + '<div><div class="name">阶段' + (idx + 1) + '：' + escapeHtml(s.name) + '</div>'
+                    + '<div class="meta">' + (s.tasks ? s.tasks.length : 0) + '个任务</div></div>'
+                    + '<div style="display:flex;align-items:center;gap:8px;">'
+                    + '<span class="stage-delete-btn" onclick="event.stopPropagation(); deleteStage(' + idx + ')">×</span>'
+                    + '<span style="color:var(--text-tertiary);">☰</span></div>';
+                box.appendChild(item);
+            });
+            if (badge) badge.textContent = '共' + currentStages.length + '个阶段';
+        }
+
+        // 渲染当前选中阶段的任务列表
+        function renderTaskList(tasks) {
+            var box = document.getElementById('taskListContent');
+            box.innerHTML = '';
+            (tasks || []).forEach(function (t, i) {
+                var item = document.createElement('div');
+                item.className = 'task-item';
+                item.dataset.taskIndex = i;
+                item.dataset.name = t.name || '';
+                item.dataset.execStandard = t.execStandard || '';
+                item.dataset.confirmStandard = t.confirmStandard || '';
+                item.dataset.respStandard = t.respStandard || '';
+                item.dataset.execRefs = JSON.stringify(t.execRefs || []);
+                item.dataset.confirmRefs = JSON.stringify(t.confirmRefs || []);
+                item.innerHTML = ''
+                    + '<div class="task-item-info"><span style="color:var(--text-tertiary);cursor:grab;">☰</span>'
+                    + '<span class="task-item-name">' + escapeHtml(t.name || '') + '</span>'
+                    + (window.PCCraftRef ? PCCraftRef.stripRowHTML(t.execRefs, t.confirmRefs) : '')
+                    + '</div>'
+                    + '<div class="flex gap-8">'
+                    + '<button class="pc-btn pc-btn-text pc-btn-sm" onclick="editTaskItem(this)">编辑</button>'
+                    + '<button class="pc-btn pc-btn-text pc-btn-sm" onclick="deleteTask(this)">删除</button></div>';
+                box.appendChild(item);
+            });
+            // 容器级绑定缩略图放大（弹窗内容 stopPropagation 时 document 委托收不到）
+            if (window.PCCraftRef) PCCraftRef.bindClicks(box);
+        }
+
+        function selectStage(idx) {
+            currentStageIndex = idx;
+            document.querySelectorAll('.stage-list-item').forEach(function (i) { i.classList.remove('active'); });
+            var items = document.querySelectorAll('.stage-list-item');
+            if (items[idx]) items[idx].classList.add('active');
+            var s = currentStages[idx];
+            if (s) {
+                document.getElementById('stageName').value = s.name || '';
+                document.getElementById('stageOrder').checked = !!s.order;
+                renderTaskList(s.tasks || []);
+            } else {
+                document.getElementById('stageName').value = '';
+                document.getElementById('stageOrder').checked = false;
+                renderTaskList([]);
+            }
+        }
+
+        function addNewStage() {
+            var name = prompt('请输入阶段名称：');
+            if (!name) return;
+            currentStages.push({ name: name.trim(), order: true, tasks: [] });
+            currentStageIndex = currentStages.length - 1;
+            renderModalStages();
+            renderTaskList(currentStages[currentStageIndex].tasks);
+        }
+
+        function deleteStage(idx) {
+            var s = currentStages[idx];
+            if (!s) return;
+            var msg = (s.tasks && s.tasks.length > 0)
+                ? '当前阶段存在 ' + s.tasks.length + ' 个任务，删除阶段后这些任务也将被删除，是否确认删除？'
+                : '确定要删除此阶段吗？';
+            if (!confirm(msg)) return;
+            currentStages.splice(idx, 1);
+            if (currentStageIndex >= currentStages.length) currentStageIndex = currentStages.length - 1;
+            renderModalStages();
+            if (currentStageIndex >= 0) {
+                var cur = currentStages[currentStageIndex];
+                document.getElementById('stageName').value = cur ? cur.name : '';
+                document.getElementById('stageOrder').checked = cur ? !!cur.order : false;
+                renderTaskList(cur ? cur.tasks : []);
+            } else {
+                document.getElementById('stageName').value = '';
+                document.getElementById('stageOrder').checked = false;
+                renderTaskList([]);
+            }
+        }
+
+        // 阶段名称输入实时同步：无阶段时自动创建首个阶段；已有阶段时回写当前阶段名称
+        function onStageNameInput() {
+            var input = document.getElementById('stageName');
+            var name = input.value;
+            if (currentStageIndex < 0) {
+                if (name.trim()) {
+                    currentStages.push({ name: name, order: document.getElementById('stageOrder').checked, tasks: [] });
+                    currentStageIndex = 0;
+                    renderModalStages();
+                }
+            } else {
+                var s = currentStages[currentStageIndex];
+                if (s) s.name = name;
+            }
+        }
+
+        // 按序执行复选框实时回写当前阶段
+        function onStageOrderChange() {
+            if (currentStageIndex >= 0 && currentStages[currentStageIndex]) {
+                currentStages[currentStageIndex].order = document.getElementById('stageOrder').checked;
+            }
+        }
+
+        // 保存前兜底：若左侧列表为空但阶段名称输入框有内容，自动将其创建为阶段
+        function ensureStageFromInput() {
+            if (currentStages.length > 0) return;
+            var name = document.getElementById('stageName').value.trim();
+            if (name) {
+                currentStages.push({ name: name, order: document.getElementById('stageOrder').checked, tasks: [] });
+                currentStageIndex = 0;
+                renderModalStages();
+            }
+        }
+
+        function editTemplate(id) {
+            var meta = stageTemplateMeta[id];
+            document.getElementById('templateModalTitle').textContent = '编辑阶段任务模板';
+            if (meta) {
+                document.getElementById('templateName').value = meta.name;
+                document.getElementById('templateType').value = meta.type;
+                document.getElementById('templateCity').value = meta.city;
+                document.getElementById('templateDesc').value = meta.desc || '';
+                currentStages = cloneStages((meta.stages && meta.stages.length) ? meta.stages : stageDataToStages());
+            } else {
+                // 种子模板（未经过 JS 保存）回显演示数据并加载示例阶段
+                document.getElementById('templateName').value = '水电施工阶段模板';
+                document.getElementById('templateType').value = '水电班组服务合同';
+                document.getElementById('templateCity').value = '全国';
+                document.getElementById('templateDesc').value = '适用于住宅装修水电施工阶段，包含材料进场、布管布线、验收调试等标准流程。';
+                currentStages = cloneStages(stageDataToStages());
+            }
+            currentStageIndex = currentStages.length > 0 ? 0 : -1;
+            renderModalStages();
+            if (currentStageIndex >= 0) {
+                var cur = currentStages[0];
+                document.getElementById('stageName').value = cur.name;
+                document.getElementById('stageOrder').checked = !!cur.order;
+                renderTaskList(cur.tasks);
+            } else {
+                document.getElementById('stageName').value = '';
+                document.getElementById('stageOrder').checked = false;
+                renderTaskList([]);
+            }
+            currentEditId = id;
+            document.getElementById('createModal').classList.add('show');
+        }
+
+        function toggleTemplateStatus(id) {
+            const card = document.querySelector(`.template-card[data-id="${id}"]`);
+            const currentStatus = card.dataset.status;
+            const refs = parseInt(card.dataset.refs);
+            const toggleBtn = document.getElementById('toggleBtn' + id);
+            const statusSpan = document.getElementById('status' + id);
+            
+            if (currentStatus === 'active') {
+                if (refs > 0) {
+                    if (!confirm(`该模板已被引用${refs}次，禁用后新建合同将无法选择此模板。确定要禁用吗？`)) {
+                        return;
+                    }
+                }
+                card.dataset.status = 'disabled';
+                card.classList.add('disabled');
+                toggleBtn.textContent = '启用';
+                toggleBtn.className = 'pc-btn-toggle enable';
+                statusSpan.className = 'template-status disabled';
+                statusSpan.innerHTML = '<span class="dot"></span>已禁用';
+                alert('模板已禁用，新建合同将无法选择此模板');
+            } else {
+                card.dataset.status = 'active';
+                card.classList.remove('disabled');
+                toggleBtn.textContent = '禁用';
+                toggleBtn.className = 'pc-btn-toggle disable';
+                statusSpan.className = 'template-status active';
+                statusSpan.innerHTML = '<span class="dot"></span>启用中';
+                alert('模板已启用，新建合同可选择此模板');
+            }
+            applyFilters();
+        }
+
+        const stageData = {
+            1: {
+                name: '材料进场',
+                order: true,
+                tasks: [
+                    { name: '材料验收', execStandard: '核对材料清单，检查材料数量、规格、品牌是否与采购单一致', confirmStandard: '确认材料质量合格，数量无误后签字确认', respStandard: '材料验收不合格导致的返工由材料员负责', execRefs: [{ src: '../shared/images/site-1.png', title: '材料进场验收示范' }, { src: '../shared/images/site-2.png', title: '材料清单逐项核对示范' }, { src: '../shared/images/site-3.png', title: '材料质量证明查验示范' }], confirmRefs: [{ src: '../shared/images/site-1.png', title: '验收签字确认示范' }, { src: '../shared/images/site-2.png', title: '材料台账登记示范' }, { src: '../shared/images/site-4.png', title: '不合格材料标识示范' }] },
+                    { name: '材料入库', execStandard: '按照材料分类进行入库登记，建立材料台账', confirmStandard: '核对入库数量与采购数量一致，签字确认入库单', respStandard: '入库登记错误导致的材料管理混乱由库管员负责' }
+                ]
+            },
+            2: {
+                name: '布管布线',
+                order: false,
+                tasks: [
+                    { name: '强电布管', execStandard: '按照图纸要求进行强电线路布管，确保管路横平竖直', confirmStandard: '检查布管是否符合规范，管路固定是否牢固', respStandard: '布管不规范导致的返工由施工人员负责', execRefs: [{ src: '../shared/images/site-1.png', title: '横平竖直布管示范' }, { src: '../shared/images/site-3.png', title: '管线固定卡扣示范' }, { src: '../shared/images/site-4.png', title: '转弯弧度处理示范' }], confirmRefs: [{ src: '../shared/images/site-2.png', title: '管路走向复核示范' }, { src: '../shared/images/site-1.png', title: '线管保护措施示范' }, { src: '../shared/images/site-3.png', title: '隐蔽验收记录示范' }] },
+                    { name: '弱电布线', execStandard: '按照图纸要求进行弱电线路布线，做好标签标识', confirmStandard: '检查布线是否规范，标签是否清晰完整', respStandard: '布线混乱导致的维修困难由施工人员负责' },
+                    { name: '给水管道', execStandard: '按照图纸要求安装给水管道，确保坡度正确', confirmStandard: '进行压力测试，检查无渗漏', respStandard: '管道渗漏导致的损失由施工人员负责', execRefs: [{ src: '../shared/images/site-1.png', title: '给水管路排布示范' }, { src: '../shared/images/site-2.png', title: '管卡固定间距示范' }, { src: '../shared/images/site-3.png', title: '压力测试作业示范' }] },
+                    { name: '排水管道', execStandard: '按照图纸要求安装排水管道，确保排水通畅', confirmStandard: '进行通水测试，检查排水是否通畅', respStandard: '排水堵塞导致的返工由施工人员负责' }
+                ]
+            },
+            3: {
+                name: '验收调试',
+                order: true,
+                tasks: [
+                    { name: '通电测试', execStandard: '对强电线路进行通电测试，检查各回路是否正常', confirmStandard: '确认各回路通电正常，无短路跳闸现象', respStandard: '通电测试不彻底导致的安全事故由测试人员负责', execRefs: [{ src: '../shared/images/site-1.png', title: '回路通电检测示范' }, { src: '../shared/images/site-2.png', title: '绝缘电阻测试示范' }, { src: '../shared/images/site-4.png', title: '配电箱标识示范' }], confirmRefs: [{ src: '../shared/images/site-3.png', title: '回路功能复核示范' }, { src: '../shared/images/site-1.png', title: '测试记录填写示范' }] },
+                    { name: '通水测试', execStandard: '对给排水系统进行通水测试，检查各出水点是否正常', confirmStandard: '确认各出水点水压正常，排水通畅', respStandard: '通水测试不彻底导致的问题由测试人员负责' },
+                    { name: '整体验收', execStandard: '按照验收标准进行整体验收，填写验收单', confirmStandard: '确认各项指标达标，签署验收合格单', respStandard: '验收不合格项由相关责任人整改' }
+                ]
+            }
+        };
+
+        function showTaskEditModal(taskItem, isEdit = false) {
+            const modal = document.getElementById('taskEditModal');
+            const title = document.getElementById('taskModalTitle');
+            const nameInput = document.getElementById('taskName');
+            const execInput = document.getElementById('taskExecStandard');
+            const confirmInput = document.getElementById('taskConfirmStandard');
+            const respInput = document.getElementById('taskRespStandard');
+
+            if (isEdit && taskItem) {
+                title.textContent = '编辑任务';
+                nameInput.value = taskItem.dataset.name || taskItem.querySelector('.task-item-name').textContent;
+                execInput.value = taskItem.dataset.execStandard || '';
+                confirmInput.value = taskItem.dataset.confirmStandard || '';
+                respInput.value = taskItem.dataset.respStandard || '';
+                modal.dataset.editingTask = 'true';
+                modal.dataset.editingTaskIndex = taskItem.dataset.taskIndex || '0';
+            } else {
+                title.textContent = '添加任务';
+                nameInput.value = '';
+                execInput.value = '';
+                confirmInput.value = '';
+                respInput.value = '';
+                modal.dataset.editingTask = 'false';
+                modal.dataset.editingTaskIndex = '-1';
+            }
+
+            // 工艺参考示例：编辑时载入既有数据，新增时清空
+            if (window.PCCraftRef) {
+                var execRefs = (isEdit && taskItem) ? taskItem.dataset.execRefs : '';
+                var confirmRefs = (isEdit && taskItem) ? taskItem.dataset.confirmRefs : '';
+                PCCraftRef.renderConfig('taskExecCraftRef', 'exec', execRefs || []);
+                PCCraftRef.renderConfig('taskConfirmCraftRef', 'confirm', confirmRefs || []);
+            }
+
+            modal.classList.add('show');
+        }
+
+        function closeTaskEditModal() {
+            document.getElementById('taskEditModal').classList.remove('show');
+        }
+
+        function saveTask() {
+            const nameInput = document.getElementById('taskName');
+            const execInput = document.getElementById('taskExecStandard');
+            const confirmInput = document.getElementById('taskConfirmStandard');
+            const respInput = document.getElementById('taskRespStandard');
+            const modal = document.getElementById('taskEditModal');
+
+            const name = nameInput.value.trim();
+            const execStandard = execInput.value.trim();
+            const confirmStandard = confirmInput.value.trim();
+            const respStandard = respInput.value.trim();
+
+            if (!name) { alert('请输入任务名称'); nameInput.focus(); return; }
+            if (!execStandard) { alert('请输入执行标准'); execInput.focus(); return; }
+            if (!confirmStandard) { alert('请输入确认标准'); confirmInput.focus(); return; }
+            if (!respStandard) { alert('请输入担责标准'); respInput.focus(); return; }
+
+            if (currentStageIndex < 0 || !currentStages[currentStageIndex]) {
+                alert('请先在左侧添加一个阶段，再为其添加任务');
+                closeTaskEditModal();
+                return;
+            }
+            const stage = currentStages[currentStageIndex];
+            const execRefs = window.PCCraftRef ? PCCraftRef.getConfig('exec') : [];
+            const confirmRefs = window.PCCraftRef ? PCCraftRef.getConfig('confirm') : [];
+            const task = {
+                name: name,
+                execStandard: execStandard,
+                confirmStandard: confirmStandard,
+                respStandard: respStandard,
+                execRefs: execRefs.map(function (r) { return { src: r.src, title: r.title }; }),
+                confirmRefs: confirmRefs.map(function (r) { return { src: r.src, title: r.title }; })
+            };
+
+            if (modal.dataset.editingTask === 'true') {
+                const ti = parseInt(modal.dataset.editingTaskIndex, 10);
+                if (!isNaN(ti) && stage.tasks[ti]) stage.tasks[ti] = task;
+                alert('任务已更新');
+            } else {
+                stage.tasks.push(task);
+                alert('任务已添加');
+            }
+            renderTaskList(stage.tasks);
+            renderModalStages();
+            closeTaskEditModal();
+        }
+
+        function editTaskItem(btn) {
+            const taskItem = btn.closest('.task-item');
+            showTaskEditModal(taskItem, true);
+        }
+
+        function deleteTask(btn) {
+            if (currentStageIndex < 0 || !currentStages[currentStageIndex]) return;
+            if (confirm('确定要删除此任务吗？')) {
+                const taskItem = btn.closest('.task-item');
+                const ti = parseInt(taskItem.dataset.taskIndex, 10);
+                if (!isNaN(ti)) currentStages[currentStageIndex].tasks.splice(ti, 1);
+                renderTaskList(currentStages[currentStageIndex].tasks);
+                renderModalStages();
+            }
+        }
+
+        function escapeHtml(s) {
+            return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
+                return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+            });
+        }
+
+        function formatNow() {
+            var d = new Date();
+            function p(n) { return (n < 10 ? '0' : '') + n; }
+            return d.getFullYear() + '-' + p(d.getMonth() + 1) + '-' + p(d.getDate()) + ' ' + p(d.getHours()) + ':' + p(d.getMinutes());
+        }
+
+        function showToast(message) {
+            var toast = document.getElementById('pcToast');
+            if (!toast) {
+                toast = document.createElement('div');
+                toast.id = 'pcToast';
+                toast.style.cssText = 'position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(0,0,0,0.75);color:#fff;padding:10px 20px;border-radius:6px;font-size:14px;z-index:9999;opacity:0;transition:opacity .25s;pointer-events:none;';
+                document.body.appendChild(toast);
+            }
+            toast.textContent = message;
+            toast.style.opacity = '1';
+            clearTimeout(toast._t);
+            toast._t = setTimeout(function () { toast.style.opacity = '0'; }, 2000);
+        }
+
+        function getNextStageId() {
+            var max = 0;
+            document.querySelectorAll('.template-card[data-id]').forEach(function (c) {
+                var id = parseInt(c.dataset.id, 10);
+                if (id > max) max = id;
+            });
+            Object.keys(stageTemplateMeta).forEach(function (k) {
+                var id = parseInt(k, 10);
+                if (id > max) max = id;
+            });
+            return max + 1;
+        }
+
+        function buildStageCardHTML(id, meta, status) {
+            var map = {
+                active:   { cls: 'active',   text: '启用中', toggle: '<button class="pc-btn-toggle disable" id="toggleBtn' + id + '" onclick="event.stopPropagation(); toggleTemplateStatus(' + id + ')">禁用</button>' },
+                disabled: { cls: 'disabled', text: '已禁用', toggle: '<button class="pc-btn-toggle enable" id="toggleBtn' + id + '" onclick="event.stopPropagation(); toggleTemplateStatus(' + id + ')">启用</button>' },
+                draft:    { cls: 'draft',    text: '草稿',   toggle: '<button class="pc-btn-toggle publish" id="publishBtn' + id + '" onclick="event.stopPropagation(); publishStageDraft(' + id + ')">发布</button>' }
+            };
+            var s = map[status];
+            var expanded = status === 'active' ? ' expanded' : '';
+            var arrow = status === 'active' ? '▼' : '▶';
+            var stages = meta.stages || [];
+            var bodyInner;
+            if (stages.length > 0) {
+                var rows = stages.map(function (st, i) {
+                    return '<div class="stage-preview-item"><div style="flex:1;">'
+                        + '<div style="font-weight:600;color:var(--text-primary);">阶段' + (i + 1) + '：' + escapeHtml(st.name) + (st.order ? '（按序执行）' : '') + '</div>'
+                        + '<div style="font-size:12px;color:var(--text-tertiary);margin-top:4px;">包含 ' + (st.tasks ? st.tasks.length : 0) + ' 个任务</div></div></div>';
+                }).join('');
+                bodyInner = '<div class="stage-preview">' + rows + '</div>';
+            } else {
+                bodyInner = '<div style="padding:12px;color:var(--text-tertiary);">暂无阶段任务，请在编辑中补充</div>';
+            }
+            return '<div class="template-card' + expanded + '" data-id="' + id + '" data-status="' + status + '" data-refs="0">'
+                + '<div class="template-card-header" onclick="toggleCard(this)">'
+                + '<div class="template-card-info"><span class="template-card-name">' + escapeHtml(meta.name) + '</span>'
+                + '<div class="template-card-meta"><span>类型：' + escapeHtml(meta.type) + '</span><span>城市：' + escapeHtml(meta.city) + '</span><span>📋 ' + (meta.stageCount || 0) + '个阶段</span><span>📝 ' + (meta.taskCount || 0) + '个任务</span></div></div>'
+                + '<div class="template-card-actions"><button class="pc-btn pc-btn-text pc-btn-sm" onclick="event.stopPropagation(); editTemplate(' + id + ')">编辑</button>' + s.toggle + '<span style="color: var(--text-tertiary); margin-left: 8px;">' + arrow + '</span></div>'
+                + '</div>'
+                + '<div class="template-card-body">' + bodyInner
+                + '<div class="flex-between" style="font-size: 12px; color: var(--text-tertiary);"><span>引用次数：0次 | 更新时间：' + escapeHtml(meta.updateTime) + '</span><span class="template-status ' + s.cls + '" id="status' + id + '"><span class="dot"></span>' + s.text + '</span></div>'
+                + '</div></div>';
+        }
+
+        function updateStageSidebarCounts() {
+            var cards = document.querySelectorAll('.template-card[data-id]');
+            var total = cards.length;
+            var tally = {};
+            cards.forEach(function (c) {
+                var m = c.querySelector('.template-card-meta span');
+                if (m) {
+                    var t = m.textContent.replace('类型：', '').trim();
+                    tally[t] = (tally[t] || 0) + 1;
+                }
+            });
+            document.querySelectorAll('.category-tree-item').forEach(function (item) {
+                var name = item.querySelector('span').textContent;
+                var cnt = item.querySelector('.count');
+                if (name === '全部模板') {
+                    cnt.textContent = total;
+                } else {
+                    cnt.textContent = tally[name] || 0;
+                }
+            });
+            var pg = document.querySelector('.pc-pagination span');
+            if (pg) pg.textContent = '共 ' + total + ' 条';
+        }
+
+        function persistStageTemplate(status) {
+            var name = document.getElementById('templateName').value.trim();
+            var type = document.getElementById('templateType').value;
+            var city = document.getElementById('templateCity').value;
+            var desc = document.getElementById('templateDesc').value.trim();
+            var now = formatNow();
+            var id, isNew;
+            if (currentEditId == null) {
+                id = getNextStageId();
+                isNew = true;
+            } else {
+                id = currentEditId;
+                isNew = false;
+            }
+            var stageCount = currentStages.length;
+            var taskCount = currentStages.reduce(function (sum, s) { return sum + (s.tasks ? s.tasks.length : 0); }, 0);
+            var meta = { name: name, type: type, city: city, desc: desc, refs: 0, status: status, updateTime: now, createTime: now, stageCount: stageCount, taskCount: taskCount, stages: cloneStages(currentStages) };
+            stageTemplateMeta[id] = meta;
+            var html = buildStageCardHTML(id, meta, status);
+            var list = document.querySelector('.template-list');
+            if (isNew) {
+                // 新建模板置顶：按创建/更新时间倒序，最新创建的排在最前
+                list.insertAdjacentHTML('afterbegin', html);
+            } else {
+                var card = document.querySelector('.template-card[data-id="' + id + '"]');
+                if (card) card.outerHTML = html;
+            }
+            updateStageSidebarCounts();
+            applyFilters();
+            return id;
+        }
+
+        function saveTemplate() {
+            var nameEl = document.getElementById('templateName');
+            var typeEl = document.getElementById('templateType');
+            var cityEl = document.getElementById('templateCity');
+            var errs = [];
+            if (!nameEl.value.trim()) { errs.push('请输入模板名称'); nameEl.style.borderColor = '#FF4D4F'; } else { nameEl.style.borderColor = ''; }
+            if (!typeEl.value) { errs.push('请选择模板类型'); typeEl.style.borderColor = '#FF4D4F'; } else { typeEl.style.borderColor = ''; }
+            if (!cityEl.value) { errs.push('请选择适用城市'); cityEl.style.borderColor = '#FF4D4F'; } else { cityEl.style.borderColor = ''; }
+            if (errs.length) {
+                alert('请完善以下信息：\n' + errs.join('\n'));
+                return;
+            }
+            ensureStageFromInput();
+            if (currentStages.length === 0) {
+                alert('请至少添加一个阶段信息（阶段任务模板必须包含至少一个阶段）');
+                return;
+            }
+            var dupName = nameEl.value.trim();
+            var dupCity = cityEl.value;
+            if (isDuplicateActiveName(dupName, dupCity, currentEditId)) {
+                alert('该城市下已存在同名的启用中模板（' + dupName + ' / ' + dupCity + '），请勿重复创建');
+                nameEl.style.borderColor = '#FF4D4F';
+                return;
+            }
+            persistStageTemplate('active');
+            closeCreateModal();
+            showToast('模板已保存并发布');
+        }
+
+        function saveDraft() {
+            var nameEl = document.getElementById('templateName');
+            var name = nameEl.value.trim();
+            if (!name) {
+                alert('请输入模板名称');
+                nameEl.focus();
+                nameEl.style.borderColor = '#FF4D4F';
+                return;
+            }
+            nameEl.style.borderColor = '';
+            ensureStageFromInput();
+            if (currentStages.length === 0) {
+                alert('请至少添加一个阶段信息（阶段任务模板必须包含至少一个阶段）');
+                return;
+            }
+            persistStageTemplate('draft');
+            closeCreateModal();
+            showToast('已保存草稿');
+        }
+
+        function publishStageDraft(id) {
+            var card = document.querySelector('.template-card[data-id="' + id + '"]');
+            if (!card) return;
+            var meta = stageTemplateMeta[id];
+            if (meta && isDuplicateActiveName(meta.name, meta.city, id)) {
+                showToast('该城市下已存在同名的启用中模板，发布失败');
+                return;
+            }
+            card.dataset.status = 'active';
+            var s = document.getElementById('status' + id);
+            s.className = 'template-status active';
+            s.innerHTML = '<span class="dot"></span>启用中';
+            var pb = document.getElementById('publishBtn' + id);
+            if (pb) {
+                pb.outerHTML = '<button class="pc-btn-toggle disable" id="toggleBtn' + id + '" onclick="event.stopPropagation(); toggleTemplateStatus(' + id + ')">禁用</button>';
+            }
+            if (stageTemplateMeta[id]) stageTemplateMeta[id].status = 'active';
+            showToast('模板已发布');
+        }
+
+        document.querySelectorAll('.category-tree-item').forEach(item => {
+            item.addEventListener('click', function() {
+                document.querySelectorAll('.category-tree-item').forEach(i => i.classList.remove('active'));
+                this.classList.add('active');
+                applyFilters();
+            });
+        });
+
+        function isDuplicateActiveName(name, city, excludeId) {
+            var lower = (name || '').trim().toLowerCase();
+            for (var k in stageTemplateMeta) {
+                var key = parseInt(k, 10);
+                if (key === excludeId) continue;
+                var t = stageTemplateMeta[k];
+                if (t && t.status === 'active' && (t.name || '').trim().toLowerCase() === lower && t.city === city) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        function applyFilters() {
+            var name = (document.getElementById('searchName').value || '').trim();
+            var city = document.getElementById('filterCity').value;
+            var status = document.getElementById('filterStatus').value;
+            var activeTree = document.querySelector('.category-tree-item.active');
+            var typeFilter = activeTree ? activeTree.querySelector('span').textContent : '全部模板';
+            var cards = document.querySelectorAll('.template-card[data-id]');
+            var shown = 0;
+            cards.forEach(function (c) {
+                var nameEl = c.querySelector('.template-card-name');
+                var rName = nameEl ? nameEl.textContent : '';
+                var spans = c.querySelectorAll('.template-card-meta span');
+                var rType = spans.length > 0 ? spans[0].textContent.replace('类型：', '').trim() : '';
+                var rCity = spans.length > 1 ? spans[1].textContent.replace('城市：', '').trim() : '';
+                var rStatus = c.dataset.status;
+                var ok = true;
+                if (name && rName.indexOf(name) === -1) ok = false;
+                if (city && rCity !== city) ok = false;
+                if (status) {
+                    var want = (status === '启用') ? 'active' : 'disabled';
+                    if (rStatus !== want) ok = false;
+                }
+                if (typeFilter && typeFilter !== '全部模板' && rType !== typeFilter) ok = false;
+                c.style.display = ok ? '' : 'none';
+                if (ok) shown++;
+            });
+            var cnt = document.getElementById('resultCount');
+            if (cnt) cnt.textContent = '共 ' + shown + ' 条';
+        }
+
+        function resetFilters() {
+            document.getElementById('searchName').value = '';
+            document.getElementById('filterCity').value = '';
+            document.getElementById('filterStatus').value = '';
+            var all = document.querySelector('.category-tree-item');
+            document.querySelectorAll('.category-tree-item').forEach(function (i) { i.classList.remove('active'); });
+            if (all) all.classList.add('active');
+            applyFilters();
+        }
+
+        registerSeedCards();
+
+        // 文档示例深链：通过 URL hash 直接打开新建 / 编辑弹窗（仅在带特定 hash 时触发，不改变默认打开行为）
+        (function () {
+            var h = location.hash;
+            if (h === '#modal-create') {
+                showCreateModal();
+            } else if (h === '#modal-edit') {
+                editTemplate(1);
+            }
+        })();
+
+        </script>
+<script src="../shared/doc-viewer/doc-viewer.js"></script>
+</body>
+</html>

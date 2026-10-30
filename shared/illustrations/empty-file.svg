@@ -1,0 +1,10 @@
+<!-- 空状态：资料/附件 -->
+<svg viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <path d="M24 24H72L96 48V96H24V24Z" fill="#F0F5FF" stroke="#1890FF" stroke-width="2" stroke-linejoin="round"/>
+  <path d="M72 24V48H96" stroke="#1890FF" stroke-width="2" stroke-linejoin="round"/>
+  <rect x="36" y="60" width="48" height="4" rx="2" fill="#BFBFBF"/>
+  <rect x="36" y="72" width="40" height="4" rx="2" fill="#BFBFBF"/>
+  <rect x="36" y="84" width="32" height="4" rx="2" fill="#BFBFBF"/>
+  <circle cx="80" cy="80" r="16" fill="#1890FF" fill-opacity="0.1" stroke="#1890FF" stroke-width="2"/>
+  <path d="M74 80L78 84L86 76" stroke="#1890FF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

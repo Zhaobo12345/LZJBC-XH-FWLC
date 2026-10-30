@@ -1,0 +1,2404 @@
+﻿﻿﻿﻿﻿﻿﻿﻿﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>家装平台小程序原型 - 临时任务</title>
+    <link rel="stylesheet" href="common.css">
+    <style>
+        .page-content {
+            height: calc(100% - 44px - 44px);
+        }
+
+        .status-tabs {
+            display: flex;
+            background-color: var(--bg-primary);
+            border-bottom: 1px solid var(--border-color);
+            overflow-x: auto;
+            white-space: nowrap;
+        }
+
+        .status-tabs::-webkit-scrollbar {
+            display: none;
+        }
+
+        .status-tab {
+            flex-shrink: 0;
+            padding: 8px 6px;
+            text-align: center;
+            font-size: 12px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            position: relative;
+            transition: all 0.2s;
+        }
+
+        .status-tab:active {
+            background-color: var(--bg-secondary);
+        }
+
+        .status-tab.active {
+            color: var(--primary-color);
+            font-weight: 600;
+        }
+
+        .status-tab.active::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 16px;
+            height: 2px;
+            background-color: var(--primary-color);
+            border-radius: 1px;
+        }
+
+        .status-tab .badge {
+            display: inline-block;
+            min-width: 14px;
+            height: 14px;
+            line-height: 14px;
+            padding: 0 3px;
+            background-color: var(--error-color);
+            color: #FFFFFF;
+            border-radius: 7px;
+            font-size: 9px;
+            margin-left: 2px;
+            vertical-align: middle;
+        }
+
+        .status-tab.active .badge {
+            background-color: var(--primary-color);
+        }
+
+        .batch-action-bar {
+            display: none;
+            padding: 12px 16px;
+            background-color: #E6F7FF;
+            border-bottom: 1px solid #91D5FF;
+        }
+
+        .batch-action-bar.show {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .batch-action-bar .info {
+            font-size: 13px;
+            color: var(--primary-color);
+        }
+
+        .batch-action-bar .btn {
+            padding: 8px 16px;
+            background-color: var(--primary-color);
+            color: #FFFFFF;
+            border: none;
+            border-radius: 6px;
+            font-size: 13px;
+            cursor: pointer;
+        }
+
+        .filter-bar {
+            display: none;
+            padding: 10px 16px;
+            background-color: var(--bg-primary);
+            border-bottom: 1px solid var(--border-color);
+            gap: 8px;
+        }
+
+        .filter-bar.show {
+            display: flex;
+            align-items: center;
+        }
+        
+        .filter-bar .contract-filter {
+            min-width: 100px;
+            height: 32px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 0 8px;
+            font-size: 13px;
+            background-color: var(--bg-primary);
+            cursor: pointer;
+        }
+        
+        .filter-bar .status-filter {
+            min-width: 80px;
+            height: 32px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 0 8px;
+            font-size: 13px;
+            background-color: var(--bg-primary);
+            cursor: pointer;
+        }
+        
+        .filter-bar .search-input-wrap {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            background-color: var(--bg-secondary);
+            border-radius: 6px;
+            padding: 0 10px;
+            height: 32px;
+        }
+
+        .filter-bar .search-input-wrap .search-icon {
+            font-size: 14px;
+            color: var(--text-tertiary);
+            margin-right: 6px;
+        }
+
+        .filter-bar .search-input-wrap .search-input {
+            flex: 1;
+            border: none;
+            background: none;
+            font-size: 13px;
+            color: var(--text-primary);
+            outline: none;
+        }
+
+        .filter-bar .search-input-wrap .search-input::placeholder {
+            color: var(--text-tertiary);
+        }
+
+        .filter-bar .contract-filter {
+            width: 100px;
+            height: 32px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 0 8px;
+            font-size: 12px;
+            color: var(--text-primary);
+            background-color: var(--bg-primary);
+            cursor: pointer;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23999' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 6px center;
+        }
+
+        .filter-bar .contract-filter:focus {
+            border-color: var(--primary-color);
+            outline: none;
+        }
+
+        .status-filter-bar {
+            display: none;
+            padding: 8px 16px;
+            background-color: var(--bg-primary);
+            border-bottom: 1px solid var(--border-color);
+            gap: 8px;
+            overflow-x: auto;
+            white-space: nowrap;
+        }
+
+        .status-filter-bar.show {
+            display: flex;
+        }
+
+        .status-filter-bar .filter-chip {
+            padding: 6px 14px;
+            border-radius: 16px;
+            font-size: 12px;
+            color: var(--text-secondary);
+            background-color: var(--bg-secondary);
+            border: 1px solid transparent;
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+
+        .status-filter-bar .filter-chip.active {
+            color: var(--primary-color);
+            background-color: var(--status-primary-bg);
+            border-color: var(--primary-color);
+        }
+
+        .task-card .card-header-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .task-card .delete-btn {
+            font-size: 18px;
+            color: var(--text-tertiary);
+            cursor: pointer;
+            padding: 4px 8px;
+        }
+
+        .task-card .delete-btn:hover {
+            color: var(--error-color);
+        }
+
+        .task-list {
+            padding: 12px 16px;
+        }
+
+        .task-card {
+            background-color: var(--bg-primary);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        }
+
+        .task-card:last-child {
+            margin-bottom: 0;
+        }
+
+        .task-card .card-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            margin-bottom: 12px;
+        }
+
+        .task-card .task-title {
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--text-primary);
+            flex: 1;
+            margin-right: 12px;
+        }
+
+        .task-card .task-type {
+            font-size: 11px;
+            padding: 2px 8px;
+            border-radius: 4px;
+            background-color: var(--status-warning-bg);
+            color: var(--warning-color);
+        }
+
+        .task-card .task-type.temp {
+            background-color: #F9F0FF;
+            color: var(--purple-color);
+        }
+
+        .task-card .task-meta {
+            margin-bottom: 12px;
+        }
+
+        .task-card .meta-item {
+            display: flex;
+            align-items: center;
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-bottom: 6px;
+        }
+
+        .task-card .meta-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .task-card .meta-item .icon {
+            width: 16px;
+            margin-right: 8px;
+            text-align: center;
+        }
+
+        .task-card .meta-item .label {
+            color: var(--text-tertiary);
+            margin-right: 4px;
+        }
+
+        .task-card .sender-info {
+            display: flex;
+            align-items: center;
+            padding: 10px 12px;
+            background-color: var(--bg-secondary);
+            border-radius: 8px;
+            margin-bottom: 12px;
+        }
+
+        .task-card .sender-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-light) 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #FFFFFF;
+            font-size: 13px;
+            margin-right: 10px;
+        }
+
+        .task-card .sender-detail {
+            flex: 1;
+        }
+
+        .task-card .sender-name {
+            font-size: 13px;
+            color: var(--text-primary);
+        }
+
+        .task-card .sender-time {
+            font-size: 11px;
+            color: var(--text-tertiary);
+            margin-top: 2px;
+        }
+
+        .task-card .card-actions {
+            display: flex;
+            gap: 12px;
+        }
+
+        .task-card .action-btn {
+            flex: 1;
+            height: 40px;
+            border-radius: 8px;
+            font-size: 14px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .task-card .action-btn.reject {
+            background-color: #FFF1F0;
+            color: var(--error-color);
+            border: 1px solid var(--error-color);
+        }
+
+        .task-card .action-btn.accept {
+            background-color: var(--primary-color);
+            color: #FFFFFF;
+            border: none;
+        }
+
+        .task-card .action-btn.view {
+            background-color: var(--bg-secondary);
+            color: var(--text-secondary);
+            border: none;
+        }
+
+        .task-card .status-tag {
+            display: inline-flex;
+            align-items: center;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+        }
+
+        .task-card .status-tag.pending {
+            background-color: var(--status-warning-bg);
+            color: var(--warning-color);
+        }
+
+        .task-card .status-tag.accepted {
+            background-color: var(--status-success-bg);
+            color: var(--success-color);
+        }
+
+        .task-card .status-tag.rejected {
+            background-color: #FFF1F0;
+            color: var(--error-color);
+        }
+
+        .task-card .status-tag.in-progress {
+            background-color: var(--status-primary-bg);
+            color: var(--primary-color);
+        }
+
+        .task-card .status-tag.completed {
+            background-color: var(--status-success-bg);
+            color: var(--success-color);
+        }
+
+        .task-card .received-info {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .task-card .received-status {
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+
+        .empty-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 60px 16px;
+            color: var(--text-tertiary);
+        }
+
+        .empty-state .icon {
+            font-size: 48px;
+            margin-bottom: 12px;
+            opacity: 0.6;
+        }
+
+        .empty-state .text {
+            font-size: 14px;
+        }
+
+        .confirm-modal {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-color: rgba(0,0,0,0.5);
+            z-index: 200;
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .confirm-modal.show { display: flex; }
+
+        .confirm-modal .modal-content {
+            width: 280px;
+            background-color: var(--bg-primary);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .confirm-modal .modal-header {
+            padding: 16px;
+            text-align: center;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .confirm-modal .modal-title {
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .confirm-modal .modal-body {
+            padding: 16px;
+            text-align: center;
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        .confirm-modal .modal-footer {
+            display: flex;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .confirm-modal .modal-btn {
+            flex: 1;
+            padding: 14px;
+            text-align: center;
+            font-size: 15px;
+            cursor: pointer;
+        }
+
+        .confirm-modal .modal-btn.cancel {
+            color: var(--text-tertiary);
+            border-right: 1px solid var(--border-color);
+        }
+
+        .confirm-modal .modal-btn.confirm {
+            color: var(--primary-color);
+            font-weight: 600;
+        }
+
+        .confirm-modal .modal-btn.danger {
+            color: var(--error-color);
+            font-weight: 600;
+        }
+
+        .reject-reason {
+            width: 100%;
+            min-height: 80px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 10px;
+            font-size: 14px;
+            outline: none;
+            resize: none;
+            margin-top: 12px;
+        }
+
+        .reject-reason:focus {
+            border-color: var(--primary-color);
+        }
+
+        .custom-toast-modal {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-color: rgba(0,0,0,0.5);
+            z-index: 600;
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .custom-toast-modal.show { display: flex; }
+
+        .custom-toast-modal .modal-box {
+            width: 280px;
+            background-color: var(--bg-primary);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .custom-toast-modal .modal-body {
+            padding: 24px 16px;
+            text-align: center;
+            font-size: 14px;
+            color: var(--text-secondary);
+            line-height: 1.5;
+        }
+
+        .custom-toast-modal .modal-footer {
+            border-top: 1px solid var(--border-color);
+        }
+
+        .custom-toast-modal .modal-btn {
+            width: 100%;
+            padding: 14px;
+            text-align: center;
+            font-size: 15px;
+            cursor: pointer;
+            color: var(--primary-color);
+            font-weight: 600;
+        }
+
+        .modal-btn.danger {
+            color: var(--error-color) !important;
+        }
+
+        .status-tag.accepted {
+            background-color: var(--status-primary-bg);
+            color: var(--primary-color);
+        }
+        
+        .status-tag.configuring {
+            background-color: #FFF7E6;
+            color: var(--warning-color);
+        }
+        
+        .task-card.configuring {
+            border-left: 3px solid var(--warning-color);
+        }
+        
+        .action-btn.primary {
+            background-color: var(--primary-color);
+            color: #FFFFFF;
+        }
+        
+        .action-btn.primary:hover {
+            background-color: #40a9ff;
+        }
+        
+        .task-card .card-top-row {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            margin-bottom: 12px;
+        }
+        
+        .task-card .card-top-row .task-title-wrap {
+            flex: 1;
+            display: flex;
+            align-items: center;
+        }
+        
+        .task-card .card-top-row .task-title {
+            flex: 1;
+            margin-right: 8px;
+        }
+        
+        .task-card .delete-icon {
+            width: 28px;
+            height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            color: var(--text-tertiary);
+            cursor: pointer;
+            border-radius: 4px;
+            transition: all 0.2s;
+            flex-shrink: 0;
+            position: relative;
+            z-index: 10;
+        }
+        
+        .task-card .delete-icon:hover {
+            background-color: #FFF1F0;
+            color: var(--error-color);
+        }
+        
+        .task-card .delete-icon:active {
+            transform: scale(0.95);
+        }
+        
+        .standard-section {
+            margin-top: 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        
+        .standard-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 12px;
+            background-color: var(--bg-secondary);
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        
+        .standard-header:hover {
+            background-color: #EAEAEA;
+        }
+        
+        .standard-header .header-left {
+            display: flex;
+            align-items: center;
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+        
+        .standard-header .header-left .icon {
+            margin-right: 6px;
+        }
+        
+        .standard-header .arrow-icon {
+            font-size: 12px;
+            color: var(--text-tertiary);
+            transition: transform 0.3s;
+        }
+        
+        .standard-header.expanded .arrow-icon {
+            transform: rotate(180deg);
+        }
+        
+        .standard-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+            background-color: var(--bg-primary);
+        }
+        
+        .standard-content.show {
+            max-height: 200px;
+        }
+        
+        .standard-content .content-inner {
+            padding: 12px;
+            font-size: 13px;
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+        
+        .create-task-guide {
+            position: absolute;
+            bottom: 20px;
+            right: 16px;
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, var(--primary-color) 0%, #40A9FF 100%);
+            border-radius: 50%;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 12px rgba(24, 144, 255, 0.4);
+            z-index: 500;
+        }
+        
+        .create-task-guide:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 16px rgba(24, 144, 255, 0.5);
+        }
+        
+        .create-task-guide:active {
+            transform: scale(0.95);
+        }
+        
+        .create-task-guide .guide-icon {
+            font-size: 24px;
+            color: #FFFFFF;
+        }
+        
+        .create-task-guide.show {
+            display: flex;
+        }
+        
+        .deleted-list {
+            padding: 12px 16px;
+        }
+        
+        .deleted-card {
+            background-color: var(--bg-secondary);
+            border-radius: 12px;
+            padding: 14px;
+            margin-bottom: 12px;
+            opacity: 0.7;
+        }
+        
+        .deleted-card:last-child {
+            margin-bottom: 0;
+        }
+        
+        .confirmer-tag {
+            display: inline-flex;
+            align-items: center;
+            padding: 4px 8px;
+            background-color: #E6F7FF;
+            border: 1px solid #91D5FF;
+            border-radius: 4px;
+            font-size: 12px;
+            color: var(--primary-color);
+        }
+        
+        .confirmer-tag .remove-btn {
+            margin-left: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            color: var(--primary-color);
+        }
+        
+        .confirmer-tag .remove-btn:hover {
+            color: var(--error-color);
+        }
+        
+        .search-select {
+            position: relative;
+        }
+        
+        .search-select .search-input-wrap {
+            display: flex;
+            align-items: center;
+            background-color: var(--bg-secondary);
+            border-radius: 6px;
+            padding: 0 10px;
+            height: 36px;
+            cursor: pointer;
+        }
+        
+        .search-select .search-input {
+            flex: 1;
+            border: none;
+            background: transparent;
+            font-size: 14px;
+            outline: none;
+        }
+        
+        .search-select .arrow {
+            color: var(--text-tertiary);
+            font-size: 12px;
+        }
+        
+        .search-select .dropdown-list {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background-color: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            margin-top: 4px;
+            max-height: 200px;
+            overflow-y: auto;
+            display: none;
+            z-index: 100;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .search-select .dropdown-list.show {
+            display: block;
+        }
+        
+        .search-select .dropdown-item {
+            padding: 10px 12px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        
+        .search-select .dropdown-item:hover {
+            background-color: var(--bg-secondary);
+        }
+        
+        .search-select .dropdown-item.selected {
+            background-color: var(--status-primary-bg);
+            color: var(--primary-color);
+        }
+        
+        .deleted-card .card-top-row {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+        
+        .deleted-card .task-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            flex: 1;
+            text-decoration: line-through;
+        }
+        
+        .deleted-card .task-type {
+            font-size: 10px;
+            padding: 2px 6px;
+            border-radius: 4px;
+            background-color: #E8E8E8;
+            color: var(--text-tertiary);
+        }
+        
+        .deleted-card .deleted-info {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 12px;
+            color: var(--text-tertiary);
+        }
+        
+        .deleted-card .restore-btn {
+            padding: 4px 12px;
+            background-color: var(--bg-primary);
+            color: var(--primary-color);
+            border: 1px solid var(--primary-color);
+            border-radius: 4px;
+            font-size: 12px;
+            cursor: pointer;
+        }
+    </style>
+<style>
+        /* 微信原生胶囊占位（样式参考真机效果，由微信客户端实际渲染） */
+    .nav-bar .native-capsule {
+        display: inline-flex;
+        align-items: center;
+        justify-content: space-between;
+        min-width: 56px;
+        height: 28px;
+        padding: 0 10px;
+        border: 1px solid rgba(0, 0, 0, 0.08);
+        border-radius: 14px;
+        background: rgba(255, 255, 255, 0.7);
+        color: rgba(0, 0, 0, 0.6);
+        font-size: 12px;
+        line-height: 1;
+        user-select: none;
+        box-sizing: border-box;
+    }
+    .nav-bar .native-capsule .nc-left,
+    .nav-bar .native-capsule .nc-right {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex: 1;
+        min-width: 16px;
+    }
+    .nav-bar .native-capsule .nc-right {
+        font-size: 10px;
+    }
+    .nav-bar .native-capsule .nc-divider {
+        width: 1px;
+        height: 14px;
+        background: rgba(0, 0, 0, 0.1);
+        margin: 0 4px;
+    }
+</style>
+</head>
+<body>
+    <div class="phone-frame">
+        <div class="status-bar">
+            <div class="time">9:41</div>
+            <div class="icons">📶 🔋</div>
+        </div>
+        
+        <div class="nav-bar">
+            <div class="back" onclick="history.back()">← 返回</div>
+            <div class="title centered">临时任务</div>
+            
+        
+            <div class="actions"><div class="native-capsule" title="微信原生胶囊：由微信客户端渲染，开发者不可自定义其内容"><span class="nc-left">⋯</span><span class="nc-divider"></span><span class="nc-right">○</span></div></div>
+        </div>
+            
+
+        
+        <div class="page-content">
+            <div class="status-tabs">
+                <div class="status-tab active" onclick="switchStatusTab(this, 'pending')">
+                    待接受
+                    <span class="badge" id="pendingBadge">3</span>
+                </div>
+                <div class="status-tab" onclick="switchStatusTab(this, 'inprogress')">
+                    进行中
+                    <span class="badge" id="inprogressBadge" style="background-color: var(--primary-color);">4</span>
+                </div>
+                <div class="status-tab" onclick="switchStatusTab(this, 'completed')">
+                    已完成
+                    <span class="badge" id="completedBadge" style="background-color: var(--success-color);">2</span>
+                </div>
+                <div class="status-tab" onclick="switchStatusTab(this, 'created')">
+                    我发起的
+                    <span class="badge" id="createdBadge" style="background-color: var(--purple-color);">2</span>
+                </div>
+                <div class="status-tab" onclick="switchStatusTab(this, 'deleted')">
+                    已删除
+                    <span class="badge" id="deletedBadge" style="background-color: var(--text-tertiary);">1</span>
+                </div>
+            </div>
+            
+            <div class="batch-action-bar show" id="batchActionBar">
+                <div class="info">已选择 <span id="selectedCount">3</span> 个任务</div>
+                <button class="btn" onclick="acceptAllTasks()">一键全部接受</button>
+            </div>
+            
+            <div class="task-list" id="pendingList">
+                <div class="task-card" data-id="1">
+                    <div class="card-top-row">
+                        <div class="task-title-wrap">
+                            <div class="task-title">紧急修补墙面裂缝</div>
+                            <div class="task-type temp">临时任务</div>
+                        </div>
+                    </div>
+                    <div class="task-meta">
+                        <div class="meta-item">
+                            <span class="icon">📄</span>
+                            <span class="label">关联合同：</span>
+                            <span>泥瓦分包合同</span>
+                        </div>
+                    </div>
+                    <div class="standard-section">
+                        <div class="standard-header" onclick="toggleStandard(this)">
+                            <div class="header-left">
+                                <span class="icon">📋</span>
+                                <span>执行标准</span>
+                            </div>
+                            <span class="arrow-icon">▼</span>
+                        </div>
+                        <div class="standard-content">
+                            <div class="content-inner">使用相同材质进行修补，确保与原墙面一致</div>
+                        </div>
+                    </div>
+                    <div class="standard-section">
+                        <div class="standard-header" onclick="toggleStandard(this)">
+                            <div class="header-left">
+                                <span class="icon">✅</span>
+                                <span>确认标准</span>
+                            </div>
+                            <span class="arrow-icon">▼</span>
+                        </div>
+                        <div class="standard-content">
+                            <div class="content-inner">修补后无明显色差，表面平整</div>
+                        </div>
+                    </div>
+                    <div class="standard-section">
+                        <div class="standard-header" onclick="toggleStandard(this)">
+                            <div class="header-left">
+                                <span class="icon">⚖️</span>
+                                <span>担责标准</span>
+                            </div>
+                            <span class="arrow-icon">▼</span>
+                        </div>
+                        <div class="standard-content">
+                            <div class="content-inner">因施工质量问题导致的返工由执行人承担</div>
+                        </div>
+                    </div>
+                    <div class="sender-info">
+                        <div class="sender-avatar">张</div>
+                        <div class="sender-detail">
+                            <div class="sender-name">张三（项目经理）</div>
+                            <div class="sender-time">派发时间：2024-01-25 14:30</div>
+                        </div>
+                    </div>
+                    <div class="card-actions" onclick="event.stopPropagation()">
+                        <button class="action-btn reject" onclick="showRejectModal(1)">拒绝</button>
+                        <button class="action-btn accept" onclick="acceptTask(1)">接受任务</button>
+                    </div>
+                </div>
+                
+                <div class="task-card" data-id="2">
+                    <div class="card-top-row">
+                        <div class="task-title-wrap">
+                            <div class="task-title">更换损坏插座</div>
+                            <div class="task-type temp">临时任务</div>
+                        </div>
+                    </div>
+                    <div class="task-meta">
+                        <div class="meta-item">
+                            <span class="icon">📄</span>
+                            <span class="label">关联合同：</span>
+                            <span>水电分包合同</span>
+                        </div>
+                    </div>
+                    <div class="standard-section">
+                        <div class="standard-header" onclick="toggleStandard(this)">
+                            <div class="header-left">
+                                <span class="icon">📋</span>
+                                <span>执行标准</span>
+                            </div>
+                            <span class="arrow-icon">▼</span>
+                        </div>
+                        <div class="standard-content">
+                            <div class="content-inner">断电操作，更换同规格插座</div>
+                        </div>
+                    </div>
+                    <div class="standard-section">
+                        <div class="standard-header" onclick="toggleStandard(this)">
+                            <div class="header-left">
+                                <span class="icon">✅</span>
+                                <span>确认标准</span>
+                            </div>
+                            <span class="arrow-icon">▼</span>
+                        </div>
+                        <div class="standard-content">
+                            <div class="content-inner">通电测试正常，安装牢固</div>
+                        </div>
+                    </div>
+                    <div class="standard-section">
+                        <div class="standard-header" onclick="toggleStandard(this)">
+                            <div class="header-left">
+                                <span class="icon">⚖️</span>
+                                <span>担责标准</span>
+                            </div>
+                            <span class="arrow-icon">▼</span>
+                        </div>
+                        <div class="standard-content">
+                            <div class="content-inner">因操作不当导致的电路故障由执行人承担</div>
+                        </div>
+                    </div>
+                    <div class="sender-info">
+                        <div class="sender-avatar">李</div>
+                        <div class="sender-detail">
+                            <div class="sender-name">李四（施工主管）</div>
+                            <div class="sender-time">派发时间：2024-01-25 10:15</div>
+                        </div>
+                    </div>
+                    <div class="card-actions" onclick="event.stopPropagation()">
+                        <button class="action-btn reject" onclick="showRejectModal(2)">拒绝</button>
+                        <button class="action-btn accept" onclick="acceptTask(2)">接受任务</button>
+                    </div>
+                </div>
+                
+                <div class="task-card" data-id="3">
+                    <div class="card-top-row">
+                        <div class="task-title-wrap">
+                            <div class="task-title">临时增加射灯安装</div>
+                            <div class="task-type temp">临时任务</div>
+                        </div>
+                    </div>
+                    <div class="task-meta">
+                        <div class="meta-item">
+                            <span class="icon">📄</span>
+                            <span class="label">关联合同：</span>
+                            <span>水电分包合同</span>
+                        </div>
+                    </div>
+                    <div class="standard-section">
+                        <div class="standard-header" onclick="toggleStandard(this)">
+                            <div class="header-left">
+                                <span class="icon">📋</span>
+                                <span>执行标准</span>
+                            </div>
+                            <span class="arrow-icon">▼</span>
+                        </div>
+                        <div class="standard-content">
+                            <div class="content-inner">按设计图纸位置安装射灯</div>
+                        </div>
+                    </div>
+                    <div class="standard-section">
+                        <div class="standard-header" onclick="toggleStandard(this)">
+                            <div class="header-left">
+                                <span class="icon">✅</span>
+                                <span>确认标准</span>
+                            </div>
+                            <span class="arrow-icon">▼</span>
+                        </div>
+                        <div class="standard-content">
+                            <div class="content-inner">位置准确，灯光效果符合设计</div>
+                        </div>
+                    </div>
+                    <div class="standard-section">
+                        <div class="standard-header" onclick="toggleStandard(this)">
+                            <div class="header-left">
+                                <span class="icon">⚖️</span>
+                                <span>担责标准</span>
+                            </div>
+                            <span class="arrow-icon">▼</span>
+                        </div>
+                        <div class="standard-content">
+                            <div class="content-inner">因安装问题导致的灯具损坏由执行人承担</div>
+                        </div>
+                    </div>
+                    <div class="sender-info">
+                        <div class="sender-avatar">张</div>
+                        <div class="sender-detail">
+                            <div class="sender-name">张三（项目经理）</div>
+                            <div class="sender-time">派发时间：2024-01-25 09:00</div>
+                        </div>
+                    </div>
+                    <div class="card-actions" onclick="event.stopPropagation()">
+                        <button class="action-btn reject" onclick="showRejectModal(3)">拒绝</button>
+                        <button class="action-btn accept" onclick="acceptTask(3)">接受任务</button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="filter-bar show" id="inprogressFilterBar">
+                <select class="contract-filter" id="inprogressContractFilter" onchange="filterInprogressTasks()">
+                    <option value="">全部合同</option>
+                    <option value="water">水电分包合同</option>
+                    <option value="tile">泥瓦分包合同</option>
+                    <option value="wood">木工分包合同</option>
+                    <option value="paint">油漆分包合同</option>
+                </select>
+                <select class="status-filter" id="inprogressStatusFilter" onchange="filterInprogressByStatusSelect()">
+                    <option value="all">全部状态</option>
+                    <option value="pending">待开始</option>
+                    <option value="confirming">确认中</option>
+                </select>
+                <div class="search-input-wrap">
+                    <span class="search-icon">🔍</span>
+                    <input type="text" class="search-input" id="inprogressSearchInput" placeholder="搜索任务名称..." oninput="filterInprogressTasks()">
+                </div>
+            </div>
+            
+            <div class="task-list" id="inprogressList" style="display: none;">
+                <div class="task-card" data-contract="water" data-status="pending">
+                    <div class="card-top-row">
+                        <div class="task-title-wrap">
+                            <div class="task-title">水电线路检测</div>
+                            <div class="task-type temp">临时任务</div>
+                        </div>
+                    </div>
+                    <div class="task-meta">
+                        <div class="meta-item">
+                            <span class="icon">📄</span>
+                            <span class="label">关联合同：</span>
+                            <span>水电分包合同</span>
+                        </div>
+                    </div>
+                    <div class="sender-info">
+                        <div class="sender-avatar">张</div>
+                        <div class="sender-detail">
+                            <div class="sender-name">张三（项目经理）</div>
+                            <div class="sender-time">派发时间：2024-01-24 16:00</div>
+                        </div>
+                    </div>
+                    <div class="received-info">
+                        <div class="received-status">当前状态</div>
+                        <div class="status-tag pending">待开始</div>
+                    </div>
+                    <div class="card-actions" style="margin-top: 12px;">
+                        <button class="action-btn view" onclick="location.href='temp-task-detail.html?status=accepted'">查看详情</button>
+                        <button class="action-btn accept" onclick="showCustomToast('开始执行任务')">开始执行</button>
+                    </div>
+                </div>
+                
+                <div class="task-card" data-contract="wood" data-status="confirming">
+                    <div class="card-top-row">
+                        <div class="task-title-wrap">
+                            <div class="task-title">修补门框划痕</div>
+                            <div class="task-type temp">临时任务</div>
+                        </div>
+                    </div>
+                    <div class="task-meta">
+                        <div class="meta-item">
+                            <span class="icon">📄</span>
+                            <span class="label">关联合同：</span>
+                            <span>木工分包合同</span>
+                        </div>
+                    </div>
+                    <div class="sender-info">
+                        <div class="sender-avatar">李</div>
+                        <div class="sender-detail">
+                            <div class="sender-name">李四（施工主管）</div>
+                            <div class="sender-time">派发时间：2024-01-23 11:30</div>
+                        </div>
+                    </div>
+                    <div class="received-info">
+                        <div class="received-status">当前状态</div>
+                        <div class="status-tag in-progress">确认中</div>
+                    </div>
+                    <div class="card-actions" style="margin-top: 12px;">
+                        <button class="action-btn view" onclick="location.href='temp-task-detail.html?status=confirming'">查看详情</button>
+                    </div>
+                </div>
+                
+                <div class="task-card" data-contract="water" data-status="pending">
+                    <div class="card-top-row">
+                        <div class="task-title-wrap">
+                            <div class="task-title">更换水龙头</div>
+                            <div class="task-type temp">临时任务</div>
+                        </div>
+                    </div>
+                    <div class="task-meta">
+                        <div class="meta-item">
+                            <span class="icon">📄</span>
+                            <span class="label">关联合同：</span>
+                            <span>水电分包合同</span>
+                        </div>
+                    </div>
+                    <div class="sender-info">
+                        <div class="sender-avatar">王</div>
+                        <div class="sender-detail">
+                            <div class="sender-name">王五（业主）</div>
+                            <div class="sender-time">派发时间：2024-01-21 09:00</div>
+                        </div>
+                    </div>
+                    <div class="received-info">
+                        <div class="received-status">当前状态</div>
+                        <div class="status-tag pending">待开始</div>
+                    </div>
+                    <div class="card-actions" style="margin-top: 12px;">
+                        <button class="action-btn view" onclick="location.href='temp-task-detail.html?status=accepted'">查看详情</button>
+                        <button class="action-btn accept" onclick="showCustomToast('开始执行任务')">开始执行</button>
+                    </div>
+                </div>
+                
+                <div class="task-card" data-contract="tile" data-status="confirming">
+                    <div class="card-top-row">
+                        <div class="task-title-wrap">
+                            <div class="task-title">瓷砖空鼓修复</div>
+                            <div class="task-type temp">临时任务</div>
+                        </div>
+                    </div>
+                    <div class="task-meta">
+                        <div class="meta-item">
+                            <span class="icon">📄</span>
+                            <span class="label">关联合同：</span>
+                            <span>泥瓦分包合同</span>
+                        </div>
+                    </div>
+                    <div class="sender-info">
+                        <div class="sender-avatar">张</div>
+                        <div class="sender-detail">
+                            <div class="sender-name">张三（项目经理）</div>
+                            <div class="sender-time">派发时间：2024-01-20 14:00</div>
+                        </div>
+                    </div>
+                    <div class="received-info">
+                        <div class="received-status">当前状态</div>
+                        <div class="status-tag in-progress">确认中</div>
+                    </div>
+                    <div class="card-actions" style="margin-top: 12px;">
+                        <button class="action-btn view" onclick="location.href='temp-task-detail.html?status=confirming'">查看详情</button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="filter-bar" id="completedFilterBar">
+                <select class="contract-filter" id="completedContractFilter" onchange="filterCompletedTasks()">
+                    <option value="">全部合同</option>
+                    <option value="water">水电分包合同</option>
+                    <option value="tile">泥瓦分包合同</option>
+                    <option value="wood">木工分包合同</option>
+                    <option value="paint">油漆分包合同</option>
+                </select>
+                <div class="search-input-wrap">
+                    <span class="search-icon">🔍</span>
+                    <input type="text" class="search-input" id="completedSearchInput" placeholder="搜索任务名称..." oninput="filterCompletedTasks()">
+                </div>
+            </div>
+            
+            <div class="task-list" id="completedList" style="display: none;">
+                <div class="task-card" data-contract="tile" data-status="completed">
+                    <div class="card-top-row">
+                        <div class="task-title-wrap">
+                            <div class="task-title">清理施工垃圾</div>
+                            <div class="task-type temp">临时任务</div>
+                        </div>
+                    </div>
+                    <div class="task-meta">
+                        <div class="meta-item">
+                            <span class="icon">📄</span>
+                            <span class="label">关联合同：</span>
+                            <span>泥瓦分包合同</span>
+                        </div>
+                    </div>
+                    <div class="sender-info">
+                        <div class="sender-avatar">张</div>
+                        <div class="sender-detail">
+                            <div class="sender-name">张三（项目经理）</div>
+                            <div class="sender-time">派发时间：2024-01-22 15:00</div>
+                        </div>
+                    </div>
+                    <div class="received-info">
+                        <div class="received-status">完成时间：2024-01-22 17:30</div>
+                        <div class="status-tag completed">已完成</div>
+                    </div>
+                    <div class="card-actions" style="margin-top: 12px;">
+                        <button class="action-btn view" onclick="location.href='temp-task-detail.html?status=completed'">查看详情</button>
+                    </div>
+                </div>
+                
+                <div class="task-card" data-contract="water" data-status="completed">
+                    <div class="card-top-row">
+                        <div class="task-title-wrap">
+                            <div class="task-title">紧急电路检修</div>
+                            <div class="task-type temp">临时任务</div>
+                        </div>
+                    </div>
+                    <div class="task-meta">
+                        <div class="meta-item">
+                            <span class="icon">📄</span>
+                            <span class="label">关联合同：</span>
+                            <span>水电分包合同</span>
+                        </div>
+                    </div>
+                    <div class="sender-info">
+                        <div class="sender-avatar">李</div>
+                        <div class="sender-detail">
+                            <div class="sender-name">李四（施工主管）</div>
+                            <div class="sender-time">派发时间：2024-01-19 10:00</div>
+                        </div>
+                    </div>
+                    <div class="received-info">
+                        <div class="received-status">完成时间：2024-01-19 16:00</div>
+                        <div class="status-tag completed">已完成</div>
+                    </div>
+                    <div class="card-actions" style="margin-top: 12px;">
+                        <button class="action-btn view" onclick="location.href='temp-task-detail.html?status=completed'">查看详情</button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="create-task-guide" onclick="goToCreateTask()">
+                <div class="guide-icon">➕</div>
+            </div>
+            
+            <div class="filter-bar" id="createdFilterBar" style="display: none;">
+                <select class="contract-filter" id="createdContractFilter" onchange="filterCreatedTasks()">
+                    <option value="">全部合同</option>
+                    <option value="water">水电分包合同</option>
+                    <option value="tile">泥瓦分包合同</option>
+                    <option value="wood">木工分包合同</option>
+                    <option value="paint">油漆分包合同</option>
+                </select>
+                <select class="status-filter" id="createdStatusFilter" onchange="filterCreatedByStatusSelect()">
+                    <option value="all">全部状态</option>
+                    <option value="configuring">待配置</option>
+                    <option value="pending">待接受</option>
+                    <option value="accepted">已接受</option>
+                    <option value="confirming">确认中</option>
+                    <option value="completed">已完成</option>
+                </select>
+                <div class="search-input-wrap">
+                    <span class="search-icon">🔍</span>
+                    <input type="text" class="search-input" id="createdSearchInput" placeholder="搜索任务名称..." oninput="filterCreatedTasks()">
+                </div>
+            </div>
+            
+            <div class="task-list" id="createdList" style="display: none;">
+                <div class="task-card configuring" data-contract="wood" data-status="configuring" data-id="config-1">
+                    <div class="card-top-row">
+                        <div class="task-title-wrap">
+                            <div class="task-title">木门安装调试</div>
+                            <div class="task-type temp">临时任务</div>
+                        </div>
+                        <div class="delete-icon" onclick="showDeleteModal(this, 'created', event)">🗑️</div>
+                    </div>
+                    <div class="task-meta">
+                        <div class="meta-item">
+                            <span class="icon">📄</span>
+                            <span class="label">关联合同：</span>
+                            <span>木工分包合同</span>
+                        </div>
+                        <div class="meta-item">
+                            <span class="icon">👤</span>
+                            <span class="label">执行人：</span>
+                            <span style="color: var(--text-tertiary);">暂无</span>
+                        </div>
+                    </div>
+                    <div class="sender-info">
+                        <div class="sender-avatar" style="background: linear-gradient(135deg, #722ED1 0%, #9E5CF7 100%);">我</div>
+                        <div class="sender-detail">
+                            <div class="sender-name">我发起的任务</div>
+                            <div class="sender-time">创建时间：2024-01-26 09:00</div>
+                        </div>
+                    </div>
+                    <div class="received-info">
+                        <div class="received-status">请配置执行人</div>
+                        <div class="status-tag configuring">待配置</div>
+                    </div>
+                    <div class="card-actions" style="margin-top: 12px;">
+                        <button class="action-btn primary" onclick="showConfigModal('config-1')">去配置</button>
+                    </div>
+                </div>
+                
+                <div class="task-card" data-contract="water" data-status="pending">
+                    <div class="card-top-row">
+                        <div class="task-title-wrap">
+                            <div class="task-title">紧急电路检修</div>
+                            <div class="task-type temp">临时任务</div>
+                        </div>
+                        <div class="delete-icon" onclick="showDeleteModal(this, 'created', event)">🗑️</div>
+                    </div>
+                    <div class="task-meta">
+                        <div class="meta-item">
+                            <span class="icon">📄</span>
+                            <span class="label">关联合同：</span>
+                            <span>水电分包合同</span>
+                        </div>
+                        <div class="meta-item">
+                            <span class="icon">👤</span>
+                            <span class="label">执行人：</span>
+                            <span>李四</span>
+                        </div>
+                    </div>
+                    <div class="sender-info">
+                        <div class="sender-avatar" style="background: linear-gradient(135deg, #722ED1 0%, #9E5CF7 100%);">我</div>
+                        <div class="sender-detail">
+                            <div class="sender-name">我发起的任务</div>
+                            <div class="sender-time">派发时间：2024-01-25 16:00</div>
+                        </div>
+                    </div>
+                    <div class="received-info">
+                        <div class="received-status">执行人：李四</div>
+                        <div class="status-tag pending">待接受</div>
+                    </div>
+                    <div class="card-actions" style="margin-top: 12px;">
+                        <button class="action-btn view" onclick="location.href='temp-task-detail.html?status=pending'">查看详情</button>
+                    </div>
+                </div>
+                
+                <div class="task-card" data-contract="tile" data-status="accepted">
+                    <div class="card-top-row">
+                        <div class="task-title-wrap">
+                            <div class="task-title">墙面修补</div>
+                            <div class="task-type temp">临时任务</div>
+                        </div>
+                        <div class="delete-icon" onclick="showDeleteModal(this, 'created', event)">🗑️</div>
+                    </div>
+                    <div class="task-meta">
+                        <div class="meta-item">
+                            <span class="icon">📄</span>
+                            <span class="label">关联合同：</span>
+                            <span>泥瓦分包合同</span>
+                        </div>
+                        <div class="meta-item">
+                            <span class="icon">👤</span>
+                            <span class="label">执行人：</span>
+                            <span>王五</span>
+                        </div>
+                    </div>
+                    <div class="sender-info">
+                        <div class="sender-avatar" style="background: linear-gradient(135deg, #722ED1 0%, #9E5CF7 100%);">我</div>
+                        <div class="sender-detail">
+                            <div class="sender-name">我发起的任务</div>
+                            <div class="sender-time">派发时间：2024-01-24 10:00</div>
+                        </div>
+                    </div>
+                    <div class="received-info">
+                        <div class="received-status">执行人：王五</div>
+                        <div class="status-tag accepted">已接受</div>
+                    </div>
+                    <div class="card-actions" style="margin-top: 12px;">
+                        <button class="action-btn view" onclick="location.href='temp-task-detail.html?status=accepted'">查看详情</button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="deleted-list" id="deletedList" style="display: none;">
+                <div class="deleted-card" data-id="deleted-1">
+                    <div class="card-top-row">
+                        <div class="task-title">高空作业加固</div>
+                        <div class="task-type">临时任务</div>
+                    </div>
+                    <div class="deleted-info">
+                        <span>删除时间：2024-01-20 10:30</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="confirm-modal" id="rejectModal">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <div class="modal-title">拒绝任务</div>
+                    </div>
+                    <div class="modal-body">
+                        <div>确定要拒绝此任务吗？请说明拒绝原因。</div>
+                        <textarea class="reject-reason" id="rejectReason" placeholder="请输入拒绝原因"></textarea>
+                    </div>
+                    <div class="modal-footer">
+                        <div class="modal-btn cancel" onclick="closeRejectModal()">取消</div>
+                        <div class="modal-btn danger" onclick="confirmReject()">确认拒绝</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="confirm-modal" id="acceptModal">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <div class="modal-title">接受任务</div>
+                    </div>
+                    <div class="modal-body">
+                        确定要接受此任务吗？接受后请按时完成执行。
+                    </div>
+                    <div class="modal-footer">
+                        <div class="modal-btn cancel" onclick="closeAcceptModal()">取消</div>
+                        <div class="modal-btn confirm" onclick="confirmAccept()">确认接受</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="custom-toast-modal" id="customToastModal">
+                <div class="modal-box">
+                    <div class="modal-body" id="customToastMessage">
+                        操作成功
+                    </div>
+                    <div class="modal-footer">
+                        <div class="modal-btn" onclick="closeCustomToast()">知道了</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="confirm-modal" id="deleteModal">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <div class="modal-title">删除任务</div>
+                    </div>
+                    <div class="modal-body">
+                        <div style="text-align: center;">
+                            <div style="font-size: 48px; margin-bottom: 12px;">🗑️</div>
+                            <div style="font-size: 15px; color: var(--text-primary); margin-bottom: 8px;">确定要删除此任务吗？</div>
+                            <div style="font-size: 13px; color: var(--text-tertiary);">删除后可在"已删除"中查看</div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <div class="modal-btn cancel" onclick="closeDeleteModal()">取消</div>
+                        <div class="modal-btn danger" onclick="confirmDeleteTask()">确认删除</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="confirm-modal" id="createTaskModal">
+                <div class="modal-content" style="width: 320px; max-height: 80vh; overflow-y: auto;">
+                    <div class="modal-header">
+                        <div class="modal-title">创建临时任务</div>
+                    </div>
+                    <div class="modal-body" style="text-align: left; padding: 16px;">
+                        <div style="margin-bottom: 14px;">
+                            <div style="font-size: 13px; color: var(--text-secondary); margin-bottom: 6px;">任务名称 <span style="color: var(--error-color);">*</span></div>
+                            <input type="text" id="taskNameInput" style="width: 100%; height: 36px; border: 1px solid var(--border-color); border-radius: 6px; padding: 0 10px; font-size: 14px; box-sizing: border-box;" placeholder="请输入任务名称">
+                        </div>
+                        <div style="margin-bottom: 14px;">
+                            <div style="font-size: 13px; color: var(--text-secondary); margin-bottom: 6px;">关联合同 <span style="color: var(--error-color);">*</span></div>
+                            <select id="taskContractSelect" style="width: 100%; height: 36px; border: 1px solid var(--border-color); border-radius: 6px; padding: 0 10px; font-size: 14px; background-color: var(--bg-primary);">
+                                <option value="">请选择合同</option>
+                                <option value="water">水电分包合同</option>
+                                <option value="tile">泥瓦分包合同</option>
+                                <option value="wood">木工分包合同</option>
+                                <option value="paint">油漆分包合同</option>
+                            </select>
+                        </div>
+                        <div style="margin-bottom: 14px;">
+                            <div style="font-size: 13px; color: var(--text-secondary); margin-bottom: 6px;">执行人（选填）</div>
+                            <select id="taskExecutorSelect" style="width: 100%; height: 36px; border: 1px solid var(--border-color); border-radius: 6px; padding: 0 10px; font-size: 14px; background-color: var(--bg-primary);">
+                                <option value="">请选择执行人</option>
+                                <option value="1">李四</option>
+                                <option value="2">王五</option>
+                                <option value="3">赵六</option>
+                            </select>
+                        </div>
+                        <div style="margin-bottom: 14px;">
+                            <div style="font-size: 13px; color: var(--text-secondary); margin-bottom: 6px;">确认人（选填，最多5人）</div>
+                            <div id="confirmerTags" style="display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 8px;"></div>
+                            <select id="taskConfirmerSelect" style="width: 100%; height: 36px; border: 1px solid var(--border-color); border-radius: 6px; padding: 0 10px; font-size: 14px; background-color: var(--bg-primary);" onchange="addConfirmer(this)">
+                                <option value="">请选择确认人</option>
+                                <option value="张三">张三（项目经理）</option>
+                                <option value="李四">李四（电工）</option>
+                                <option value="王五">王五（泥瓦工）</option>
+                                <option value="赵六">赵六（木工）</option>
+                                <option value="钱七">钱七（油漆工）</option>
+                                <option value="孙八">孙八（监理）</option>
+                            </select>
+                        </div>
+                        <div style="margin-bottom: 14px;">
+                            <div style="font-size: 13px; color: var(--text-secondary); margin-bottom: 6px;">执行标准 <span style="color: var(--error-color);">*</span></div>
+                            <textarea id="taskExecStandard" style="width: 100%; min-height: 50px; border: 1px solid var(--border-color); border-radius: 6px; padding: 8px; font-size: 13px; resize: none; box-sizing: border-box;" placeholder="请输入执行标准"></textarea>
+                        </div>
+                        <div style="margin-bottom: 14px;">
+                            <div style="font-size: 13px; color: var(--text-secondary); margin-bottom: 6px;">确认标准 <span style="color: var(--error-color);">*</span></div>
+                            <textarea id="taskConfirmStandard" style="width: 100%; min-height: 50px; border: 1px solid var(--border-color); border-radius: 6px; padding: 8px; font-size: 13px; resize: none; box-sizing: border-box;" placeholder="请输入确认标准"></textarea>
+                        </div>
+                        <div style="margin-bottom: 14px;">
+                            <div style="font-size: 13px; color: var(--text-secondary); margin-bottom: 6px;">担责标准 <span style="color: var(--error-color);">*</span></div>
+                            <textarea id="taskResponsibleStandard" style="width: 100%; min-height: 50px; border: 1px solid var(--border-color); border-radius: 6px; padding: 8px; font-size: 13px; resize: none; box-sizing: border-box;" placeholder="请输入担责标准"></textarea>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <div class="modal-btn cancel" onclick="closeCreateTaskModal()">取消</div>
+                        <div class="modal-btn confirm" onclick="submitCreateTask()">创建任务</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="confirm-modal" id="configTaskModal">
+                <div class="modal-content" style="width: 320px; max-height: 80vh; overflow-y: auto;">
+                    <div class="modal-header">
+                        <div class="modal-title">配置临时任务</div>
+                    </div>
+                    <div class="modal-body" style="text-align: left; padding: 16px;">
+                        <div style="margin-bottom: 14px;">
+                            <div style="font-size: 13px; color: var(--text-secondary); margin-bottom: 6px;">任务名称</div>
+                            <input type="text" id="configTaskName" style="width: 100%; height: 36px; border: 1px solid var(--border-color); border-radius: 6px; padding: 0 10px; font-size: 14px; box-sizing: border-box;">
+                        </div>
+                        <div style="margin-bottom: 14px;">
+                            <div style="font-size: 13px; color: var(--text-secondary); margin-bottom: 6px;">关联合同</div>
+                            <div id="configContract" style="font-size: 14px; color: var(--text-primary);"></div>
+                        </div>
+                        <div style="margin-bottom: 14px;">
+                            <div style="font-size: 13px; color: var(--text-secondary); margin-bottom: 6px;">执行人 <span style="color: var(--error-color);">*</span></div>
+                            <div class="search-select" id="configExecutorSearchSelect">
+                                <div class="search-input-wrap" onclick="toggleConfigExecutorDropdown()">
+                                    <input type="text" class="search-input" id="configExecutorSearchInput" placeholder="搜索并选择执行人" oninput="filterConfigExecutors()">
+                                    <span class="arrow">▼</span>
+                                </div>
+                                <div class="dropdown-list" id="configExecutorDropdown">
+                                    <div class="dropdown-item" onclick="selectConfigExecutor('李四', '电工')">李四（电工）</div>
+                                    <div class="dropdown-item" onclick="selectConfigExecutor('王五', '泥瓦工')">王五（泥瓦工）</div>
+                                    <div class="dropdown-item" onclick="selectConfigExecutor('赵六', '木工')">赵六（木工）</div>
+                                    <div class="dropdown-item" onclick="selectConfigExecutor('钱七', '油漆工')">钱七（油漆工）</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div style="margin-bottom: 14px;">
+                            <div style="font-size: 13px; color: var(--text-secondary); margin-bottom: 6px;">确认人（选填，最多5人）</div>
+                            <div id="configConfirmerTags" style="display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 8px;"></div>
+                            <div class="search-select" id="configConfirmerSearchSelect">
+                                <div class="search-input-wrap" onclick="toggleConfigConfirmerDropdown()">
+                                    <input type="text" class="search-input" id="configConfirmerSearchInput" placeholder="搜索并选择确认人" oninput="filterConfigConfirmers()">
+                                    <span class="arrow">▼</span>
+                                </div>
+                                <div class="dropdown-list" id="configConfirmerDropdown">
+                                    <div class="dropdown-item" onclick="selectConfigConfirmer('张三', '项目经理')">张三（项目经理）</div>
+                                    <div class="dropdown-item" onclick="selectConfigConfirmer('李四', '电工')">李四（电工）</div>
+                                    <div class="dropdown-item" onclick="selectConfigConfirmer('王五', '泥瓦工')">王五（泥瓦工）</div>
+                                    <div class="dropdown-item" onclick="selectConfigConfirmer('赵六', '木工')">赵六（木工）</div>
+                                    <div class="dropdown-item" onclick="selectConfigConfirmer('钱七', '油漆工')">钱七（油漆工）</div>
+                                    <div class="dropdown-item" onclick="selectConfigConfirmer('孙八', '监理')">孙八（监理）</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div style="margin-bottom: 14px;">
+                            <div style="font-size: 13px; color: var(--text-secondary); margin-bottom: 6px;">执行标准 <span style="color: var(--error-color);">*</span></div>
+                            <textarea id="configExecStandard" style="width: 100%; min-height: 50px; border: 1px solid var(--border-color); border-radius: 6px; padding: 8px; font-size: 13px; resize: none; box-sizing: border-box;"></textarea>
+                        </div>
+                        <div style="margin-bottom: 14px;">
+                            <div style="font-size: 13px; color: var(--text-secondary); margin-bottom: 6px;">确认标准 <span style="color: var(--error-color);">*</span></div>
+                            <textarea id="configConfirmStandard" style="width: 100%; min-height: 50px; border: 1px solid var(--border-color); border-radius: 6px; padding: 8px; font-size: 13px; resize: none; box-sizing: border-box;"></textarea>
+                        </div>
+                        <div style="margin-bottom: 14px;">
+                            <div style="font-size: 13px; color: var(--text-secondary); margin-bottom: 6px;">担责标准 <span style="color: var(--error-color);">*</span></div>
+                            <textarea id="configResponsibleStandard" style="width: 100%; min-height: 50px; border: 1px solid var(--border-color); border-radius: 6px; padding: 8px; font-size: 13px; resize: none; box-sizing: border-box;"></textarea>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <div class="modal-btn cancel" onclick="closeConfigModal()">取消</div>
+                        <div class="modal-btn confirm" id="configSubmitBtn" style="opacity: 0.5; cursor: not-allowed;" onclick="showConfigSubmitConfirm()">提交</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="confirm-modal" id="configSubmitConfirmModal">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <div class="modal-title">确认提交</div>
+                    </div>
+                    <div class="modal-body">
+                        <div style="text-align: center;">
+                            <div style="font-size: 48px; margin-bottom: 12px;">⚠️</div>
+                            <div style="font-size: 14px; color: var(--text-primary); margin-bottom: 8px;">提交后执行人和确认人将不可修改</div>
+                            <div style="font-size: 13px; color: var(--text-tertiary);">请确认信息无误后再提交</div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <div class="modal-btn cancel" onclick="closeConfigSubmitConfirm()">取消</div>
+                        <div class="modal-btn confirm" onclick="submitConfigTask()">确认提交</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    </div>
+    
+    <div class="page-nav">
+        <div class="page-nav-title">原型导航</div>
+        <a href="home.html" class="page-nav-item">首页</a>
+        <a href="project-detail.html" class="page-nav-item">项目详情</a>
+        <a href="task-acceptance.html" class="page-nav-item active">临时任务</a>
+        <a href="contract-detail.html" class="page-nav-item">合同详情</a>
+        <a href="task-detail.html" class="page-nav-item">任务详情</a>
+        <a href="temp-task-detail.html" class="page-nav-item">临时任务详情</a>
+    </div>
+    
+    <script>
+        let currentStatus = 'pending';
+        let currentTaskId = null;
+        let pendingCount = 3;
+        let inprogressCount = 4;
+        let completedCount = 2;
+        let createdCount = 2;
+        let deletedCount = 1;
+        let currentDeleteCard = null;
+        let currentDeleteType = '';
+        let deletedTasks = [];
+        let selectedConfirmers = [];
+        let configConfirmers = [];
+        let currentConfigTaskId = null;
+        
+        function showCustomToast(message) {
+            document.getElementById('customToastMessage').innerHTML = message.replace(/\n/g, '<br>');
+            document.getElementById('customToastModal').classList.add('show');
+        }
+        
+        function closeCustomToast() {
+            document.getElementById('customToastModal').classList.remove('show');
+        }
+        
+        function toggleStandard(header) {
+            header.classList.toggle('expanded');
+            const content = header.nextElementSibling;
+            content.classList.toggle('show');
+        }
+        
+        function goToCreateTask() {
+            showCreateTaskModal();
+        }
+        
+        function showCreateTaskModal() {
+            document.getElementById('createTaskModal').classList.add('show');
+        }
+        
+        function closeCreateTaskModal() {
+            document.getElementById('createTaskModal').classList.remove('show');
+            document.getElementById('taskNameInput').value = '';
+            document.getElementById('taskContractSelect').value = '';
+            document.getElementById('taskExecutorSelect').value = '';
+            document.getElementById('taskExecStandard').value = '';
+            document.getElementById('taskConfirmStandard').value = '';
+            document.getElementById('taskResponsibleStandard').value = '';
+            selectedConfirmers = [];
+            renderConfirmerTags();
+        }
+        
+        function addConfirmer(select) {
+            const name = select.value;
+            if (!name) return;
+            
+            if (selectedConfirmers.includes(name)) {
+                showCustomToast('该确认人已添加');
+                select.value = '';
+                return;
+            }
+            
+            if (selectedConfirmers.length >= 5) {
+                showCustomToast('最多只能选择5位确认人');
+                select.value = '';
+                return;
+            }
+            
+            selectedConfirmers.push(name);
+            renderConfirmerTags();
+            select.value = '';
+        }
+        
+        function removeConfirmer(name) {
+            selectedConfirmers = selectedConfirmers.filter(c => c !== name);
+            renderConfirmerTags();
+        }
+        
+        function renderConfirmerTags() {
+            const container = document.getElementById('confirmerTags');
+            container.innerHTML = selectedConfirmers.map(name => `
+                <div class="confirmer-tag">
+                    ${name}
+                    <span class="remove-btn" onclick="removeConfirmer('${name}')">×</span>
+                </div>
+            `).join('');
+        }
+        
+        function submitCreateTask() {
+            const name = document.getElementById('taskNameInput').value.trim();
+            const contract = document.getElementById('taskContractSelect').value;
+            const executor = document.getElementById('taskExecutorSelect').value;
+            const execStandard = document.getElementById('taskExecStandard').value.trim();
+            const confirmStandard = document.getElementById('taskConfirmStandard').value.trim();
+            const responsibleStandard = document.getElementById('taskResponsibleStandard').value.trim();
+            
+            if (!name) {
+                showCustomToast('请输入任务名称');
+                return;
+            }
+            if (!contract) {
+                showCustomToast('请选择关联合同');
+                return;
+            }
+            if (!execStandard) {
+                showCustomToast('请输入执行标准');
+                return;
+            }
+            if (!confirmStandard) {
+                showCustomToast('请输入确认标准');
+                return;
+            }
+            if (!responsibleStandard) {
+                showCustomToast('请输入担责标准');
+                return;
+            }
+            
+            const contractText = document.getElementById('taskContractSelect').options[document.getElementById('taskContractSelect').selectedIndex].text;
+            const now = new Date();
+            const createTime = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+            
+            if (!executor) {
+                const newCard = document.createElement('div');
+                newCard.className = 'task-card configuring';
+                newCard.dataset.contract = contract;
+                newCard.dataset.status = 'configuring';
+                newCard.dataset.id = 'config-' + Date.now();
+                newCard.innerHTML = `
+                    <div class="card-top-row">
+                        <div class="task-title-wrap">
+                            <div class="task-title">${name}</div>
+                            <div class="task-type temp">临时任务</div>
+                        </div>
+                        <div class="delete-icon" onclick="showDeleteModal(this, 'created', event)">🗑️</div>
+                    </div>
+                    <div class="task-meta">
+                        <div class="meta-item">
+                            <span class="icon">📄</span>
+                            <span class="label">关联合同：</span>
+                            <span>${contractText}</span>
+                        </div>
+                        <div class="meta-item">
+                            <span class="icon">👤</span>
+                            <span class="label">执行人：</span>
+                            <span style="color: var(--text-tertiary);">暂无</span>
+                        </div>
+                    </div>
+                    <div class="sender-info">
+                        <div class="sender-avatar" style="background: linear-gradient(135deg, #722ED1 0%, #9E5CF7 100%);">我</div>
+                        <div class="sender-detail">
+                            <div class="sender-name">我发起的任务</div>
+                            <div class="sender-time">创建时间：${createTime}</div>
+                        </div>
+                    </div>
+                    <div class="received-info">
+                        <div class="received-status">请配置执行人</div>
+                        <div class="status-tag configuring">待配置</div>
+                    </div>
+                    <div class="card-actions" style="margin-top: 12px;">
+                        <button class="action-btn primary" onclick="showConfigModal('${newCard.dataset.id}')">去配置</button>
+                    </div>
+                `;
+                
+                const createdList = document.getElementById('createdList');
+                createdList.insertBefore(newCard, createdList.firstChild);
+                
+                closeCreateTaskModal();
+                createdCount++;
+                document.getElementById('createdBadge').textContent = createdCount;
+                showCustomToast('临时任务创建成功！\n请配置执行人后提交');
+            } else {
+                const confirmerInfo = selectedConfirmers.length > 0 ? `\n确认人：${selectedConfirmers.join('、')}` : '';
+                closeCreateTaskModal();
+                createdCount++;
+                document.getElementById('createdBadge').textContent = createdCount;
+                showCustomToast('临时任务创建成功！' + confirmerInfo);
+            }
+        }
+        
+        function switchStatusTab(tab, status) {
+            currentStatus = status;
+            document.querySelectorAll('.status-tab').forEach(t => t.classList.remove('active'));
+            tab.classList.add('active');
+            
+            document.getElementById('pendingList').style.display = status === 'pending' ? 'block' : 'none';
+            document.getElementById('inprogressList').style.display = status === 'inprogress' ? 'block' : 'none';
+            document.getElementById('completedList').style.display = status === 'completed' ? 'block' : 'none';
+            document.getElementById('createdList').style.display = status === 'created' ? 'block' : 'none';
+            document.getElementById('deletedList').style.display = status === 'deleted' ? 'block' : 'none';
+            
+            document.getElementById('batchActionBar').classList.toggle('show', status === 'pending' && pendingCount > 0);
+            
+            document.getElementById('inprogressFilterBar').classList.toggle('show', status === 'inprogress');
+            document.getElementById('completedFilterBar').classList.toggle('show', status === 'completed');
+            document.getElementById('createdFilterBar').style.display = status === 'created' ? 'flex' : 'none';
+            
+            const createBtn = document.querySelector('.create-task-guide');
+            if (status === 'created') {
+                createBtn.classList.add('show');
+            } else {
+                createBtn.classList.remove('show');
+            }
+        }
+        
+        function filterInprogressByStatus(status, chip) {
+            const cards = document.querySelectorAll('#inprogressList .task-card');
+            cards.forEach(card => {
+                if (status === 'all' || card.dataset.status === status) {
+                    card.style.display = 'block';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        }
+        
+        function filterInprogressByStatusSelect() {
+            const status = document.getElementById('inprogressStatusFilter').value;
+            filterInprogressByStatus(status);
+        }
+        
+        function filterCreatedByStatus(status, chip) {
+            const cards = document.querySelectorAll('#createdList .task-card');
+            cards.forEach(card => {
+                if (status === 'all' || card.dataset.status === status) {
+                    card.style.display = 'block';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        }
+        
+        function filterCreatedByStatusSelect() {
+            const status = document.getElementById('createdStatusFilter').value;
+            filterCreatedByStatus(status);
+        }
+        
+        function showConfigModal(taskId) {
+            currentConfigTaskId = taskId;
+            const card = document.querySelector(`.task-card[data-id="${taskId}"]`);
+            if (card) {
+                const taskName = card.querySelector('.task-title').textContent;
+                const contractEl = card.querySelector('.meta-item span:last-child');
+                const contract = contractEl ? contractEl.textContent : '';
+                
+                document.getElementById('configTaskName').value = taskName;
+                document.getElementById('configContract').textContent = contract;
+                document.getElementById('configExecStandard').value = '按设计图纸要求进行安装调试';
+                document.getElementById('configConfirmStandard').value = '安装牢固，功能正常';
+                document.getElementById('configResponsibleStandard').value = '因安装问题导致的损坏由执行人承担';
+            }
+            document.getElementById('configExecutorSearchInput').value = '';
+            configConfirmers = [];
+            configExecutorSelected = '';
+            renderConfigConfirmerTags();
+            updateConfigSubmitBtn();
+            document.getElementById('configTaskModal').classList.add('show');
+        }
+        
+        function closeConfigModal() {
+            document.getElementById('configTaskModal').classList.remove('show');
+            closeAllConfigDropdowns();
+            currentConfigTaskId = null;
+        }
+        
+        function closeAllConfigDropdowns() {
+            document.getElementById('configExecutorDropdown').classList.remove('show');
+            document.getElementById('configConfirmerDropdown').classList.remove('show');
+        }
+        
+        function toggleConfigExecutorDropdown() {
+            const dropdown = document.getElementById('configExecutorDropdown');
+            const isOpen = dropdown.classList.contains('show');
+            closeAllConfigDropdowns();
+            if (!isOpen) {
+                dropdown.classList.add('show');
+            }
+        }
+        
+        function toggleConfigConfirmerDropdown() {
+            const dropdown = document.getElementById('configConfirmerDropdown');
+            const isOpen = dropdown.classList.contains('show');
+            closeAllConfigDropdowns();
+            if (!isOpen) {
+                dropdown.classList.add('show');
+            }
+        }
+        
+        function filterConfigExecutors() {
+            const keyword = document.getElementById('configExecutorSearchInput').value.toLowerCase();
+            const items = document.querySelectorAll('#configExecutorDropdown .dropdown-item');
+            items.forEach(item => {
+                const text = item.textContent.toLowerCase();
+                item.style.display = text.includes(keyword) ? 'block' : 'none';
+            });
+            if (!document.getElementById('configExecutorDropdown').classList.contains('show')) {
+                document.getElementById('configExecutorDropdown').classList.add('show');
+            }
+        }
+        
+        function filterConfigConfirmers() {
+            const keyword = document.getElementById('configConfirmerSearchInput').value.toLowerCase();
+            const items = document.querySelectorAll('#configConfirmerDropdown .dropdown-item');
+            items.forEach(item => {
+                const text = item.textContent.toLowerCase();
+                item.style.display = text.includes(keyword) ? 'block' : 'none';
+            });
+            if (!document.getElementById('configConfirmerDropdown').classList.contains('show')) {
+                document.getElementById('configConfirmerDropdown').classList.add('show');
+            }
+        }
+        
+        let configExecutorSelected = '';
+        
+        function selectConfigExecutor(name, role) {
+            configExecutorSelected = name;
+            document.getElementById('configExecutorSearchInput').value = `${name}（${role}）`;
+            closeAllConfigDropdowns();
+            updateConfigSubmitBtn();
+        }
+        
+        function selectConfigConfirmer(name, role) {
+            if (configConfirmers.includes(name)) {
+                showCustomToast('该确认人已添加');
+                return;
+            }
+            
+            if (configConfirmers.length >= 5) {
+                showCustomToast('最多只能选择5位确认人');
+                return;
+            }
+            
+            configConfirmers.push(name);
+            renderConfigConfirmerTags();
+            closeAllConfigDropdowns();
+        }
+        
+        function removeConfigConfirmer(name) {
+            configConfirmers = configConfirmers.filter(c => c !== name);
+            renderConfigConfirmerTags();
+        }
+        
+        function renderConfigConfirmerTags() {
+            const container = document.getElementById('configConfirmerTags');
+            container.innerHTML = configConfirmers.map(name => `
+                <div class="confirmer-tag">
+                    ${name}
+                    <span class="remove-btn" onclick="removeConfigConfirmer('${name}')">×</span>
+                </div>
+            `).join('');
+        }
+        
+        function updateConfigSubmitBtn() {
+            const submitBtn = document.getElementById('configSubmitBtn');
+            if (configExecutorSelected) {
+                submitBtn.style.opacity = '1';
+                submitBtn.style.cursor = 'pointer';
+                submitBtn.onclick = showConfigSubmitConfirm;
+            } else {
+                submitBtn.style.opacity = '0.5';
+                submitBtn.style.cursor = 'not-allowed';
+                submitBtn.onclick = null;
+            }
+        }
+        
+        function showConfigSubmitConfirm() {
+            if (!configExecutorSelected) {
+                showCustomToast('请选择执行人');
+                return;
+            }
+            document.getElementById('configSubmitConfirmModal').classList.add('show');
+        }
+        
+        function closeConfigSubmitConfirm() {
+            document.getElementById('configSubmitConfirmModal').classList.remove('show');
+        }
+        
+        function submitConfigTask() {
+            const taskName = document.getElementById('configTaskName').value.trim();
+            const execStandard = document.getElementById('configExecStandard').value.trim();
+            const confirmStandard = document.getElementById('configConfirmStandard').value.trim();
+            const responsibleStandard = document.getElementById('configResponsibleStandard').value.trim();
+            
+            if (!taskName) {
+                showCustomToast('请输入任务名称');
+                return;
+            }
+            if (!configExecutorSelected) {
+                showCustomToast('请选择执行人');
+                return;
+            }
+            if (!execStandard) {
+                showCustomToast('请输入执行标准');
+                return;
+            }
+            if (!confirmStandard) {
+                showCustomToast('请输入确认标准');
+                return;
+            }
+            if (!responsibleStandard) {
+                showCustomToast('请输入担责标准');
+                return;
+            }
+            
+            const card = document.querySelector(`.task-card[data-id="${currentConfigTaskId}"]`);
+            if (card) {
+                card.classList.remove('configuring');
+                card.dataset.status = 'pending';
+                
+                const taskTitleEl = card.querySelector('.task-title');
+                if (taskTitleEl) {
+                    taskTitleEl.textContent = taskName;
+                }
+                
+                const statusTag = card.querySelector('.status-tag');
+                statusTag.textContent = '待接收';
+                statusTag.classList.remove('configuring');
+                statusTag.classList.add('pending');
+                
+                const receivedStatus = card.querySelector('.received-status');
+                receivedStatus.textContent = `执行人：${configExecutorSelected}`;
+                
+                const metaItems = card.querySelectorAll('.meta-item');
+                metaItems.forEach(item => {
+                    if (item.querySelector('.icon') && item.querySelector('.icon').textContent === '👤') {
+                        item.querySelector('span:last-child').textContent = configExecutorSelected;
+                        item.querySelector('span:last-child').style.color = 'var(--text-primary)';
+                    }
+                });
+                
+                const cardActions = card.querySelector('.card-actions');
+                cardActions.innerHTML = `
+                    <button class="action-btn view" onclick="location.href='temp-task-detail.html?status=pending'">查看详情</button>
+                `;
+            }
+            
+            closeConfigSubmitConfirm();
+            closeConfigModal();
+            showCustomToast('任务已提交！\n已发送通知给执行人和确认人');
+        }
+        
+        function showDeleteModal(icon, type, e) {
+            if (e) {
+                e.stopPropagation();
+                e.preventDefault();
+            }
+            currentDeleteCard = icon.closest('.task-card');
+            currentDeleteType = type;
+            
+            if (!currentDeleteCard) {
+                showCustomToast('未找到任务卡片');
+                return;
+            }
+            
+            let canDelete = true;
+            let message = '确定要删除此任务吗？删除后可在"已删除"中恢复';
+            
+            if (type === 'inprogress') {
+                const status = currentDeleteCard.dataset.status;
+                if (status === 'confirming') {
+                    canDelete = false;
+                    message = '确认中的任务不支持删除';
+                }
+            } else if (type === 'completed') {
+                canDelete = false;
+                message = '已完成的任务不支持删除';
+            }
+            
+            if (!canDelete) {
+                showCustomToast(message);
+                return;
+            }
+            
+            document.getElementById('deleteModal').classList.add('show');
+        }
+        
+        function closeDeleteModal() {
+            document.getElementById('deleteModal').classList.remove('show');
+            currentDeleteCard = null;
+            currentDeleteType = '';
+        }
+        
+        function confirmDeleteTask() {
+            if (currentDeleteCard) {
+                const taskTitle = currentDeleteCard.querySelector('.task-title').textContent;
+                const now = new Date();
+                const deleteTime = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+                
+                const deletedCard = document.createElement('div');
+                deletedCard.className = 'deleted-card';
+                deletedCard.dataset.id = 'deleted-' + Date.now();
+                deletedCard.innerHTML = `
+                    <div class="card-top-row">
+                        <div class="task-title">${taskTitle}</div>
+                        <div class="task-type">临时任务</div>
+                    </div>
+                    <div class="deleted-info">
+                        <span>删除时间：${deleteTime}</span>
+                    </div>
+                `;
+                
+                document.getElementById('deletedList').appendChild(deletedCard);
+                currentDeleteCard.remove();
+                
+                if (currentDeleteType === 'pending') {
+                    pendingCount--;
+                    document.getElementById('pendingBadge').textContent = pendingCount;
+                    document.getElementById('selectedCount').textContent = pendingCount;
+                    document.getElementById('batchActionBar').classList.toggle('show', pendingCount > 0);
+                } else if (currentDeleteType === 'inprogress') {
+                    inprogressCount--;
+                    document.getElementById('inprogressBadge').textContent = inprogressCount;
+                } else if (currentDeleteType === 'completed') {
+                    completedCount--;
+                    document.getElementById('completedBadge').textContent = completedCount;
+                } else if (currentDeleteType === 'created') {
+                    createdCount--;
+                    document.getElementById('createdBadge').textContent = createdCount;
+                }
+                
+                deletedCount++;
+                document.getElementById('deletedBadge').textContent = deletedCount;
+            }
+            closeDeleteModal();
+            showCustomToast('任务已删除');
+        }
+        
+        function restoreTask(btn) {
+            const card = btn.closest('.deleted-card');
+            card.remove();
+            deletedCount--;
+            document.getElementById('deletedBadge').textContent = deletedCount;
+            createdCount++;
+            document.getElementById('createdBadge').textContent = createdCount;
+            showCustomToast('任务已恢复到"我发起的"列表');
+        }
+        
+        function filterInprogressTasks() {
+            const keyword = document.getElementById('inprogressSearchInput').value.toLowerCase().trim();
+            const contract = document.getElementById('inprogressContractFilter').value;
+            const cards = document.querySelectorAll('#inprogressList .task-card');
+            
+            cards.forEach(card => {
+                const title = card.querySelector('.task-title').textContent.toLowerCase();
+                const cardContract = card.getAttribute('data-contract') || '';
+                const contractMatch = !contract || cardContract === contract;
+                const keywordMatch = !keyword || title.includes(keyword);
+                
+                card.style.display = (contractMatch && keywordMatch) ? 'block' : 'none';
+            });
+        }
+        
+        function filterCompletedTasks() {
+            const keyword = document.getElementById('completedSearchInput').value.toLowerCase().trim();
+            const contract = document.getElementById('completedContractFilter').value;
+            const cards = document.querySelectorAll('#completedList .task-card');
+            
+            cards.forEach(card => {
+                const title = card.querySelector('.task-title').textContent.toLowerCase();
+                const cardContract = card.getAttribute('data-contract') || '';
+                const contractMatch = !contract || cardContract === contract;
+                const keywordMatch = !keyword || title.includes(keyword);
+                
+                card.style.display = (contractMatch && keywordMatch) ? 'block' : 'none';
+            });
+        }
+        
+        function filterCreatedTasks() {
+            const keyword = document.getElementById('createdSearchInput').value.toLowerCase().trim();
+            const contract = document.getElementById('createdContractFilter').value;
+            const cards = document.querySelectorAll('#createdList .task-card');
+            
+            cards.forEach(card => {
+                const title = card.querySelector('.task-title').textContent.toLowerCase();
+                const cardContract = card.getAttribute('data-contract') || '';
+                const contractMatch = !contract || cardContract === contract;
+                const keywordMatch = !keyword || title.includes(keyword);
+                
+                card.style.display = (contractMatch && keywordMatch) ? 'block' : 'none';
+            });
+        }
+        
+        function showRejectModal(taskId) {
+            event.stopPropagation();
+            currentTaskId = taskId;
+            document.getElementById('rejectReason').value = '';
+            document.getElementById('rejectModal').classList.add('show');
+        }
+        
+        function closeRejectModal() {
+            document.getElementById('rejectModal').classList.remove('show');
+            currentTaskId = null;
+        }
+        
+        function confirmReject() {
+            const reason = document.getElementById('rejectReason').value.trim();
+            if (!reason) {
+                showCustomToast('请输入拒绝原因');
+                return;
+            }
+            
+            const card = document.querySelector(`.task-card[data-id="${currentTaskId}"]`);
+            if (card) {
+                card.remove();
+                pendingCount--;
+                updateCounts();
+            }
+            
+            closeRejectModal();
+            showCustomToast('已拒绝该任务');
+        }
+        
+        function acceptTask(taskId) {
+            event.stopPropagation();
+            currentTaskId = taskId;
+            document.getElementById('acceptModal').classList.add('show');
+        }
+        
+        function closeAcceptModal() {
+            document.getElementById('acceptModal').classList.remove('show');
+            currentTaskId = null;
+        }
+        
+        function confirmAccept() {
+            const card = document.querySelector(`.task-card[data-id="${currentTaskId}"]`);
+            if (card) {
+                card.remove();
+                pendingCount--;
+                inprogressCount++;
+                updateCounts();
+            }
+            
+            closeAcceptModal();
+            showCustomToast('任务已接受！请按时完成执行。');
+        }
+        
+        function acceptAllTasks() {
+            const cards = document.querySelectorAll('#pendingList .task-card');
+            cards.forEach(card => card.remove());
+            inprogressCount += pendingCount;
+            pendingCount = 0;
+            updateCounts();
+            showCustomToast('已接受所有任务！');
+        }
+        
+        function updateCounts() {
+            document.getElementById('pendingBadge').textContent = pendingCount;
+            document.getElementById('inprogressBadge').textContent = inprogressCount;
+            document.getElementById('completedBadge').textContent = completedCount;
+            document.getElementById('selectedCount').textContent = pendingCount;
+            
+            document.getElementById('batchActionBar').classList.toggle('show', pendingCount > 0);
+            
+            if (pendingCount === 0) {
+                document.getElementById('pendingList').innerHTML = `
+                    <div class="empty-state">
+                        <div class="icon">✅</div>
+                        <div class="text">暂无待接受的任务</div>
+                    </div>
+                `;
+            }
+        }
+        
+        document.addEventListener('click', function(e) {
+            if (e.target.classList.contains('confirm-modal')) {
+                e.target.classList.remove('show');
+            }
+            
+            if (!e.target.closest('.search-select')) {
+                closeAllConfigDropdowns();
+            }
+        });
+    </script>
+</body>
+</html>

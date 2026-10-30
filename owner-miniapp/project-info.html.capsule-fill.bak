@@ -1,0 +1,1176 @@
+﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>家装平台小程序原型 - 项目信息</title>
+    <link rel="stylesheet" href="common.css">
+    <style>
+        .page-content {
+            height: calc(100% - 44px - 70px);
+            background-color: var(--bg-secondary);
+            overflow-y: auto;
+        }
+
+        .info-header {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-light) 100%);
+            padding: 20px 16px;
+            color: #FFFFFF;
+        }
+
+        .project-name {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .project-name-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+
+        .project-name-input {
+            flex: 1;
+            font-size: 18px;
+            font-weight: 600;
+            color: #FFFFFF;
+            background: transparent;
+            border: none;
+            outline: none;
+            padding: 0;
+            margin-right: 10px;
+        }
+
+        .project-name-input:focus {
+            border-bottom: 1px solid rgba(255, 255, 255, 0.6);
+        }
+
+        .project-name-input:disabled {
+            cursor: default;
+        }
+
+        .info-header .edit-btn {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.9);
+            padding: 3px 10px;
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            border-radius: 12px;
+        }
+
+        .info-header .edit-btn:hover {
+            background-color: rgba(255, 255, 255, 0.15);
+        }
+
+        .project-status {
+            display: inline-flex;
+            align-items: center;
+            padding: 4px 12px;
+            background-color: rgba(255,255,255,0.2);
+            border-radius: 12px;
+            font-size: 12px;
+        }
+
+        .form-section {
+            background-color: var(--bg-primary);
+            margin-bottom: 12px;
+            padding: 16px;
+        }
+
+        .form-section-title {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .edit-btn {
+            font-size: 12px;
+            color: var(--primary-color);
+            cursor: pointer;
+        }
+
+        .info-row {
+            display: flex;
+            padding: 12px 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .info-row:last-child {
+            border-bottom: none;
+        }
+
+        .info-label {
+            width: 80px;
+            font-size: 13px;
+            color: var(--text-tertiary);
+            flex-shrink: 0;
+        }
+
+        .info-value {
+            flex: 1;
+            font-size: 14px;
+            color: var(--text-primary);
+        }
+
+        .style-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .style-tag {
+            padding: 4px 10px;
+            background-color: var(--status-primary-bg);
+            border-radius: 12px;
+            font-size: 12px;
+            color: var(--primary-color);
+        }
+
+        .attachment-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .attachment-item {
+            display: flex;
+            align-items: center;
+            padding: 10px 12px;
+            background-color: var(--bg-secondary);
+            border-radius: 8px;
+        }
+
+        .attachment-item .icon {
+            font-size: 20px;
+            margin-right: 10px;
+        }
+
+        .attachment-item .name {
+            flex: 1;
+            font-size: 13px;
+            color: var(--text-primary);
+        }
+
+        .attachment-item .action {
+            font-size: 12px;
+            color: var(--primary-color);
+            margin-right: 8px;
+            cursor: pointer;
+        }
+
+        .attachment-item .delete-btn {
+            font-size: 12px;
+            color: var(--error-color);
+            cursor: pointer;
+            display: none;
+        }
+
+        .attachment-preview {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+            padding: 10px 12px;
+            background: #F7F8FA;
+            border: 1px solid rgba(0,0,0,0.08);
+            border-radius: 10px;
+            gap: 12px;
+            cursor: pointer;
+        }
+
+        .attachment-preview .name {
+            flex: 1;
+            font-size: 14px;
+            color: var(--text-primary);
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .attachment-preview .action {
+            flex-shrink: 0;
+            color: var(--primary-color);
+            font-size: 13px;
+        }
+
+        .preview-modal {
+            display: none;
+            position: absolute;
+            inset: 0;
+            z-index: 1100;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .preview-modal.show {
+            display: flex;
+        }
+
+        .preview-modal .modal-mask {
+            position: absolute;
+            inset: 0;
+            background-color: rgba(0,0,0,0.55);
+        }
+
+        .preview-modal .preview-content {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            background: #FFFFFF;
+            border-radius: 0;
+            padding: 20px 16px 16px;
+            z-index: 1;
+            text-align: left;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .preview-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+
+        .preview-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #1F1F1F;
+        }
+
+        .preview-close-icon {
+            font-size: 20px;
+            color: var(--text-secondary);
+            cursor: pointer;
+        }
+
+        .preview-file-name {
+            font-size: 16px;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+            word-break: break-all;
+        }
+
+        .preview-file-desc {
+            font-size: 13px;
+            color: var(--text-secondary);
+            line-height: 1.7;
+            margin-bottom: 24px;
+        }
+
+        .preview-placeholder {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-tertiary);
+            font-size: 14px;
+            background-color: var(--bg-secondary);
+            border-radius: 8px;
+            margin-bottom: 16px;
+            min-height: 200px;
+        }
+
+        .preview-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: auto;
+        }
+
+        .preview-actions button {
+            flex: 1;
+            height: 42px;
+            border: none;
+            border-radius: 10px;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        .preview-actions .preview-download {
+            background-color: var(--primary-color);
+            color: #FFFFFF;
+        }
+
+        .preview-actions .preview-close {
+            background-color: #F5F5F5;
+            color: var(--text-primary);
+        }
+
+        .attachment-item.editable .delete-btn {
+            display: inline;
+        }
+
+        .upload-area {
+            border: 2px dashed var(--border-color);
+            border-radius: 8px;
+            padding: 24px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-top: 8px;
+        }
+
+        .upload-area:hover {
+            border-color: var(--primary-color);
+            background-color: var(--status-primary-bg);
+        }
+
+        .upload-area .icon {
+            font-size: 32px;
+            margin-bottom: 8px;
+        }
+
+        .upload-area .text {
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+
+        .upload-area .hint {
+            font-size: 12px;
+            color: var(--text-tertiary);
+            margin-top: 4px;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-group:last-child {
+            margin-bottom: 0;
+        }
+
+        .form-label {
+            display: flex;
+            align-items: center;
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+        }
+
+        .form-label .required {
+            color: var(--error-color);
+            margin-right: 4px;
+        }
+
+        .form-input {
+            width: 100%;
+            height: 44px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 0 12px;
+            font-size: 14px;
+            color: var(--text-primary);
+            outline: none;
+            box-sizing: border-box;
+            transition: all 0.2s;
+        }
+
+        .form-input:focus {
+            border-color: var(--primary-color);
+        }
+
+        .form-input.error {
+            border-color: var(--error-color);
+            background-color: #FFF1F0;
+        }
+
+        .form-input:disabled {
+            background-color: var(--bg-secondary);
+            color: var(--text-tertiary);
+        }
+
+        .region-select {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+
+        .region-select .form-select {
+            flex: 1;
+        }
+
+        .form-select {
+            width: 100%;
+            height: 44px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 0 12px;
+            font-size: 14px;
+            color: var(--text-primary);
+            outline: none;
+            background-color: var(--bg-primary);
+            cursor: pointer;
+            box-sizing: border-box;
+            transition: all 0.2s;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23999' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+        }
+
+        .form-select:focus {
+            border-color: var(--primary-color);
+        }
+
+        .form-select:disabled {
+            background-color: var(--bg-secondary);
+            color: var(--text-tertiary);
+        }
+
+        .error-message {
+            font-size: 12px;
+            color: var(--error-color);
+            margin-top: 4px;
+            display: none;
+        }
+
+        .error-message.show {
+            display: block;
+        }
+
+        .category-options {
+            display: flex;
+            gap: 12px;
+        }
+
+        .category-option {
+            flex: 1;
+            padding: 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .category-option:hover {
+            border-color: var(--primary-color);
+        }
+
+        .category-option.selected {
+            border-color: var(--primary-color);
+            background-color: var(--status-primary-bg);
+        }
+
+        .category-option .icon {
+            font-size: 24px;
+            margin-bottom: 4px;
+        }
+
+        .category-option .text {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .category-option.selected .text {
+            color: var(--primary-color);
+        }
+
+        .category-option.disabled {
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+        .house-type-options {
+            display: flex;
+            gap: 12px;
+        }
+
+        .house-type-option {
+            flex: 1;
+            padding: 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .house-type-option:hover {
+            border-color: var(--primary-color);
+        }
+
+        .house-type-option.selected {
+            border-color: var(--primary-color);
+            background-color: var(--status-primary-bg);
+        }
+
+        .house-type-option .icon {
+            font-size: 24px;
+            margin-bottom: 4px;
+        }
+
+        .house-type-option .text {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .house-type-option.selected .text {
+            color: var(--primary-color);
+        }
+
+        .house-type-option.disabled {
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+        .style-options {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .style-option {
+            display: flex;
+            align-items: center;
+            padding: 8px 14px;
+            background-color: var(--bg-secondary);
+            border-radius: 18px;
+            font-size: 13px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 1px solid transparent;
+        }
+
+        .style-option:hover {
+            background-color: #E6F7FF;
+        }
+
+        .style-option.selected {
+            background-color: var(--status-primary-bg);
+            color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+
+        .style-option.disabled {
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+        .date-row {
+            display: flex;
+            gap: 12px;
+        }
+
+        .date-row .form-group {
+            flex: 1;
+        }
+
+        .submit-section {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 12px 16px;
+            background-color: var(--bg-primary);
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+            display: none;
+        }
+
+        .submit-section.show {
+            display: block;
+        }
+
+        .submit-btn {
+            width: 100%;
+            height: 48px;
+            background-color: var(--primary-color);
+            color: #FFFFFF;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .submit-btn:hover {
+            background-color: var(--primary-light);
+        }
+
+        .view-mode .form-input,
+        .view-mode .form-select,
+        .view-mode .category-option,
+        .view-mode .house-type-option,
+        .view-mode .style-option {
+            pointer-events: none;
+        }
+
+        .view-mode .category-option:not(.selected),
+        .view-mode .house-type-option:not(.selected) {
+            display: none;
+        }
+
+        .view-mode .style-option:not(.selected) {
+            display: none;
+        }
+
+        .view-mode .style-label-text {
+            display: none;
+        }
+
+        .custom-modal {
+            display: none;
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .custom-modal.show {
+            display: flex;
+        }
+
+        .modal-mask {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+
+        .modal-content {
+            position: relative;
+            width: 260px;
+            background-color: #FFFFFF;
+            border-radius: 16px;
+            padding: 32px 24px;
+            text-align: center;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+        }
+
+        .modal-icon {
+            width: 60px;
+            height: 60px;
+            margin: 0 auto 16px;
+            background: linear-gradient(135deg, #52C41A 0%, #73D13D 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            color: #FFFFFF;
+            font-weight: bold;
+        }
+
+        .modal-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #1F1F1F;
+            margin-bottom: 8px;
+        }
+
+        .modal-message {
+            font-size: 14px;
+            color: #666666;
+            margin-bottom: 24px;
+        }
+
+        .modal-btn {
+            width: 100%;
+            height: 44px;
+            background-color: var(--primary-color);
+            color: #FFFFFF;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .modal-btn:hover {
+            background-color: var(--primary-light);
+        }
+    </style>
+<style>
+    /* v2-native-capsule-style：微信原生胶囊占位（不可自定义，仅演示位置） */
+    .nav-bar .native-capsule {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 5px;
+        min-width: 46px;
+        height: 28px;
+        padding: 0 8px;
+        border: 1px dashed #cfcfcf;
+        border-radius: 14px;
+        color: #b3b3b3;
+        font-size: 13px;
+        line-height: 1;
+        user-select: none;
+        box-sizing: border-box;
+    }
+</style>
+</head>
+<body>
+    <div class="phone-frame">
+        <div class="status-bar">
+            <div class="time">9:41</div>
+            <div class="icons">📶 🔋</div>
+        </div>
+        
+        <div class="nav-bar">
+            <div class="back" onclick="history.back()">← 返回</div>
+            <div class="title centered">项目信息</div>
+            
+            
+        
+            <div class="actions"><div class="native-capsule" title="微信原生胶囊：由微信客户端渲染，开发者不可自定义其内容"></div></div>
+        </div>
+            
+
+        
+        <div class="page-content">
+            <div class="info-header">
+                <div class="project-name-row">
+                    <input type="text" class="project-name-input" id="projectName" value="XX小区整体装修" disabled>
+                    <span class="edit-btn" id="globalEditBtn" onclick="toggleGlobalEdit()">编辑</span>
+                </div>
+                <div class="project-status">进行中</div>
+            </div>
+            
+            <form id="infoForm" class="view-mode">
+                <div class="form-section">
+                    <div class="form-section-title">
+                        <span>客户信息</span>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">
+                            <span class="required">*</span>
+                            <span>客户姓名</span>
+                        </label>
+                        <input type="text" class="form-input" id="customerName" value="张先生" disabled>
+                        <div class="error-message" id="customerNameError">请输入客户姓名</div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">
+                            <span class="required">*</span>
+                            <span>联系方式</span>
+                        </label>
+                        <input type="tel" class="form-input" id="customerPhone" value="138****5678" disabled>
+                        <div class="error-message" id="customerPhoneError">请输入正确的手机号码</div>
+                    </div>
+                </div>
+                
+                <div class="form-section">
+                    <div class="form-section-title">
+                        <span>房屋信息</span>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">
+                            <span class="required">*</span>
+                            <span>所在区域</span>
+                        </label>
+                        <div class="region-select">
+                            <select class="form-select" id="province" disabled>
+                                <option value="浙江省" selected>浙江省</option>
+                            </select>
+                            <select class="form-select" id="city" disabled>
+                                <option value="杭州市" selected>杭州市</option>
+                            </select>
+                            <select class="form-select" id="district" disabled>
+                                <option value="西湖区" selected>西湖区</option>
+                            </select>
+                        </div>
+                        <input type="text" class="form-input" id="address" value="XX街道XX小区*栋***室" disabled>
+                        <div class="error-message" id="regionError">请选择完整的区域信息</div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">
+                            <span class="required">*</span>
+                            <span>房屋面积</span>
+                        </label>
+                        <div style="position: relative;">
+                            <input type="number" class="form-input" id="area" value="120" style="padding-right: 40px;" disabled>
+                            <span style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); color: var(--text-tertiary);">㎡</span>
+                        </div>
+                        <div class="error-message" id="areaError">请输入房屋面积</div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">
+                            <span class="required">*</span>
+                            <span>房屋类别</span>
+                        </label>
+                        <div class="category-options" id="categoryOptions">
+                            <div class="category-option selected" data-value="maopi">
+                                <div class="icon">🏠</div>
+                                <div class="text">毛坯房</div>
+                            </div>
+                            <div class="category-option disabled" data-value="jingzhuang">
+                                <div class="icon">🏡</div>
+                                <div class="text">精装房</div>
+                            </div>
+                            <div class="category-option disabled" data-value="gaizao">
+                                <div class="icon">🔧</div>
+                                <div class="text">旧房改造</div>
+                            </div>
+                        </div>
+                        <div class="error-message" id="categoryError">请选择房屋类别</div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">
+                            <span class="required">*</span>
+                            <span>房型</span>
+                        </label>
+                        <div class="house-type-options" id="houseTypeOptions">
+                            <div class="house-type-option disabled" data-value="bieshu">
+                                <div class="icon">🏰</div>
+                                <div class="text">别墅</div>
+                            </div>
+                            <div class="house-type-option disabled" data-value="fushi">
+                                <div class="icon">🏘️</div>
+                                <div class="text">复式</div>
+                            </div>
+                            <div class="house-type-option selected" data-value="pingceng">
+                                <div class="icon">🏢</div>
+                                <div class="text">平层</div>
+                            </div>
+                        </div>
+                        <div class="error-message" id="houseTypeError">请选择房型</div>
+                    </div>
+                </div>
+                
+                <div class="form-section">
+                    <div class="form-section-title">
+                        <span>计划时间</span>
+                    </div>
+                    
+                    <div class="date-row">
+                        <div class="form-group">
+                            <label class="form-label">计划开工日期</label>
+                            <input type="date" class="form-input" id="startDate" value="2024-01-15" disabled>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">计划入住日期</label>
+                            <input type="date" class="form-input" id="endDate" value="2024-04-15" disabled>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-section">
+                    <div class="form-section-title">
+                        <span>装修风格</span>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label"><span class="style-label-text">选择喜欢的装修风格（可多选）</span>装修风格</label>
+                        <div class="style-options" id="styleOptions">
+                            <div class="style-option selected disabled" data-value="zhongshi">中式</div>
+                            <div class="style-option disabled" data-value="fashi">法式</div>
+                            <div class="style-option selected disabled" data-value="xiandai">现代</div>
+                            <div class="style-option disabled" data-value="qingshe">轻奢</div>
+                            <div class="style-option disabled" data-value="jianyue">简约</div>
+                            <div class="style-option disabled" data-value="gongye">工业</div>
+                            <div class="style-option disabled" data-value="meishi">美式</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-section">
+                    <div class="form-section-title">
+                        <span>附件</span>
+                    </div>
+                    
+                    <div class="attachment-list" id="attachmentList">
+                        <div class="attachment-item" id="attachment1">
+                            <span class="icon">📄</span>
+                            <span class="name">户型图.pdf</span>
+                            <span class="action" onclick="viewAttachment('户型图.pdf')">查看</span>
+                            <span class="delete-btn" onclick="deleteAttachment('attachment1')">删除</span>
+                        </div>
+                        <div class="attachment-item" id="attachment2">
+                            <span class="icon">📷</span>
+                            <span class="name">现场照片.zip</span>
+                            <span class="action" onclick="viewAttachment('现场照片.zip')">查看</span>
+                            <span class="delete-btn" onclick="deleteAttachment('attachment2')">删除</span>
+                        </div>
+                    </div>
+                    
+                    <div class="upload-area" id="uploadArea" onclick="selectFile()">
+                        <div class="icon">📁</div>
+                        <div class="text">点击上传附件</div>
+                        <div class="hint">支持 PDF、图片、Word、Excel、ZIP 等格式</div>
+                    </div>
+                </div>
+                
+                <div style="height: 20px;"></div>
+            </form>
+        </div>
+        
+        <div class="submit-section" id="submitSection">
+            <button type="button" class="submit-btn" onclick="saveForm()">保存修改</button>
+        </div>
+        
+        <div class="custom-modal" id="customModal">
+            <div class="modal-mask" onclick="closeModal()"></div>
+            <div class="modal-content">
+                <div class="modal-icon">✓</div>
+                <div class="modal-title" id="modalTitle">提示</div>
+                <div class="modal-message" id="modalMessage">操作成功</div>
+                <div class="modal-btn" onclick="closeModal()">确定</div>
+            </div>
+        </div>
+
+        <div class="preview-modal" id="attachmentPreviewModal">
+            <div class="modal-mask" onclick="closePreviewModal()"></div>
+            <div class="preview-content">
+                <div class="preview-header">
+                    <div class="preview-back" onclick="closePreviewModal()">← 返回</div>
+                    <div class="preview-title">附件预览</div>
+                    <div></div>
+                </div>
+                <div class="preview-file-name" id="previewFilename">文件名</div>
+                <div class="preview-file-desc">在此页面中查看附件内容摘要。如需保存，可点击下载按钮。</div>
+                <div class="preview-placeholder">附件内容预览区，当前仅演示页面结构。</div>
+                <div class="preview-actions">
+                    <button class="preview-download" onclick="confirmDownload()">下载</button>
+                    <button class="preview-close" onclick="closePreviewModal()">关闭</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="page-nav">
+        <div class="page-nav-title">原型导航</div>
+        <a href="home.html" class="page-nav-item">首页</a>
+        <a href="project-detail.html" class="page-nav-item">项目详情</a>
+        <a href="project-info.html" class="page-nav-item active">项目信息</a>
+        <a href="architecture.html" class="page-nav-item">项目架构</a>
+        <a href="create-project.html" class="page-nav-item">创建项目</a>
+        <a href="task-list.html" class="page-nav-item">任务列表</a>
+        <a href="contract-detail.html" class="page-nav-item">合同详情</a>
+    </div>
+    
+    <script>
+        let isEditing = false;
+        let selectedCategory = 'maopi';
+        let selectedHouseType = 'pingceng';
+        let selectedStyles = ['zhongshi', 'xiandai'];
+
+        function toggleGlobalEdit() {
+            const form = document.getElementById('infoForm');
+            const submitSection = document.getElementById('submitSection');
+            const editBtn = document.getElementById('globalEditBtn');
+            const projectNameInput = document.getElementById('projectName');
+
+            if (isEditing) {
+                // 取消编辑，恢复查看模式
+                form.classList.add('view-mode');
+                submitSection.classList.remove('show');
+                disableAllFields();
+                projectNameInput.disabled = true;
+                editBtn.textContent = '编辑';
+                isEditing = false;
+            } else {
+                // 进入编辑模式，启用所有字段
+                form.classList.remove('view-mode');
+                submitSection.classList.add('show');
+                enableAllFields();
+                projectNameInput.disabled = false;
+                editBtn.textContent = '取消';
+                isEditing = true;
+            }
+        }
+
+        function enableAllFields() {
+            // 项目名称
+            document.getElementById('projectName').disabled = false;
+            // 客户信息
+            document.getElementById('customerName').disabled = false;
+            document.getElementById('customerPhone').disabled = false;
+            // 房屋信息
+            document.getElementById('province').disabled = false;
+            document.getElementById('city').disabled = false;
+            document.getElementById('district').disabled = false;
+            document.getElementById('address').disabled = false;
+            document.getElementById('area').disabled = false;
+            document.querySelectorAll('#categoryOptions .category-option').forEach(opt => opt.classList.remove('disabled'));
+            document.querySelectorAll('#houseTypeOptions .house-type-option').forEach(opt => opt.classList.remove('disabled'));
+            // 计划时间
+            document.getElementById('startDate').disabled = false;
+            document.getElementById('endDate').disabled = false;
+            // 装修风格
+            document.querySelectorAll('#styleOptions .style-option').forEach(opt => opt.classList.remove('disabled'));
+            // 附件
+            document.querySelectorAll('#attachmentList .attachment-item').forEach(item => item.classList.add('editable'));
+            document.getElementById('uploadArea').style.display = 'block';
+        }
+
+        function disableAllFields() {
+            document.querySelectorAll('.form-input').forEach(input => input.disabled = true);
+            document.querySelectorAll('.form-select').forEach(select => select.disabled = true);
+            document.querySelectorAll('.category-option, .house-type-option, .style-option').forEach(opt => opt.classList.add('disabled'));
+            document.querySelectorAll('#attachmentList .attachment-item').forEach(item => item.classList.remove('editable'));
+            document.getElementById('uploadArea').style.display = 'none';
+        }
+
+        function saveForm() {
+            if (validateForm()) {
+                const form = document.getElementById('infoForm');
+                const submitSection = document.getElementById('submitSection');
+                const editBtn = document.getElementById('globalEditBtn');
+
+                form.classList.add('view-mode');
+                submitSection.classList.remove('show');
+                disableAllFields();
+                document.getElementById('projectName').disabled = true;
+                editBtn.textContent = '编辑';
+                isEditing = false;
+
+                showModal('提示', '项目信息已保存');
+            }
+        }
+
+        function validateForm() {
+            let isValid = true;
+
+            const customerName = document.getElementById('customerName');
+            if (!customerName.value.trim()) {
+                customerName.classList.add('error');
+                document.getElementById('customerNameError').classList.add('show');
+                isValid = false;
+            } else {
+                customerName.classList.remove('error');
+                document.getElementById('customerNameError').classList.remove('show');
+            }
+
+            const customerPhone = document.getElementById('customerPhone');
+            const phoneReg = /^1[3-9]\d{9}$/;
+            if (!phoneReg.test(customerPhone.value.trim())) {
+                customerPhone.classList.add('error');
+                document.getElementById('customerPhoneError').classList.add('show');
+                isValid = false;
+            } else {
+                customerPhone.classList.remove('error');
+                document.getElementById('customerPhoneError').classList.remove('show');
+            }
+
+            return isValid;
+        }
+
+        document.querySelectorAll('#categoryOptions .category-option').forEach(opt => {
+            opt.addEventListener('click', function() {
+                if (!this.classList.contains('disabled')) {
+                    document.querySelectorAll('#categoryOptions .category-option').forEach(o => o.classList.remove('selected'));
+                    this.classList.add('selected');
+                    selectedCategory = this.dataset.value;
+                }
+            });
+        });
+
+        document.querySelectorAll('#houseTypeOptions .house-type-option').forEach(opt => {
+            opt.addEventListener('click', function() {
+                if (!this.classList.contains('disabled')) {
+                    document.querySelectorAll('#houseTypeOptions .house-type-option').forEach(o => o.classList.remove('selected'));
+                    this.classList.add('selected');
+                    selectedHouseType = this.dataset.value;
+                }
+            });
+        });
+
+        document.querySelectorAll('#styleOptions .style-option').forEach(opt => {
+            opt.addEventListener('click', function() {
+                if (!this.classList.contains('disabled')) {
+                    this.classList.toggle('selected');
+                    const value = this.dataset.value;
+                    if (selectedStyles.includes(value)) {
+                        selectedStyles = selectedStyles.filter(s => s !== value);
+                    } else {
+                        selectedStyles.push(value);
+                    }
+                }
+            });
+        });
+
+        function toggleActionMenu() {
+            const actionMenu = document.getElementById('actionMenu');
+            if (actionMenu) {
+                actionMenu.classList.toggle('show');
+            }
+        }
+
+        function closeActionMenu() {
+            const actionMenu = document.getElementById('actionMenu');
+            if (actionMenu) {
+                actionMenu.classList.remove('show');
+            }
+        }
+
+        function showModal(title, message) {
+            const modal = document.getElementById('customModal');
+            document.getElementById('modalTitle').textContent = title;
+            document.getElementById('modalMessage').textContent = message;
+            modal.classList.add('show');
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('customModal');
+            modal.classList.remove('show');
+        }
+
+        let currentPreviewFilename = '';
+
+        function viewAttachment(filename) {
+            currentPreviewFilename = filename;
+            const modal = document.getElementById('attachmentPreviewModal');
+            const filenameEl = document.getElementById('previewFilename');
+            if (modal && filenameEl) {
+                filenameEl.textContent = filename;
+                modal.classList.add('show');
+            }
+        }
+
+        function confirmDownload() {
+            if (currentPreviewFilename) {
+                alert('下载附件: ' + currentPreviewFilename);
+            }
+        }
+
+        function closePreviewModal() {
+            const modal = document.getElementById('attachmentPreviewModal');
+            if (modal) {
+                modal.classList.remove('show');
+            }
+        }
+
+        function deleteAttachment(attachmentId) {
+            if (confirm('确定要删除这个附件吗？')) {
+                const item = document.getElementById(attachmentId);
+                if (item) {
+                    item.remove();
+                    alert('附件已删除');
+                }
+            }
+        }
+
+        function selectFile() {
+            alert('请选择要上传的文件');
+        }
+
+        // 初始化隐藏上传区域
+        document.getElementById('uploadArea').style.display = 'none';
+    </script>
+</body>
+</html>

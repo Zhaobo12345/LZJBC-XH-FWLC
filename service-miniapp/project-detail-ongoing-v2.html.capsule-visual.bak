@@ -1,0 +1,731 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>家装平台小程序原型 - 项目详情（进行中-新版）</title>
+    <link rel="stylesheet" href="common.css">
+    <link rel="stylesheet" href="css/project-detail.css">
+    <style>
+        /* 项目基本信息头部（参考上传图片效果：左「新家已开工 N 天」、右「面积户型」） */
+        .project-basic-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px;
+            background-color: var(--bg-primary);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .project-basic-header .left-info {
+            font-size: 14px;
+            color: var(--text-primary);
+            font-weight: 500;
+        }
+
+        .project-basic-header .left-info .highlight {
+            color: var(--orange-color);
+            font-weight: 700;
+            font-size: 18px;
+            margin: 0 2px;
+        }
+
+        .project-basic-header .right-wrap {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .project-basic-header .right-info {
+            display: inline-flex;
+            align-items: center;
+            padding: 6px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            font-size: 12px;
+            color: var(--text-secondary);
+            background-color: var(--bg-secondary);
+        }
+
+        /* 整块可点击跳转「项目信息」页 */
+        .project-basic-header.clickable {
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .project-basic-header.clickable:active {
+            background-color: var(--bg-secondary);
+        }
+
+        .project-basic-header .enter-arrow {
+            font-size: 18px;
+            line-height: 1;
+            color: var(--text-tertiary, #C0C4CC);
+            font-weight: 400;
+        }
+
+        /* 快捷入口改为 4 项（「项目信息」入口已由顶部基本信息区承载，避免重复） */
+        .quick-nav {
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+            padding-left: 20px;
+            padding-right: 20px;
+        }
+
+        /* 架构选择区域（level-selector）高度减少一半 */
+        .level-selector.arch-half {
+            padding: 4px 12px;
+        }
+
+        .level-selector.arch-half .level-dropdown .current .icon {
+            width: 24px;
+            height: 24px;
+            font-size: 12px;
+        }
+
+        .level-selector.arch-half .level-dropdown .text {
+            font-size: 13px;
+        }
+
+        /* 合同概览卡片高度减少一半（统计项改为横向排列，内容自适应总高度） */
+        .card.contract-half {
+            padding: 6px 8px;
+            margin-bottom: 8px;
+        }
+
+        .card.contract-half .card-title {
+            margin-bottom: 0;
+            font-size: 13px;
+        }
+
+        .card.contract-half .contract-summary {
+            padding: 2px 0;
+        }
+
+        .card.contract-half .contract-stat {
+            flex-direction: row;
+            align-items: baseline;
+            justify-content: center;
+            gap: 4px;
+        }
+
+        .card.contract-half .contract-stat .value {
+            font-size: 13px;
+            line-height: 1.1;
+        }
+
+        .card.contract-half .contract-stat .label {
+            font-size: 10px;
+            margin-top: 0;
+        }
+
+        .card.contract-half .contract-list.show {
+            max-height: 88px;
+            overflow-y: auto;
+        }
+
+        .card.contract-half .contract-item {
+            padding: 3px 0;
+        }
+
+        .card.contract-half .contract-item .name {
+            font-size: 12px;
+            line-height: 1.2;
+        }
+
+        .card.contract-half .contract-item .meta {
+            font-size: 10px;
+            margin-top: 0;
+        }
+
+        .card.contract-half .contract-item .percent {
+            font-size: 12px;
+            line-height: 1.2;
+        }
+
+        .card.contract-half .contract-item .bar {
+            margin-top: 1px;
+        }
+
+        /* 任务统计卡片高度减少一半（图标与文字改为横向排列，内容自适应总高度） */
+        .card.task-half {
+            padding: 6px 8px;
+            margin-bottom: 8px;
+        }
+
+        .card.task-half .card-title {
+            margin-bottom: 0;
+            font-size: 13px;
+        }
+
+        .card.task-half .task-stats {
+            gap: 4px;
+        }
+
+        .card.task-half .task-stat-item {
+            flex-direction: row;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            padding: 2px;
+        }
+
+        .card.task-half .task-stat-item .icon-wrap {
+            width: 20px;
+            height: 20px;
+            font-size: 10px;
+            margin-bottom: 0;
+        }
+
+        .card.task-half .task-stat-item .info {
+            flex: 0 1 auto;
+            text-align: left;
+        }
+
+        .card.task-half .task-stat-item .value {
+            font-size: 12px;
+            line-height: 1.1;
+        }
+
+        .card.task-half .task-stat-item .label {
+            font-size: 9px;
+            margin-top: 0;
+        }
+    </style>
+<style>
+/* 微信原生胶囊占位（样式参考真机效果，由微信客户端实际渲染） */
+    .nav-bar .native-capsule {
+        display: inline-flex;
+        align-items: center;
+        justify-content: space-between;
+        min-width: 56px;
+        height: 28px;
+        padding: 0 10px;
+        border: 1px solid rgba(0, 0, 0, 0.08);
+        border-radius: 14px;
+        background: rgba(255, 255, 255, 0.7);
+        color: rgba(0, 0, 0, 0.6);
+        font-size: 12px;
+        line-height: 1;
+        user-select: none;
+        box-sizing: border-box;
+    }
+    .nav-bar .native-capsule .nc-left,
+    .nav-bar .native-capsule .nc-right {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex: 1;
+        min-width: 16px;
+    }
+    .nav-bar .native-capsule .nc-right {
+        font-size: 10px;
+    }
+    .nav-bar .native-capsule .nc-divider {
+        width: 1px;
+        height: 14px;
+        background: rgba(0, 0, 0, 0.1);
+        margin: 0 4px;
+    }
+</style>
+</head>
+<body>
+    <div class="phone-frame">
+        <div class="status-bar">
+            <div class="time">9:41</div>
+            <div class="icons">📶 🔋</div>
+        </div>
+
+        <div class="nav-bar">
+            <div class="back">← 返回</div>
+            <div class="title centered">XX小区整体装修</div>
+            
+            
+        
+            <div class="actions"><div class="native-capsule" title="微信原生胶囊：由微信客户端渲染，开发者不可自定义其内容"><span class="nc-left">⋯</span><span class="nc-divider"></span><span class="nc-right">○</span></div></div>
+        </div>
+            
+
+
+        <div class="page-content" id="pageContent">
+            <div class="loading-overlay" id="loadingOverlay" style="display:none;">
+                <div class="loading-spinner"></div>
+                <div class="loading-text">加载中...</div>
+            </div>
+
+            <!-- 项目基本信息（参考图片效果，置于最上方；整块可点击跳转项目信息页） -->
+            <div class="project-basic-header clickable" data-href="project-info.html">
+                <div class="left-info">
+                    新家已开工<span class="highlight">60</span>天
+                </div>
+                <div class="right-wrap">
+                    <div class="right-info">
+                        75.0m² 2室1厅
+                    </div>
+                    <span class="enter-arrow">›</span>
+                </div>
+            </div>
+
+            <!-- 快捷入口：架构、成员、资料库、对账单 -->
+            <div class="sticky-header" id="stickyHeader">
+                <div class="quick-nav" id="quickNav">
+                    <div class="pin-btn" id="pinBtn">📌 固定</div>
+                    <div class="quick-nav-item" data-href="architecture.html">
+                        <div class="icon structure">🏗️</div>
+                        <div class="label">架构</div>
+                    </div>
+                    <div class="quick-nav-item" data-href="member.html">
+                        <div class="icon member">👥</div>
+                        <div class="label">成员</div>
+                    </div>
+                    <div class="quick-nav-item" data-href="project-files.html">
+                        <div class="icon file">📁</div>
+                        <div class="label">资料</div>
+                    </div>
+                    <div class="quick-nav-item" data-href="statement-list.html">
+                        <div class="icon statement">💰</div>
+                        <div class="label">对账单</div>
+                    </div>
+                </div>
+
+                <div class="quick-nav-toggle" id="quickNavToggle">
+                    <div class="toggle-btn">
+                        <div class="dots">
+                            <div class="dot"></div>
+                            <div class="dot"></div>
+                            <div class="dot"></div>
+                            <div class="dot"></div>
+                        </div>
+                        <span id="toggleText">展开快捷入口</span>
+                        <span class="arrow" id="toggleArrow">▼</span>
+                    </div>
+                </div>
+
+                <!-- 架构选择区域（高度减半） -->
+                <div class="level-selector arch-half" id="levelSelector">
+                    <div class="level-dropdown" id="levelDropdown">
+                        <div class="current">
+                            <div class="icon" id="levelIcon">🏢</div>
+                            <div>
+                                <div class="text-row">
+                                    <div class="text" id="levelText">项目部</div>
+                                    <div class="type-badge project" id="levelType">项目部</div>
+                                </div>
+                                <div class="breadcrumb-inline" id="breadcrumbInline">
+                                    <span class="breadcrumb-item active">项目部</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="arrow" id="levelArrow">▼</div>
+                    </div>
+                    <div class="level-options" id="levelOptions">
+                        <div class="level-option selected" data-level="项目部">
+                            <div class="icon">🏢</div>
+                            <div class="info">
+                                <div class="name">项目部</div>
+                                <div class="count">4个工作组 · 8份合同</div>
+                            </div>
+                            <div class="check" style="visibility:visible;">✓</div>
+                        </div>
+                        <div class="level-option" data-level="水电工作组">
+                            <div class="icon">⚡</div>
+                            <div class="info">
+                                <div class="name">水电工作组</div>
+                                <div class="count">3个施工组 · 2份合同</div>
+                            </div>
+                            <div class="check" style="visibility:hidden;">✓</div>
+                        </div>
+                        <div class="level-option" data-level="泥瓦工作组">
+                            <div class="icon">⚡</div>
+                            <div class="info">
+                                <div class="name">泥瓦工作组</div>
+                                <div class="count">2个施工组 · 1份合同</div>
+                            </div>
+                            <div class="check" style="visibility:hidden;">✓</div>
+                        </div>
+                        <div class="level-option" data-level="木工工作组">
+                            <div class="icon">⚡</div>
+                            <div class="info">
+                                <div class="name">木工工作组</div>
+                                <div class="count">2个施工组 · 1份合同</div>
+                            </div>
+                            <div class="check" style="visibility:hidden;">✓</div>
+                        </div>
+                        <div class="level-option" data-level="油漆工作组">
+                            <div class="icon">⚡</div>
+                            <div class="info">
+                                <div class="name">油漆工作组</div>
+                                <div class="count">1个施工组 · 1份合同</div>
+                            </div>
+                            <div class="check" style="visibility:hidden;">✓</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 待办事项（置于合同概览上方，默认展示三条） -->
+            <div class="card">
+                <div class="card-title">
+                    <span>📋 待办事项</span>
+                    <span class="badge-wrap"><span class="badge" id="todoBadge">3</span></span>
+                    <span class="more" data-href="todo-list.html">查看全部 ></span>
+                </div>
+                <div class="todo-content show" id="todoContent">
+                    <div class="todo-item" data-href="contract-detail.html?status=confirming_receiver">
+                        <div class="icon" style="background-color: #E6F7FF;">🔵</div>
+                        <div class="content">
+                            <div class="title">泥瓦分包合同确认 <span class="task-tag contract">合同</span></div>
+                            <div class="desc">泥瓦工作组 | 待确认</div>
+                        </div>
+                        <div class="status urgent">待确认</div>
+                    </div>
+                    <div class="todo-item" data-href="contract-detail.html?status=signing">
+                        <div class="icon" style="background-color: #E6F7FF;">🔵</div>
+                        <div class="content">
+                            <div class="title">木工分包合同签约 <span class="task-tag contract">合同</span></div>
+                            <div class="desc">木工工作组 | 待签约</div>
+                        </div>
+                        <div class="status pending">待确认</div>
+                    </div>
+                    <div class="todo-item" data-href="task-detail.html?status=in_progress">
+                        <div class="icon" style="background-color: #FFF7E6;">🟡</div>
+                        <div class="content">
+                            <div class="title">吊顶安装 <span class="task-tag task">任务</span></div>
+                            <div class="desc">木工工作组 | 张三执行中</div>
+                        </div>
+                        <div class="status in-progress">执行中</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 合同概览（高度减半） -->
+            <div class="card contract-half">
+                <div class="card-title">
+                    <span>📄 合同概览</span>
+                    <span class="more">
+                        查看合同
+                        <span class="arrow">▼</span>
+                    </span>
+                </div>
+                <div class="contract-summary">
+                    <div class="contract-stat">
+                        <div class="value"><span class="current">6</span><span class="separator">/</span><span class="total">8</span></div>
+                        <div class="label">合同签约</div>
+                    </div>
+                    <div class="contract-stat">
+                        <div class="value"><span class="current">65</span><span class="total">%</span></div>
+                        <div class="label">总进度</div>
+                    </div>
+                </div>
+                <div class="contract-list" id="contractList">
+                    <div style="margin-top: 2px; padding-top: 2px; border-top: 1px solid #E8E8E8;">
+                        <div class="contract-item" data-href="contract-detail.html?status=draft">
+                            <div class="info">
+                                <div class="name">水电分包合同</div>
+                                <div class="meta">水电工作组 | 金额：8万</div>
+                            </div>
+                            <div class="progress-wrap">
+                                <div class="percent">65%</div>
+                                <div class="bar"><div class="fill" style="width: 65%;"></div></div>
+                            </div>
+                        </div>
+                        <div class="contract-item" data-href="contract-detail.html?status=confirming_sender">
+                            <div class="info">
+                                <div class="name">泥瓦分包合同</div>
+                                <div class="meta">泥瓦工作组 | 金额：12万</div>
+                            </div>
+                            <div class="progress-wrap">
+                                <div class="percent">30%</div>
+                                <div class="bar"><div class="fill" style="width: 30%;"></div></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 任务统计（高度减半） -->
+            <div class="card task-half">
+                <div class="card-title">
+                    <span>📊 任务统计</span>
+                    <span class="more" data-href="task-list.html">查看全部 ></span>
+                </div>
+                <div class="task-stats">
+                    <div class="task-stat-item">
+                        <div class="icon-wrap all">📋</div>
+                        <div class="info">
+                            <div class="value"><span class="current" id="overallCompleted">18</span><span class="separator">/</span><span class="total" id="overallTotal">24</span></div>
+                            <div class="label">全部任务</div>
+                        </div>
+                    </div>
+                    <div class="task-stat-item">
+                        <div class="icon-wrap accept">⏳</div>
+                        <div class="info">
+                            <div class="value" id="overallConfirming">3</div>
+                            <div class="label">确认中任务</div>
+                        </div>
+                    </div>
+                    <div class="task-stat-item">
+                        <div class="icon-wrap contract">▶</div>
+                        <div class="info">
+                            <div class="value" id="overallInProgress">2</div>
+                            <div class="label">执行中任务</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 今日动态 -->
+            <div class="card">
+                <div class="card-title">
+                    <span>📝 今日动态</span>
+                    <span class="more" data-action="activity-list">查看全部 ></span>
+                </div>
+                <div class="activity-list" id="activityList">
+                    <div class="activity-item" data-href="task-detail.html">
+                        <div class="activity-header">
+                            <div class="activity-avatar">李</div>
+                            <div class="activity-info">
+                                <div class="activity-user">李监理</div>
+                                <div class="activity-time">01-15 10:30</div>
+                            </div>
+                        </div>
+                        <div class="activity-content">完成了 开槽布线 的验收</div>
+                        <div class="activity-media">
+                            <div class="activity-media-item" style="background: url('https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=120&h=120&fit=crop') center/cover; border-radius: 6px;"></div>
+                            <div class="activity-media-item" style="background: url('https://images.unsplash.com/photo-1621905252507-b35492cc74b4?w=120&h=120&fit=crop') center/cover; border-radius: 6px;"></div>
+                            <div class="activity-media-item video" style="background: url('https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=120&h=120&fit=crop') center/cover; border-radius: 6px; position: relative;">
+                                <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 24px; height: 24px; background: rgba(0,0,0,0.5); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 10px;">▶</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="activity-item secondary" data-href="task-detail.html">
+                        <div class="activity-header">
+                            <div class="activity-avatar" style="background: linear-gradient(135deg, #52C41A 0%, #73D13D 100%);">张</div>
+                            <div class="activity-info">
+                                <div class="activity-user">张工长</div>
+                                <div class="activity-time">01-15 09:15</div>
+                            </div>
+                        </div>
+                        <div class="activity-content">提交了 开槽布线 的验收申请</div>
+                        <div class="activity-media">
+                            <div class="activity-media-item" style="background: url('https://images.unsplash.com/photo-1503387762-592deb58ef4e?w=120&h=120&fit=crop') center/cover; border-radius: 6px;"></div>
+                            <div class="activity-media-item" style="background: url('https://images.unsplash.com/photo-1585232351009-aa654f89dfed?w=120&h=120&fit=crop') center/cover; border-radius: 6px;"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div style="height: 20px;"></div>
+        </div>
+
+        <div class="custom-toast-modal" id="customToastModal">
+            <div class="modal-box">
+                <div class="modal-body" id="customToastMessage">
+                    操作成功
+                </div>
+                <div class="modal-footer">
+                    <div class="modal-btn" id="toastCloseBtn">知道了</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="page-nav">
+        <div class="page-nav-title">原型导航</div>
+        <a href="home.html" class="page-nav-item">首页</a>
+        <a href="project-list.html" class="page-nav-item">项目列表</a>
+        <a href="project-detail.html" class="page-nav-item">项目详情（进行中）</a>
+        <a href="project-detail-ongoing-v2.html" class="page-nav-item active">项目详情（进行中-新版）</a>
+        <a href="project-detail-completed.html" class="page-nav-item">项目详情（已完成）</a>
+        <a href="project-info.html" class="page-nav-item">项目信息</a>
+        <a href="architecture.html" class="page-nav-item">项目架构</a>
+        <a href="create-project.html" class="page-nav-item">创建项目</a>
+        <a href="contract-detail.html" class="page-nav-item">合同详情</a>
+        <a href="task-detail.html" class="page-nav-item">任务详情</a>
+    </div>
+
+    <script src="js/page-nav.js"></script>
+    <script>
+        (function() {
+            var pageContent = document.getElementById('pageContent');
+            var quickNav = document.getElementById('quickNav');
+            var quickNavToggle = document.getElementById('quickNavToggle');
+            var toggleText = document.getElementById('toggleText');
+            var toggleArrow = document.getElementById('toggleArrow');
+            var pinBtn = document.getElementById('pinBtn');
+            var levelSelector = document.getElementById('levelSelector');
+            var levelOptions = document.getElementById('levelOptions');
+            var levelArrow = document.getElementById('levelArrow');
+            var levelDropdown = document.getElementById('levelDropdown');
+            var levelText = document.getElementById('levelText');
+            var levelIcon = document.getElementById('levelIcon');
+            var levelType = document.getElementById('levelType');
+            var breadcrumbInline = document.getElementById('breadcrumbInline');
+            var actionMenu = document.getElementById('actionMenu');
+            var customToastModal = document.getElementById('customToastModal');
+            var customToastMessage = document.getElementById('customToastMessage');
+            var toastCloseBtn = document.getElementById('toastCloseBtn');
+            var activityMoreBtn = document.getElementById('activityMoreBtn');
+
+            var quickNavExpanded = true;
+            var activityExpanded = false;
+
+            function showCustomToast(message) {
+                if (customToastMessage && customToastModal) {
+                    customToastMessage.textContent = message;
+                    customToastModal.classList.add('show');
+                }
+            }
+
+            function closeCustomToast() {
+                if (customToastModal) customToastModal.classList.remove('show');
+            }
+
+            function toggleLevelDropdown() {
+                if (!levelOptions || !levelArrow) return;
+                if (levelOptions.classList.contains('show')) {
+                    levelOptions.classList.remove('show');
+                    levelArrow.classList.remove('open');
+                    if (pageContent) pageContent.style.overflow = 'auto';
+                } else {
+                    levelOptions.classList.add('show');
+                    levelArrow.classList.add('open');
+                    if (pageContent) pageContent.style.overflow = 'hidden';
+                }
+            }
+
+            function selectLevel(name) {
+                if (!name) return;
+                if (levelText) levelText.textContent = name;
+                if (levelType) {
+                    levelType.textContent = '工作组';
+                    levelType.className = 'type-badge workgroup';
+                }
+                if (breadcrumbInline) {
+                    breadcrumbInline.innerHTML = '<span class="breadcrumb-item">项目部</span><span class="separator">›</span><span class="breadcrumb-item active">' + name + '</span>';
+                }
+                var opts = levelOptions ? levelOptions.querySelectorAll('.level-option') : [];
+                opts.forEach(function(opt) {
+                    var chk = opt.querySelector('.check');
+                    if (opt.dataset.level === name) {
+                        opt.classList.add('selected');
+                        if (chk) chk.style.visibility = 'visible';
+                    } else {
+                        opt.classList.remove('selected');
+                        if (chk) chk.style.visibility = 'hidden';
+                    }
+                });
+                toggleLevelDropdown();
+            }
+
+            function toggleQuickNav() {
+                if (!quickNav) return;
+                if (quickNavExpanded) {
+                    quickNav.classList.add('collapsed');
+                    if (toggleText) toggleText.textContent = '展开快捷入口';
+                    if (toggleArrow) toggleArrow.classList.remove('expanded');
+                    quickNavExpanded = false;
+                } else {
+                    quickNav.classList.remove('collapsed');
+                    if (toggleText) toggleText.textContent = '收起快捷入口';
+                    if (toggleArrow) toggleArrow.classList.add('expanded');
+                    quickNavExpanded = true;
+                }
+            }
+
+            function toggleActivityList() {
+                var hiddenItems = document.querySelectorAll('.activity-item.hidden');
+                if (activityExpanded) {
+                    hiddenItems.forEach(function(item) { item.classList.add('hidden'); });
+                    activityExpanded = false;
+                } else {
+                    document.querySelectorAll('.activity-item').forEach(function(item) { item.classList.remove('hidden'); });
+                    activityExpanded = true;
+                }
+            }
+
+            function navigate(href) {
+                if (href) window.location.href = href;
+            }
+
+            // 事件绑定
+            if (quickNav) {
+                quickNav.addEventListener('click', function(e) {
+                    var item = e.target.closest('.quick-nav-item');
+                    if (item) { navigate(item.dataset.href); return; }
+                    var pin = e.target.closest('.pin-btn');
+                    if (pin) {
+                        if (quickNav.classList.contains('pinned')) {
+                            quickNav.classList.remove('pinned');
+                            pin.textContent = '📌 固定';
+                        } else {
+                            quickNav.classList.add('pinned');
+                            pin.textContent = '📌 取消固定';
+                        }
+                    }
+                });
+            }
+
+            if (quickNavToggle) quickNavToggle.addEventListener('click', toggleQuickNav);
+
+            if (levelSelector) {
+                levelSelector.addEventListener('click', function(e) {
+                    var dropdown = e.target.closest('.level-dropdown');
+                    if (dropdown) { toggleLevelDropdown(); return; }
+                    var opt = e.target.closest('.level-option');
+                    if (opt) selectLevel(opt.dataset.level);
+                });
+            }
+
+            if (actionMenu) {
+                actionMenu.addEventListener('click', function(e) {
+                    var item = e.target.closest('.action-menu-item');
+                    if (item) showCustomToast(item.textContent.trim());
+                });
+            }
+
+            if (toastCloseBtn) toastCloseBtn.addEventListener('click', closeCustomToast);
+
+            ;
+
+            var backBtn = document.querySelector('.nav-bar .back');
+            if (backBtn) backBtn.addEventListener('click', function() { history.back(); });
+
+            document.addEventListener('click', function(e) {
+                if (levelSelector && !levelSelector.contains(e.target)) {
+                    if (levelOptions) levelOptions.classList.remove('show');
+                    if (levelArrow) levelArrow.classList.remove('open');
+                }
+                if (actionMenu && !e.target.closest('.actions') && !e.target.closest('.action-menu')) {
+                    actionMenu.classList.remove('show');
+                }
+            });
+
+            // data-href 跳转（合同项、待办项、动态项、更多链接）
+            document.querySelectorAll('[data-href]').forEach(function(el) {
+                el.addEventListener('click', function() { navigate(el.dataset.href); });
+            });
+
+            // 合同概览「查看合同」展开/收起
+            var contractMore = document.querySelector('.card.contract-half .more');
+            var contractList = document.getElementById('contractList');
+            if (contractMore && contractList) {
+                contractMore.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    if (contractList.classList.contains('show')) {
+                        contractList.classList.remove('show');
+                        var arr = contractMore.querySelector('.arrow');
+                        if (arr) arr.classList.remove('expanded');
+                    } else {
+                        contractList.classList.add('show');
+                        var arr = contractMore.querySelector('.arrow');
+                        if (arr) arr.classList.add('expanded');
+                    }
+                });
+            }
+
+            if (activityMoreBtn) activityMoreBtn.addEventListener('click', toggleActivityList);
+        })();
+    </script>
+</body>
+</html>

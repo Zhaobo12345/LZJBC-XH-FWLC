@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>家装平台小程序原型 - 合同预览</title>
+    <link rel="stylesheet" href="common.css">
+    <link rel="stylesheet" href="css/contract-preview.css">
+<style>
+/* 微信原生胶囊占位（样式参考真机效果，由微信客户端实际渲染） */
+    .nav-bar .native-capsule {
+        display: inline-flex;
+        align-items: center;
+        justify-content: space-between;
+        min-width: 56px;
+        height: 28px;
+        padding: 0 10px;
+        border: 1px solid rgba(0, 0, 0, 0.08);
+        border-radius: 14px;
+        background: rgba(255, 255, 255, 0.7);
+        color: rgba(0, 0, 0, 0.6);
+        font-size: 12px;
+        line-height: 1;
+        user-select: none;
+        box-sizing: border-box;
+    }
+    .nav-bar .native-capsule .nc-left,
+    .nav-bar .native-capsule .nc-right {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex: 1;
+        min-width: 16px;
+    }
+    .nav-bar .native-capsule .nc-right {
+        font-size: 10px;
+    }
+    .nav-bar .native-capsule .nc-divider {
+        width: 1px;
+        height: 14px;
+        background: rgba(0, 0, 0, 0.1);
+        margin: 0 4px;
+    }
+</style>
+</head>
+<body>
+    <div class="phone-frame">
+        <div class="status-bar">
+            <div class="time">9:41</div>
+            <div class="icons">📶 🔋</div>
+        </div>
+        
+        <div class="nav-bar">
+            <div class="back" onclick="history.back()">← 返回</div>
+            <div class="title centered">合同预览</div>
+            <div class="actions">
+                <div class="action-btn" onclick="downloadContract()">📥</div>
+            </div>
+        
+            <div class="actions"><div class="native-capsule" title="微信原生胶囊：由微信客户端渲染，开发者不可自定义其内容"><span class="nc-left">⋯</span><span class="nc-divider"></span><span class="nc-right">○</span></div></div>
+        </div>
+            
+
+        
+        <div class="content-area" id="contentArea">
+            <div class="paper-document">
+                <!-- 合同标题 -->
+                <div class="document-header">
+                    <div class="document-title">水电分包合同</div>
+                    <div class="document-subtitle">合同编号：BJSDSWHT000001</div>
+                    <div class="document-type-tag">水电服务合同</div>
+                </div>
+                
+                <!-- 分隔线 -->
+                <div class="divider"></div>
+                
+                <!-- 签约双方 -->
+                <div class="section">
+                    <div class="section-title">一、签约双方</div>
+                    <div class="party-section">
+                        <div class="party-row">
+                            <div class="party-label">发包方（甲方）：</div>
+                            <div class="party-value">张三（业主）</div>
+                        </div>
+                        <div class="party-row">
+                            <div class="party-label">承包方（乙方）：</div>
+                            <div class="party-value">李四（水电组长）</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 分隔线 -->
+                <div class="divider"></div>
+                
+                <!-- 合同信息 -->
+                <div class="section">
+                    <div class="section-title">二、合同信息</div>
+                    <div class="info-row">
+                        <div class="info-label">合同金额</div>
+                        <div class="info-value highlight">¥80,000.00</div>
+                    </div>
+                    <div class="info-row">
+                        <div class="info-label">签订日期</div>
+                        <div class="info-value">2024年01月10日</div>
+                    </div>
+                    <div class="info-row">
+                        <div class="info-label">工程地点</div>
+                        <div class="info-value">XX市XX区XX路XX号</div>
+                    </div>
+                </div>
+                
+                <!-- 分隔线 -->
+                <div class="divider"></div>
+                
+                <!-- 合同正文 -->
+                <div class="section">
+                    <div class="section-title">三、合同正文</div>
+                    <div class="contract-text">
+                        <p>根据《中华人民共和国民法典》及相关法律法规的规定，甲乙双方本着平等、自愿、公平、诚实信用的原则，就水电工程分包事宜协商一致，订立本合同。</p>
+                        
+                        <p class="text-title">一、工程概况</p>
+                        <p>工程名称：XX小区整体装修水电工程</p>
+                        <p>工程地点：XX市XX区XX路XX号</p>
+                        <p>工程内容：强电、弱电、给排水等水电工程</p>
+                        
+                        <p class="text-title">二、承包范围</p>
+                        <p>1. 强电工程：包括配电箱安装、线路敷设、开关插座安装等</p>
+                        <p>2. 弱电工程：包括网络、电视、电话线路敷设等</p>
+                        <p>3. 给排水工程：包括给水管道、排水管道安装等</p>
+                        
+                        <p class="text-title">三、合同价款</p>
+                        <p>合同总价：人民币捌万元整（¥80,000.00）</p>
+                        <p>付款方式：分期付款</p>
+                        
+                        <p class="text-title">四、工期约定</p>
+                        <p>开工日期：2024年2月1日</p>
+                        <p>竣工日期：2024年5月1日</p>
+                        <p>总工期：90个日历天</p>
+                        
+                        <p class="text-title">五、质量标准</p>
+                        <p>工程质量应符合国家现行《建筑装饰装修工程质量验收规范》及相关标准的规定，达到合格标准。</p>
+                        
+                        <p class="text-title">六、其他条款</p>
+                        <p>1. 本合同双方签字盖章后生效。</p>
+                        <p>2. 本合同一式两份，甲乙双方各执一份，具有同等法律效力。</p>
+                        <p>3. 本合同未尽事宜，由双方协商解决。</p>
+                    </div>
+                </div>
+                
+                <!-- 分隔线 -->
+                <div class="divider"></div>
+                
+                <!-- 阶段任务 -->
+                <div class="section">
+                    <div class="section-title">四、阶段任务</div>
+                    
+                    <!-- 阶段1 -->
+                    <div class="stage-block">
+                        <div class="stage-header-row">
+                            <div class="stage-num">1</div>
+                            <div class="stage-name">材料进场阶段</div>
+                            <div class="stage-order">并行执行</div>
+                        </div>
+                        <div class="task-list">
+                            <div class="task-row">
+                                <div class="task-name">• 材料采购</div>
+                                <div class="task-meta">执行：张三 | 确认：李四、王五</div>
+                            </div>
+                            <div class="task-row">
+                                <div class="task-name">• 材料运输</div>
+                                <div class="task-meta">执行：张三 | 确认：李四</div>
+                            </div>
+                            <div class="task-row">
+                                <div class="task-name">• 材料确认</div>
+                                <div class="task-meta">执行：张三 | 确认：李四、王五、赵六</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 阶段2 -->
+                    <div class="stage-block">
+                        <div class="stage-header-row">
+                            <div class="stage-num">2</div>
+                            <div class="stage-name">布管布线阶段</div>
+                            <div class="stage-order">按序执行</div>
+                        </div>
+                        <div class="task-list">
+                            <div class="task-row">
+                                <div class="task-name">• 开槽</div>
+                                <div class="task-meta">执行：李四 | 确认：张三、王五</div>
+                            </div>
+                            <div class="task-row">
+                                <div class="task-name">• 布管</div>
+                                <div class="task-meta">执行：李四 | 确认：张三、王五</div>
+                            </div>
+                            <div class="task-row">
+                                <div class="task-name">• 穿线</div>
+                                <div class="task-meta">执行：李四 | 确认：张三、王五、赵六</div>
+                            </div>
+                            <div class="task-row">
+                                <div class="task-name">• 线路测试</div>
+                                <div class="task-meta">执行：王五 | 确认：张三</div>
+                            </div>
+                            <div class="task-row">
+                                <div class="task-name">• 隐蔽工程验收</div>
+                                <div class="task-meta">执行：张三 | 确认：业主、监理</div>
+                            </div>
+                            <div class="task-row">
+                                <div class="task-name">• 阶段确认</div>
+                                <div class="task-meta">执行：李四 | 确认：张三、王五、业主</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 阶段3 -->
+                    <div class="stage-block">
+                        <div class="stage-header-row">
+                            <div class="stage-num">3</div>
+                            <div class="stage-name">安装阶段</div>
+                            <div class="stage-order">按序执行</div>
+                        </div>
+                        <div class="task-list">
+                            <div class="task-row">
+                                <div class="task-name">• 开关插座安装</div>
+                                <div class="task-meta">执行：王五 | 确认：张三、李四</div>
+                            </div>
+                            <div class="task-row">
+                                <div class="task-name">• 灯具安装</div>
+                                <div class="task-meta">执行：王五 | 确认：张三、李四</div>
+                            </div>
+                            <div class="task-row">
+                                <div class="task-name">• 配电箱安装</div>
+                                <div class="task-meta">执行：王五 | 确认：张三、监理</div>
+                            </div>
+                            <div class="task-row">
+                                <div class="task-name">• 设备调试</div>
+                                <div class="task-meta">执行：赵六 | 确认：张三、王五</div>
+                            </div>
+                            <div class="task-row">
+                                <div class="task-name">• 阶段确认</div>
+                                <div class="task-meta">执行：王五 | 确认：张三、李四、赵六、业主</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 阶段4 -->
+                    <div class="stage-block">
+                        <div class="stage-header-row">
+                            <div class="stage-num">4</div>
+                            <div class="stage-name">收尾阶段</div>
+                            <div class="stage-order">按序执行</div>
+                        </div>
+                        <div class="task-list">
+                            <div class="task-row">
+                                <div class="task-name">• 清理现场</div>
+                                <div class="task-meta">执行：李四 | 确认：张三、王五</div>
+                            </div>
+                            <div class="task-row">
+                                <div class="task-name">• 竣工验收</div>
+                                <div class="task-meta">执行：张三 | 确认：业主、监理</div>
+                            </div>
+                            <div class="task-row">
+                                <div class="task-name">• 资料整理</div>
+                                <div class="task-meta">执行：王五 | 确认：张三</div>
+                            </div>
+                            <div class="task-row">
+                                <div class="task-name">• 培训使用</div>
+                                <div class="task-meta">执行：赵六 | 确认：业主</div>
+                            </div>
+                            <div class="task-row">
+                                <div class="task-name">• 最终确认</div>
+                                <div class="task-meta">执行：李四 | 确认：张三、王五、赵六、业主</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 分隔线 -->
+                <div class="divider"></div>
+                
+                <!-- 附件 -->
+                <div class="section">
+                    <div class="section-title">五、合同附件</div>
+                    <div class="attachment-list">
+                        <div class="attachment-row">
+                            <div class="attachment-icon">📄</div>
+                            <div class="attachment-info">
+                                <div class="attachment-name">水电分包合同.pdf</div>
+                                <div class="attachment-meta">2.3MB · 2024-01-10上传</div>
+                            </div>
+                        </div>
+                        <div class="attachment-row">
+                            <div class="attachment-icon">🖼️</div>
+                            <div class="attachment-info">
+                                <div class="attachment-name">户型图.jpg</div>
+                                <div class="attachment-meta">1.2MB · 2024-01-10上传</div>
+                            </div>
+                        </div>
+                        <div class="attachment-row">
+                            <div class="attachment-icon">📄</div>
+                            <div class="attachment-info">
+                                <div class="attachment-name">水电点位图.pdf</div>
+                                <div class="attachment-meta">3.5MB · 2024-01-10上传</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 分隔线 -->
+                <div class="divider"></div>
+                
+                <!-- 签章区域 -->
+                <div class="section">
+                    <div class="section-title">六、签章</div>
+                    <div class="signature-area">
+                        <div class="signature-item">
+                            <div class="signature-label">甲方（签章）：</div>
+                            <div class="signature-box">
+                                <div class="signature-placeholder">签字/盖章</div>
+                            </div>
+                            <div class="signature-date">日期：____年____月____日</div>
+                        </div>
+                        <div class="signature-item">
+                            <div class="signature-label">乙方（签章）：</div>
+                            <div class="signature-box">
+                                <div class="signature-placeholder">签字/盖章</div>
+                            </div>
+                            <div class="signature-date">日期：____年____月____日</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 底部说明 -->
+                <div class="document-footer">
+                    <div class="footer-text">合同生成时间：2024年01月10日 10:30:00</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="js/contract-preview.js"></script>
+</body>
+</html>

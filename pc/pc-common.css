@@ -1,0 +1,1861 @@
+/* ==========================================================================
+   pc-common.css — 家装平台PC端原型 · 公共样式
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   1. CSS 变量（统一设计系统）
+   -------------------------------------------------------------------------- */
+:root {
+    --primary-color: #1890FF;
+    --primary-light: #40A9FF;
+    --primary-dark: #096DD9;
+    --success-color: #52C41A;
+    --success-light: #73D13D;
+    --warning-color: #FAAD14;
+    --warning-light: #FFC53D;
+    --error-color: #FF4D4F;
+    --error-light: #FF7875;
+    --purple-color: #722ED1;
+    --orange-color: #FA8C16;
+
+    --text-primary: #262626;
+    --text-secondary: #595959;
+    --text-tertiary: #8C8C8C;
+    --text-disabled: #BFBFBF;
+
+    --bg-primary: #FFFFFF;
+    --bg-secondary: #F5F5F5;
+    --bg-tertiary: #E8E8E8;
+    --bg-dark: #001529;
+    --border-color: #E8E8E8;
+    --border-light: #F0F0F0;
+    --shadow-color: rgba(0, 0, 0, 0.05);
+    --shadow-md: rgba(0, 0, 0, 0.1);
+    --shadow-lg: rgba(0, 0, 0, 0.15);
+}
+
+/* --------------------------------------------------------------------------
+   2. 重置样式
+   -------------------------------------------------------------------------- */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC',
+                 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+    background-color: var(--bg-secondary);
+    color: var(--text-primary);
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+/* --------------------------------------------------------------------------
+   3. PC端整体布局
+   -------------------------------------------------------------------------- */
+.pc-container {
+    display: flex;
+    height: 100vh;
+    overflow: hidden;
+}
+
+/* --------------------------------------------------------------------------
+   4. 侧边栏导航
+   -------------------------------------------------------------------------- */
+.pc-sidebar {
+    width: 220px;
+    background-color: var(--bg-dark);
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+}
+
+.pc-sidebar-header {
+    height: 64px;
+    display: flex;
+    align-items: center;
+    padding: 0 20px;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+
+.pc-sidebar-logo {
+    font-size: 18px;
+    font-weight: 600;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.pc-sidebar-logo .icon {
+    font-size: 24px;
+}
+
+.pc-sidebar-menu {
+    flex: 1;
+    padding: 12px 0;
+    overflow-y: auto;
+}
+
+.pc-menu-item {
+    display: flex;
+    align-items: center;
+    padding: 12px 20px;
+    color: rgba(255,255,255,0.65);
+    cursor: pointer;
+    transition: all 0.2s;
+    text-decoration: none;
+    gap: 10px;
+}
+
+.pc-menu-item:hover {
+    color: #fff;
+    background-color: rgba(255,255,255,0.1);
+}
+
+.pc-menu-item.active {
+    color: #fff;
+    background-color: var(--primary-color);
+}
+
+.pc-menu-item .icon {
+    font-size: 16px;
+    width: 20px;
+    text-align: center;
+}
+
+.pc-menu-item .label {
+    font-size: 14px;
+}
+
+.pc-menu-group {
+    margin-top: 8px;
+}
+
+.pc-menu-group-title {
+    padding: 12px 20px 8px 20px;
+    font-size: 13px;
+    font-weight: 600;
+    color: rgba(255,255,255,0.85);
+    letter-spacing: 0.5px;
+    border-top: 1px solid rgba(255,255,255,0.1);
+    margin-top: 8px;
+}
+
+.pc-menu-group:first-child .pc-menu-group-title {
+    border-top: none;
+    margin-top: 0;
+}
+
+.pc-menu-group .pc-menu-item {
+    padding-left: 36px;
+    font-size: 13px;
+}
+
+.pc-menu-group .pc-menu-item .icon {
+    font-size: 14px;
+    width: 18px;
+}
+
+.pc-menu-item.main-nav {
+    font-weight: 500;
+    font-size: 14px;
+    padding: 14px 20px;
+    background-color: rgba(0,0,0,0.1);
+    margin-bottom: 2px;
+}
+
+.pc-menu-item.main-nav:hover {
+    background-color: rgba(255,255,255,0.15);
+}
+
+.pc-menu-item.main-nav.active {
+    background-color: var(--primary-color);
+}
+
+/* --------------------------------------------------------------------------
+   5. 主内容区域
+   -------------------------------------------------------------------------- */
+.pc-main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+/* --------------------------------------------------------------------------
+   6. 顶部导航栏
+   -------------------------------------------------------------------------- */
+.pc-header {
+    height: 56px;
+    background-color: var(--bg-primary);
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 24px;
+    flex-shrink: 0;
+}
+
+.pc-header-left {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.pc-breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    color: var(--text-secondary);
+}
+
+.pc-breadcrumb .separator {
+    color: var(--text-tertiary);
+}
+
+.pc-breadcrumb .item {
+    color: var(--text-secondary);
+    cursor: pointer;
+}
+
+.pc-breadcrumb .item:hover {
+    color: var(--primary-color);
+}
+
+.pc-breadcrumb .item.current {
+    color: var(--text-primary);
+    cursor: default;
+}
+
+.pc-header-right {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.pc-header-icon {
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    border-radius: 50%;
+    transition: all 0.2s;
+    font-size: 18px;
+    color: var(--text-secondary);
+    position: relative;
+}
+
+.pc-header-icon:hover {
+    background-color: var(--bg-secondary);
+    color: var(--primary-color);
+}
+
+.pc-header-icon .badge {
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    width: 8px;
+    height: 8px;
+    background-color: var(--error-color);
+    border-radius: 50%;
+}
+
+.pc-user-info {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    padding: 6px 12px;
+    border-radius: 4px;
+    transition: all 0.2s;
+}
+
+.pc-user-info:hover {
+    background-color: var(--bg-secondary);
+}
+
+.pc-user-avatar {
+    width: 32px;
+    height: 32px;
+    background-color: var(--primary-color);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-size: 14px;
+}
+
+.pc-user-name {
+    font-size: 14px;
+    color: var(--text-primary);
+}
+
+.pc-user-dropdown {
+    position: relative;
+}
+
+.pc-user-dropdown-menu {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    margin-top: 8px;
+    background-color: var(--bg-primary);
+    border-radius: 8px;
+    box-shadow: 0 4px 12px var(--shadow-md);
+    min-width: 160px;
+    padding: 8px 0;
+    display: none;
+    z-index: 1000;
+}
+
+.pc-user-dropdown-menu.show {
+    display: block;
+}
+
+.pc-dropdown-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 16px;
+    font-size: 14px;
+    color: var(--text-primary);
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.pc-dropdown-item:hover {
+    background-color: var(--bg-secondary);
+}
+
+.pc-dropdown-item.danger {
+    color: var(--error-color);
+}
+
+.pc-dropdown-item.danger:hover {
+    background-color: #FFF1F0;
+}
+
+.pc-dropdown-divider {
+    height: 1px;
+    background-color: var(--border-color);
+    margin: 8px 0;
+}
+
+.pc-dropdown-icon {
+    font-size: 16px;
+    width: 20px;
+    text-align: center;
+}
+
+.pc-sidebar.hidden {
+    display: none;
+}
+
+.pc-main.full-width {
+    margin-left: 0;
+}
+
+/* --------------------------------------------------------------------------
+   7. 内容区域
+   -------------------------------------------------------------------------- */
+.pc-content {
+    flex: 1;
+    padding: 24px;
+    background-color: var(--bg-secondary);
+    overflow-y: auto;
+}
+
+.pc-content-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+}
+
+.pc-page-title {
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.pc-content-actions {
+    display: flex;
+    gap: 12px;
+}
+
+/* --------------------------------------------------------------------------
+   8. 按钮样式
+   -------------------------------------------------------------------------- */
+.pc-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    border: 1px solid transparent;
+}
+
+.pc-btn-primary {
+    background-color: var(--primary-color);
+    color: #fff;
+}
+
+.pc-btn-primary:hover {
+    background-color: var(--primary-light);
+}
+
+.pc-btn-default {
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+    border-color: var(--border-color);
+}
+
+.pc-btn-default:hover {
+    color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+.pc-btn-success {
+    background-color: var(--success-color);
+    color: #fff;
+}
+
+.pc-btn-danger {
+    background-color: var(--error-color);
+    color: #fff;
+}
+
+.pc-btn-warning {
+    background-color: var(--warning-color);
+    color: #fff;
+}
+
+.pc-btn-text {
+    background: transparent;
+    color: var(--primary-color);
+    padding: 4px 8px;
+}
+
+.pc-btn-text:hover {
+    background-color: var(--status-primary-bg);
+}
+
+.pc-btn-lg {
+    padding: 12px 24px;
+    font-size: 16px;
+}
+
+.pc-btn-sm {
+    padding: 4px 12px;
+    font-size: 12px;
+}
+
+.pc-btn-icon {
+    width: 32px;
+    height: 32px;
+    padding: 0;
+}
+
+/* --------------------------------------------------------------------------
+   9. 卡片样式
+   -------------------------------------------------------------------------- */
+.pc-card {
+    background-color: var(--bg-primary);
+    border-radius: 8px;
+    box-shadow: 0 1px 2px var(--shadow-color);
+}
+
+.pc-card-header {
+    padding: 16px 24px;
+    border-bottom: 1px solid var(--border-light);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.pc-card-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.pc-card-body {
+    padding: 24px;
+}
+
+.pc-card-footer {
+    padding: 16px 24px;
+    border-top: 1px solid var(--border-light);
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+}
+
+/* --------------------------------------------------------------------------
+   10. 表单样式
+   -------------------------------------------------------------------------- */
+.pc-form-group {
+    margin-bottom: 20px;
+}
+
+.pc-form-label {
+    display: block;
+    font-size: 14px;
+    color: var(--text-primary);
+    margin-bottom: 8px;
+    font-weight: 500;
+}
+
+.pc-form-label .required {
+    color: var(--error-color);
+    margin-left: 2px;
+}
+
+.pc-form-input {
+    width: 100%;
+    height: 40px;
+    padding: 0 12px;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    font-size: 14px;
+    transition: all 0.2s;
+}
+
+.pc-form-input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.2);
+}
+
+.pc-form-input::placeholder {
+    color: var(--text-tertiary);
+}
+
+.pc-form-textarea {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    font-size: 14px;
+    resize: vertical;
+    min-height: 100px;
+    transition: all 0.2s;
+}
+
+.pc-form-textarea:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.2);
+}
+
+.pc-form-select {
+    width: 100%;
+    height: 40px;
+    padding: 0 32px 0 12px;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    font-size: 14px;
+    background-color: var(--bg-primary);
+    cursor: pointer;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%238C8C8C' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+}
+
+.pc-form-row {
+    display: flex;
+    gap: 16px;
+}
+
+.pc-form-row .pc-form-group {
+    flex: 1;
+}
+
+/* --------------------------------------------------------------------------
+   11. 表格样式
+   -------------------------------------------------------------------------- */
+.pc-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.pc-table th,
+.pc-table td {
+    padding: 12px 16px;
+    text-align: left;
+    border-bottom: 1px solid var(--border-light);
+}
+
+.pc-table th {
+    background-color: var(--bg-secondary);
+    font-weight: 600;
+    color: var(--text-secondary);
+    font-size: 13px;
+}
+
+.pc-table td {
+    font-size: 14px;
+    color: var(--text-primary);
+}
+
+.pc-table tbody tr:hover {
+    background-color: var(--bg-secondary);
+}
+
+.pc-table-actions {
+    display: flex;
+    gap: 8px;
+}
+
+/* --------------------------------------------------------------------------
+   12. 标签样式
+   -------------------------------------------------------------------------- */
+.pc-tag {
+    display: inline-flex;
+    align-items: center;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+}
+
+.pc-tag-primary {
+    background-color: var(--status-primary-bg);
+    color: var(--primary-color);
+}
+
+.pc-tag-success {
+    background-color: #F6FFED;
+    color: var(--success-color);
+}
+
+.pc-tag-warning {
+    background-color: #FFF7E6;
+    color: var(--warning-color);
+}
+
+.pc-tag-error {
+    background-color: #FFF1F0;
+    color: var(--error-color);
+}
+
+.pc-tag-default {
+    background-color: var(--bg-secondary);
+    color: var(--text-secondary);
+}
+
+/* --------------------------------------------------------------------------
+   13. 模态框样式
+   -------------------------------------------------------------------------- */
+.pc-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.45);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.pc-modal-overlay.show {
+    display: flex !important;
+}
+
+.pc-modal {
+    background-color: var(--bg-primary);
+    border-radius: 8px;
+    box-shadow: 0 4px 12px var(--shadow-lg);
+    max-width: 90%;
+    max-height: 90%;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    margin: auto;
+}
+
+.pc-modal-header {
+    padding: 16px 24px;
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.pc-modal-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.pc-modal-close {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    border-radius: 4px;
+    color: var(--text-tertiary);
+    font-size: 18px;
+}
+
+.pc-modal-close:hover {
+    background-color: var(--bg-secondary);
+    color: var(--text-primary);
+}
+
+.pc-modal-body {
+    padding: 24px;
+    overflow-y: auto;
+    flex: 1;
+}
+
+.pc-modal-footer {
+    padding: 16px 24px;
+    border-top: 1px solid var(--border-color);
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+}
+
+.pc-modal-sm { width: 400px; }
+.pc-modal-md { width: 600px; }
+.pc-modal-lg { width: 800px; }
+.pc-modal-xl { width: 1000px; }
+
+/* 任务详情弹窗 */
+.task-detail-modal {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    background-color: rgba(0, 0, 0, 0.45) !important;
+    display: none !important;
+    align-items: center !important;
+    justify-content: center !important;
+    z-index: 10002 !important;
+}
+
+.task-detail-modal.show {
+    display: flex !important;
+}
+
+.task-detail-content {
+    background-color: #fff !important;
+    border-radius: 8px !important;
+    width: 640px !important;
+    max-width: 90% !important;
+    max-height: 90vh !important;
+    overflow-y: auto !important;
+    position: relative !important;
+    margin: 0 !important;
+    transform: none !important;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15) !important;
+}
+
+.task-detail-header {
+    padding: 16px 24px !important;
+    border-bottom: 1px solid var(--border-color) !important;
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+}
+
+.task-detail-title {
+    font-size: 16px !important;
+    font-weight: 600 !important;
+    color: var(--text-primary) !important;
+}
+
+.task-detail-close {
+    width: 32px !important;
+    height: 32px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    cursor: pointer !important;
+    border-radius: 4px !important;
+    font-size: 18px !important;
+    color: var(--text-tertiary) !important;
+}
+
+.task-detail-body {
+    padding: 24px !important;
+}
+
+.task-detail-section {
+    margin-bottom: 24px !important;
+}
+
+.task-detail-row {
+    display: flex !important;
+    margin-bottom: 12px !important;
+}
+
+.task-detail-label {
+    width: 80px !important;
+    font-size: 13px !important;
+    color: var(--text-tertiary) !important;
+    flex-shrink: 0 !important;
+}
+
+.task-detail-value {
+    flex: 1 !important;
+    font-size: 13px !important;
+    color: var(--text-primary) !important;
+}
+
+.task-detail-standard {
+    background-color: var(--bg-secondary) !important;
+    padding: 12px 16px !important;
+    border-radius: 6px !important;
+    font-size: 13px !important;
+    color: var(--text-secondary) !important;
+    line-height: 1.6 !important;
+}
+
+.task-detail-person {
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 6px !important;
+    padding: 4px 10px !important;
+    background-color: var(--bg-secondary) !important;
+    border-radius: 4px !important;
+    font-size: 13px !important;
+    color: var(--text-primary) !important;
+    margin-right: 8px !important;
+    margin-bottom: 8px !important;
+}
+
+/* --------------------------------------------------------------------------
+   14. 分页样式
+   -------------------------------------------------------------------------- */
+.pc-pagination {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 8px;
+    padding: 16px 0;
+}
+
+.pc-pagination-item {
+    min-width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    color: var(--text-primary);
+    transition: all 0.2s;
+}
+
+.pc-pagination-item:hover {
+    border-color: var(--primary-color);
+    color: var(--primary-color);
+}
+
+.pc-pagination-item.active {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+    color: #fff;
+}
+
+.pc-pagination-item.disabled {
+    color: var(--text-disabled);
+    cursor: not-allowed;
+}
+
+/* --------------------------------------------------------------------------
+   15. 搜索栏样式
+   -------------------------------------------------------------------------- */
+.pc-search-bar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+.pc-search-input {
+    position: relative;
+    flex: 1;
+    max-width: 300px;
+}
+
+.pc-search-input input {
+    width: 100%;
+    height: 36px;
+    padding: 0 12px 0 36px;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    font-size: 14px;
+}
+
+.pc-search-input .icon {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-tertiary);
+}
+
+/* --------------------------------------------------------------------------
+   16. 空状态样式
+   -------------------------------------------------------------------------- */
+.pc-empty {
+    text-align: center;
+    padding: 60px 20px;
+}
+
+.pc-empty-icon {
+    font-size: 64px;
+    color: var(--text-disabled);
+    margin-bottom: 16px;
+}
+
+.pc-empty-text {
+    font-size: 14px;
+    color: var(--text-tertiary);
+    margin-bottom: 20px;
+}
+
+/* --------------------------------------------------------------------------
+   17. 状态标签背景色
+   -------------------------------------------------------------------------- */
+:root {
+    --status-primary-bg: #E6F7FF;
+    --status-success-bg: #F6FFED;
+    --status-warning-bg: #FFF7E6;
+    --status-error-bg: #FFF1F0;
+}
+
+/* --------------------------------------------------------------------------
+   18. 工具类
+   -------------------------------------------------------------------------- */
+.text-primary { color: var(--primary-color); }
+.text-success { color: var(--success-color); }
+.text-warning { color: var(--warning-color); }
+.text-error { color: var(--error-color); }
+.text-muted { color: var(--text-tertiary); }
+.text-bold { font-weight: 600; }
+
+.mt-8 { margin-top: 8px; }
+.mt-16 { margin-top: 16px; }
+.mt-24 { margin-top: 24px; }
+.mb-8 { margin-bottom: 8px; }
+.mb-16 { margin-bottom: 16px; }
+.mb-24 { margin-bottom: 24px; }
+
+.flex { display: flex; }
+.flex-1 { flex: 1; }
+.flex-center { display: flex; align-items: center; justify-content: center; }
+.flex-between { display: flex; justify-content: space-between; align-items: center; }
+.flex-col { display: flex; flex-direction: column; }
+.gap-8 { gap: 8px; }
+.gap-12 { gap: 12px; }
+.gap-16 { gap: 16px; }
+
+/* --------------------------------------------------------------------------
+   19. PC端原型导航面板
+   -------------------------------------------------------------------------- */
+.pc-page-nav-wrapper {
+    position: fixed;
+    top: 80px;
+    right: 20px;
+    z-index: 100;
+}
+
+.pc-page-nav-toggle {
+    position: absolute;
+    left: -28px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 24px;
+    height: 48px;
+    background-color: var(--bg-primary);
+    border: 1px solid var(--border-color);
+    border-radius: 8px 0 0 8px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-tertiary);
+    font-size: 12px;
+    box-shadow: -2px 0 6px var(--shadow-color);
+    transition: all 0.3s ease;
+    z-index: 101;
+}
+
+.pc-page-nav-toggle:hover {
+    color: var(--primary-color);
+    background-color: var(--status-primary-bg);
+}
+
+.pc-page-nav {
+    background-color: var(--bg-primary);
+    border-radius: 8px;
+    padding: 16px;
+    box-shadow: 0 2px 8px var(--shadow-md);
+    max-height: calc(100vh - 100px);
+    overflow-y: auto;
+    width: 200px;
+    transition: all 0.3s ease;
+}
+
+.pc-page-nav.collapsed {
+    width: 0;
+    padding: 0;
+    overflow: hidden;
+    opacity: 0;
+    box-shadow: none;
+}
+
+.pc-page-nav.collapsed + .pc-page-nav-toggle,
+.pc-page-nav-wrapper.collapsed .pc-page-nav-toggle {
+    border-radius: 8px;
+}
+
+.pc-page-nav-title {
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 12px;
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.pc-page-nav-title .badge {
+    background-color: var(--primary-color);
+    color: #fff;
+    font-size: 10px;
+    padding: 2px 6px;
+    border-radius: 4px;
+}
+
+.pc-page-nav-group {
+    margin-bottom: 12px;
+}
+
+.pc-page-nav-group-title {
+    font-size: 12px;
+    color: var(--text-tertiary);
+    margin-bottom: 8px;
+    padding-bottom: 4px;
+    border-bottom: 1px solid var(--border-light);
+}
+
+.pc-page-nav-item {
+    display: block;
+    padding: 8px 12px;
+    margin: 4px 0;
+    background-color: var(--bg-secondary);
+    border-radius: 4px;
+    text-decoration: none;
+    color: var(--text-secondary);
+    font-size: 12px;
+    transition: all 0.2s;
+}
+
+.pc-page-nav-item:hover {
+    background-color: var(--primary-color);
+    color: #FFFFFF;
+}
+
+.pc-page-nav-item.active {
+    background-color: var(--primary-color);
+    color: #FFFFFF;
+}
+
+/* --------------------------------------------------------------------------
+   20. 附件列表样式（公共）
+   -------------------------------------------------------------------------- */
+.attachment-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.attachment-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    background-color: var(--bg-secondary);
+    border-radius: 6px;
+    font-size: 13px;
+    max-width: 250px;
+}
+
+.attachment-item .icon {
+    font-size: 18px;
+    flex-shrink: 0;
+}
+
+.attachment-item .name {
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: var(--text-primary);
+}
+
+.attachment-item .size {
+    color: var(--text-tertiary);
+    font-size: 12px;
+    flex-shrink: 0;
+}
+
+.attachment-item .actions {
+    display: flex;
+    gap: 8px;
+    flex-shrink: 0;
+}
+
+.attachment-item .action-btn {
+    color: var(--text-tertiary);
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.attachment-item .action-btn:hover {
+    color: var(--primary-color);
+}
+
+.attachment-item .action-btn.delete:hover {
+    color: var(--error-color);
+}
+
+/* --------------------------------------------------------------------------
+   21. 任务卡片样式（公共）
+   -------------------------------------------------------------------------- */
+.task-card {
+    background-color: var(--bg-primary);
+    border-radius: 8px;
+    padding: 16px;
+    margin-bottom: 12px;
+    border: 1px solid var(--border-color);
+    transition: all 0.2s;
+}
+
+.task-card:hover {
+    box-shadow: 0 2px 8px var(--shadow-md);
+}
+
+.task-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 12px;
+}
+
+.task-name {
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--text-primary);
+    flex: 1;
+}
+
+.task-status-icon {
+    font-size: 16px;
+    margin-left: 8px;
+}
+
+.task-info {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    font-size: 13px;
+    color: var(--text-secondary);
+    margin-bottom: 12px;
+}
+
+.task-info-item {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.task-info-item .label {
+    color: var(--text-tertiary);
+}
+
+.task-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 12px;
+    border-top: 1px solid var(--border-light);
+    font-size: 12px;
+    color: var(--text-tertiary);
+}
+
+/* --------------------------------------------------------------------------
+   22. 阶段相关样式（公共）
+   -------------------------------------------------------------------------- */
+.stage-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+    background-color: var(--bg-secondary);
+    border-radius: 8px 8px 0 0;
+    cursor: pointer;
+    user-select: none;
+}
+
+.stage-header:hover {
+    background-color: var(--bg-tertiary);
+}
+
+.stage-name {
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.stage-name .icon {
+    font-size: 16px;
+    transition: transform 0.2s;
+}
+
+.stage-header.collapsed .stage-name .icon {
+    transform: rotate(-90deg);
+}
+
+.stage-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.stage-content {
+    padding: 16px;
+    border: 1px solid var(--border-color);
+    border-top: none;
+    border-radius: 0 0 8px 8px;
+}
+
+.stage-content.collapsed {
+    display: none;
+}
+
+.stage-progress {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    color: var(--text-tertiary);
+}
+
+.stage-progress-bar {
+    flex: 1;
+    height: 4px;
+    background-color: var(--bg-tertiary);
+    border-radius: 2px;
+    overflow: hidden;
+}
+
+.stage-progress-fill {
+    height: 100%;
+    background-color: var(--primary-color);
+    border-radius: 2px;
+    transition: width 0.3s;
+}
+
+/* --------------------------------------------------------------------------
+   23. 状态标签样式（公共）
+   -------------------------------------------------------------------------- */
+.status-tag {
+    display: inline-flex;
+    align-items: center;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.status-tag.draft {
+    background-color: var(--bg-secondary);
+    color: var(--text-secondary);
+}
+
+.status-tag.pending {
+    background-color: rgba(19, 194, 194, 0.1);
+    color: #13C2C2;
+}
+
+.status-tag.in-progress {
+    background-color: var(--status-primary-bg);
+    color: var(--primary-color);
+}
+
+.status-tag.confirming {
+    background-color: rgba(114, 46, 209, 0.1);
+    color: var(--purple-color);
+}
+
+.status-tag.completed,
+.status-tag.confirmed {
+    background-color: #F6FFED;
+    color: var(--success-color);
+}
+
+.status-tag.rejected {
+    background-color: #FFF1F0;
+    color: var(--error-color);
+}
+
+.status-tag.signed {
+    background-color: var(--status-primary-bg);
+    color: var(--primary-color);
+}
+
+.status-tag.changing,
+.status-tag.change-confirming {
+    background-color: #FFF7E6;
+    color: var(--warning-color);
+}
+
+/* 状态徽章 */
+.status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-size: 13px;
+    font-weight: 500;
+}
+
+.status-badge .dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+}
+
+.status-badge.draft .dot { background-color: var(--text-tertiary); }
+.status-badge.pending .dot { background-color: #13C2C2; }
+.status-badge.in-progress .dot { background-color: var(--primary-color); }
+.status-badge.confirming .dot { background-color: var(--purple-color); }
+.status-badge.completed .dot,
+.status-badge.confirmed .dot { background-color: var(--success-color); }
+.status-badge.rejected .dot { background-color: var(--error-color); }
+
+/* --------------------------------------------------------------------------
+   24. 时间线样式（公共）
+   -------------------------------------------------------------------------- */
+.timeline {
+    position: relative;
+    padding-left: 24px;
+}
+
+.timeline::before {
+    content: '';
+    position: absolute;
+    left: 8px;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background-color: var(--border-color);
+}
+
+.timeline-item {
+    position: relative;
+    padding-bottom: 20px;
+}
+
+.timeline-item:last-child {
+    padding-bottom: 0;
+}
+
+.timeline-dot {
+    position: absolute;
+    left: -20px;
+    top: 4px;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background-color: var(--bg-primary);
+    border: 2px solid var(--border-color);
+}
+
+.timeline-dot.active {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+.timeline-dot.completed {
+    background-color: var(--success-color);
+    border-color: var(--success-color);
+}
+
+.timeline-dot.pending {
+    background-color: var(--warning-color);
+    border-color: var(--warning-color);
+}
+
+.timeline-dot.rejected {
+    background-color: var(--error-color);
+    border-color: var(--error-color);
+}
+
+.timeline-content {
+    background-color: var(--bg-primary);
+    border-radius: 6px;
+    padding: 12px 16px;
+    border: 1px solid var(--border-color);
+}
+
+.timeline-title {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-primary);
+    margin-bottom: 4px;
+}
+
+.timeline-time {
+    font-size: 12px;
+    color: var(--text-tertiary);
+}
+
+.timeline-desc {
+    font-size: 13px;
+    color: var(--text-secondary);
+    margin-top: 8px;
+}
+
+/* --------------------------------------------------------------------------
+   25. 变更标记样式（公共）
+   -------------------------------------------------------------------------- */
+.highlight {
+    background-color: #FFF7E6;
+    padding: 2px 4px;
+    border-radius: 2px;
+}
+
+.highlight.added {
+    background-color: #F6FFED;
+    color: var(--success-color);
+}
+
+.highlight.deleted {
+    background-color: #FFF1F0;
+    color: var(--error-color);
+    text-decoration: line-through;
+}
+
+.highlight.modified {
+    background-color: var(--status-primary-bg);
+    color: var(--primary-color);
+}
+
+/* --------------------------------------------------------------------------
+   26. 按钮样式扩展（公共）
+   -------------------------------------------------------------------------- */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    border: 1px solid transparent;
+    text-decoration: none;
+}
+
+.btn.primary {
+    background-color: var(--primary-color);
+    color: #fff;
+}
+
+.btn.primary:hover {
+    background-color: var(--primary-light);
+}
+
+.btn.secondary {
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+    border-color: var(--border-color);
+}
+
+.btn.secondary:hover {
+    color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+.btn.success {
+    background-color: var(--success-color);
+    color: #fff;
+}
+
+.btn.success:hover {
+    background-color: var(--success-light);
+}
+
+.btn.danger {
+    background-color: var(--error-color);
+    color: #fff;
+}
+
+.btn.danger:hover {
+    background-color: var(--error-light);
+}
+
+.btn.warning {
+    background-color: var(--warning-color);
+    color: #fff;
+}
+
+.btn.warning:hover {
+    background-color: var(--warning-light);
+}
+
+.btn.text {
+    background: transparent;
+    color: var(--primary-color);
+    padding: 4px 8px;
+}
+
+.btn.text:hover {
+    background-color: var(--status-primary-bg);
+}
+
+.btn:disabled,
+.btn.disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.btn-sm {
+    padding: 4px 12px;
+    font-size: 12px;
+}
+
+.btn-lg {
+    padding: 12px 24px;
+    font-size: 16px;
+}
+
+/* --------------------------------------------------------------------------
+   27. 图标样式（公共）
+   -------------------------------------------------------------------------- */
+.icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.icon-sm { font-size: 14px; }
+.icon-md { font-size: 18px; }
+.icon-lg { font-size: 24px; }
+
+/* --------------------------------------------------------------------------
+   28. 显示/隐藏工具类
+   -------------------------------------------------------------------------- */
+.show { display: block !important; }
+.hide { display: none !important; }
+.hidden { display: none !important; }
+.active { 
+    /* 通用激活状态，具体样式由各组件定义 */
+}
+
+/* --------------------------------------------------------------------------
+   29. PC端Toast样式
+   -------------------------------------------------------------------------- */
+.pc-toast {
+    animation: pcToastFadeIn 0.3s ease;
+}
+
+@keyframes pcToastFadeIn {
+    from {
+        opacity: 0;
+        transform: translateX(-50%) translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+    }
+}
+
+/* --------------------------------------------------------------------------
+   30. 工艺参考示例（PC 端共享）
+   仅图片、一排三个、最多 9 张；只读展示 + 可编辑配置 + 点击放大查看器
+   -------------------------------------------------------------------------- */
+.pc-craft-block {
+    margin-top: 12px;
+}
+
+.pc-craft-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 8px;
+}
+
+.pc-craft-label {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.pc-craft-hint {
+    font-size: 12px;
+    color: var(--text-tertiary);
+}
+
+.pc-craft-hint b {
+    color: var(--primary-color);
+    font-weight: 600;
+}
+
+.pc-craft-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+}
+
+.pc-craft-item {
+    position: relative;
+    aspect-ratio: 1 / 1;
+    border-radius: 6px;
+    border: 1px solid var(--border-color);
+    background-color: var(--bg-secondary);
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    overflow: hidden;
+    cursor: zoom-in;
+}
+
+.pc-craft-item-title {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    padding: 4px 6px;
+    font-size: 11px;
+    line-height: 1.35;
+    color: #fff;
+    background: linear-gradient(180deg, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.65));
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.pc-craft-ops {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    display: flex;
+    gap: 4px;
+    opacity: 0;
+    transition: opacity 0.15s ease;
+}
+
+.pc-craft-item:hover .pc-craft-ops {
+    opacity: 1;
+}
+
+.pc-craft-op {
+    width: 20px;
+    height: 20px;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    line-height: 1;
+    color: #fff;
+    cursor: pointer;
+    background-color: rgba(0, 0, 0, 0.55);
+}
+
+.pc-craft-op:hover {
+    background-color: var(--primary-color);
+}
+
+.pc-craft-op.del:hover {
+    background-color: var(--error-color);
+}
+
+.pc-craft-empty {
+    grid-column: 1 / -1;
+    padding: 14px;
+    border: 1px dashed var(--border-color);
+    border-radius: 6px;
+    background-color: var(--bg-secondary);
+    font-size: 12px;
+    color: var(--text-tertiary);
+    text-align: center;
+}
+
+.pc-craft-add {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    aspect-ratio: 1 / 1;
+    border-radius: 6px;
+    border: 1px dashed var(--border-color);
+    background-color: var(--bg-secondary);
+    color: var(--text-tertiary);
+    font-size: 12px;
+    cursor: pointer;
+    transition: border-color 0.15s ease, color 0.15s ease;
+}
+
+.pc-craft-add:hover {
+    border-color: var(--primary-color);
+    color: var(--primary-color);
+}
+
+.pc-craft-add-icon {
+    font-size: 18px;
+    line-height: 1;
+}
+
+.pc-craft-file {
+    display: none;
+}
+
+/* 配置区（弹窗内）压缩行高，避免弹窗内容过长 */
+.pc-craft-ref .pc-craft-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-auto-rows: 110px;
+}
+
+.pc-craft-ref .pc-craft-grid > * {
+    aspect-ratio: auto;
+    height: 100%;
+}
+
+.pc-craft-ref .pc-craft-empty {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* 任务列表内的小图条（只读，可点击放大） */
+.pc-task-ref-strip {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.pc-task-ref-group {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.pc-task-ref-tag {
+    font-size: 11px;
+    color: var(--text-tertiary);
+    line-height: 1;
+}
+
+.pc-task-ref-thumb {
+    width: 24px;
+    height: 24px;
+    display: inline-block;
+    border-radius: 4px;
+    border: 1px solid var(--border-color);
+    background-color: var(--bg-secondary);
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    cursor: zoom-in;
+}
+
+/* 点击放大查看器（位于所有弹窗之上） */
+.pc-craft-viewer {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 10050;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 40px;
+    background-color: rgba(0, 0, 0, 0.7);
+}
+
+.pc-craft-viewer.show {
+    display: flex;
+}
+
+.pc-craft-viewer-box {
+    max-width: 80vw;
+    max-height: 82vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+}
+
+.pc-craft-viewer-img {
+    width: 70vw;
+    height: 68vh;
+    max-width: 900px;
+    border-radius: 8px;
+    background-color: rgba(255, 255, 255, 0.06);
+    background-size: contain;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+.pc-craft-viewer-title {
+    font-size: 14px;
+    color: #fff;
+}
+
+.pc-craft-viewer-close {
+    position: absolute;
+    top: 24px;
+    right: 32px;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    line-height: 1;
+    color: #fff;
+    cursor: pointer;
+    background-color: rgba(255, 255, 255, 0.15);
+}
+
+.pc-craft-viewer-close:hover {
+    background-color: rgba(255, 255, 255, 0.3);
+}

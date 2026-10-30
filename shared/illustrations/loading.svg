@@ -1,0 +1,7 @@
+<!-- 加载中状态 -->
+<svg viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <circle cx="60" cy="60" r="40" stroke="#E6F7FF" stroke-width="8"/>
+  <path d="M60 20C82.0914 20 100 37.9086 100 60" stroke="#1890FF" stroke-width="8" stroke-linecap="round">
+    <animateTransform attributeName="transform" type="rotate" from="0 60 60" to="360 60 60" dur="1s" repeatCount="indefinite"/>
+  </path>
+</svg>

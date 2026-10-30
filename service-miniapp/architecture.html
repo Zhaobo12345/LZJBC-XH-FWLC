@@ -1,0 +1,2228 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-page-node-id="uN8PCrsHMimHCIuIRZTSFG">
+<head data-page-node-id="prIn18YM4t4wAsC7aKm9aR">
+    <meta charset="UTF-8" data-page-node-id="2GTUqjotXLB0fw41ogz9mF">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" data-page-node-id="cBfiFFENzPIbBAJsC7Wmic">
+    <title>家装平台小程序原型 - 项目架构</title>
+    <link rel="stylesheet" href="common.css" data-page-node-id="kEdOAABrsveOGpzRkn11dl">
+    <style>
+        .page-content {
+            height: calc(100% - 44px);
+            background-color: var(--bg-secondary);
+            overflow-y: auto;
+        }
+
+        .architecture-header {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-light) 100%);
+            padding: 12px 16px;
+            color: #FFFFFF;
+        }
+
+        .header-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .header-left {
+            flex: 1;
+        }
+
+        .project-name {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 2px;
+        }
+
+        .project-desc {
+            font-size: 11px;
+            opacity: 0.9;
+        }
+
+        .header-stats {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-top: 8px;
+        }
+
+        .stat-item-inline {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 12px;
+        }
+
+        .stat-item-inline .num {
+            font-weight: 600;
+        }
+
+        .create-btn-inline {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            padding: 6px 12px;
+            background-color: rgba(255,255,255,0.2);
+            color: #FFFFFF;
+            border-radius: 14px;
+            font-size: 12px;
+            cursor: pointer;
+            border: 1px solid rgba(255,255,255,0.3);
+        }
+
+        .create-btn-inline:hover {
+            background-color: rgba(255,255,255,0.3);
+        }
+
+        .architecture-tree {
+            padding: 16px;
+            padding-bottom: 80px;
+        }
+
+        .tree-node {
+            margin-bottom: 8px;
+        }
+
+        .node-header {
+            display: flex;
+            align-items: center;
+            padding: 12px;
+            background-color: var(--bg-primary);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .node-header:hover {
+            background-color: #E6F7FF;
+        }
+
+        .node-header.level-0 {
+            background: linear-gradient(135deg, #1890FF 0%, #40A9FF 100%);
+            color: #FFFFFF;
+        }
+
+        .node-header.level-1 {
+            background: linear-gradient(135deg, #52C41A 0%, #73D13D 100%);
+            color: #FFFFFF;
+        }
+
+        .node-header.level-2 {
+            background: linear-gradient(135deg, #722ED1 0%, #9254DE 100%);
+            color: #FFFFFF;
+        }
+
+        .node-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background-color: rgba(255,255,255,0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 12px;
+            font-size: 16px;
+            flex-shrink: 0;
+        }
+
+        .node-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .node-name {
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .node-meta {
+            font-size: 11px;
+            opacity: 0.9;
+            margin-top: 2px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+
+        .role-tag {
+            display: inline-flex;
+            align-items: center;
+            padding: 1px 6px;
+            background-color: rgba(255,255,255,0.2);
+            border-radius: 3px;
+            font-size: 10px;
+            font-weight: 500;
+        }
+
+        .role-tag.manager {
+            background-color: rgba(24, 144, 255, 0.3);
+        }
+
+        .role-tag.leader {
+            background-color: rgba(82, 196, 26, 0.3);
+        }
+
+        .role-tag.creator {
+            background-color: rgba(250, 173, 20, 0.3);
+        }
+
+        .role-tag.worker {
+            background-color: rgba(114, 46, 209, 0.3);
+        }
+
+        .node-expand {
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            transition: transform 0.3s;
+            flex-shrink: 0;
+        }
+
+        .node-expand.expanded {
+            transform: rotate(180deg);
+        }
+
+        .node-children {
+            margin-left: 24px;
+            padding-left: 12px;
+            border-left: 2px solid var(--border-color);
+            display: none;
+        }
+
+        .node-children.show {
+            display: block;
+        }
+
+        .node-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            padding: 8px 12px 12px;
+            background-color: var(--bg-primary);
+            border-radius: 0 0 8px 8px;
+            margin-top: -4px;
+        }
+
+        .node-header.level-0 + .node-children .node-actions,
+        .node-header.level-1 + .node-children .node-actions {
+            background-color: rgba(255,255,255,0.1);
+        }
+
+        .action-item {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            padding: 6px 10px;
+            background-color: var(--bg-secondary);
+            border-radius: 16px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: var(--text-secondary);
+        }
+
+        .action-item:hover {
+            background-color: #E6F7FF;
+            color: var(--primary-color);
+        }
+
+        .action-item.primary {
+            background-color: var(--status-primary-bg);
+            color: var(--primary-color);
+        }
+
+        .action-item.danger {
+            background-color: var(--status-error-bg);
+            color: var(--error-color);
+        }
+
+        .action-item.danger:hover {
+            background-color: var(--error-color);
+            color: #FFFFFF;
+        }
+
+        .action-item .icon {
+            font-size: 14px;
+        }
+
+        .add-node-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            padding: 10px;
+            background-color: var(--bg-primary);
+            border: 2px dashed var(--border-color);
+            border-radius: 8px;
+            color: var(--text-tertiary);
+            font-size: 13px;
+            cursor: pointer;
+            margin-top: 8px;
+            transition: all 0.2s;
+        }
+
+        .add-node-btn:hover {
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+            background-color: #E6F7FF;
+        }
+
+        .create-modal {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-color: rgba(0,0,0,0.5);
+            z-index: 200;
+            display: none;
+            align-items: flex-end;
+            justify-content: center;
+        }
+
+        .create-modal.show { display: flex; }
+
+        .create-modal .modal-content {
+            width: 100%;
+            background-color: var(--bg-primary);
+            border-radius: 16px 16px 0 0;
+            padding: 16px;
+            max-height: 70%;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .create-modal .modal-body {
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        .create-modal .modal-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 20px;
+            flex-shrink: 0;
+        }
+
+        .create-modal .modal-btn {
+            flex: 1;
+            height: 44px;
+            border-radius: 8px;
+            font-size: 15px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: none;
+            font-family: inherit;
+        }
+
+        .create-modal .modal-btn.cancel {
+            background-color: var(--bg-secondary);
+            color: var(--text-secondary);
+        }
+
+        .create-modal .modal-btn.confirm {
+            background-color: var(--primary-color);
+            color: #FFFFFF;
+        }
+
+        .app-modal .modal-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 20px;
+            flex-shrink: 0;
+            border-top: none;
+        }
+
+        .app-modal .modal-btn {
+            flex: 1;
+            height: 44px;
+            border-radius: 8px;
+            font-size: 15px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: none;
+            font-family: inherit;
+        }
+
+        .app-modal .modal-btn:first-child {
+            border-right: none;
+        }
+
+        .app-modal .modal-btn.cancel {
+            background-color: var(--bg-secondary);
+            color: var(--text-secondary);
+            font-weight: normal;
+        }
+
+        .app-modal .modal-btn.confirm {
+            background-color: var(--primary-color);
+            color: #FFFFFF;
+            font-weight: 600;
+        }
+
+        .app-modal .modal-btn.danger {
+            background-color: var(--error-color);
+            color: #FFFFFF;
+            font-weight: 600;
+        }
+
+        .modal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+        }
+
+        .modal-title {
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .modal-close {
+            font-size: 20px;
+            color: var(--text-tertiary);
+            cursor: pointer;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-label {
+            display: flex;
+            align-items: center;
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+        }
+
+        .form-label .required {
+            color: var(--error-color);
+            margin-right: 4px;
+        }
+
+        .form-input {
+            width: 100%;
+            height: 44px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 0 12px;
+            font-size: 14px;
+            color: var(--text-primary);
+            outline: none;
+            box-sizing: border-box;
+        }
+
+        .form-input:focus {
+            border-color: var(--primary-color);
+        }
+
+        .form-select {
+            width: 100%;
+            height: 44px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 0 12px;
+            font-size: 14px;
+            color: var(--text-primary);
+            outline: none;
+            background-color: var(--bg-primary);
+            cursor: pointer;
+            box-sizing: border-box;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23999' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+        }
+
+        .form-select:focus {
+            border-color: var(--primary-color);
+        }
+
+        .form-display {
+            width: 100%;
+            min-height: 44px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 0 12px;
+            display: flex;
+            align-items: center;
+            font-size: 14px;
+            color: var(--text-secondary);
+            background-color: var(--bg-secondary);
+            box-sizing: border-box;
+        }
+
+        .member-select-wrap {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            padding: 12px;
+            background-color: var(--bg-secondary);
+            border-radius: 8px;
+            min-height: 44px;
+            align-items: center;
+        }
+
+        .selected-members {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .selected-member {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 8px;
+            background-color: var(--status-primary-bg);
+            border-radius: 12px;
+            font-size: 12px;
+            color: var(--primary-color);
+        }
+
+        .selected-member .avatar {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background-color: var(--primary-color);
+            color: #FFFFFF;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+        }
+
+        .selected-member .remove {
+            cursor: pointer;
+            margin-left: 4px;
+        }
+
+        .add-member-btn {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 8px;
+            background-color: var(--status-primary-bg);
+            border-radius: 12px;
+            font-size: 12px;
+            color: var(--primary-color);
+            cursor: pointer;
+        }
+
+        .modal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+        }
+
+        .contract-item {
+            display: flex;
+            align-items: center;
+            padding: 12px;
+            background-color: var(--bg-secondary);
+            border-radius: 8px;
+            margin-bottom: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .contract-item:hover {
+            background-color: #E6F7FF;
+        }
+
+        .contract-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .contract-item .icon {
+            font-size: 24px;
+            margin-right: 12px;
+        }
+
+        .contract-item {
+            overflow: hidden;
+        }
+
+        .contract-item .info {
+            flex: 1;
+            min-width: 0;
+            overflow: hidden;
+        }
+
+        .contract-item .name {
+            font-size: 14px;
+            color: var(--text-primary);
+            font-weight: 500;
+        }
+
+        .contract-item .status {
+            font-size: 12px;
+            color: var(--text-tertiary);
+            margin-top: 2px;
+        }
+
+        .contract-item .arrow {
+            color: var(--text-tertiary);
+        }
+
+        /* ===== 一工作组多合同：查看合同列表化 + 按份复制发起 ===== */
+        .contract-aggregate {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 4px;
+            padding: 8px 10px;
+            margin-bottom: 8px;
+            background-color: #F0F7FF;
+            border-radius: 8px;
+            font-size: 11px;
+            color: #1677FF;
+        }
+        .contract-aggregate .ca-hint {
+            font-size: 11px;
+            color: #69A6FF;
+            white-space: normal;
+            line-height: 1.5;
+        }
+        /* 查看合同弹窗紧凑排版：第一行=名称+复制按钮，第二行=状态/乙方/进度，均单行省略 */
+        .contract-item .ci-row1 {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            min-width: 0;
+        }
+        .contract-item .ci-row1 .name {
+            flex: 1;
+            min-width: 0;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .contract-item .ci-row1 .ci-copy {
+            flex-shrink: 0;
+        }
+        .contract-item .status {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .contract-item .ci-copy {
+            flex-shrink: 0;
+            padding: 3px 7px;
+            border-radius: 12px;
+            background-color: #1677FF;
+            color: #fff;
+            font-size: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+
+        /* 查看合同弹窗：适当加宽以容纳合同名+复制按钮，同时不超手机屏 */
+        #contractModal .modal-box {
+            width: 310px;
+            max-width: calc(100% - 32px);
+        }
+
+        /* 查看合同弹窗滚动区：符合小程序规范隐藏滚动条（滚动能力保留） */
+        #contractModal .modal-content {
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+        #contractModal .modal-content::-webkit-scrollbar {
+            display: none;
+            width: 0;
+            height: 0;
+        }
+
+        .permission-notice {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 16px;
+            background-color: #FFF7E6;
+            border-radius: 8px;
+            margin: 12px 16px;
+            font-size: 12px;
+            color: #FA8C16;
+        }
+
+        .leader-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .leader-option {
+            display: flex;
+            align-items: center;
+            padding: 12px;
+            background-color: var(--bg-secondary);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .leader-option:hover {
+            background-color: #E6F7FF;
+        }
+
+        .leader-option .avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background-color: var(--primary-color);
+            color: #FFFFFF;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            margin-right: 12px;
+        }
+
+        .leader-option .info {
+            flex: 1;
+        }
+
+        .leader-option .name {
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        .leader-option .role {
+            font-size: 12px;
+            color: var(--text-tertiary);
+            margin-top: 2px;
+        }
+
+        .invite-target-info {
+            display: flex;
+            align-items: center;
+            padding: 12px;
+            background-color: var(--status-primary-bg);
+            border-radius: 8px;
+            margin-bottom: 16px;
+        }
+
+        .invite-target-info .label {
+            font-size: 13px;
+            color: var(--text-tertiary);
+        }
+
+        .invite-target-info .value {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+
+        .invite-methods {
+            display: flex;
+            gap: 12px;
+        }
+
+        .invite-method {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 16px 8px;
+            background-color: var(--bg-secondary);
+            border-radius: 8px;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: all 0.2s;
+        }
+
+        .invite-method:hover {
+            background-color: #E6F7FF;
+        }
+
+        .invite-method.active {
+            border-color: var(--primary-color);
+            background-color: var(--status-primary-bg);
+        }
+
+        .invite-method .method-icon {
+            font-size: 24px;
+            margin-bottom: 8px;
+        }
+
+        .invite-method .method-name {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .invite-method.active .method-name {
+            color: var(--primary-color);
+            font-weight: 500;
+        }
+
+        .wechat-invite-preview {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px 16px;
+            background-color: var(--bg-secondary);
+            border-radius: 8px;
+        }
+
+        .wechat-share-card {
+            width: 100%;
+            background-color: #FFFFFF;
+            border-radius: 8px;
+            padding: 12px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+            margin-bottom: 16px;
+        }
+
+        .wechat-share-card .card-thumb {
+            width: 48px;
+            height: 48px;
+            border-radius: 8px;
+            background: linear-gradient(135deg, #07C160 0%, #06AD56 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            color: #FFFFFF;
+            flex-shrink: 0;
+        }
+
+        .wechat-share-card .card-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .wechat-share-card .card-title {
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-primary);
+            margin-bottom: 4px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .wechat-share-card .card-desc {
+            font-size: 12px;
+            color: var(--text-tertiary);
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .wechat-share-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            width: 100%;
+            height: 44px;
+            background-color: #07C160;
+            color: #FFFFFF;
+            border: none;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .wechat-share-btn:hover {
+            background-color: #06AD56;
+        }
+
+        .wechat-share-btn:active {
+            background-color: #06AD56;
+        }
+
+        .wechat-share-btn .btn-icon {
+            font-size: 18px;
+        }
+
+        .wechat-invite-tip {
+            font-size: 12px;
+            color: var(--text-tertiary);
+            margin-top: 12px;
+            text-align: center;
+        }
+
+        .link-expire, .qrcode-expire {
+            font-size: 12px;
+            color: var(--text-tertiary);
+            margin-top: 8px;
+            text-align: center;
+        }
+
+        .qrcode-preview {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 24px;
+            background-color: var(--bg-secondary);
+            border-radius: 8px;
+        }
+
+        .qrcode-placeholder {
+            width: 120px;
+            height: 120px;
+            background-color: var(--bg-tertiary);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            color: var(--text-tertiary);
+            margin-bottom: 12px;
+        }
+
+        .qrcode-text {
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+
+        .create-contract-notice {
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+            padding: 12px;
+            background-color: #FFF7E6;
+            border-radius: 8px;
+            margin-top: 8px;
+        }
+
+        .create-contract-notice .notice-icon {
+            font-size: 16px;
+        }
+
+        .create-contract-notice .notice-text {
+            font-size: 12px;
+            color: #FA8C16;
+            line-height: 1.5;
+        }
+
+        .contract-status-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 10px;
+            margin-left: 8px;
+            background-color: rgba(255,255,255,0.3);
+        }
+
+        .contract-status-badge.has-contract {
+            background-color: rgba(82, 196, 26, 0.3);
+        }
+
+        .contract-status-badge.no-contract {
+            background-color: rgba(255,255,255,0.2);
+        }
+    
+        /* 邀请成员 - 身份分段 / 平台内选择 / 落地端提示（与项目成员页一致） */
+        .invite-category {
+            display: flex;
+            gap: 4px;
+            background: var(--bg-secondary);
+            border-radius: 8px;
+            padding: 3px;
+            margin-bottom: 16px;
+        }
+        .invite-category .cat-seg {
+            flex: 1;
+            text-align: center;
+            font-size: 13px;
+            color: var(--text-secondary);
+            padding: 8px 2px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+            user-select: none;
+            white-space: nowrap;
+        }
+        .invite-category .cat-seg.active {
+            background: var(--bg-primary);
+            color: var(--primary-color);
+            font-weight: 600;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.12);
+        }
+        .platform-user-search { margin-bottom: 8px; }
+        .platform-user-list {
+            max-height: 190px;
+            overflow-y: auto;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            background-color: var(--bg-primary);
+        }
+        .platform-user-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 12px;
+            cursor: pointer;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .platform-user-item:last-child { border-bottom: none; }
+        .platform-user-item:hover { background-color: var(--bg-secondary); }
+        .platform-user-item.selected { background-color: var(--status-primary-bg); }
+        .pu-avatar {
+            width: 32px; height: 32px; border-radius: 50%;
+            background-color: var(--primary-color); color: #fff;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 13px; flex-shrink: 0;
+        }
+        .pu-name { flex: 1; font-size: 14px; color: var(--text-primary); }
+        .pu-role { font-size: 12px; color: var(--text-secondary); margin-right: 4px; }
+        .pu-check { color: var(--primary-color); font-weight: 600; display: none; }
+        .platform-user-item.selected .pu-check { display: inline; }
+        .empty-result { padding: 16px; text-align: center; font-size: 13px; color: var(--text-secondary); }
+        .platform-user-item.disabled { cursor: not-allowed; opacity: 0.55; background-color: var(--bg-secondary); }
+        .platform-user-item.disabled:hover { background-color: var(--bg-secondary); }
+        .pu-badge { font-size: 11px; color: #D48806; background-color: #FFF7E6; padding: 1px 6px; border-radius: 4px; margin-right: 4px; }
+        .invite-target-app {
+            display: flex;
+            align-items: flex-start;
+            gap: 6px;
+            margin-top: 4px;
+            padding: 8px 12px;
+            background-color: var(--status-primary-bg);
+            border-radius: 8px;
+            font-size: 12px;
+            color: var(--primary-color);
+        }
+        .invite-target-app .app-icon { font-size: 14px; line-height: 1.4; }
+        .invite-target-app .app-text { display: flex; flex-direction: column; gap: 2px; }
+        .invite-target-app .app-line { font-weight: 500; }
+        .invite-target-app .app-perm { font-size: 11px; opacity: 0.85; }
+        .invite-target-app b { font-weight: 600; }
+        .form-tip { font-size: 12px; color: var(--text-secondary); margin-top: 6px; }
+
+    </style>
+<style>
+/* 微信原生胶囊占位（样式参考真机效果，由微信客户端实际渲染） */
+.nav-bar .native-capsule {
+    display: inline-flex;
+    align-items: center;
+    justify-content: space-between;
+    min-width: 56px;
+    height: 28px;
+    padding: 0 10px;
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    border-radius: 14px;
+    background: rgba(255, 255, 255, 0.7);
+    color: rgba(0, 0, 0, 0.6);
+    font-size: 12px;
+    line-height: 1;
+    user-select: none;
+    box-sizing: border-box;
+}
+.nav-bar .native-capsule .nc-left,
+.nav-bar .native-capsule .nc-right {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: 1;
+    min-width: 16px;
+}
+.nav-bar .native-capsule .nc-right {
+    font-size: 10px;
+}
+.nav-bar .native-capsule .nc-divider {
+    width: 1px;
+    height: 14px;
+    background: rgba(0, 0, 0, 0.1);
+    margin: 0 4px;
+}
+    .nav-bar .native-capsule .nc-left,
+    .nav-bar .native-capsule .nc-right {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex: 1;
+        min-width: 16px;
+    }
+    .nav-bar .native-capsule .nc-right {
+        font-size: 10px;
+    }
+    .nav-bar .native-capsule .nc-divider {
+        width: 1px;
+        height: 14px;
+        background: rgba(0, 0, 0, 0.1);
+        margin: 0 4px;
+    }
+        /* ===== 演示开关（手机框外右侧）：创建合同权限 ===== */
+        .arch-demo-stage { display: flex; flex-wrap: nowrap; justify-content: center; align-items: flex-start; gap: 16px; padding: 20px 12px; }
+        .arch-demo-stage .phone-frame { margin: 0; flex-shrink: 0; }
+        .arch-demo-note {
+            flex: 0 1 230px; min-width: 160px; box-sizing: border-box;
+            padding: 6px 0 6px 12px; background-color: transparent; border: none;
+            border-left: 2px dashed #91CAFF; border-radius: 0;
+            font-size: 11px; line-height: 1.65; color: #1677FF;
+        }
+        .arch-demo-note .adn-title { font-size: 13px; font-weight: 700; margin-bottom: 10px; }
+        .arch-demo-note .adn-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 10px; }
+        .arch-demo-note .adn-label { font-size: 12px; font-weight: 600; color: #0958D9; }
+        .arch-demo-note .adn-sub { display: block; font-weight: 400; font-size: 10px; color: #4096FF; margin-top: 2px; }
+        .arch-demo-note .adn-switch { flex-shrink: 0; position: relative; width: 40px; height: 22px; border-radius: 11px; background: #1677FF; cursor: pointer; transition: background .2s; }
+        .arch-demo-note .adn-switch .knob { position: absolute; top: 2px; left: 2px; width: 18px; height: 18px; border-radius: 50%; background: #fff; transition: left .2s; box-shadow: 0 1px 3px rgba(0,0,0,.2); }
+        .arch-demo-note .adn-switch.off { background: #BFBFBF; }
+        .arch-demo-note .adn-switch.off .knob { left: 20px; }
+        .arch-demo-note .adn-status { margin: 0 0 10px; padding: 6px 8px; border-radius: 6px; background: #E6F4FF; font-size: 11px; font-weight: 600; color: #0958D9; }
+        .arch-demo-note .adn-status.off { background: #FFF1F0; color: #CF1322; }
+        .arch-demo-note p { margin: 0 0 8px; }
+        .arch-demo-note .adn-btns { display: flex; flex-direction: column; gap: 6px; margin-bottom: 8px; }
+        .arch-demo-note .adn-btn { box-sizing: border-box; width: 100%; padding: 7px 8px; border: 1px solid #91CAFF; border-radius: 6px; background: #fff; color: #1677FF; font-size: 11px; font-weight: 600; cursor: pointer; text-align: left; }
+        .arch-demo-note .adn-btn:active { background: #E6F4FF; }
+        .arch-demo-note .adn-tip { color: #8C8C8C; }
+        /* 层级修正：提示弹窗需浮于其他弹窗之上（如在「查看合同」内点「复制发起」
+           时的「您没有创建合同的权限」提示）；普通弹窗 1000 < 提示弹窗 1010 < toast 1020 */
+        #appModal { z-index: 1010; }
+        .app-toast { z-index: 1020; }
+</style>
+</head>
+<body data-page-node-id="6gckjFZNRY0BlLFUF2TYz3">
+    <div class="arch-demo-stage">
+        <div class="phone-frame" data-page-node-id="t8vY7cbqkeJeGYAt9GtdiV">
+        <div class="status-bar" data-page-node-id="QK5rmLgSTKPZutLt7HgqFN">
+            <div class="time" data-page-node-id="EUACpTDSIc56HASbkf0TDW">9:41</div>
+            <div class="icons" data-page-node-id="gg1QCnFov2GXpJkLueXw70">📶 🔋</div>
+        </div>
+        
+        <div class="nav-bar" data-page-node-id="ENTPsufwjE0OPQ8fDiqPM4">
+            <div class="back" onclick="history.back()" data-page-node-id="4Y59SXv4Tc9VRdFJRL4Pnm">← 返回</div>
+            <div class="title centered" data-page-node-id="3ZvMTYDQ8xI9fyxWU3fgN0">项目架构</div>
+            
+            
+        
+            <div class="actions" data-page-node-id="2MtdExBbH8IAzgC9wdGq4J"><div class="native-capsule" title="微信原生胶囊：由微信客户端渲染，开发者不可自定义其内容" data-page-node-id="H0fbq30sP4HwwmwRH1FXAx"><span class="nc-left" data-page-node-id="WbO1BrFAarOv3q3b1gUVCi">⋯</span><span class="nc-divider" data-page-node-id="T3b5WNGyeUBMxxQA8HcXMP"></span><span class="nc-right" data-page-node-id="3ZdAvh1n3BZIw7nJ99WPhr">○</span></div></div>
+        </div>
+            
+
+        
+        <div class="page-content" data-page-node-id="pixio8rdNR97OBFFiSMoao">
+            <div class="architecture-header" data-page-node-id="ecC661Fq8SBfZfEqol2ZEh">
+                <div class="header-top" data-page-node-id="bjd1Y6ltMJJtDtaXf6wypz">
+                    <div class="header-left" data-page-node-id="Rmle21shZ38Z3Ma3J88ujj">
+                        <div class="project-name" data-page-node-id="x08AufHBE0c744QuzEziqD">XX小区整体装修</div>
+                        <div class="project-desc" data-page-node-id="JtvyLY9D7maJ1HK1PqUgcY">创建人：张三   项目总   工长</div>
+                    </div>
+                </div>
+                <div class="header-stats" data-page-node-id="hWcfn9mmNASueVHip7nESk">
+                    <div class="stat-item-inline" data-page-node-id="mJmQkIN1w8QJdvnoNyPNFH">
+                        <span class="num" data-page-node-id="ZaulVOE9WaBtGddxsAVNVG">5</span>
+                        <span data-page-node-id="2bT8gYofvSaf17lfr7BBXr">个工作组</span>
+                    </div>
+                    <div class="stat-item-inline" data-page-node-id="Lfv0mzHXVR2xjOrEF72XVq">
+                        <span class="num" data-page-node-id="t7c2nBfS1DfgN918wm7NGF">24</span>
+                        <span data-page-node-id="xfV64MKoa3DjEffEqsMv6R">位成员</span>
+                    </div>
+                    <div class="stat-item-inline" data-page-node-id="uomz7y127Wj8QeyoJ8T9UF">
+                        <span class="num" id="headerContractCount" data-page-node-id="30MeF3LcloCQBELE0L3goT">3</span>
+                        <span data-page-node-id="CoQUHHdYTFhDc2VwyTnLuG">份合同</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="permission-notice" id="permissionNotice" style="display: none;" data-page-node-id="cHkidv1ews1iEYu5J3sCZ9">
+                <span data-page-node-id="iuF805P6XahstLNtWoNxFz">⚠️</span>
+                <span data-page-node-id="QjJd1CMG3QqnBKM33A4voz">您没有创建架构的权限，如需创建请联系项目经理</span>
+            </div>
+            
+            <div class="architecture-tree" data-page-node-id="o4PtEaJ3E9XQaZMHWofkj2">
+                <div class="tree-node" data-page-node-id="SoGLGPQPmc7qYkXQKRlo5i">
+                    <div class="node-header level-0" onclick="toggleNode(this)" data-page-node-id="Zd0IucBQEEZnUkq6cRzA68">
+                        <div class="node-icon" data-page-node-id="W5DjE4vvq7IQeGa6HgjKD6">🏢</div>
+                        <div class="node-info" data-page-node-id="o0Sb4A9qtMFBa5kiIHS2T5">
+                            <div class="node-name" data-page-node-id="h3MBfczLuMxF3yo5knnuti">项目部</div>
+                            <div class="node-meta" data-page-node-id="yjxkBqpAHMTX3UIgCEguqt"><span class="role-tag manager" data-page-node-id="gbKj7WgL2BDsAoz7rLSVRt">项目经理</span> 张三 · 5个工作组</div>
+                        </div>
+                        <div class="node-expand expanded" data-page-node-id="eOWCdFdZXtDLgAddKKsa9y">▼</div>
+                    </div>
+                    <div class="node-children show" data-page-node-id="aTpVbomSjA0u4IkBhQBiOn">
+                        <div class="node-actions" data-page-node-id="EMuqF32mgjGVxpl7v10RvG">
+                            <div class="action-item primary" onclick="event.stopPropagation(); showInviteMemberModal('项目部')" data-page-node-id="v8wm5dVn8De1pMW9SkuZcP">
+                                <span class="icon" data-page-node-id="dr0v4O8Gxa4G0KZ3aYTOka">👥</span>
+                                <span data-page-node-id="w8uFTn0xLHl1M7vYsEIF5A">邀请成员</span>
+                            </div>
+                            <div class="action-item" onclick="event.stopPropagation(); showCreateModal('level1')" data-page-node-id="IuyZ04pVkflmTtBTemP61n">
+                                <span class="icon" data-page-node-id="ApQxIOR7ai8LQaibq5AvbX">+</span>
+                                <span data-page-node-id="pWNyNDVznjI9RTCnNjhriF">添加工作组</span>
+                            </div>
+                            <div class="action-item danger" onclick="event.stopPropagation(); showExitProjectModal()" data-page-node-id="OvPgM8amOvClnGgJJ5Eb2c">
+                                <span class="icon" data-page-node-id="cXApsXq3MxfsEbBcmLDGEN">🚪</span>
+                                <span data-page-node-id="XyMXLnmbUGZN7RDwnm3ZM7">退出项目部</span>
+                            </div>
+                        </div>
+                        <div class="tree-node" data-page-node-id="cKxOOYe0aRu40UvGTi08kg">
+                            <div class="node-header level-1" onclick="toggleNode(this)" data-page-node-id="MktpmZiOKXF8SbEAJvJYS8">
+                                <div class="node-icon" data-page-node-id="tLIjEC5ksU6s1lDk4K1o8k">👷</div>
+                                <div class="node-info" data-page-node-id="svNwixjGcdEbR7pJKceNLr">
+                                    <div class="node-name" data-page-node-id="x5it4JSSMi2qCAmY574wxb">水电工作组 <span class="contract-status-badge has-contract" data-page-node-id="A17mJIJ5aH7LCuboaCr696">已签约 · 1份合同</span></div>
+                                    <div class="node-meta" data-page-node-id="zF7SacpYanc9pWYhtfkYFr"><span class="role-tag creator" data-page-node-id="YOKkadhY6A83VUObrWUPuD">创建人</span> 李四 · 3个施工组</div>
+                                </div>
+                                <div class="node-expand expanded" data-page-node-id="zr430c0qkVGIa0X5rURYBo">▼</div>
+                            </div>
+                            <div class="node-children show" data-page-node-id="ODnHDhEvwAqwEUlaU3BB3B">
+                                <div class="node-actions" data-page-node-id="gnjc6niAEicKjAyqkq03fW">
+                                    <div class="action-item primary" onclick="event.stopPropagation(); viewContract('水电工作组')" data-page-node-id="LtvuXcyZHGeSc6o0UQ5hzY">
+                                        <span class="icon" data-page-node-id="m1G1DJoUerpY4n58tNv0t4">📄</span>
+                                        <span data-page-node-id="M7HJFCSP2teWnUu3IIBbX1">查看合同</span>
+                                    </div>
+                                    <div class="action-item" onclick="event.stopPropagation(); showInviteMemberModal('水电工作组')" data-page-node-id="eVoYv64EB6OR9LxA8YAXpb">
+                                        <span class="icon" data-page-node-id="rfBgK1OtbtLiZrUxJWJPmc">👥</span>
+                                        <span data-page-node-id="mPHTKx5S2oHroau7mQPk1v">邀请成员</span>
+                                    </div>
+                                    <div class="action-item" onclick="event.stopPropagation(); showCreateModal('level2', '水电工作组')" data-page-node-id="AxkCYHYvB4UaSpjb5yEd81">
+                                        <span class="icon" data-page-node-id="b2BVnQGx6kwOzl2NN25KV2">+</span>
+                                        <span data-page-node-id="amAxt4NACYKZGg91GpjYT5">添加施工组</span>
+                                    </div>
+                                    <div class="action-item danger" onclick="event.stopPropagation(); showExitGroupModal('水电工作组')" data-page-node-id="CA6fL1RM1yQGeKOiD9drA7">
+                                        <span class="icon" data-page-node-id="qc55Jeo23bgEjGVKpL4Gt8">🚪</span>
+                                        <span data-page-node-id="p35YZgog69uJGdvqB0MFea">退出工作组</span>
+                                    </div>
+                                </div>
+                                <div class="tree-node" data-page-node-id="5aGO4nL0E9iQcyngEb5CVZ">
+                                    <div class="node-header level-2" onclick="toggleNode(this)" data-page-node-id="ld6CTUGkRGBCjkdcB1Tx0F">
+                                        <div class="node-icon" data-page-node-id="tb0hYsKBFcoEHYxrgV6ElE">⚡</div>
+                                        <div class="node-info" data-page-node-id="I2sTufkAA6K0o6FlcpnIN5">
+                                            <div class="node-name" data-page-node-id="N6UOKLUCPSqjuEs6Rtdz3g">强电施工组</div>
+                                            <div class="node-meta" data-page-node-id="qCHJHH05AaOUuylF6qd3PD"><span class="role-tag creator" data-page-node-id="PYQ385Aj6cSPYbFr8SbKzY">创建人</span> 王五 · 4人</div>
+                                        </div>
+                                        <div class="node-expand" data-page-node-id="DPiuT8Cy9NvvcEerCCv6f3">▼</div>
+                                    </div>
+                                    <div class="node-children" data-page-node-id="4uROQWJKh2hvoMooZTP8xa">
+                                        <div class="node-actions" data-page-node-id="TvynoZxZAp6SVezSLXzmg0">
+                                            <div class="action-item primary" onclick="event.stopPropagation(); goCreateContract('强电施工组')" data-page-node-id="zR7IZbyl4TlP2oCHNAz3ia">
+                                                <span class="icon" data-page-node-id="zVywTXSA5TxCYHlrvBkrb7">📝</span>
+                                                <span data-page-node-id="ecxYiWrOpLa2QsOiHW4DE6">创建合同</span>
+                                            </div>
+                                            <div class="action-item" onclick="event.stopPropagation(); showInviteMemberModal('强电施工组')" data-page-node-id="FZ7UfGFz9RJjd4VjWObRA4">
+                                                <span class="icon" data-page-node-id="VXahidHdP3AyEK01nzL1LU">👥</span>
+                                                <span data-page-node-id="s2jOPIi35OaPs4v81rFr5a">邀请成员</span>
+                                            </div>
+                                            <div class="action-item danger" onclick="event.stopPropagation(); showExitGroupModal('强电施工组')" data-page-node-id="RBILkU3bESiZz2AYbZkeNU">
+                                                <span class="icon" data-page-node-id="wFP5bqPLy6lBk9UqDbDAGt">🚪</span>
+                                                <span data-page-node-id="nm4HFuFc9HFvssGANzSlae">退出施工组</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="tree-node" data-page-node-id="tUfAXy0Sz7NjaVTnnNgUBW">
+                                    <div class="node-header level-2" onclick="toggleNode(this)" data-page-node-id="3DTaa6YR5iAYiJlrZ8Lf4Q">
+                                        <div class="node-icon" data-page-node-id="paIokTyTzD29LG6QqOV9lm">📡</div>
+                                        <div class="node-info" data-page-node-id="uQPWX8TPYCD7tHBHUCv2PL">
+                                            <div class="node-name" data-page-node-id="TeaQAQOobdCoKkLnb3VUCM">弱电施工组</div>
+                                            <div class="node-meta" data-page-node-id="qxefkEA8WncRKyA2rbE7H7"><span class="role-tag creator" data-page-node-id="EzHSDIWOPDyw91O3uCSNRZ">创建人</span> 孙八 · 3人</div>
+                                        </div>
+                                        <div class="node-expand" data-page-node-id="3mejGHFwv3ejVL1Dft8AMd">▼</div>
+                                    </div>
+                                    <div class="node-children" data-page-node-id="KgCxHPM3lelIRUziF7mW77">
+                                        <div class="node-actions" data-page-node-id="HDJePfLX6h4mhbNOgo6Y3f">
+                                            <div class="action-item" onclick="event.stopPropagation(); showInviteMemberModal('弱电施工组')" data-page-node-id="A176mIWE95E7qCNXsHFgWG">
+                                                <span class="icon" data-page-node-id="ewTiQeVjkXmgBTioX9uQnI">👥</span>
+                                                <span data-page-node-id="Wk3GOEsl3b5KSH05IA8VYE">邀请成员</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="tree-node" data-page-node-id="JOkLaFfjQ8MEQEua0Quubs">
+                            <div class="node-header level-1" onclick="toggleNode(this)" data-page-node-id="xRKdJgtadtxBfjMzhwEXOQ">
+                                <div class="node-icon" data-page-node-id="u6IBdHTCGYwkA8DGfuo8xc">🧱</div>
+                                <div class="node-info" data-page-node-id="7QAOlPGLeEUkxfAL8Bt6Ua">
+                                    <div class="node-name" data-page-node-id="IoS73BOhPtOy5AhrSIxtnu">泥瓦工作组 <span class="contract-status-badge has-contract" data-page-node-id="W0fXcEqnA2gTZ5WApUbLlq">已签约 · 2份合同</span></div>
+                                    <div class="node-meta" data-page-node-id="QoWOsxB2mYSulAFFUnhXjO"><span class="role-tag creator" data-page-node-id="gSEI5diPDE135GSABiMe8K">创建人</span> 周九 · 2个施工组</div>
+                                </div>
+                                <div class="node-expand" data-page-node-id="ZtN54KCKNog27gAvE6Aswl">▼</div>
+                            </div>
+                            <div class="node-children" data-page-node-id="Pd0QsA2UdITDeM5JE1Y10h">
+                                <div class="node-actions" data-page-node-id="sYC9QuZzviNX27Q0BC1Ap4">
+                                    <div class="action-item primary" onclick="event.stopPropagation(); viewContract('泥瓦工作组')" data-page-node-id="WUmDQf3dVZ3tfU040c6DLE">
+                                        <span class="icon" data-page-node-id="524MTXVBUgvuLxkJu5Umj1">📄</span>
+                                        <span data-page-node-id="CZo6X44ByhoEdsMTARyuEf">查看合同</span>
+                                    </div>
+                                    <div class="action-item" onclick="event.stopPropagation(); showInviteMemberModal('泥瓦工作组')" data-page-node-id="JxG8UbbE22DF62pZamVhF3">
+                                        <span class="icon" data-page-node-id="By4MOYtckCFLrZVDIhgPtb">👥</span>
+                                        <span data-page-node-id="qk64v4J7cGoqKmlH7tUSFR">邀请成员</span>
+                                    </div>
+                                    <div class="action-item" onclick="event.stopPropagation(); showCreateModal('level2', '泥瓦工作组')" data-page-node-id="GPPF6RtHC2aERMjN3tQBYI">
+                                        <span class="icon" data-page-node-id="vhCRj6HPk7zDiBrcCr2iCq">+</span>
+                                        <span data-page-node-id="hHOwJCigsAlvHNXjVRC6Os">添加施工组</span>
+                                    </div>
+                                    <div class="action-item danger" onclick="event.stopPropagation(); showDeleteModal('泥瓦工作组')" data-page-node-id="UvOWMs17YwyomX0GHKs1mz">
+                                        <span class="icon" data-page-node-id="a4SsekiUl3QZ3PzunYT8Yl">×</span>
+                                        <span data-page-node-id="feMxlWk7QBC2vTqxYXDPV8">删除</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="tree-node" data-page-node-id="AnRo8AWUAmg0OpQAFk9wxm">
+                            <div class="node-header level-1" onclick="toggleNode(this)" data-page-node-id="Wymh1ycKmN8QaohKO04L2k">
+                                <div class="node-icon" data-page-node-id="CRDa9k4T32HvMmV5PsmrCr">🪵</div>
+                                <div class="node-info" data-page-node-id="sddaQmMs3XQyYtIlyoDgOY">
+                                    <div class="node-name" data-page-node-id="CYBCenYcNTrJeHS37DuUSt">木工工作组 <span class="contract-status-badge no-contract" data-page-node-id="XyBMGRaNcendHAkAEFIJ7a">待创建合同</span></div>
+                                    <div class="node-meta" data-page-node-id="NHqP9VlCRPWRTk5Z92Khry"><span class="role-tag creator" data-page-node-id="l1jAx0LbeGd2cy0O5MoOdj">创建人</span> 吴十</div>
+                                </div>
+                                <div class="node-expand" data-page-node-id="7u3jk3BB46I1wUlLOFHis2">▼</div>
+                            </div>
+                            <div class="node-children" data-page-node-id="pCgY8FHTRrW89GFA0QNwjb">
+                                <div class="node-actions" data-page-node-id="ifFWVi33kJHm7pxgRg3ELC">
+                                    <div class="action-item primary" onclick="event.stopPropagation(); goCreateContract('木工工作组')" data-page-node-id="hWhBY0RTP0OPKgRXTIPf7h">
+                                        <span class="icon" data-page-node-id="QpdNMWIRAUlaRUMDbRJq4e">📝</span>
+                                        <span data-page-node-id="INsWdYqBMiPebPkXaGpx0Q">创建合同</span>
+                                    </div>
+                                    <div class="action-item" onclick="event.stopPropagation(); showInviteMemberModal('木工工作组')" data-page-node-id="EcEiaV9UQx1tpVlSZF6Mnl">
+                                        <span class="icon" data-page-node-id="eKXwXZNO1BGaAE5v6UbYJq">👥</span>
+                                        <span data-page-node-id="32iGrIP3KXXDUOHOUL9XUd">邀请成员</span>
+                                    </div>
+                                    <div class="action-item" onclick="event.stopPropagation(); showCreateModal('level2', '木工工作组')" data-page-node-id="ZPOIEG6Bs5mewiBQYwU3Cg">
+                                        <span class="icon" data-page-node-id="xUO1sballqnAo4e4YvVwBP">+</span>
+                                        <span data-page-node-id="xCtjLqTvCJL0TfNRKHvyVl">添加施工组</span>
+                                    </div>
+                                    <div class="action-item danger" onclick="event.stopPropagation(); showDeleteModal('木工工作组')" data-page-node-id="gRU0Y92NiEk1UoO2BaTFdE">
+                                        <span class="icon" data-page-node-id="EzxkqTD4XqEUhPpQ3QpaO1">×</span>
+                                        <span data-page-node-id="qHCNSsDt4p9Q1UQRxWwatb">删除</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="tree-node" data-page-node-id="N1bqH1vagTKS1AqZu4oE5u">
+                            <div class="node-header level-1" onclick="toggleNode(this)" data-page-node-id="xpeFvWP1xuGLgAi7Jc73hy">
+                                <div class="node-icon" data-page-node-id="gIwsu9eBrtbOvU0QeEgDmE">🎨</div>
+                                <div class="node-info" data-page-node-id="gM2Y24m0t16o00tfvz6ZND">
+                                    <div class="node-name" data-page-node-id="cAWpQt8thMSXERQF0hKnpZ">油漆工作组 <span class="contract-status-badge no-contract" data-page-node-id="BQWG6AcesFSvvxGOE3rJOw">待创建合同</span></div>
+                                    <div class="node-meta" data-page-node-id="CmZlWHsFz8GJlqX2LQa0c4"><span class="role-tag creator" data-page-node-id="kZTOoYexokYppBikBASmT9">创建人</span> 郑十一</div>
+                                </div>
+                                <div class="node-expand" data-page-node-id="jrPcRz4YKVlXssvjt77GZO">▼</div>
+                            </div>
+                            <div class="node-children" data-page-node-id="yPfrUY0hQeRRsMLgPeSDpo">
+                                <div class="node-actions" data-page-node-id="dTdVFChz1kf7NHqWhFVpMo">
+                                    <div class="action-item primary" onclick="event.stopPropagation(); goCreateContract('油漆工作组')" data-page-node-id="mMk4j60AGP3x0kHDGL71SI">
+                                        <span class="icon" data-page-node-id="a3AU5wuBXjujHmGsal0Xl3">📝</span>
+                                        <span data-page-node-id="K1p62AD480hnMsdAT3z46M">创建合同</span>
+                                    </div>
+                                    <div class="action-item" onclick="event.stopPropagation(); showInviteMemberModal('油漆工作组')" data-page-node-id="jgkqGu6ZDb9HNqQOnDbp1W">
+                                        <span class="icon" data-page-node-id="GJW2xN8XhgPBERd1HdSQU3">👥</span>
+                                        <span data-page-node-id="FEdwXyoVjpg3klWpvtobwu">邀请成员</span>
+                                    </div>
+                                    <div class="action-item" onclick="event.stopPropagation(); showCreateModal('level2', '油漆工作组')" data-page-node-id="WuCFYBMRVT83LiEazzkZS3">
+                                        <span class="icon" data-page-node-id="7DVpYT6oO0wlphQzGg9Hw8">+</span>
+                                        <span data-page-node-id="VgzvfvaYfbZwVlpJN6TyYO">添加施工组</span>
+                                    </div>
+                                    <div class="action-item danger" onclick="event.stopPropagation(); showDeleteModal('油漆工作组')" data-page-node-id="xhGjXTtSVsTQAmX9pMlaIR">
+                                        <span class="icon" data-page-node-id="TFdbGfEqmT1EVau42ZGS8h">×</span>
+                                        <span data-page-node-id="zxMPHUXn84iKo3sXGmZUmY">删除</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="create-modal" id="createModal" data-page-node-id="0FMv0mF8hm18ZkRHHsSK2Q">
+            <div class="modal-content" data-page-node-id="ieD2p9ZsjsgsMh3EpkvSG3">
+                <div class="modal-header" data-page-node-id="e4ZawGSW5y1AabqW64tQGl">
+                    <div class="modal-title" id="modalTitle" data-page-node-id="p0C7kiD4tE6Z031pkjmOD6">创建工作组</div>
+                    <div class="modal-close" onclick="closeCreateModal()" data-page-node-id="Hni9HN0NdMM3dq39Gw0tr4">✕</div>
+                </div>
+                
+                <div class="modal-body" data-page-node-id="khbRqKgCUeziCB9obPF71c">
+                    <div id="level1Form" data-page-node-id="O1QFfNzYdpKCOwyGy0fFNY">
+                        <div class="form-group" data-page-node-id="m4El3aNKdZCS251gcaAmfZ">
+                            <label class="form-label" data-page-node-id="rx29O8AnE0KjJ9h5VABDAZ">
+                                <span class="required" data-page-node-id="TdQCQOA5JUylCdGK0y0A6m">*</span>
+                                <span data-page-node-id="Y7oRbul2uHThp6cNRMCzT4">工作组名称</span>
+                            </label>
+                            <input type="text" class="form-input" id="level1Name" placeholder="请输入工作组名称" data-page-node-id="4fnd7o0HQ0koQIUGbIKyFB">
+                        </div>
+                        <div class="form-group" data-page-node-id="Nxkc78Dz8qbIDYMnddXEbS">
+                            <label class="form-label" data-page-node-id="XxuYpZrMDZBniC2DRzfi1p">隶属</label>
+                            <div class="form-display" data-page-node-id="4xaHKdjaXvzvwiqbcopQSD">项目部</div>
+                        </div>
+                    </div>
+                    
+                    <div id="level2Form" style="display: none;" data-page-node-id="Azg6GYUDRxv9QqsKEwSpXu">
+                        <div class="form-group" data-page-node-id="AcnXsCm3tRa0PYU8jRZ0ue">
+                            <label class="form-label" data-page-node-id="0TbAkqEBWtSz1qflKjCQIs">
+                                <span class="required" data-page-node-id="5E2RBfTkalvZvxENImMEba">*</span>
+                                <span data-page-node-id="zFP7RdkAO0KHWKzWWmMsHO">施工组名称</span>
+                            </label>
+                            <input type="text" class="form-input" id="level2Name" placeholder="请输入施工组名称" data-page-node-id="nmLAK5rEJOAQkPNz9pJYBN">
+                        </div>
+                        <div class="form-group" data-page-node-id="MAoe1KyhJEzA9X8RTKcz0X">
+                            <label class="form-label" data-page-node-id="VVNepCrXFQOl7AuREhiPCl">隶属</label>
+                            <div class="form-display" id="level2ParentDisplay" data-page-node-id="OWq8gEey87GPIj9wTodC0N"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="modal-actions" data-page-node-id="RjI7yeDLuS3ID8Raq0FkAy">
+                    <button class="modal-btn cancel" onclick="closeCreateModal()" data-page-node-id="zUxKti1ecDojRTDtOWZ9HC">取消</button>
+                    <button class="modal-btn confirm" onclick="createNode()" data-page-node-id="6ekBU5uJ31CSvxVQthBKoD">确认创建</button>
+                </div>
+            </div>
+        </div>
+        
+        
+        <div class="app-modal" id="appModal" data-page-node-id="UXPEJAV54nxqYCwjGXhgct">
+            <div class="modal-box" data-page-node-id="IWrFLfuLq6lgvAWSLSOkaJ">
+                <div class="modal-title" id="appModalTitle" data-page-node-id="UxO6UckrPOMs4LFB9cGIOt">提示</div>
+                <div class="modal-content" id="appModalContent" data-page-node-id="ALDdCI3UAxUhW9HEUFCsJo"></div>
+                <div class="modal-actions" id="appModalActions" data-page-node-id="p9mV8OeSHXHd7KyyAitrj4">
+                    <button class="modal-btn cancel" id="appModalCancel" onclick="closeAppModal()" data-page-node-id="Jq4FlR4XbzrYUNsJ5eE1Ox">取消</button>
+                    <button class="modal-btn confirm" id="appModalConfirm" onclick="closeAppModal()" data-page-node-id="uDbyuBgKgefVLxeuND2GWg">确定</button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="app-modal" id="deleteModal" data-page-node-id="z8DXTKje5E80WBZCugkLo0">
+            <div class="modal-box" data-page-node-id="YDskv1QFr3Jvm31CVFM8QH">
+                <div class="modal-title" data-page-node-id="vSc20iouafACPiZ3DAy23C">删除确认</div>
+                <div class="modal-content" id="deleteModalContent" data-page-node-id="WGDWS1l8cwRtnTG8DyKdlv">确定要删除该工作组吗？删除后无法恢复。</div>
+                <div class="modal-actions" data-page-node-id="BBXSkqXCyhvmk6an2MPpNW">
+                    <button class="modal-btn cancel" onclick="closeDeleteModal()" data-page-node-id="LXZJUXJfHllNG3uaC3odSv">取消</button>
+                    <button class="modal-btn danger" onclick="confirmDelete()" data-page-node-id="JqQllkyoPfIEntsCi1GzQJ">删除</button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="app-modal" id="exitGroupModal" data-page-node-id="KsvPaRt1RBeliAv2VoZK4s">
+            <div class="modal-box" data-page-node-id="kEAveLjvZTJcLrugSVSUYs">
+                <div class="modal-title" data-page-node-id="LekmTnxZEjzyFg58HQ5RZw">退出工作组</div>
+                <div class="modal-content" id="exitGroupModalContent" data-page-node-id="NUCHbMKEAHpjHjWv9ZGH39">确定要退出该工作组吗？退出后将无法查看该工作组的相关信息。</div>
+                <div class="modal-actions" data-page-node-id="fb7EnjFxnfpAeDpqoLzyHF">
+                    <button class="modal-btn cancel" onclick="closeExitGroupModal()" data-page-node-id="ZzhljHvPn3A0ewKalwzGBR">取消</button>
+                    <button class="modal-btn danger" onclick="confirmExitGroup()" data-page-node-id="2EBGp9iFUZ3UGnU4qAFgS1">退出</button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="app-modal" id="exitProjectModal" data-page-node-id="JQX5o7vYNliktJGzQRErAB">
+            <div class="modal-box" data-page-node-id="jwCeO0VahoZlCyRIguVolY">
+                <div class="modal-title" data-page-node-id="tCH8aJ9HweYvHCVSr6frli">退出项目部</div>
+                <div class="modal-content" id="exitProjectModalContent" data-page-node-id="vkBxsdc2zpSN4QaKra5kIQ">确定要退出项目部吗？退出后将无法查看该项目的相关信息。</div>
+                <div class="modal-actions" data-page-node-id="3Gz3n2GR045qkvqYOTCw96">
+                    <button class="modal-btn cancel" onclick="closeExitProjectModal()" data-page-node-id="HWmPBNNWaghraFwo9Vi4bM">取消</button>
+                    <button class="modal-btn danger" onclick="confirmExitProject()" data-page-node-id="ZmtEfD16jmnNW6LfUGtYER">退出</button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="app-modal" id="contractModal" data-page-node-id="rKFhd5jB239r5IG1ZIhoGl">
+            <div class="modal-box" style="max-height: 70%; display: flex; flex-direction: column;" data-page-node-id="F5f1v3KmuS6vcJPycVcb9V">
+                <div class="modal-title" data-page-node-id="Py2at1C8j5ctlHkK9oJAqo">查看合同</div>
+                <div class="modal-content" style="flex: 1; overflow-y: auto; text-align: left; padding: 0;" data-page-node-id="2PNcM9GOj6aUZvv3DQF1y4">
+                    <div id="contractList" style="padding: 10px 12px;" data-page-node-id="MGt1hr1G2TDtqtSEvF4cc2">
+                    </div>
+                </div>
+                <div class="modal-actions" data-page-node-id="2g3pncfewe6ZVVjPcHThTt">
+                    <button class="modal-btn confirm" onclick="closeContractModal()" style="flex: 1;" data-page-node-id="jVDUj3QrWEuz73stdeYCur">关闭</button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="create-modal" id="inviteMemberModal" data-page-node-id="nSZiR4iReIMOfMT9TTdP8U">
+            <div class="modal-content" data-page-node-id="DWbmyuVAvoK0M1nh9nGDlo">
+                <div class="modal-header" data-page-node-id="f18WeZB1SjNihzq8gdQXT6">
+                    <div class="modal-title" data-page-node-id="y89BIQoIX2A3q4ibjWm0fc">邀请成员</div>
+                    <div class="modal-close" onclick="closeInviteMemberModal()" data-page-node-id="PB2HiAoE6lOmIvPLp9xzey">✕</div>
+                </div>
+                <div class="modal-body" data-page-node-id="U9SaCqyA2eX6nJlpsYtHoY">
+                    <div class="invite-target-info" data-page-node-id="xMJHPV0IByWdYItcFD3CG8">
+                        <span class="label" data-page-node-id="gBAEL2fzOx33kPG5WO9rDz">邀请到：</span>
+                        <span class="value" id="inviteTargetName" data-page-node-id="GC5iOB0GJXYuWmVhXFxBbm">水电工作组</span>
+                    </div>
+                    <div class="invite-category" id="inviteCategory" data-page-node-id="oJHqGBQh4r18R8JkjjkqfW">
+                        <div class="cat-seg active" data-cat="service" onclick="selectInviteCategory(this, 'service')" data-page-node-id="oDRaLgoiYNdtnoiPPR3dQu">服务人员</div>
+                        <div class="cat-seg" data-cat="owner" onclick="selectInviteCategory(this, 'owner')" data-page-node-id="lLl2GifbimYO9hIqRaMXkf">业主/业主家人</div>
+                    </div>
+
+                    <div class="invite-target-app" id="inviteTargetApp" data-page-node-id="qIqAARofwkZITk6YoqHuhl">
+                        <span class="app-icon" data-page-node-id="MIwCSQahmKYBjg7si5rBYD">🛠️</span>
+                        <div class="app-text" data-page-node-id="7V6hmp50xmk0OHee4lAFuU">
+                            <div class="app-line" data-page-node-id="5FgFNNJ6O0xHEL4gLjvv5j">被邀请人将进入 <b data-page-node-id="Tu9hD20OX7rhOUfb8uvaLt">服务端小程序</b></div>
+                            <div class="app-perm" data-page-node-id="GVgtuXyEiwWpzhD9gePzE4">默认权限：仅基础公开数据，无治理权限</div>
+                        </div>
+                    </div>
+
+                    <div class="form-group" data-page-node-id="xlJi7gEkCFnaT5Yla6tCGw">
+                        <label class="form-label" data-page-node-id="TOPdJ4LNQY74arFkF7yTFM">
+                            <span class="required" data-page-node-id="d2P3gM9Aw2htGcxUCvkc88">*</span>
+                            <span data-page-node-id="vxpo5gedlZgHyEjhoAGVaS">邀请方式</span>
+                        </label>
+                        <div class="invite-methods" data-page-node-id="vPQtO0QUiZrKPAhHzZPJwr">
+                            <div class="invite-method active" onclick="selectInviteMethod(this, 'platform')" data-page-node-id="iooJmpgHmKDOM9otamTWvp">
+                                <div class="method-icon" data-page-node-id="aMJ8cDrv7REVlHCOwsynWf">👥</div>
+                                <div class="method-name" data-page-node-id="9B83Z5wmebsRdpxWatYuLe">平台内选择</div>
+                            </div>
+                            <div class="invite-method" onclick="selectInviteMethod(this, 'qrcode')" data-page-node-id="rBaCGxS2DEhDzJYHaomoRW">
+                                <div class="method-icon" data-page-node-id="sR16zVTkARgMVL4aO5xfCU">📷</div>
+                                <div class="method-name" data-page-node-id="dKLKO3NkMlNuYX2vA7VkbP">二维码邀请</div>
+                            </div>
+                            <div class="invite-method" onclick="selectInviteMethod(this, 'wechat')" data-page-node-id="pCbCXgAYnY32N6TSh2qFji">
+                                <div class="method-icon" data-page-node-id="jBxNtaCmDfRyLfOaV7AZG2">💚</div>
+                                <div class="method-name" data-page-node-id="Eyt1wRkGPxQt83HtsAubcg">微信好友</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="platformInviteForm" data-page-node-id="nOPrFC1jKW4jVfJhkOYetG">
+                        <div class="form-group" data-page-node-id="s5XdYSZZfuZK39fnYNE6N2">
+                            <label class="form-label" data-page-node-id="zfF20S2tL8p6GI4CvIvHFG">
+                                <span class="required" data-page-node-id="7lRdqBaXIMgxVEvAsk93Rh">*</span>
+                                <span data-page-node-id="RS9ZUqCIwGS1cL8I0jyGV8">选择平台用户</span>
+                            </label>
+                            <div class="platform-user-search" data-page-node-id="Gy4ZTrtQy8vAcuULXrGmAF">
+                                <input type="text" class="form-input" id="platformUserSearch" placeholder="搜索平台内的服务人员 / 业主..." oninput="filterPlatformUsers(this.value)" data-page-node-id="rc8AuHuYpGNPO9dGWtnbB7">
+                            </div>
+                            <div class="platform-user-list" id="platformUserList" data-page-node-id="AwggfuPFqnXe6tglLAOyPH"></div>
+                        </div>
+                    </div>
+                    <div id="qrcodeInviteForm" style="display: none;" data-page-node-id="lsPE5KWxiMI1py5ZaUXkRj">
+                        <div class="qrcode-preview" data-page-node-id="5jFPkc60GeRWyK8qvEF99r">
+                            <div class="qrcode-placeholder" data-page-node-id="hwneTSLrN2ZZadNc5PHQmt">二维码</div>
+                            <div class="qrcode-text" data-page-node-id="kl2G9VenWqydAityBZDwQc">扫码加入工作组</div>
+                        </div>
+                        <div class="qrcode-expire" data-page-node-id="QJTgUHB0e7tPhqmYCzluhW">二维码有效期：7天</div>
+                    </div>
+                    <div id="wechatInviteForm" style="display: none;" data-page-node-id="1LlH3anlRCgdmx6UUC3rsR">
+                        <div class="wechat-invite-preview" data-page-node-id="EbKVr1g1lnoR3Ro8pzzHKX">
+                            <div class="wechat-share-card" data-page-node-id="hK2mNC4nuNYdBaq6ZFA2gF">
+                                <div class="card-thumb" data-page-node-id="cGb1B2okjGbK4rgB2A4r4M">🏠</div>
+                                <div class="card-info" data-page-node-id="8R0C3e1JyWKsABOvpQ7Af3">
+                                    <div class="card-title" id="wechatCardTitle" data-page-node-id="zF03tqIJcYtqhRE2txspSk">家装项目协作邀请</div>
+                                    <div class="card-desc" id="wechatCardDesc" data-page-node-id="siGmL2vvsxXVJnDDdWVRD7">点击加入项目，开始协作</div>
+                                </div>
+                            </div>
+                            <button class="wechat-share-btn" onclick="shareToWechat()" data-page-node-id="98OGvcgczSzO5pRpEDKD4b">
+                                <span class="btn-icon" data-page-node-id="HOiqyb0AaPUDLWciubupuD">💬</span>
+                                <span data-page-node-id="lq7ME0IttRFuFAz40h76Gn">发送给微信好友</span>
+                            </button>
+                            <div class="wechat-invite-tip" data-page-node-id="EWpHw4XIoFEcCtA5evjSqn">点击后将调起微信分享面板，选择好友发送邀请卡片</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-actions" data-page-node-id="igRuTZ876MqDKY3VGX61ER">
+                    <button class="modal-btn cancel" onclick="closeInviteMemberModal()" data-page-node-id="8IejEb7E0frOgU1MffU4hH">取消</button>
+                    <button class="modal-btn confirm" onclick="sendInvite()" data-page-node-id="yWjcpOpafhktt4sXw0Rn3A">发送邀请</button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="app-toast" id="appToast" data-page-node-id="uh9X3ZzXux0Cqq5bQ01l7c"></div>
+    </div>
+
+    <aside class="arch-demo-note">
+        <div class="adn-title">演示开关</div>
+        <div class="adn-row">
+            <div class="adn-label">创建合同权限<span class="adn-sub">控制「📋 复制发起 / 📝 创建合同」</span></div>
+            <div class="adn-switch" id="adnSwitch" onclick="togglePermSwitch()" role="switch" aria-checked="true" title="切换创建合同权限"><span class="knob"></span></div>
+        </div>
+        <div class="adn-status" id="adnStatus">当前：✅ 有权限 · 可正常发起</div>
+        <div class="adn-btns">
+            <button type="button" class="adn-btn" onclick="demoCopyInitiate()">▶ 模拟点击「📋 复制发起」</button>
+            <button type="button" class="adn-btn" onclick="demoCreateContract()">▶ 模拟点击「📝 创建合同」</button>
+        </div>
+        <p>关闭开关后再点击上述按钮，将弹窗提示 <b>「您没有创建合同的权限」</b> 且不跳转；开启时按正常流程跳转。</p>
+        <p class="adn-tip">开关位于手机框外，仅用于演示权限校验，不影响框内页面与其他功能。</p>
+    </aside>
+</div>
+    
+    <div class="page-nav" data-page-node-id="DE1Fmc284hkbyWT819LHGt">
+        <div class="page-nav-title" data-page-node-id="5WBRByq3Yh4BI2fUcR2w87">原型导航</div>
+        <a href="home.html" class="page-nav-item" data-page-node-id="W4X65pWkN1vmF9JnVn84fu">首页</a>
+        <a href="project-list.html" class="page-nav-item" data-page-node-id="6QJxEh8WPnVZ7li5XY79Af">项目主页（进行中）</a>
+        <a href="project-list.html" class="page-nav-item" data-page-node-id="hShzLQENyeOMsqVYjex4EF">项目主页（进行中）</a>
+        <a href="project-info.html" class="page-nav-item" data-page-node-id="Uw6UG2zSe34mGJWXR94BDW">项目信息</a>
+        <a href="architecture.html" class="page-nav-item active" data-page-node-id="hfqGTf1iNnXGEVyDlNyHz4">项目架构</a>
+        <a href="task-list.html" class="page-nav-item" data-page-node-id="dfLenMhd6eFg9FKlCyxOng">任务列表</a>
+        <a href="contract-detail.html" class="page-nav-item" data-page-node-id="dGC0Q8ckXUEvleZ7a7BE0l">合同详情</a>
+    </div>
+    
+    <script>
+        let currentCreateType = 'level1';
+        let hasCreatePermission = true;
+        let currentCreateParentName = '';
+        const currentUser = { name: '张三', role: '项目经理' };
+        function escapeHtml(s){return String(s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
+        
+        // 一个工作组可存在多份合同：组名 → 合同数组（原为单对象）
+        const groupContracts = {
+            '水电工作组': [
+                { name: '水电分包合同', status: '已签约', id: 'contract-1', meta: '乙方：张水电 · V1' }
+            ],
+            '泥瓦工作组': [
+                { name: '泥瓦班组服务合同-张建国', status: '已签约', id: 'contract-4', meta: '乙方：张建国 · 已履约 80%' },
+                { name: '泥瓦班组服务合同-李守田', status: '确认中', id: 'contract-5', meta: '乙方：李守田 · 待乙方确认' }
+            ],
+            '木工工作组': [],
+            '油漆工作组': []
+        };
+
+        // 数组适配工具
+        function contractsOf(groupName) { return groupContracts[groupName] || []; }
+        function hasSignedContract(groupName) { return contractsOf(groupName).some(c => c.status === '已签约'); }
+        
+        const joinedGroups = ['水电工作组', '强电施工组'];
+        
+        let exitGroupName = '';
+        
+        const userTaskRoles = {
+            executor: ['水电工作组-开槽布线', '强电施工组-布管'],
+            confirmer: ['水电工作组-水电验收']
+        };
+        
+        function checkCanExitGroup(groupName) {
+            if (hasSignedContract(groupName)) {
+                return { canExit: false, reason: '该工作组已签订合同，无法退出' };
+            }
+            
+            const allTaskRoles = [...userTaskRoles.executor, ...userTaskRoles.confirmer];
+            const isTaskRole = allTaskRoles.some(task => task.startsWith(groupName));
+            if (isTaskRole) {
+                return { canExit: false, reason: '您是该工作组任务的执行人或确认人，无法退出' };
+            }
+            
+            return { canExit: true, reason: '' };
+        }
+        
+        function checkCanExitProject() {
+            for (const groupName of joinedGroups) {
+                if (hasSignedContract(groupName)) {
+                    return { canExit: false, reason: `您加入的"${groupName}"已签订合同，无法退出项目部` };
+                }
+            }
+            
+            const allTaskRoles = [...userTaskRoles.executor, ...userTaskRoles.confirmer];
+            if (allTaskRoles.length > 0) {
+                return { canExit: false, reason: '您是项目任务的执行人或确认人，无法退出项目部' };
+            }
+            
+            return { canExit: true, reason: '' };
+        }
+        
+        function showAppModal(title, content, onConfirm, showCancel = true) {
+            document.getElementById('appModalTitle').textContent = title;
+            document.getElementById('appModalContent').textContent = content;
+            document.getElementById('appModalCancel').style.display = showCancel ? 'flex' : 'none';
+            document.getElementById('appModal').classList.add('show');
+            
+            document.getElementById('appModalConfirm').onclick = function() {
+                closeAppModal();
+                if (onConfirm) onConfirm();
+            };
+        }
+        
+        function closeAppModal() {
+            document.getElementById('appModal').classList.remove('show');
+        }
+        
+        function showToast(message, duration = 2000) {
+            const toast = document.getElementById('appToast');
+            toast.textContent = message;
+            toast.classList.add('show');
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, duration);
+        }
+        
+        function toggleNode(header) {
+            const children = header.nextElementSibling;
+            const expand = header.querySelector('.node-expand');
+            
+            if (children && children.classList.contains('node-children')) {
+                children.classList.toggle('show');
+                if (expand) {
+                    expand.classList.toggle('expanded');
+                }
+            }
+        }
+        
+        function showCreateModal(type, parentName) {
+            if (!hasCreatePermission) {
+                showAppModal('提示', '您没有创建架构的权限', null, false);
+                return;
+            }
+            
+            if (type === 'level2' && parentName) {
+                // 原有规则保留：工作组尚未创建合同时，不能添加施工组（子级架构）
+                if (!contractsOf(parentName).length) {
+                    showAppModal('提示', '该工作组尚未创建合同，请先创建合同后再添加施工组', null, false);
+                    return;
+                }
+            }
+            
+            currentCreateType = type;
+            
+            document.getElementById('level1Form').style.display = 'none';
+            document.getElementById('level2Form').style.display = 'none';
+            
+            const modalTitle = document.getElementById('modalTitle');
+            
+            if (type === 'level1') {
+                modalTitle.textContent = '创建工作组';
+                document.getElementById('level1Form').style.display = 'block';
+                document.getElementById('level1Name').value = '';
+                currentCreateParentName = '';
+            } else if (type === 'level2') {
+                modalTitle.textContent = '创建施工组';
+                document.getElementById('level2Form').style.display = 'block';
+                document.getElementById('level2Name').value = '';
+                currentCreateParentName = parentName || '';
+                document.getElementById('level2ParentDisplay').textContent = parentName || '';
+            }
+            
+            document.getElementById('createModal').classList.add('show');
+        }
+        
+        function closeCreateModal() {
+            document.getElementById('createModal').classList.remove('show');
+        }
+        
+        function createNode() {
+            let name = '';
+            
+            if (currentCreateType === 'level1') {
+                name = document.getElementById('level1Name').value;
+                if (!name.trim()) {
+                    showAppModal('提示', '请填写工作组名称', null, false);
+                    return;
+                }
+            } else if (currentCreateType === 'level2') {
+                name = document.getElementById('level2Name').value;
+                if (!name.trim()) {
+                    showAppModal('提示', '请填写施工组名称', null, false);
+                    return;
+                }
+            }
+            
+            showAppModal('创建确认', `确定要创建"${name}"吗？`, function() {
+                insertCreatedNode(currentCreateType, name, currentCreateParentName);
+                showToast('创建成功！创建人：' + currentUser.name);
+                closeCreateModal();
+            });
+        }
+        
+        function findGroupNode(name) {
+            const headers = document.querySelectorAll('.architecture-tree > .tree-node > .node-children > .tree-node > .node-header.level-1');
+            for (const h of headers) {
+                const nm = h.querySelector('.node-name');
+                if (nm && nm.textContent.replace(/\s/g, '').indexOf(name.replace(/\s/g, '')) === 0) {
+                    return h.parentElement;
+                }
+            }
+            return null;
+        }
+        
+        function insertCreatedNode(type, name, parentName) {
+            const safeName = escapeHtml(name);
+            const jsName = name.replace(/['"\\\n\r]/g, '');
+            const creatorMeta = '<span class="role-tag creator">创建人</span> ' + escapeHtml(currentUser.name);
+            if (type === 'level1') {
+                const container = document.querySelector('.architecture-tree > .tree-node > .node-children');
+                if (!container) return;
+                const node = document.createElement('div');
+                node.className = 'tree-node';
+                node.innerHTML = `
+                    <div class="node-header level-1" onclick="toggleNode(this)">
+                        <div class="node-icon">🏗️</div>
+                        <div class="node-info">
+                            <div class="node-name">${safeName} <span class="contract-status-badge no-contract">待创建合同</span></div>
+                            <div class="node-meta">${creatorMeta} · 0个施工组</div>
+                        </div>
+                        <div class="node-expand">▼</div>
+                    </div>
+                    <div class="node-children">
+                        <div class="node-actions">
+                            <div class="action-item primary" onclick="event.stopPropagation(); goCreateContract('${jsName}')">
+                                <span class="icon">📝</span>
+                                <span>创建合同</span>
+                            </div>
+                            <div class="action-item" onclick="event.stopPropagation(); showInviteMemberModal('${jsName}')">
+                                <span class="icon">👥</span>
+                                <span>邀请成员</span>
+                            </div>
+                            <div class="action-item" onclick="event.stopPropagation(); showCreateModal('level2', '${jsName}')">
+                                <span class="icon">+</span>
+                                <span>添加施工组</span>
+                            </div>
+                            <div class="action-item danger" onclick="event.stopPropagation(); showDeleteModal('${jsName}')">
+                                <span class="icon">×</span>
+                                <span>删除</span>
+                            </div>
+                        </div>
+                    </div>`;
+                container.appendChild(node);
+                const statsNum = document.querySelector('.architecture-header .stat-item-inline .num');
+                if (statsNum) statsNum.textContent = String(parseInt(statsNum.textContent, 10) + 1);
+            } else if (type === 'level2') {
+                const parentNode = findGroupNode(parentName);
+                if (!parentNode) return;
+                const children = parentNode.querySelector('.node-children');
+                if (!children) return;
+                const node = document.createElement('div');
+                node.className = 'tree-node';
+                node.innerHTML = `
+                    <div class="node-header level-2" onclick="toggleNode(this)">
+                        <div class="node-icon">🔧</div>
+                        <div class="node-info">
+                            <div class="node-name">${safeName}</div>
+                            <div class="node-meta">${creatorMeta} · 0人</div>
+                        </div>
+                        <div class="node-expand">▼</div>
+                    </div>
+                    <div class="node-children">
+                        <div class="node-actions">
+                            <div class="action-item" onclick="event.stopPropagation(); showInviteMemberModal('${jsName}')">
+                                <span class="icon">👥</span>
+                                <span>邀请成员</span>
+                            </div>
+                            <div class="action-item danger" onclick="event.stopPropagation(); showExitGroupModal('${jsName}')">
+                                <span class="icon">🚪</span>
+                                <span>退出施工组</span>
+                            </div>
+                        </div>
+                    </div>`;
+                const actions = children.querySelector('.node-actions');
+                if (actions && actions.nextSibling) {
+                    children.insertBefore(node, actions.nextSibling);
+                } else {
+                    children.appendChild(node);
+                }
+            }
+        }
+        
+        document.getElementById('createModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeCreateModal();
+            }
+        });
+        
+        let deleteTarget = '';
+        
+        function showDeleteModal(name) {
+            if (!hasCreatePermission) {
+                showAppModal('提示', '您没有删除架构的权限', null, false);
+                return;
+            }
+            
+            if (contractsOf(name).length) {
+                showAppModal('提示', '该工作组已创建合同，无法删除。如需删除请先删除合同。', null, false);
+                return;
+            }
+            
+            deleteTarget = name;
+            document.getElementById('deleteModalContent').textContent = '确定要删除"' + name + '"吗？删除后该工作组下的所有施工组都将被删除，此操作无法恢复。';
+            document.getElementById('deleteModal').classList.add('show');
+        }
+        
+        function closeDeleteModal() {
+            document.getElementById('deleteModal').classList.remove('show');
+        }
+        
+        function confirmDelete() {
+            closeDeleteModal();
+            showToast('"' + deleteTarget + '" 已删除');
+        }
+        
+        function showExitGroupModal(groupName) {
+            const checkResult = checkCanExitGroup(groupName);
+            if (!checkResult.canExit) {
+                showAppModal('无法退出', checkResult.reason, null, false);
+                return;
+            }
+            exitGroupName = groupName;
+            document.getElementById('exitGroupModalContent').textContent = '确定要退出"' + groupName + '"吗？退出后将无法查看该工作组的相关信息。';
+            document.getElementById('exitGroupModal').classList.add('show');
+        }
+        
+        function closeExitGroupModal() {
+            document.getElementById('exitGroupModal').classList.remove('show');
+        }
+        
+        function confirmExitGroup() {
+            const index = joinedGroups.indexOf(exitGroupName);
+            if (index > -1) {
+                joinedGroups.splice(index, 1);
+            }
+            closeExitGroupModal();
+            showToast('已退出"' + exitGroupName + '"');
+        }
+        
+        function showExitProjectModal() {
+            const checkResult = checkCanExitProject();
+            if (!checkResult.canExit) {
+                showAppModal('无法退出', checkResult.reason, null, false);
+                return;
+            }
+            document.getElementById('exitProjectModalContent').textContent = '确定要退出项目部吗？退出后将无法查看该项目的相关信息。';
+            document.getElementById('exitProjectModal').classList.add('show');
+        }
+        
+        function closeExitProjectModal() {
+            document.getElementById('exitProjectModal').classList.remove('show');
+        }
+        
+        function confirmExitProject() {
+            closeExitProjectModal();
+            showToast('已退出项目部');
+            setTimeout(() => {
+                location.href = 'project-list.html';
+            }, 1500);
+        }
+        
+        function viewContract(nodeName) {
+            const list = contractsOf(nodeName);
+            const contractList = document.getElementById('contractList');
+
+            if (!list.length) {
+                contractList.innerHTML = '<div style="text-align: center; color: var(--text-tertiary); padding: 20px;">暂无关联合同</div>';
+            } else {
+                const signedCount = list.filter(c => c.status === '已签约').length;
+                // 聚合行仅保留统计；「复制发起」为按份操作：每份合同行内各自带复制按钮，蓝本=该份合同
+                const aggregate =
+                    '<div class="contract-aggregate">' +
+                        '<span>共 ' + list.length + ' 份 · 已签约 ' + signedCount + ' 份</span>' +
+                        '<span class="ca-hint">复制发起以所选份为蓝本</span>' +
+                    '</div>';
+                // 紧凑排版：第一行=名称(单行省略)+复制按钮；第二行=状态/乙方/进度(单行省略)
+                contractList.innerHTML = aggregate + list.map(c => `
+                    <div class="contract-item" onclick="goToContract('${c.id}')">
+                        <div class="icon">📄</div>
+                        <div class="info">
+                            <div class="ci-row1">
+                                <div class="name">${escapeHtml(c.name)}</div>
+                                <div class="ci-copy" onclick="event.stopPropagation(); copyContract('${nodeName}', '${c.id}')">📋 复制发起</div>
+                            </div>
+                            <div class="status">状态：${escapeHtml(c.status)}${c.meta ? ' · ' + escapeHtml(c.meta) : ''}</div>
+                        </div>
+                        <div class="arrow">›</div>
+                    </div>
+                `).join('');
+            }
+
+            document.getElementById('contractModal').classList.add('show');
+        }
+        
+        function closeContractModal() {
+            document.getElementById('contractModal').classList.remove('show');
+        }
+        
+        function goToContract(contractId) {
+            closeContractModal();
+            location.href = 'contract-detail.html?id=' + contractId;
+        }
+        
+        function setPermission(hasPermission) {
+            hasCreatePermission = hasPermission;
+            const actionBar = document.getElementById('actionBar');
+            const notice = document.getElementById('permissionNotice');
+            
+            if (hasPermission) {
+                actionBar.style.display = 'flex';
+                notice.style.display = 'none';
+            } else {
+                actionBar.style.display = 'none';
+                notice.style.display = 'flex';
+            }
+        }
+        
+        let currentInviteTarget = '';
+        let currentInviteMethod = 'platform';
+        
+        let currentInviteCategory = 'service'; // service（服务人员） / owner（业主及家人）
+        let currentPlatformUser = null; // 当前选中的平台用户 {id, name, role}
+
+        const platformUsers = [
+            { id: 'pu1', name: '张水电', type: 'service', role: '水电工', avatar: '张', verifiedRoles: 2 },
+            { id: 'pu2', name: '李监理', type: 'service', role: '监理', avatar: '李', verifiedRoles: 1 },
+            { id: 'pu3', name: '王设计', type: 'service', role: '设计师', avatar: '王', verifiedRoles: 0 },
+            { id: 'pu4', name: '陈业主', type: 'owner', role: '业主', avatar: '陈', verifiedRoles: null },
+            { id: 'pu5', name: '赵家人', type: 'owner', role: '业主家人', avatar: '赵', verifiedRoles: null }
+        ];
+
+        function selectInviteCategory(element, category) {
+            currentInviteCategory = category;
+            document.querySelectorAll('#inviteCategory .cat-seg').forEach(s => s.classList.remove('active'));
+            element.classList.add('active');
+            updateInviteTargetApp();
+            currentPlatformUser = null;
+            renderPlatformUsers();
+            const qrText = document.querySelector('#qrcodeInviteForm .qrcode-text');
+            if (qrText) qrText.textContent = category === 'service' ? '扫码加入工作组' : '扫码进入业主端小程序';
+        }
+
+        function updateInviteTargetApp() {
+            const appHint = document.getElementById('inviteTargetApp');
+            if (!appHint) return;
+            const isService = currentInviteCategory === 'service';
+            appHint.querySelector('.app-icon').textContent = isService ? '🛠️' : '🏠';
+            appHint.querySelector('.app-line').innerHTML = isService
+                ? '被邀请人将进入 <b>服务端小程序</b>'
+                : '被邀请人将进入 <b>业主端小程序</b>（仅查看/确认，不进入施工组）';
+            appHint.querySelector('.app-perm').textContent = isService
+                ? '默认权限：仅基础公开数据，无治理权限'
+                : '默认权限：全部权限';
+        }
+
+        function renderPlatformUsers() {
+            const list = document.getElementById('platformUserList');
+            if (!list) return;
+            const kw = (document.getElementById('platformUserSearch').value || '').toLowerCase().trim();
+            const isService = currentInviteCategory === 'service';
+            // 方案A：默认不展示人员，需输入关键词搜索匹配（未认证角色的服务方人员不进入候选）
+            if (!kw) {
+                list.innerHTML = '<div class="empty-result">输入关键词搜索平台内的服务人员 / 业主</div>';
+                return;
+            }
+            const filtered = platformUsers.filter(u => {
+                if (u.type !== currentInviteCategory) return false;
+                if (kw && !(u.name.toLowerCase().includes(kw) || u.role.toLowerCase().includes(kw))) return false;
+                // 服务方人员须已认证至少一个角色，方可被匹配选择；未认证者不进入候选列表
+                if (isService && !(u.verifiedRoles >= 1)) return false;
+                return true;
+            });
+            if (!filtered.length) {
+                list.innerHTML = '<div class="empty-result">未找到可匹配的用户</div>';
+                return;
+            }
+                        list.innerHTML = filtered.map(u => `
+                <div class="platform-user-item${currentPlatformUser && currentPlatformUser.id === u.id ? ' selected' : ''}" onclick="selectPlatformUser('${u.id}')">
+                    <span class="pu-avatar">${u.avatar}</span>
+                    <span class="pu-name">${u.name}</span>
+                    <span class="pu-role">${u.role}</span>
+                    <span class="pu-check">✓</span>
+                </div>`).join('');
+        }
+
+        function filterPlatformUsers(keyword) {
+            renderPlatformUsers();
+        }
+
+        function selectPlatformUser(id) {
+            const u = platformUsers.find(x => x.id === id);
+            if (!u) return;
+            if (currentInviteCategory === 'service' && !(u.verifiedRoles >= 1)) return;
+            currentPlatformUser = u;
+            renderPlatformUsers();
+        }
+
+        function showInviteMemberModal(targetName) {
+            if (!hasCreatePermission) {
+                showAppModal('提示', '您没有邀请成员的权限', null, false);
+                return;
+            }
+            currentInviteTarget = targetName;
+            document.getElementById('inviteTargetName').textContent = targetName;
+
+            currentInviteMethod = 'platform';
+            document.querySelectorAll('#inviteMemberModal .invite-method').forEach(m => m.classList.remove('active'));
+            document.querySelector('#inviteMemberModal .invite-method[onclick*="platform"]').classList.add('active');
+            document.getElementById('platformInviteForm').style.display = 'block';
+            document.getElementById('qrcodeInviteForm').style.display = 'none';
+            document.getElementById('wechatInviteForm').style.display = 'none';
+
+            const searchInput = document.getElementById('platformUserSearch');
+            if (searchInput) searchInput.value = '';
+
+            const confirmBtn = document.querySelector('#inviteMemberModal .modal-actions .modal-btn.confirm');
+            if (confirmBtn) {
+                confirmBtn.style.display = 'inline-block';
+                confirmBtn.textContent = '发送邀请';
+            }
+
+            currentInviteCategory = 'service';
+            document.querySelectorAll('#inviteCategory .cat-seg').forEach(ss => ss.classList.toggle('active', ss.dataset.cat === 'service'));
+            renderPlatformUsers();
+            updateInviteTargetApp();
+
+            document.getElementById('inviteMemberModal').classList.add('show');
+        }
+        
+        function closeInviteMemberModal() {
+            document.getElementById('inviteMemberModal').classList.remove('show');
+        }
+        
+        function selectInviteMethod(element, method) {
+            currentInviteMethod = method;
+            document.querySelectorAll('.invite-method').forEach(m => m.classList.remove('active'));
+            element.classList.add('active');
+            
+            document.getElementById('platformInviteForm').style.display = method === 'platform' ? 'block' : 'none';
+            document.getElementById('qrcodeInviteForm').style.display = method === 'qrcode' ? 'block' : 'none';
+            document.getElementById('wechatInviteForm').style.display = method === 'wechat' ? 'block' : 'none';
+
+            const confirmBtn = document.querySelector('#inviteMemberModal .modal-actions .modal-btn.confirm');
+            if (confirmBtn) {
+                confirmBtn.style.display = method === 'wechat' ? 'none' : 'inline-block';
+                if (method === 'qrcode') {
+                    confirmBtn.textContent = '下载二维码';
+                } else {
+                    confirmBtn.textContent = '发送邀请';
+                }
+            }
+        }
+        
+        function sendInvite() {
+            if (currentInviteMethod === 'platform') {
+                if (!currentPlatformUser) {
+                    showAppModal('提示', '请选择要邀请的平台用户', null, false);
+                    return;
+                }
+                if (currentInviteCategory === 'service') {
+                    showAppModal('邀请成功', `已向 ${currentPlatformUser.name} 发送加入"${currentInviteTarget}"（服务端小程序）的邀请，对方将在消息中心收到通知`, null, false);
+                } else {
+                    showAppModal('邀请成功', `已向 ${currentPlatformUser.name} 发送（业主端小程序）的邀请，对方将在业主端小程序收到通知`, null, false);
+                }
+                closeInviteMemberModal();
+            } else if (currentInviteMethod === 'qrcode') {
+                showToast('二维码已生成');
+                closeInviteMemberModal();
+            }
+        }
+
+        function shareToWechat() {
+            const targetName = currentInviteTarget;
+            const cardTitle = document.getElementById('wechatCardTitle');
+            const cardDesc = document.getElementById('wechatCardDesc');
+            let title, desc, toastMsg;
+            if (currentInviteCategory === 'service') {
+                title = `邀请你加入"${targetName}"`;
+                desc = '点击卡片进入服务端小程序，开始团队协作';
+                toastMsg = `已调起微信分享，选择好友发送邀请卡片即可邀请其加入"${targetName}"`;
+            } else {
+                title = '邀请你加入我的家装项目';
+                desc = '点击卡片进入业主端小程序，查看项目进度';
+                toastMsg = '已调起微信分享，选择好友发送邀请卡片即可邀请其进入业主端查看项目';
+            }
+            if (cardTitle) cardTitle.textContent = title;
+            if (cardDesc) cardDesc.textContent = desc;
+
+            if (typeof wx !== 'undefined' && wx.miniProgram && wx.miniProgram.shareAppMessage) {
+                wx.miniProgram.shareAppMessage({
+                    title: title,
+                    path: '/pages/project-detail/index?invite=1'
+                });
+            } else {
+                showToast('正在调起微信分享面板...');
+                setTimeout(function() {
+                    showAppModal('分享成功', toastMsg, function() {
+                        closeInviteMemberModal();
+                    });
+                }, 1500);
+            }
+        }
+        
+        let currentContractTarget = '';
+        
+        function goCreateContract(groupName) {
+            if (!hasCreatePermission) {
+                showAppModal('提示', '您没有创建合同的权限', null, false);
+                return;
+            }
+            // 已有合同时不再阻断：提供「复制发起（推荐）/ 空白新建」选择
+            if (contractsOf(groupName).length) {
+                const list = contractsOf(groupName);
+                const latestSigned = [...list].reverse().find(c => c.status === '已签约') || list[0];
+                showAppModal('创建方式', '该工作组已存在 ' + list.length + ' 份同类型合同。为减少重复填写，推荐「复制发起」——默认以最新已签约的「' + latestSigned.name + '」为蓝本（也可在「查看合同」中选择任意一份为蓝本）；或选择「空白新建」从零创建。', function () {
+                    copyContract(groupName, latestSigned.id);
+                });
+                // 覆写确认按钮文案为「复制发起（推荐）」，并将取消项改为「空白新建」；关闭时复位按钮，避免影响其他弹窗
+                document.getElementById('appModalCancel').textContent = '空白新建';
+                document.getElementById('appModalConfirm').textContent = '复制发起（推荐）';
+                document.getElementById('appModalCancel').onclick = function () {
+                    closeAppModal();
+                    resetCreateChoiceButtons();
+                    location.href = 'create-contract.html?group=' + encodeURIComponent(groupName);
+                };
+                document.getElementById('appModalConfirm').onclick = function () {
+                    closeAppModal();
+                    resetCreateChoiceButtons();
+                    copyContract(groupName, latestSigned.id);
+                };
+                return;
+            }
+            location.href = 'create-contract.html?group=' + encodeURIComponent(groupName);
+        }
+
+        // 复位「创建方式」弹窗覆写的按钮（默认文案 + 默认关闭行为）
+        function resetCreateChoiceButtons() {
+            const cancelBtn = document.getElementById('appModalCancel');
+            cancelBtn.textContent = '取消';
+            cancelBtn.onclick = function () { closeAppModal(); };
+        }
+
+        // 复制发起（按份）：蓝本=指定合同，沿用其类型/文本/阶段/金额/工期/条款/附件（均可改），跳转复制发起页
+        function copyContract(groupName, contractId) {
+            if (!hasCreatePermission) {
+                showAppModal('提示', '您没有创建合同的权限', null, false);
+                return;
+            }
+            location.href = 'contract-copy-initiate.html?group=' + encodeURIComponent(groupName) +
+                (contractId ? '&source=' + encodeURIComponent(contractId) : '') + '&from=architecture';
+        }
+        
+        document.getElementById('inviteMemberModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeInviteMemberModal();
+            }
+        });
+        
+
+        
+        
+        /* ===== 演示开关（手机框外）：创建合同权限 =====
+           仅切换 hasCreatePermission 以复现校验提示；不调用 setPermission()（其依赖页面不存在的 #actionBar） */
+        function togglePermSwitch() {
+            hasCreatePermission = !hasCreatePermission;
+            var sw = document.getElementById('adnSwitch');
+            var st = document.getElementById('adnStatus');
+            if (!sw || !st) return;
+            if (hasCreatePermission) {
+                sw.classList.remove('off');
+                sw.setAttribute('aria-checked', 'true');
+                st.classList.remove('off');
+                st.textContent = '当前：✅ 有权限 · 可正常发起';
+            } else {
+                sw.classList.add('off');
+                sw.setAttribute('aria-checked', 'false');
+                st.classList.add('off');
+                st.textContent = '当前：🚫 无权限 · 将提示「您没有创建合同的权限」';
+            }
+        }
+
+        // 演示用：直接触发「复制发起」校验（蓝本=水电工作组 contract-1）
+        function demoCopyInitiate() { copyContract('水电工作组', 'contract-1'); }
+
+        // 演示用：直接触发「创建合同」校验（木工工作组暂无合同）
+        function demoCreateContract() { goCreateContract('木工工作组'); }
+
+        function closeActionMenu() {
+            const actionMenu = document.getElementById('actionMenu');
+            if (actionMenu) {
+                actionMenu.classList.remove('show');
+            }
+        }
+        
+        
+    </script>
+<script src="../shared/doc-viewer/doc-viewer.js"></script>
+</body>
+</html>

@@ -1,0 +1,1047 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-page-node-id="D8eRq7UCXyIRbKvHkZmFMJ">
+<head data-page-node-id="9yfUwJZQeFtQ0BjnrHhfEr">
+    <meta charset="UTF-8" data-page-node-id="hySubPtZEo1z5GYH65OWXU">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" data-page-node-id="isXfjVZaFJpJtJQylLQI7P">
+    <title>家装平台小程序原型 - 工人合同详情（确认中（发起方）-新）</title>
+    <link rel="stylesheet" href="common.css" data-page-node-id="3FqUKCixvoDtUMnyNp8SAH">
+    <link rel="stylesheet" href="css/contract-detail.css" data-page-node-id="VdSDzZ5Qqz7MAeDVaWb4Gm">
+    <script src="js/craft-ref.js"></script>
+    <style>
+        /* ===== 拟定中（发起方）-新：与「拟定中（发起方）」布局一致，叠加 工期 / 违约责任(必填) / 合同正文默认收起 三处差异 ===== */
+        * { box-sizing: border-box; }
+
+        /* 手机端小程序：仅隐藏手机框内滚动条（沿用 common.css 约定，作用域限定 .phone-frame，不影响原型导航） */
+        .phone-frame ::-webkit-scrollbar { display: none; }
+        .phone-frame * { scrollbar-width: none; -ms-overflow-style: none; }
+
+        body {
+            background: #e9ebee;
+            font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
+        }
+
+        .phone-frame {
+            width: 375px; height: 812px; background: #f2f3f5;
+            border-radius: 40px; overflow: hidden; position: relative; flex-shrink: 0;
+            box-shadow: 0 12px 40px rgba(0,0,0,.25); display: flex; flex-direction: column;
+        }
+        .status-bar {
+            height: 44px; background: #fff; display: flex; align-items: center;
+            justify-content: space-between; padding: 0 22px; font-size: 14px;
+            font-weight: 600; color: #000; flex-shrink: 0;
+        }
+        .nav-bar {
+            height: 48px; background: #fff; display: flex; align-items: center;
+            position: relative; border-bottom: 1px solid #ececec; flex-shrink: 0;
+        }
+        .nav-bar .nb-back {
+            position: absolute; left: 14px; font-size: 26px; line-height: 1;
+            color: #1a1a1a; text-decoration: none; width: 28px;
+        }
+        .nav-bar .title { flex: 1; text-align: center; font-size: 17px; font-weight: 600; color: #1a1a1a; }
+        .nav-bar .actions { position: absolute; right: 14px; }
+        .native-capsule {
+            display: inline-flex; align-items: center; border: 1px solid #e3e3e3; border-radius: 14px;
+            padding: 3px 8px; font-size: 13px; color: #333; background: #fff;
+        }
+        .native-capsule .nc-divider { width: 1px; height: 14px; background: #e3e3e3; margin: 0 6px; }
+
+        .page-content {
+            flex: 1; overflow-y: auto; padding: 0; background: #f2f3f5;
+        }
+        .content-toolbar {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 10px 12px 0; font-size: 13px; color: #888;
+        }
+        .content-toolbar .tb-hint { font-size: 12px; color: #C0C4CC; }
+        .text-more-btn {
+            display: inline-flex; align-items: center; gap: 4px;
+            font-size: 13px; color: #1677FF;
+            padding: 4px 8px; border-radius: 6px; cursor: pointer;
+        }
+        .text-more-btn:active { background-color: #F7F8FA; }
+        .text-more-btn .caret { font-size: 10px; transition: transform 0.2s; }
+        .text-more-btn.open .caret { transform: rotate(180deg); }
+        .more-ops-panel {
+            display: none; margin: 4px 12px 0;
+            background: #fff; border: 1px solid #E5E6EB; border-radius: 10px; overflow: hidden;
+        }
+        .more-ops-panel.show { display: block; }
+        .more-ops-panel .op-item {
+            display: flex; align-items: center; gap: 10px;
+            padding: 11px 14px; font-size: 14px; color: #1D2129;
+            border-bottom: 1px solid #F2F3F5; cursor: pointer;
+        }
+        .more-ops-panel .op-item:last-child { border-bottom: none; }
+        .more-ops-panel .op-icon { font-size: 15px; }
+        .more-ops-panel .op-extra { margin-left: auto; font-size: 11px; color: #98A2B3; }
+
+        /* 状态横幅（拟定中） */
+        .wc-banner {
+            margin: 4px 12px 6px; padding: 8px 12px; border-radius: 10px; color: #fff;
+        }
+        .wc-banner.draft { background: linear-gradient(135deg, #faad14 0%, #ffc53d 100%); }
+        .wc-banner.confirming { background: linear-gradient(135deg, #1677ff 0%, #4096ff 100%); }
+        .wc-banner-text { font-size: 14px; font-weight: 700; }
+        .wc-banner-desc { font-size: 11px; opacity: .92; margin-top: 2px; line-height: 1.4; }
+
+        /* 状态进度步骤条：拟定中（当前）→ 确认中 → 已签约（独立自包含，不依赖外部变量） */
+        .worker-flow { display: flex; align-items: center; margin: 2px 12px 4px; }
+        .wf-step { display: flex; flex-direction: column; align-items: center; width: 60px; flex-shrink: 0; }
+        .wf-circle {
+            width: 28px; height: 28px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 13px; background: #F2F3F5;
+            border: 2px solid #E5E6EB; color: #86909C;
+        }
+        .wf-step.current .wf-circle { background: #E8F3FF; border-color: #1677FF; color: #1677FF; }
+        .wf-step.done .wf-circle { background: #E8FFEA; border-color: #00B42A; color: #00B42A; }
+        .wf-label { font-size: 10px; margin-top: 3px; color: #86909C; }
+        .wf-step.current .wf-label { color: #1677FF; font-weight: 600; }
+        .wf-step.done .wf-label { color: #00B42A; }
+        .wf-line { flex: 1; height: 2px; background: #E5E6EB; margin: 0 -4px 14px; }
+        .wf-line.done { background: #00B42A; }
+
+        /* 合同甲方与意向乙方卡片 */
+        .worker-invite-card {
+            margin: 0 12px 12px; background: #fff; border-radius: 12px; padding: 14px;
+            box-shadow: 0 1px 4px rgba(0,0,0,.04);
+        }
+        .card-title { font-size: 14px; font-weight: 600; color: #222; margin-bottom: 10px; }
+        .card-note { font-size: 12px; font-weight: 400; color: #999; margin-left: 4px; }
+
+        .form-section-title { font-size: 13px; font-weight: 600; color: #333; margin: 14px 0 8px; }
+        .form-section-title:first-child { margin-top: 0; }
+
+        /* 可编辑字段（合同信息） */
+        .edit-field { margin-bottom: 10px; }
+        .edit-field label { display: block; font-size: 12px; color: #888; margin-bottom: 4px; }
+        .edit-input {
+            width: 100%; height: 38px; border: 1px solid #e3e3e3; border-radius: 8px;
+            padding: 0 10px; font-size: 14px; color: #333; background: #fff; font-family: inherit;
+        }
+        .edit-input:focus { border-color: #1677ff; outline: none; box-shadow: 0 0 0 2px rgba(22,119,255,.12); }
+        /* 只读字段（确认中·查看态） */
+        .edit-input.ro, .edit-textarea.ro { background: #f7f8fa; color: #555; border-color: #eee; cursor: default; resize: none; }
+        .edit-input.ro:focus, .edit-textarea.ro:focus { border-color: #eee; outline: none; box-shadow: none; }
+
+        /* 工期：输入框 + 单位 */
+        .field-row { display: flex; align-items: center; gap: 8px; }
+        .field-row .edit-input { flex: 1; }
+        .field-unit { font-size: 13px; color: #666; flex: 0 0 auto; }
+
+        /* 违约责任（文本域，必填） */
+        .edit-textarea {
+            width: 100%; min-height: 96px; border: 1px solid #e3e3e3; border-radius: 8px;
+            padding: 9px 10px; font-size: 13px; color: #333; line-height: 1.7; resize: vertical;
+            background: #fff; font-family: inherit;
+        }
+        .edit-textarea:focus { border-color: #1677ff; outline: none; box-shadow: 0 0 0 2px rgba(22,119,255,.12); }
+        .edit-textarea.required-error { border-color: #ff4d4f; background: #fff2f0; box-shadow: 0 0 0 2px rgba(255,77,79,.12); }
+        .field-required-tag { color: #ff4d4f; margin-left: 4px; font-size: 12px; font-weight: 400; }
+        .field-hint { font-size: 11px; color: #999; margin-top: 5px; line-height: 1.5; }
+        .muted { color: #999; font-size: 12px; margin-left: 4px; }
+
+        /* ===== 意向乙方：chips / 候选人选择面板 / 电子名片 ===== */
+        .invite-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 10px; }
+        .invite-chip {
+            display: inline-flex; align-items: center; gap: 4px;
+            background: #f0f7ff; border: 1px solid #bae0ff; color: #1677ff;
+            font-size: 13px; padding: 5px 10px; border-radius: 16px;
+        }
+        .invite-chip .x { color: #ff4d4f; cursor: pointer; font-weight: 700; }
+        .member-avatar {
+            flex: 0 0 auto; width: 34px; height: 34px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            color: #fff; font-size: 14px; font-weight: 600; user-select: none;
+        }
+        .member-avatar.clickable { cursor: pointer; }
+        .member-main { display: flex; flex-direction: column; flex: 1; margin-left: 10px; line-height: 1.35; }
+        .member-name { font-size: 14px; color: #222; }
+        .member-role { font-size: 11px; color: #999; }
+        .invite-chip .member-avatar { width: 22px; height: 22px; font-size: 11px; }
+        .invite-chip .chip-text { margin-left: 4px; }
+        .invite-chip .chip-status { margin-left: 6px; font-size: 11px; padding: 1px 8px; border-radius: 10px; line-height: 1.5; }
+        .invite-chip .chip-status.pending { color: #d46b08; background: #fff7e6; border: 1px solid #ffd591; }
+        .invite-chip .chip-status.confirmed { color: #389e0d; background: #f6ffed; border: 1px solid #b7eb8f; }
+
+        .member-picker { position: relative; }
+        .member-picker-control {
+            border: 1px solid #e3e3e3; border-radius: 8px; padding: 10px 12px;
+            background: #fff; font-size: 13px; color: #666; cursor: pointer;
+        }
+        .member-picker-panel {
+            display: none; margin-top: 6px; border: 1px solid #e3e3e3;
+            border-radius: 8px; background: #fff; max-height: 220px; overflow-y: auto;
+        }
+        .member-picker-panel.open { display: block; }
+        .member-picker-search {
+            width: 100%; box-sizing: border-box; border: none; border-bottom: 1px solid #eee;
+            padding: 10px 12px; font-size: 13px; outline: none; background: #fff;
+        }
+        .member-picker-list { padding: 4px 0; }
+        .member-picker-item {
+            display: flex; align-items: center; justify-content: flex-start;
+            padding: 10px 12px; font-size: 13px; cursor: pointer; color: #222;
+        }
+        .member-picker-item:hover { background: #f5f5f5; }
+        .member-picker-item.selected { color: #1677ff; font-weight: 600; }
+        .member-picker-item.disabled { color: #999; cursor: not-allowed; opacity: .6; }
+        .member-picker-item .check { color: #1677ff; font-weight: 700; margin-left: auto; }
+        .member-picker-empty { padding: 16px; text-align: center; color: #999; font-size: 13px; }
+
+        /* 合同甲方：当前甲方与「更换甲方」同行，节省空间 */
+        .party-a-row { position: relative; display: flex; align-items: center; gap: 10px; }
+        .party-a-row .invite-chips { margin-bottom: 0; flex: 1; min-width: 0; }
+        .party-a-picker { position: static; flex: 0 0 auto; }
+        .party-a-picker .member-picker-control {
+            padding: 6px 12px; color: #1677ff; border-color: #bae0ff; background: #f0f7ff; white-space: nowrap;
+        }
+        .party-a-picker .member-picker-panel {
+            position: absolute; left: 0; right: 0; top: 100%; margin-top: 6px; z-index: 50;
+            box-shadow: 0 4px 16px rgba(0,0,0,.12);
+        }
+
+        .wcd-bc-badge { display: inline-block; margin: 14px auto 0; padding: 2px 10px; font-size: 11px; color: #fff; background: #999; border-radius: 10px; }
+        .wcd-bc-avatar { width: 64px; height: 64px; border-radius: 50%; margin: 16px auto 10px; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 26px; font-weight: 600; }
+        .wcd-bc-name { font-size: 17px; font-weight: 600; color: #222; }
+        .wcd-bc-role { font-size: 13px; color: #666; margin-top: 4px; }
+        .wcd-bc-id { font-size: 11px; color: #999; margin-top: 4px; }
+        .wcd-bc-tip { font-size: 12px; color: #999; margin: 14px 16px 4px; line-height: 1.5; }
+
+        /* 合同内容卡片 */
+        .contract-content-card {
+            margin: 0 12px 12px; background: #fff; border-radius: 12px; padding: 14px;
+            box-shadow: 0 1px 4px rgba(0,0,0,.04);
+        }
+        .content-tabs { display: flex; border-bottom: 1px solid #f0f0f0; margin-bottom: 12px; }
+        .content-tab {
+            flex: 1; text-align: center; padding: 10px 0; font-size: 13px; color: #666; cursor: pointer; position: relative;
+        }
+        .content-tab.active { color: #1677ff; font-weight: 600; }
+        .content-tab.active::after {
+            content: ""; position: absolute; bottom: -1px; left: 50%; transform: translateX(-50%); width: 40px; height: 2px; background: #1677ff; border-radius: 2px;
+        }
+        .content-tab-pane { display: none; }
+        .content-tab-pane.active { display: block; }
+
+        /* 阶段任务 Tab：灰色背景、卡片左右贴边对齐 Tab 下划线 */
+        #pane-stage-task.content-tab-pane {
+            background: #f7f8fa;
+            margin: 0 -14px -14px;
+            padding: 12px 14px 16px;
+            min-height: 260px;
+        }
+        .stage-section-title {
+            font-size: 14px; font-weight: 600; color: #222; margin-bottom: 10px;
+            display: flex; align-items: center; gap: 6px;
+        }
+        .stage-card {
+            background: #fff; border-radius: 12px; overflow: hidden;
+            box-shadow: 0 1px 4px rgba(0,0,0,.04);
+        }
+        .stage-card .stage-item {
+            border: none; border-radius: 0; margin-bottom: 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .stage-card .stage-item:last-child { border-bottom: none; }
+        .stage-card .stage-tasks { border-top: 1px solid var(--border-color); }
+
+        .form-label-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+        .form-label { font-size: 13px; color: #333; font-weight: 600; }
+        .view-full-link {
+            font-size: 12px; color: #1677ff; text-decoration: none; font-weight: 600;
+            display: inline-flex; align-items: center; gap: 2px; padding: 2px 0;
+        }
+        .view-full-link::after { content: " >"; }
+
+        .template-info { margin-bottom: 10px; background: #f0f7ff; border: 1px solid #bae0ff; border-radius: 8px; padding: 8px 10px; }
+        .template-tag { font-size: 12px; color: #1677ff; font-weight: 600; }
+        .template-hint { font-size: 11px; color: #99c0ff; margin-top: 2px; }
+        .edit-textarea.plain { min-height: 70px; }
+
+        /* 阶段任务样式由 css/contract-detail.css 统一控制，保持与「拟定中（发起方）」一致 */
+
+        /* 预览合同按钮（对齐「拟定中（发起方）」状态页） */
+        .wc-preview-btn {
+            margin-top: 14px; display: flex; align-items: center; justify-content: center; gap: 6px;
+            height: 44px; border-radius: 8px; background: #1677ff; color: #fff;
+            font-size: 15px; font-weight: 600; cursor: pointer;
+        }
+        .wc-preview-btn:active { opacity: 0.85; }
+
+        /* 预览合同弹窗（全屏，对齐「拟定中（发起方）」状态页） */
+        .fulltext-modal {
+            position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+            background: #fff; z-index: 360; display: none; flex-direction: column;
+        }
+        .fulltext-modal.show { display: flex; }
+        .fulltext-modal .status-bar {
+            height: 44px; background: #fff; display: flex; align-items: center;
+            justify-content: space-between; padding: 0 22px; font-size: 14px;
+            font-weight: 600; color: #000; flex-shrink: 0;
+        }
+        .fulltext-modal .nav-bar {
+            position: relative; height: 48px; background: #fff; display: flex;
+            align-items: center; border-bottom: 1px solid #e5e6eb; flex-shrink: 0; padding: 0 16px;
+        }
+        .fulltext-modal .nav-bar .back {
+            position: absolute; left: 16px; display: flex; align-items: center;
+            color: #1677ff; font-size: 14px; cursor: pointer; z-index: 2;
+        }
+        .fulltext-modal .nav-bar .back .back-arrow { margin-right: 4px; font-size: 16px; }
+        .fulltext-modal .nav-bar .title {
+            flex: 1; text-align: center; font-size: 16px; font-weight: 600; color: #222;
+        }
+        .fulltext-modal .nav-bar .nb-actions {
+            position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+            display: flex; align-items: center; z-index: 2;
+        }
+        .fulltext-modal .nav-bar .native-capsule {
+            display: inline-flex; align-items: center; justify-content: space-between;
+            min-width: 56px; height: 28px; padding: 0 10px;
+            border: 1px solid rgba(0,0,0,.08); border-radius: 14px;
+            background: rgba(255,255,255,.7); color: rgba(0,0,0,.6);
+            font-size: 12px; line-height: 1; user-select: none; box-sizing: border-box;
+        }
+        .fulltext-modal .nav-bar .native-capsule .nc-left,
+        .fulltext-modal .nav-bar .native-capsule .nc-right { display: inline-flex; align-items: center; justify-content: center; flex: 1; min-width: 16px; }
+        .fulltext-modal .nav-bar .native-capsule .nc-right { font-size: 10px; }
+        .fulltext-modal .nav-bar .native-capsule .nc-divider { width: 1px; height: 14px; background: rgba(0,0,0,.1); margin: 0 4px; }
+        .fulltext-modal .fulltext-content { flex: 1; overflow-y: auto; padding: 16px; background: #f5f5f5; }
+        .fulltext-modal .contract-article { background: #fff; border-radius: 8px; padding: 16px; margin-bottom: 12px; }
+        .fulltext-modal .article-title { font-size: 15px; font-weight: 600; color: #222; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid #eee; }
+        .fulltext-modal .article-content { font-size: 13px; line-height: 1.8; color: #4E5969; }
+        .fulltext-modal .article-content p { margin-bottom: 8px; }
+        .fulltext-modal .article-content p:last-child { margin-bottom: 0; }
+        .fulltext-modal .wc-task-block { padding: 8px 10px; margin-bottom: 10px; background: #fafafa; border-radius: 6px; border-left: 3px solid #1677ff; }
+        .fulltext-modal .wc-task-block:last-child { margin-bottom: 0; }
+        .fulltext-modal .wc-task-block .wc-task-head { font-weight: 600; color: #222; margin-bottom: 4px; }
+        .fulltext-modal .wc-task-block .wc-std-label { color: #1677ff; font-weight: 600; }
+        .task-edit-item { cursor: pointer; }
+        .task-edit-item:hover { background: #f5f8ff; }
+
+        /* 附件 */
+        .attachment-upload-area { border: 1px dashed #d9d9d9; border-radius: 10px; padding: 18px; text-align: center; cursor: pointer; background: #fafafa; margin-bottom: 10px; }
+        .attachment-upload-area .upload-icon { font-size: 24px; }
+        .attachment-upload-area .upload-text { font-size: 13px; color: #333; margin-top: 6px; }
+        .attachment-upload-area .upload-hint { font-size: 11px; color: #999; margin-top: 2px; }
+        .attachment-list .attachment-item { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 1px solid #f5f5f5; }
+        .attachment-list .attachment-item:last-child { border-bottom: none; }
+        .attachment-list .file-icon { font-size: 20px; }
+        .attachment-list .file-info { flex: 1; }
+        .attachment-list .file-name { font-size: 13px; color: #333; }
+        .attachment-list .file-meta { font-size: 11px; color: #999; }
+        .attachment-list .delete-btn { color: #ff4d4f; font-size: 13px; cursor: pointer; }
+
+        /* 阶段任务（确认中·只读查看）：复用 contract-detail.css 的 .stage-item/.task-item，
+           仅补充任务项点击态（与「确认中（发起方）」原页交互一致） */
+        .task-item { cursor: pointer; }
+        .task-item:active { background: #f7f8fa; }
+
+        /* 底部操作栏（吸底） */
+        .sticky-cta {
+            display: flex; gap: 12px; padding: 12px 16px; background: #fff;
+            border-top: 1px solid #eee; flex-shrink: 0;
+        }
+        .cta-btn { flex: 1; height: 46px; border-radius: 23px; font-size: 16px; font-weight: 600; border: none; cursor: pointer; }
+        .cta-secondary { background: #f5f5f5; color: #666; flex: 0 0 110px; }
+        .cta-primary { background: linear-gradient(135deg, #1677ff 0%, #4096ff 100%); color: #fff; }
+        .cta-warning { background: linear-gradient(135deg, #fa8c16 0%, #ffa940 100%); color: #fff; }
+
+        /* toast */
+        .app-toast {
+            position: absolute; left: 50%; top: 50%; transform: translate(-50%,-50%);
+            background: rgba(0,0,0,.8); color: #fff; font-size: 13px; padding: 10px 16px;
+            border-radius: 8px; z-index: 350; opacity: 0; pointer-events: none; transition: opacity .2s; white-space: pre-line; text-align: center;
+        }
+        .app-toast.show { opacity: 1; }
+
+        /* 通用信息弹窗（更多菜单项：版本记录 / 变更记录） */
+        .info-modal-mask {
+            position: absolute; inset: 0; background: rgba(0,0,0,.45);
+            display: none; align-items: center; justify-content: center; z-index: 320;
+        }
+        .info-modal-mask.show { display: flex; }
+        .info-modal {
+            width: 80%; max-width: 300px; background: #fff; border-radius: 12px;
+            padding: 18px; box-sizing: border-box; max-height: 70%; overflow-y: auto;
+        }
+        .info-modal-title { font-size: 15px; font-weight: 600; margin-bottom: 10px; }
+        .info-modal-body { font-size: 13px; color: #444; line-height: 1.6; }
+        .info-modal-body .rec-row { padding: 8px 0; border-bottom: 1px solid #f2f3f5; }
+        .info-modal-body .rec-row:last-child { border-bottom: none; }
+        .info-modal-body .rec-tag { display: inline-block; font-size: 11px; color: #1677ff; background: #e6f4ff; border-radius: 4px; padding: 1px 6px; margin-right: 6px; }
+        .info-modal-close {
+            margin-top: 14px; text-align: center; color: #1677ff; font-size: 14px;
+            padding: 8px; border-radius: 8px; background: #f0f7ff; cursor: pointer;
+        }
+
+        /* ===== 模板选择 / 预览 底部抽屉 ===== */
+        .wcd-modal-mask {
+            position: absolute; left: 0; top: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,.45); z-index: 320; display: none; align-items: flex-end;
+        }
+        .wcd-modal-mask.show { display: flex; }
+        .wcd-sheet { width: 100%; max-height: 72%; background: #fff; border-radius: 14px 14px 0 0; display: flex; flex-direction: column; overflow: hidden; }
+        .wcd-sheet-head { display: flex; align-items: center; justify-content: space-between; padding: 14px 16px; border-bottom: 1px solid #f0f0f0; }
+        .wcd-sheet-head .title { font-size: 15px; font-weight: 600; color: #222; }
+        .wcd-sheet-head .close { font-size: 18px; color: #999; cursor: pointer; }
+        .wcd-sheet-filter { padding: 8px 16px; font-size: 12px; color: #666; border-bottom: 1px solid #f5f5f5; }
+        .wcd-sheet-body { padding: 8px 16px 16px; overflow-y: auto; }
+        .tpl-item { display: flex; align-items: center; gap: 10px; padding: 12px 0; border-bottom: 1px solid #f5f5f5; }
+        .tpl-item:last-child { border-bottom: none; }
+        .tpl-item .tpl-icon { width: 38px; height: 38px; border-radius: 9px; background: #f0f7ff; color: #1677ff; display: flex; align-items: center; justify-content: center; font-size: 18px; flex: 0 0 auto; }
+        .tpl-item .tpl-content { flex: 1; }
+        .tpl-item .tpl-name { font-size: 14px; color: #222; font-weight: 600; }
+        .tpl-item .tpl-desc { font-size: 11px; color: #999; margin-top: 3px; }
+        .tpl-item .tpl-actions { display: flex; gap: 8px; flex: 0 0 auto; }
+        .tpl-item .tpl-actions .btn { font-size: 12px; padding: 5px 10px; border-radius: 6px; cursor: pointer; }
+        .tpl-item .tpl-actions .btn.preview { background: #f5f5f5; color: #666; }
+        .tpl-item .tpl-actions .btn.use { background: #1677ff; color: #fff; }
+        .wcd-sheet-foot { padding: 12px 16px; border-top: 1px solid #f5f5f5; }
+        .wcd-sheet-foot .btn { display: block; width: 100%; text-align: center; padding: 11px; border-radius: 22px; font-size: 14px; cursor: pointer; }
+        .wcd-sheet-foot .btn.cancel { background: #f5f5f5; color: #666; }
+        .wcd-sheet-foot .btn.primary { background: #1677ff; color: #fff; }
+        .preview-meta { padding: 10px 16px; background: #fafafa; font-size: 12px; color: #666; display: flex; gap: 16px; border-bottom: 1px solid #f5f5f5; }
+        .preview-content { padding: 14px 16px; overflow-y: auto; font-size: 13px; color: #333; line-height: 1.8; }
+        .preview-section { margin-bottom: 16px; }
+        .preview-section-title { font-size: 14px; font-weight: 600; color: #222; margin-bottom: 10px; padding-left: 10px; border-left: 3px solid #1677ff; }
+        .preview-section-content { white-space: pre-wrap; word-break: break-all; }
+
+        /* ===== 原型导航：沿用 common.css 的 .page-nav 浮动定位，仅补充状态组样式，确保与原页面一致 ===== */
+        .status-group { margin-bottom: 8px; }
+        .status-group-header {
+            display: flex; align-items: center; padding: 8px 12px; background-color: #F5F5F5;
+            border-radius: 6px; cursor: pointer; transition: all .2s; user-select: none;
+        }
+        .status-group-header:hover { background-color: #E8E8E8; }
+        .status-group-icon { font-size: 10px; color: #8C8C8C; margin-right: 8px; width: 12px; text-align: center; }
+        .status-group-title { flex: 1; font-size: 13px; font-weight: 500; color: #262626; }
+        .status-group-count { font-size: 11px; color: #8C8C8C; background-color: #E8E8E8; padding: 2px 6px; border-radius: 10px; }
+        .status-group-content { padding-left: 12px; }
+        .status-switch-item {
+            display: block; padding: 8px 12px; font-size: 13px; color: #595959; text-decoration: none;
+            border-radius: 4px; cursor: pointer; transition: all .2s;
+        }
+        .status-switch-item:hover { background-color: #f5f5f5; }
+        .status-switch-item.active { background-color: #e6f4ff; color: #1677ff; font-weight: 600; }
+        .status-switch-divider { height: 1px; background-color: #E5E6EB; margin: 8px 0; border-radius: 1px; }
+
+        /* 阶段任务（只读）：各任务独立圆角背景、任务间明显分隔（对齐非工人合同详情任务卡） */
+        #stagesSection .stage-tasks .task-item {
+            background-color: var(--bg-secondary, #F5F5F5);
+            border-radius: 8px;
+            margin-bottom: 8px;
+            padding: 10px 12px;
+            border-bottom: none;
+        }
+        #stagesSection .stage-tasks .task-item:last-child { margin-bottom: 0; }
+        #stagesSection .stage-tasks .task-item:active { background: #f7f8fa; }
+    </style>
+</head>
+<body data-page-node-id="28UM9VuDoo43GMjRtePQcd">
+<div class="phone-frame" data-page-node-id="3CeMhBNWelGFvSqEwpH6m6">
+    <div class="status-bar" data-page-node-id="aD5KUECyEUvdxp6nWy1h2o">
+        <div class="time" data-page-node-id="dqbWBApCRTBL7BslHFX8vP">9:41</div>
+        <div class="icons" data-page-node-id="KxuczDx2GMrwGTswQNiS4C">📶 🔋</div>
+    </div>
+    <div class="nav-bar" data-page-node-id="eaQqSEDeeKS4P7hPpmvN4k">
+        <a class="nb-back" href="worker-contract-detail.html" data-page-node-id="MLGAKFKHIjVhvl7kfXXhNK">&lsaquo;</a>
+        <div class="title" data-page-node-id="agMMKG5MbhDFlPJr0dHvtv">工人合同详情</div>
+        <div class="actions" data-page-node-id="0JqZwLUs8G5AZyOzerwCQr"><div class="native-capsule" title="微信原生胶囊：由微信客户端渲染，开发者不可自定义其内容" data-page-node-id="FK59DEa4asNbitpbLuu8Jq"><span data-page-node-id="E9c9HhhFCwOmFYNzaxo0id">⋯</span><span class="nc-divider" data-page-node-id="MROZajlzAg51hCgL8tmj9E"></span><span data-page-node-id="d666IaTnXYJHCTiOCzqpwg">○</span></div></div>
+    </div>
+
+    <div class="page-content" data-page-node-id="zCjI3SNyBj4DU6A1AiWEAU">
+        <div class="content-toolbar" data-page-node-id="cBg2FhKhvlRQPR0UzNWfPd">
+            <span class="tb-hint" data-page-node-id="LdIKcYdSVrfwyVxHAapHZf">合同操作</span>
+            <span class="text-more-btn" id="moreOpsBtn" onclick="toggleMoreOps()" data-page-node-id="hfGt5sbnApMKGmgYq1R72K">更多<span class="caret" data-page-node-id="FBPKwDGhrQLNCpUDlQZ6G6">▾</span></span>
+        </div>
+        <div class="more-ops-panel" id="moreOpsPanel" data-page-node-id="zopljDhyDWeQCgNiQiThWV"></div>
+
+        <!-- 状态进度步骤条：拟定中（已完成）→ 确认中（当前）→ 已签约 -->
+        <div class="worker-flow" data-page-node-id="ZBcfnpMC5p8Ee28zDFafi3">
+            <div class="wf-step done" data-page-node-id="bjV97KYbMPGDraWr5WqhzO"><div class="wf-circle" data-page-node-id="JUFrQ8GkfjDTle6ldttTri">✏️</div><div class="wf-label" data-page-node-id="fRUc6SVGLb3vuN8bfXUWon">拟定中</div></div>
+            <div class="wf-line done" data-page-node-id="AX1MIoEtmttctwx93TLcSn"></div>
+            <div class="wf-step current" data-page-node-id="YmFNZYNmi2kWF18cPezz46"><div class="wf-circle" data-page-node-id="mWxKYG0CazEvb1Nz4C0pFY">🤝</div><div class="wf-label" data-page-node-id="DdHBlOcfxAwMDc082r3O2z">确认中</div></div>
+            <div class="wf-line" data-page-node-id="eAoDjy6dTWHVjofs0a0cQa"></div>
+            <div class="wf-step" data-page-node-id="XenK9nBaa1PW4lgD1X4y14"><div class="wf-circle" data-page-node-id="FSYsYPUmBISxGrD9xP71KU">📄</div><div class="wf-label" data-page-node-id="cvIcZ04cDqqHnoRU6RWCvl">已签约</div></div>
+        </div>
+
+        <!-- 状态横幅：确认中（只读，已提交确认待对方确认） -->
+        <div class="wc-banner confirming" data-page-node-id="7nDTnvXrkqZLSR5YjCoSeJ">
+            <div class="wc-banner-text" data-page-node-id="HzXmX7Nsp6kwSa28NTpHsK">确认中</div>
+            <div class="wc-banner-desc" data-page-node-id="UhHfZDljevSNqMxco7DSRh">合同已提交确认，正等待对方（意向乙方）确认。本页仅可查看，不可编辑；如需调整可撤回确认后回到拟定中修改。</div>
+        </div>
+
+        <!-- 合同甲方与意向乙方 -->
+        <div class="worker-invite-card" data-page-node-id="vJpEwyheBjwAxHKaAmN8jC">
+            <div class="card-title" data-page-node-id="k7XA8INYa34weHJDZ3jLbZ">🤝 合同方 <span class="card-note" data-page-node-id="OJ6q3vRgIz5TZNFnsKk0qL">意向乙方首位确认者即签约乙方</span></div>
+
+            <!-- 合同甲方（只读查看） -->
+            <div class="form-section-title" data-page-node-id="vLH9vGTk49C3sqBzBBtGDF">合同甲方</div>
+            <div class="party-a-row" data-page-node-id="XjvLQvoJHOrAgfzLbF9OOv">
+                <div class="invite-chips" data-page-node-id="1wn1JDMvQFgEP595HUJbOc">
+                    <span class="invite-chip" data-page-node-id="TpfOS80Xh8YhUPayTnSD8C"><span class="member-avatar" style="background:#fa8c16;" data-page-node-id="dLSaH14KdpgU9cHVAZdoSe">陈</span><span class="chip-text" data-page-node-id="23NtGcPFCMlhS9nzaLcfbx">陈庄（工长）</span></span>
+                </div>
+            </div>
+
+            <!-- 意向乙方（只读查看，不可添加/删除） -->
+            <div class="form-section-title" id="inviteRoleTitle" data-page-node-id="huHYUbjIlg9shwqhvkyGiQ">意向乙方（仅各工种，邀请 1-3 人）</div>
+            <div class="invite-chips" id="inviteChips" data-page-node-id="i7GDhrHVc3d5A2BpVVNbzQ">
+                <span class="invite-chip" data-page-node-id="amRwE9QZW9KodIKk0eKQO0"><span class="member-avatar" style="background:#1677ff;" data-page-node-id="S4JI6TZ4GP0yUvXXS0z6lG">张</span><span class="chip-text" data-page-node-id="srMgPcYcWgoLdffwqVGvRL">张水电（水电工）</span></span>
+            </div>
+
+            <div class="form-section-title" data-page-node-id="kiGsxIk7El3y1ND4bMqUx6">合同信息 <span data-page-node-id="WAW8AV3xNQmL3uXXoef7Vy">（类型：水电班组服务合同）</span></div>
+
+            <div class="edit-field" data-page-node-id="VJn4CtYKKGTTgSEGrI41oq">
+                <label data-page-node-id="QYj4HLECGDRYkbHM44TLEp">合同名称</label>
+                <input type="text" id="editNameInput" class="edit-input ro" value="全屋水电改造合同" readonly data-page-node-id="JX14Cqhc4XzAaLDgrfFIxv">
+            </div>
+            <div class="edit-field" data-page-node-id="DSjqRr97HwCMG2xFtqfHvf">
+                <label data-page-node-id="NBy01Jgo29oc1q0I5Qefwp">合同金额（元，最多两位小数）</label>
+                <input type="number" id="editAmountInput" class="edit-input ro" value="12600.00" step="0.01" min="0" readonly data-page-node-id="oOJfwWHdanr5WBkcal34k9">
+            </div>
+
+            <!-- 工期（只读查看） -->
+            <div class="edit-field" data-page-node-id="MP0GTcfjF3UKPF3M1bjjRa">
+                <label data-page-node-id="4Njw7LTDvHVTHMFVGBV9mC">工期（自合同签订之日起计算）</label>
+                <div class="field-row" data-page-node-id="0dWTAntpgAi4x7MnBGCvJE">
+                    <input type="number" id="editDurationInput" class="edit-input ro" value="30" readonly data-page-node-id="LqExBeKXSw3syF5xhvCfSh">
+                    <span class="field-unit" data-page-node-id="S5iHDuqcXDCtB6ZCoTsiRr">天</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 合同内容（确认中：只读查看） -->
+        <div class="contract-content-card" data-page-node-id="EavuQzMYjA276FCRNDGmcw">
+            <div class="card-title" data-page-node-id="oJqgIhdj9tv6qyrfcQzkYD">
+                <span data-page-node-id="GvCrGcAQA1KUcz35jb6dNl">📄 合同内容</span>
+            </div>
+            <div class="content-tabs" data-page-node-id="AtGvEcTC66Hat1MPUWfQsh">
+                <div class="content-tab active" onclick="switchDraftTab(this, 'contract-text')" data-page-node-id="8VXpN3CdQ8QfF1gFJuVFpt">合同正文</div>
+                <div class="content-tab" onclick="switchDraftTab(this, 'stage-task')" data-page-node-id="40TFBsqxzejp6MFOQAVDTJ">阶段任务</div>
+                <div class="content-tab" onclick="switchDraftTab(this, 'attachment')" data-page-node-id="1k82cIz4cT5v6dnFdvZnFc">附件</div>
+            </div>
+
+            <!-- 合同正文（只读） -->
+            <div class="content-tab-pane active" id="pane-contract-text" data-page-node-id="MzaDRIGnvqpVfFxfSZBHzS">
+                <!-- 违约责任：移入合同正文（查看全文上方，只读） -->
+                <div class="edit-field" data-page-node-id="1DjCN0hbLdoq7ACUr6TL5Y">
+                    <label data-page-node-id="qB9yFyuDELtuG6Ye0h8Xmq">违约责任</label>
+                    <textarea id="breachInput" class="edit-textarea ro" readonly>1、甲方逾期付款的，按逾期金额千分之三/日支付违约金。
+2、乙方工期延误或质量不符的，应无偿返工并承担违约责任。</textarea>
+                </div>
+                <div class="form-label-row" data-page-node-id="p6YId4gQJ6zv9xBOWlSAvM">
+                    <label class="form-label" data-page-node-id="waJxBdPObJknEAkYTtv2NB">固定详细条款</label>
+                    <a class="view-full-link" href="worker-contract-draft-fulltext-new.html" data-page-node-id="SfqYEWSfdWM3a6e3lDOifC">查看条款</a>
+                </div>
+
+                <!-- 补充条款（只读） -->
+                <div class="form-label-row" style="margin-top:14px;" data-page-node-id="i9K3oGOVj4OFanCqrei8be">
+                    <label class="form-label" data-page-node-id="LfO2O2Ej5lsllG9xN3Px3H">补充条款</label>
+                </div>
+                <textarea class="edit-textarea plain ro" id="editContractExtra" readonly>无</textarea>
+            </div>
+
+            <!-- 阶段任务（只读）：阶段 + 任务，点击任务查看详情（参考「确认中（发起方）」原页效果） -->
+            <div class="content-tab-pane" id="pane-stage-task" data-page-node-id="HUcFjE49lWzNMV8vpF8Zcd">
+                <div id="stagesSection" data-page-node-id="Dre2U5shoWvPrwsJWG7XiI"></div>
+            </div>
+
+            <!-- 附件（只读） -->
+            <div class="content-tab-pane" id="pane-attachment" data-page-node-id="BeyaibZU1K2gp01dkfD0lT">
+                <div class="attachment-list" data-page-node-id="XEuRrU9Uar1ZW0BWlUKkJQ">
+                    <div class="attachment-item" data-page-node-id="4ySaOH4G9mVAPJ586HfWv2">
+                        <span class="file-icon" data-page-node-id="dGRfFpOBWWcECvY22aXZh5">📄</span>
+                        <div class="file-info" data-page-node-id="0EPuJUPfcQA3T4pbN2xTWO"><div class="file-name" data-page-node-id="P3b0EoV4HhhlKJP1J3a39G">水电改造设计图.pdf</div><div class="file-meta" data-page-node-id="AADBqGxdMAytaflth9mQD8">2.3 MB · 2024-01-05 上传</div></div>
+                    </div>
+                    <div class="attachment-item" data-page-node-id="npYlLa6ek0dMG9DKjpxN1k">
+                        <span class="file-icon" data-page-node-id="1JA1KtrcZxIYoHnfhMR0GK">🖼️</span>
+                        <div class="file-info" data-page-node-id="uIXL5O90ivALeHjKbdJvRQ"><div class="file-name" data-page-node-id="ObQEvQSQi3kKMncNvnuyjd">现场交底照片.jpg</div><div class="file-meta" data-page-node-id="Qs9h4d8BCeqcVsFdEuLt46">1.1 MB · 2024-01-05 上传</div></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 底部操作栏：确认中仅支持撤回确认 -->
+    <div class="sticky-cta" data-page-node-id="0A9s2e0lVi6oaWj0Znj7WJ">
+        <button class="cta-btn cta-warning" onclick="openConfirm()" data-page-node-id="TnMP515PthHZKlusQT0z9b">撤回确认</button>
+    </div>
+
+    <div class="app-toast" id="appToast" data-page-node-id="ZCNN0RJEFDLpkhIcJDN3Cs"></div>
+
+    <!-- 撤回确认：确认弹窗 -->
+    <div class="info-modal-mask" id="confirmMask" onclick="if(event.target===this)closeConfirm()" data-page-node-id="rzX2evy1e02J96vblvIxqs">
+        <div class="info-modal" data-page-node-id="pepdk8i5PWRVLYPpk0ejYI">
+            <div class="info-modal-title" data-page-node-id="e5XwGpz661StW0vPSJceVH">撤回合同邀约</div>
+            <div class="info-modal-body" data-page-node-id="faCBNOEGMYVHChR8LKyvwb">确定要撤回确认吗？撤回后合同退回拟定中，可就地修改意向乙方后重新提交邀约。</div>
+            <div style="display:flex; gap:10px; margin-top:14px;" data-page-node-id="0LDIW43f2pQzBpM3NabD4m">
+                <div class="info-modal-close" style="flex:1; background:#f5f5f5; color:#666;" onclick="closeConfirm()" data-page-node-id="bGg0YAvJPCyyQ4AzwHwaCx">取消</div>
+                <div class="info-modal-close" style="flex:1; background:#1677ff; color:#fff;" onclick="doWithdraw()" data-page-node-id="m5sf2YX8EoxGWq5fSp05WA">确认撤回</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 通用信息弹窗（版本记录 / 变更记录） -->
+    <div class="info-modal-mask" id="infoModalMask" onclick="if(event.target===this)closeInfoModal()" data-page-node-id="Ip4M4Sedt4vy4Dlp1Jgegr">
+        <div class="info-modal" data-page-node-id="tFgO4Rt3AKQJnWtFNTckO1">
+            <div class="info-modal-title" id="infoModalTitle" data-page-node-id="UJEfw6oPnyVsYo57EpMmLd"></div>
+            <div class="info-modal-body" id="infoModalBody" data-page-node-id="D5NTjyz9wbrmVw73XaDdym"></div>
+            <div class="info-modal-close" onclick="closeInfoModal()" data-page-node-id="WjXHS66Jrl9HLlIPBOBHZD">关闭</div>
+        </div>
+    </div>
+
+    <!-- 导出合同文件弹窗（参考「确认中（发起方）」原页更多菜单） -->
+    <div class="export-modal" id="exportModal" data-page-node-id="H6ECzmcFjxKTk1Ni6P99vW">
+        <div class="modal-content" data-page-node-id="rwWrogdkpSJswOEWqx8Vy0">
+            <div class="modal-header" data-page-node-id="bYxrnj88AQzQwZhbk4DnCK">
+                <div class="modal-title" data-page-node-id="AxPWpCZDWS1zEgCFyID8V3">导出合同文件</div>
+                <div class="modal-close" onclick="closeExportModal()" data-page-node-id="wpen3y8cW48hAaCCLCADi4">✕</div>
+            </div>
+            <div class="export-option" onclick="exportToPDF()" data-page-node-id="0L0WuLxRemdIrlDhYkTHuM">
+                <div class="icon" data-page-node-id="YlFHJmt6QfEHUvyiF5CK3w">📄</div>
+                <div class="info" data-page-node-id="I9dgl0X0dvMTCrtheDiTGV">
+                    <div class="title" data-page-node-id="7AKbf8ogUoMeyfim3lb26d">导出为PDF</div>
+                    <div class="desc" data-page-node-id="3dt8YEIfU8ZkEXtUD0fOcr">生成完整合同文件，保存到手机本地</div>
+                </div>
+                <div class="arrow" data-page-node-id="mHwGp7ukB448haljnHyHWw">›</div>
+            </div>
+            <div class="export-option" onclick="shareToWechat()" data-page-node-id="KKvEF2xzRCHZ6s5T8rShDH">
+                <div class="icon" data-page-node-id="6DNwbF8OAlp2mIMCqr3cG5">💬</div>
+                <div class="info" data-page-node-id="60LPkJdC7vjCJJ3MFQFThM">
+                    <div class="title" data-page-node-id="0wyslLayDq6645GeiGvS13">分享到微信</div>
+                    <div class="desc" data-page-node-id="fbUfuBrMVG9R6NVEuncEJa">生成PDF文件并发送给微信好友</div>
+                </div>
+                <div class="arrow" data-page-node-id="vIdTygcHX1PG5jrzUzYnpO">›</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 任务详情（只读）弹窗（参考「确认中（发起方）」原页阶段任务点击效果） -->
+    <div class="task-detail-modal" id="taskDetailModal" data-page-node-id="npWyPJsiJtejWp6AY8WElk">
+        <div class="modal-content" data-page-node-id="Ciud7DGSQzBXHxAyhavEVD">
+            <div class="modal-header" data-page-node-id="jagJwqJ9kf0FkN9h8fdABo">
+                <div class="modal-title" data-page-node-id="IBzHWjVMAJOyBjs9iJKnca">任务详情</div>
+                <div class="modal-close" onclick="closeTaskDetailModal()" data-page-node-id="26bjqGoHn2CVa5hRA3mkM4">✕</div>
+            </div>
+            <div class="modal-body" data-page-node-id="O3kJTrdOpXd6LxsnWyyk7f">
+                <div class="detail-section" data-page-node-id="WFQ0CXJo5DE72VAuhzNvK3"><div class="detail-label" data-page-node-id="VmIjdcisDcXBNcwBHyh6wA">任务名称</div><div class="detail-value" id="detailTaskName" data-page-node-id="bRj7yQ5aZyKd66ZAK9QOGP">—</div></div>
+                <div class="detail-section" data-page-node-id="Q3M15Ge8Fa7jNsHjq7BnWA"><div class="detail-label" data-page-node-id="ufKWimUa1IFhJtHOXQw66e">执行人</div><div class="detail-value" id="detailExecutor" data-page-node-id="8WBMtNLoR2qUTWqtKx6lnW">—</div></div>
+                <div class="detail-section" data-page-node-id="GMC07wgBb3Uaz3mM7YP3DA"><div class="detail-label" data-page-node-id="aANsO3hoh2OMJkVUvAKFZL">确认人</div><div class="detail-value" id="detailConfirmers" data-page-node-id="ZdhY2sMpEEXvTQr4uWxa5s">—</div></div>
+                <div class="detail-section" data-page-node-id="GyF0FlDUHg0zgPIr0ZKsOU"><div class="detail-label" data-page-node-id="aIIIaCE1Uplc4A8T0GRaS5">执行标准</div><div class="detail-value" id="detailExecStandard" data-page-node-id="1hpC8RA7bCVIRySfP9zQwj">—</div></div>
+                <div class="detail-section"><div class="detail-label">工艺参考示例（执行标准）</div><div class="detail-value craft-ref-display" id="detailExecCraftRef"></div></div>
+                <div class="detail-section" data-page-node-id="Ef0RLthTTZ9epPwWG0KYBr"><div class="detail-label" data-page-node-id="PwkUwfSEeDKAhPHrOgpGzF">确认标准</div><div class="detail-value" id="detailConfirmStandard" data-page-node-id="y1At9jrg7HWL7rOTSonUGh">—</div></div>
+                <div class="detail-section"><div class="detail-label">工艺参考示例（确认标准）</div><div class="detail-value craft-ref-display" id="detailConfirmCraftRef"></div></div>
+                <div class="detail-section" data-page-node-id="hUjwQIwmjMPArjeiFhpuOe"><div class="detail-label" data-page-node-id="jRRZAdXbNWTLoY3iC56Ul7">担责标准</div><div class="detail-value" id="detailLiableStandard" data-page-node-id="EuH8NmxTK5fdsBAwwljCwd">—</div></div>
+            </div>
+            <div class="modal-footer" data-page-node-id="ipw1tVGLC3hG2MCn0dvauv"><button class="submit-btn" onclick="closeTaskDetailModal()" data-page-node-id="sG0DF7lv3gBEKPhJnLjKtI">关闭</button></div>
+        </div>
+    </div>
+
+    <!-- 更换模板：选择弹窗 -->
+    <div class="wcd-modal-mask" id="wcdTplModal" onclick="if(event.target===this)closeTemplatePicker()" data-page-node-id="PcYoRDppfraOD8LND7EFhW">
+        <div class="wcd-sheet" data-page-node-id="hWdDHwCCwu9V37zg4kaWX3">
+            <div class="wcd-sheet-head" data-page-node-id="HbaqPFD5AvmoVjlHnwdE3x"><div class="title" id="wcdTplTitle" data-page-node-id="mKI111uODnXqGYD7g9MU2a">选择模板</div><div class="close" onclick="closeTemplatePicker()" data-page-node-id="aOIGXQ6t1LQNAuRivemEFu">✕</div></div>
+            <div class="wcd-sheet-filter" data-page-node-id="yfRuJkx8zkgvf4fbTIIBTO">当前合同类型：<span id="wcdTplFilterType" data-page-node-id="8S9THeLOIA7bVgj2HbK6Cv">-</span></div>
+            <div class="wcd-sheet-body" data-page-node-id="MEdY2Js4RqBiksBhCtK5DN"><div id="wcdTplList" data-page-node-id="2RyyXJTjYzL71nEFDmH3dU"></div><div class="member-picker-empty" id="wcdTplEmpty" style="display:none;" data-page-node-id="nCG8UlV8LtfTjSRDaEu2Ox">暂无匹配的模板</div></div>
+            <div class="wcd-sheet-foot" data-page-node-id="k7xFLUBlSJZUFczOLXB3xZ"><div class="btn cancel" onclick="closeTemplatePicker()" data-page-node-id="sA54zzDiiJXZVSted6NTj3">取消</div></div>
+        </div>
+    </div>
+
+    <!-- 更换模板：预览弹窗 -->
+    <div class="wcd-modal-mask" id="wcdPreviewModal" onclick="if(event.target===this)closeTemplatePreview()" data-page-node-id="EocyFh5gNcS3sM1hJGrTVi">
+        <div class="wcd-sheet" data-page-node-id="ePacD2PBJ9lVW0pxzdhRwO">
+            <div class="wcd-sheet-head" data-page-node-id="Zjs6iofkP8ujEjbBrW6av1"><div class="title" id="wcdPreviewTitle" data-page-node-id="ZgUN0iAbcW6Ic9oML9ml4A">模板预览</div><div class="close" onclick="closeTemplatePreview()" data-page-node-id="7AjpJHHJZvWgmT1aHECcNT">✕</div></div>
+            <div class="preview-meta" id="wcdPreviewMeta" data-page-node-id="1aeMlE39dtq4jmyPWxQc8c"></div>
+            <div class="wcd-sheet-body" style="padding:0;" data-page-node-id="e0o58MdQHed9E3fg6eT9FI"><div class="preview-content" id="wcdPreviewContent" data-page-node-id="F5mqZqgggBF4VlcrF3vZzG"></div></div>
+            <div class="wcd-sheet-foot" data-page-node-id="u149SWEaoV4U1lRl7EvTfj">
+                <div class="btn cancel" onclick="closeTemplatePreview()" style="margin-bottom:8px;" data-page-node-id="OmgC4i0UCzACujcoglaCSF">取消</div>
+                <div class="btn primary" onclick="applyTemplateFromPreview()" data-page-node-id="VK6ytyUIGHL2ioyCDhchDB">使用此模板</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 预览合同弹窗（全屏，对齐「拟定中（发起方）」状态页） -->
+    <div class="fulltext-modal" id="wcFullTextModal" onclick="if(event.target===this)closeFullText()" data-page-node-id="fxcjDB73TWkDslCoXq1qDi">
+        <div class="status-bar" data-page-node-id="UEJW5le435fWiDiIlL0ijW">
+            <span class="time" data-page-node-id="LYI3vhQwHFzMXvYAudaXiN">9:41</span>
+            <div class="icons" data-page-node-id="LsODK4aZYTQRiXYr5Ta0Mn">📶 🔋</div>
+        </div>
+        <div class="nav-bar" data-page-node-id="UdjKlFPC4Tbcspr8rDKsE8">
+            <div class="back" onclick="closeFullText()" data-page-node-id="ZOCO8dIANXaIqvWRSceX7z"><span class="back-arrow" data-page-node-id="QeBB5IbvypjMcG98ns3HGc">←</span><span class="back-text" data-page-node-id="sVvemL7oVJZCPVVNZmnF5t">返回</span></div>
+            <div class="title" id="wcFullTextTitle" data-page-node-id="MHkTkBXPhTwYghszRskLJn">👁️ 预览合同</div>
+            <div class="nb-actions" data-page-node-id="5N40CA2en0f2CMQdfn4AAP">
+                <div class="native-capsule" title="微信原生胶囊：由微信客户端渲染，开发者不可自定义其内容" data-page-node-id="0MOJyxwqGJ9xJuOB8Ft7s0"><span class="nc-left" data-page-node-id="XskXy51bWW30wQPNSKYFF0">⋯</span><span class="nc-divider" data-page-node-id="8V0VDuidN8qCpl00sAR9Hu"></span><span class="nc-right" data-page-node-id="uZ8NHH2rcUDPzIHHIb7GGH">○</span></div>
+            </div>
+        </div>
+        <div class="fulltext-content" id="wcFullTextContent" data-page-node-id="E5t47ywWfnvkBdugCTZBzE"></div>
+    </div>
+
+    <!-- 编辑任务弹窗（对齐「拟定中（发起方）」状态页 editTaskDetail） -->
+    <div class="edit-task-modal" id="editTaskModal" data-page-node-id="PbLW9S0T6MtJKjmbUjnma7">
+        <div class="modal-content" data-page-node-id="Fkwdxjx4zsqYr0hZeTeL8x">
+            <div class="modal-header" data-page-node-id="mck31uLtnrQSEHh0hj0bCi">
+                <div class="modal-title" data-page-node-id="plgIIMX9E2OTji3es29rwt">编辑任务</div>
+                <div class="modal-close" onclick="closeEditTaskModal()" data-page-node-id="4VQ64mBOMMVr2iy7Qe1HEn">✕</div>
+            </div>
+            <div class="modal-body" data-page-node-id="GifDFmfHtbCSumqwXegRz9">
+                <div class="form-group" data-page-node-id="zvaqBd7gQOxvddncV5FSzW">
+                    <label class="form-label" data-page-node-id="DdoVQwmMRZ8GWNjFx2xTP1">任务名称 <span class="required" data-page-node-id="c78mDfKNpWG48uLwItaVwJ">*</span></label>
+                    <input type="text" class="form-input" id="editTaskName" placeholder="请输入任务名称" data-page-node-id="rMIdT9SEWFVwezJkcJ7BIn">
+                </div>
+                <div class="form-group" data-page-node-id="8CQQt5ZGQxZGnw07Q5rax9">
+                    <label class="form-label" data-page-node-id="qUH8XM6hlBBzgPPuvuzxoh">执行人</label>
+                    <div class="confirm-person-tags" id="editTaskExecutorTags" style="margin-bottom:8px;" data-page-node-id="cKZFD6UadCzIcQnD5Cl91w"></div>
+                    <div class="search-select" data-page-node-id="Wkc32XOMLsAWwT5FmlXYmH">
+                        <div class="search-input-wrap" data-page-node-id="GKxC3QVwdwDVXVl9qH27LF">
+                            <input type="text" class="search-input" id="editTaskExecutorSearch" placeholder="请选择执行人" oninput="filterExecutorList('edit')" onfocus="toggleExecutorSearch('edit')" data-page-node-id="Cb03Y7auJEg1BIXQxSSKu6">
+                            <span class="arrow" onclick="toggleExecutorSearch('edit')" data-page-node-id="wJNn55Y2q4RIMDJXx0hOJl">▼</span>
+                        </div>
+                        <div class="search-dropdown" id="editTaskExecutorDropdown" data-page-node-id="fI4xhWjNASeF23dzHUFAJT"></div>
+                    </div>
+                    <input type="hidden" id="editTaskExecutor" data-page-node-id="WfF71KqbULbb2OvjMDbNuI">
+                </div>
+                <div class="form-group" data-page-node-id="5IwedrpCOo8jv7nPrZoUtA">
+                    <label class="form-label" data-page-node-id="oZlqdagfKd8VXrHRwrtzP5">确认人（最多5人）</label>
+                    <div class="confirm-person-tags" id="editTaskConfirmPersons" data-page-node-id="TKc8rdea46udYMLs7TkGXu"></div>
+                    <div class="search-select" data-page-node-id="PU8tIEfWmudyCgpGOo8Qzp">
+                        <div class="search-input-wrap" data-page-node-id="mt0vndqOAhrogPM5pt4J78">
+                            <input type="text" class="search-input" id="editTaskConfirmerSearch" placeholder="添加确认人" oninput="filterConfirmerList('edit')" onfocus="toggleConfirmerSearch('edit')" data-page-node-id="oIhJlladQzNQAtRy1DBNxK">
+                            <span class="arrow" onclick="toggleConfirmerSearch('edit')" data-page-node-id="5JW5fUcMEjFG7JBekYwwSO">▼</span>
+                        </div>
+                        <div class="search-dropdown" id="editTaskConfirmerDropdown" data-page-node-id="YFZyKcz6eZHDoWglXAW5l1"></div>
+                    </div>
+                </div>
+                <div class="form-group" data-page-node-id="dWAR6atHJUh7Bdvw02vn83">
+                    <label class="form-label" data-page-node-id="cnEmZsKBGZMFfqBcmlx0nW">执行标准 <span class="required" data-page-node-id="6azhPOe5ByUrLzkEGe1DII">*</span></label>
+                    <textarea class="form-textarea" id="editTaskExecStandard" placeholder="请输入执行标准"></textarea>
+                </div>
+                <div class="form-group" data-page-node-id="pFn7Usn77WvZXg0ZPoCJB2">
+                    <label class="form-label" data-page-node-id="AXpOh7ySdevLwVGcOJtqhn">确认标准 <span class="required" data-page-node-id="4ZPYE0KMBl8kpfHRaPYSrY">*</span></label>
+                    <textarea class="form-textarea" id="editTaskConfirmStandard" placeholder="请输入确认标准"></textarea>
+                </div>
+                <div class="form-group" data-page-node-id="JsDlwshpACtl2n4sEQnEAH">
+                    <label class="form-label" data-page-node-id="NmbMuY6mNc0Mxt8AkrMIXo">担责标准 <span class="required" data-page-node-id="vHDhqlnZVIPa1RWJ3HVFhm">*</span></label>
+                    <textarea class="form-textarea" id="editTaskLiableStandard" placeholder="请输入担责标准"></textarea>
+                </div>
+            </div>
+            <div class="modal-footer" data-page-node-id="0IZGoEk7LZyu6nOdjoA8Kq"><button class="submit-btn" onclick="confirmEditTask()" data-page-node-id="gf5ul2IcaEb6J1zZKjyDu8">保存修改</button></div>
+        </div>
+    </div>
+
+    <!-- 个人电子名片（开发中） -->
+    <div class="wcd-modal-mask" id="businessCardModal" onclick="if(event.target===this)closeBusinessCard()" data-page-node-id="GuZOSUXGqjXurq3sjiJEC4">
+        <div class="wcd-sheet" style="max-height:auto;" data-page-node-id="kk4YPX1nalbdPV0pWA46jU">
+            <div class="wcd-sheet-head" data-page-node-id="vGPbBgSOLQz52vcfguR9H8"><div class="title" data-page-node-id="xADrfN3XVWC0aTzjGoff4p">个人电子名片</div><div class="close" onclick="closeBusinessCard()" data-page-node-id="fYaLmqBT6EmDlbtNITpBi9">✕</div></div>
+            <div style="padding:8px 16px 20px;text-align:center;" data-page-node-id="ljjbAyzCHdrud7Xq8DcPmN">
+                <div class="wcd-bc-badge" data-page-node-id="ZppNAOMKCxEqEqE03L5Ax7">开发中</div>
+                <div class="wcd-bc-avatar" id="bcAvatar" data-page-node-id="OV6K73SVFYXsqdrE9VGuoO"></div>
+                <div class="wcd-bc-name" id="bcName" data-page-node-id="zIJpTKOMRw5PhiDG05jJGF"></div>
+                <div class="wcd-bc-role" id="bcRole" data-page-node-id="2Un20hH0crVxIWYRlBOXCY"></div>
+                <div class="wcd-bc-id" id="bcId" data-page-node-id="hEeKS1qtxR4ggid0wwNoZX"></div>
+                <div class="wcd-bc-tip" data-page-node-id="18TTGKb05aUiH57vVnVk18">个人电子名片功能开发中，敬请期待</div>
+            </div>
+        </div>
+    </div>
+
+    <input type="file" id="draftAttInput" style="display:none;" 
+        <!-- 工艺参考示例·放大查看器（共享模块 js/craft-ref.js 驱动） -->
+        <div class="craft-ref-viewer" id="craftRefViewer" onclick="CraftRef.closeViewer()">
+            <div class="craft-ref-viewer-img"></div>
+            <div class="craft-ref-viewer-title"></div>
+            <div class="craft-ref-viewer-close" onclick="CraftRef.closeViewer()">✕ 关闭</div>
+        </div>
+onchange="onDraftAttPicked(event)" data-page-node-id="hxDJzopfn1HvusEgEojZJ0">
+</div>
+
+<!-- 原型导航：与 worker-contract-detail.html 一致（新增「拟定中（发起方）-新」并置为当前） -->
+    <div class="page-nav" data-page-node-id="L6kyl5DFukb5CKy5pBMPuq">
+        <div class="page-nav-title" onclick="togglePageNav()" title="收起 / 展开 原型导航" data-page-node-id="lIHQZkNDE7M6kdDcGUJNNQ">原型导航 <span class="toggle-btn" id="pageNavToggle" data-page-node-id="h1hSn23kwyjhsd1QVPE1CY">▼</span></div>
+    <a href="home.html" class="page-nav-item" data-page-node-id="VBRaQxe1HFczehKSUgrPNz">首页</a>
+    <a href="project-list.html" class="page-nav-item" data-page-node-id="BCC5qLFcr7vJAkfjiX44iI">项目主页（进行中）</a>
+    <a href="contract-detail.html" class="page-nav-item" data-page-node-id="nl5k0pNMPSCD659Ar5T8dC">合同详情（非工人）</a>
+    <a href="message.html" class="page-nav-item" data-page-node-id="47Jl00uIl7ug9B4K3jT4Jo">消息</a>
+    <a href="worker-contract-detail.html" class="page-nav-item" data-page-node-id="kI4i6A0JznYshBvq38MwbC">工人合同详情（新流程）</a>
+
+    <div style="margin-top:16px; padding-top:12px; border-top:1px solid #E8E8E8;" data-page-node-id="44s0IHXlsHdkquULbyAtm5">
+        <div class="page-nav-title" data-page-node-id="LCaDfFkLbQfmsl2zRMhpgA">合同状态切换（工人合同）</div>
+
+        <!-- 发起方视角 -->
+        <div class="status-group" data-page-node-id="PBJFjJnCIHIsQ9JH9VizMr">
+            <div class="status-group-header" onclick="toggleStatusGroup(this)" data-page-node-id="fSNuGPnRKNzvh58eykCaSC">
+                <span class="status-group-icon" data-page-node-id="uTuhRXUN1bGqtyl64wFJ5m">▼</span>
+                <span class="status-group-title" data-page-node-id="I5XJgj44QsEsRAWKVwgsx6">发起方视角</span>
+                <span class="status-group-count" data-page-node-id="5KmLXwPg8vyH518r3cfZ5x">5</span>
+            </div>
+            <div class="status-group-content" data-page-node-id="PhFvXZ18dufreB3OMQDueh">
+                <a class="status-switch-item" href="worker-contract-draft-initial-new.html" style="text-decoration:none;" data-page-node-id="VhJ5UHwUaPeYfmeNSuPah2">拟定中(发起方)-新</a>
+                <a class="status-switch-item active" href="worker-contract-confirming-initiator-new.html" style="text-decoration:none;" data-page-node-id="DHFwEUuwN9HvpRZohkHahQ">确认中(发起方)</a>
+                <a class="status-switch-item" href="worker-contract-detail.html?status=worker_draft" style="text-decoration:none;" data-page-node-id="1HpPDxC9piBNN0LpXv92fZ">拟定中(撤回后)</a>
+                <a class="status-switch-item" href="worker-contract-signed-initiator-new.html" style="text-decoration:none;" data-page-node-id="EPzRHtbOW3DA0LZzf8f9Ta">已签约（发起方）-新</a>
+                <a class="status-switch-item" href="worker-contract-detail.html?demo=fulfilled" style="text-decoration:none;" data-page-node-id="eYgmJm38rsb6UN2ZjDqThx">已签约（已履约完成）</a>
+            </div>
+        </div>
+
+        <!-- 受邀方视角 -->
+        <div class="status-group" data-page-node-id="2B1ZppFuXFbTl185PDWWgW">
+            <div class="status-group-header" onclick="toggleStatusGroup(this)" data-page-node-id="AaQbZhf7ZngE8Mys49vMUk">
+                <span class="status-group-icon" data-page-node-id="kh6oAsc8QEKujW3c6VInNW">▶</span>
+                <span class="status-group-title" data-page-node-id="LWevrIMJZj2TCtVWLKIO6n">受邀方视角</span>
+                <span class="status-group-count" data-page-node-id="8v8dNtEmHf8TvAAFngFpt3">5</span>
+            </div>
+            <div class="status-group-content" style="display:none;" data-page-node-id="c6FwdLU89tzaNUcu75ozb1">
+                <a class="status-switch-item" href="worker-contract-receive-inviting.html" style="text-decoration:none;" data-page-node-id="QC2fo7Ayg9H7h8MLR1Qcvp">确认中（受邀方）</a>
+                <a class="status-switch-item" href="worker-contract-receive-confirmed-new.html" style="text-decoration:none;" data-page-node-id="N8spIRrXTDBPZCvBxuEkFu">已签约（受邀方）</a>
+                <a class="status-switch-item" href="worker-contract-fulfilled-receiver.html" style="text-decoration:none;" data-page-node-id="fulRecvNav1">已签约（已履约）</a>
+                <a class="status-switch-item" href="worker-contract-detail.html?status=worker_rejected_receiver" style="text-decoration:none;" data-page-node-id="1GlMUGfp1GZDnF0uswGyoW">已拒绝(受邀方)</a>
+                <a class="status-switch-item" href="worker-contract-detail.html?status=worker_lost_receiver" style="text-decoration:none;" data-page-node-id="Q2lVBX9InwwbmDQLq1K2jq">抢单失败(受邀方)</a>
+            </div>
+        </div>
+
+        <!-- 演示数据 -->
+        <div class="status-group" data-page-node-id="O8YwiqB5w0b8GjiD3KraZ1">
+            <div class="status-group-header" onclick="toggleStatusGroup(this)" data-page-node-id="WgtNHCkSK8EuzSwaaXoxoD">
+                <span class="status-group-icon" data-page-node-id="CbxvwvQBBABt0P9bZSJqQ4">▼</span>
+                <span class="status-group-title" data-page-node-id="dH6QLCZ7HZUrbpFMvjDPVC">演示数据</span>
+                <span class="status-group-count" data-page-node-id="ELd3BvSw5YyvA5K9EXIsgN">2</span>
+            </div>
+            <div class="status-group-content" data-page-node-id="byxsRAusF4awIy6QqOuXVh">
+                <a class="status-switch-item" href="wechat-service-notice.html" style="text-decoration:none;" data-page-node-id="GKnXe0H1lYEggSP7o1lw6N">微信服务通知</a>
+                <a class="status-switch-item" href="invite-banner-demo.html" style="text-decoration:none;" data-page-node-id="olesOe6G489WlI3wBA5gPp">应用内顶部通知条（示例）</a>
+            </div>
+        </div>
+
+        <!-- 变更阶段：工人合同无需平台审核，对齐「合同详情（合规版）」变更流程去平台化版本（预览用，不影响其它功能） -->
+        <div class="status-group" data-page-node-id="c1cstatGrpA">
+            <div class="status-group-header" onclick="toggleStatusGroup(this)" data-page-node-id="c1cstatGrpB">
+                <span class="status-group-icon" data-page-node-id="c1cstatGrpC">▶</span>
+                <span class="status-group-title" data-page-node-id="c1cstatGrpD">变更阶段</span>
+                <span class="status-group-count" data-page-node-id="c1cstatGrpE">4</span>
+            </div>
+            <div class="status-group-content" style="display:none;" data-page-node-id="c1cstatGrpF">
+                <a class="status-switch-item" href="worker-contract-detail.html?status=change_confirming_sender" style="text-decoration:none;" data-page-node-id="c1cstatItm1">变更确认中(发起方)</a>
+                <a class="status-switch-item" href="worker-contract-detail.html?status=change_confirming" style="text-decoration:none;" data-page-node-id="c1cstatItm2">待确认变更(受邀方)</a>
+                <a class="status-switch-item" href="worker-contract-detail.html?status=change_rejected&viewer=sender" style="text-decoration:none;" data-page-node-id="c1cstatItm3">变更已驳回(发起方)</a>
+                <a class="status-switch-item" href="worker-contract-detail.html?status=change_rejected&viewer=receiver" style="text-decoration:none;" data-page-node-id="c1cstatItm4">变更已驳回（受邀方）</a>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    function $(id) { return document.getElementById(id); }
+    function showToast(msg) {
+        var t = $('appToast'); if (!t) return;
+        t.textContent = msg; t.classList.add('show');
+        setTimeout(function () { t.classList.remove('show'); }, 2200);
+    }
+    function switchDraftTab(el, key) {
+        ['pane-contract-text', 'pane-stage-task', 'pane-attachment'].forEach(function (pid) {
+            var p = $(pid); if (p) p.classList.remove('active');
+        });
+        var map = { 'contract-text': 'pane-contract-text', 'stage-task': 'pane-stage-task', 'attachment': 'pane-attachment' };
+        var pane = $(map[key]); if (pane) pane.classList.add('active');
+        document.querySelectorAll('.content-tab').forEach(function (t) { t.classList.remove('active'); });
+        if (el) el.classList.add('active');
+    }
+    function renderMoreOps() {
+        var p = $('moreOpsPanel'); if (!p) return;
+        p.innerHTML =
+            '<div class="op-item" onclick="openCopyInitiate(); closeMoreOps()"><span class="op-icon">📑</span><span>复制发起</span><span class="op-extra">快捷发起同类型新合同</span></div>' +
+            '<div class="op-item" onclick="openInfoModal(\'版本记录\', \'V1 初始版本（拟定中） 2024-01-05；V2 提交确认 2024-01-06\')"><span class="op-icon">🕐</span><span>版本记录</span></div>' +
+            '<div class="op-item" onclick="openInfoModal(\'变更记录\', \'暂无变更记录\')"><span class="op-icon">📝</span><span>变更记录</span></div>' +
+            '<div class="op-item" onclick="exportContract(); closeMoreOps()"><span class="op-icon">📄</span><span>导出合同文件</span></div>';
+    }
+    function toggleMoreOps() {
+        var p = $('moreOpsPanel'); if (!p) return;
+        p.classList.toggle('show');
+    }
+    function openInfoModal(title, html) {
+        var m = $('infoModalMask'); if (!m) return;
+        $('infoModalTitle').textContent = title;
+        $('infoModalBody').innerHTML = html;
+        m.classList.add('show');
+    }
+    function closeInfoModal() {
+        var m = $('infoModalMask'); if (m) m.classList.remove('show');
+    }
+    function openConfirm() { var m = $('confirmMask'); if (m) m.classList.add('show'); }
+    function closeConfirm() { var m = $('confirmMask'); if (m) m.classList.remove('show'); }
+    function doWithdraw() {
+        closeConfirm();
+        showToast('已撤回确认，合同退回拟定中');
+        setTimeout(function () { window.location.href = 'worker-contract-detail.html?status=worker_draft'; }, 1200);
+    }
+    function togglePageNav() {
+        var t = $('pageNavToggle'); if (!t) return;
+        var nav = t.closest('.page-nav');
+        if (!nav) return;
+        var hidden = nav.classList.toggle('collapsed');
+        t.textContent = hidden ? '▶' : '▼';
+    }
+    function toggleStatusGroup(header) {
+        var content = header.parentElement.querySelector('.status-group-content');
+        if (!content) return;
+        var collapsed = content.style.display === 'none';
+        content.style.display = collapsed ? 'block' : 'none';
+        var icon = header.querySelector('.status-group-icon');
+        if (icon) icon.textContent = collapsed ? '▼' : '▶';
+    }
+    function closeMoreOps() { var p = $('moreOpsPanel'); if (p) p.classList.remove('show'); }
+    function openCopyInitiate() { window.location.href = 'contract-copy-initiate.html?from=detail'; }
+    function esc(s) { s = String(s == null ? '' : s); return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
+
+    // 阶段 + 任务数据（对齐「拟定中（发起方）-新」水电工种模板，确认中状态为只读查看）
+    var STAGES = [
+        { name: '给水阶段', order: '顺序执行', tasks: [
+            { name: '清理基层', exec: '张水电', conf: '陈庄', execRefs: [{ src: '../shared/images/site-1.png', title: '工艺参考：水电进场清理' }], confirmRefs: [{ src: '../shared/images/site-2.png', title: '确认参考：验收拍照' }], execStd: '作业面清扫干净。\n存证标准：每个空间拍摄不少于1张照片', confStd: '不能见垃圾和杂物，无明显浮灰', liableStd: '未清理或不干净，扣除100元/空间的工费，并立即清扫干净' },
+            { name: '放线', exec: '张水电', conf: '陈庄', execStd: '依据水点位位置，放出管路的路径线。\n存证标准：每个空间拍摄不少于1张照片', confStd: '线路清晰、横平竖直', liableStd: '未放线就开槽布管，扣除100元/空间的工费并重新放线' },
+            { name: '开槽', exec: '张水电', conf: '陈庄', execStd: '严禁不放线的情况下进行开槽 | 开槽要求横平竖直，严禁开斜槽，严禁开长度＞500mm横槽，严禁切断钢筋 | 开槽深度为管径+12mm（不包含混凝土构件）', confStd: '参照工艺执行标准验收', liableStd: '承担因违规开槽所造成的所有责任，包含安全、经济、延期等' },
+            { name: '管路保温', exec: '张水电', conf: '陈庄', execStd: '热供：红色、热回：黄色、自来水：白色、软水：蓝色、净水：绿色、中水：黑色 | 所有管道的裸露位置都应做保温，接头处刷保温胶密实链接，缠绕同色保温扎带 | 管道接头部位裸露，带验收完成后恢复', confStd: '参照工艺执行标准验收', liableStd: '未按标准做保温，更换对应要求的保温颜色，并承担材料费和延期费用' },
+            { name: '布管固定', exec: '张水电', conf: '陈庄', execStd: '平管固定点间距≤600mm，立管固定点间距≤1000mm | 水管末端、转弯处及阀门、水表两侧距离固定点距离≤200mm | 断管时，断面应同管轴线垂直、无毛刺 | 按照固定点的位置用成品涂塑带孔角铁做支撑，选用U型卡固定，安装卡件固定牢固，不能破坏管外壁 | 左热右冷，上热下冷，间距150mm | 埋墙水管不允许有接头，必须整管入墙；地面有防水要求的区域严禁布管布线。\n存证标准：每个空间拍摄不少于1张照片', confStd: '参照工艺执行标准验收', liableStd: '按要求拆除重做或加装固定点，直至符合工艺要求，并承担材料费和延期费用' },
+            { name: '热熔连接', exec: '张水电', conf: '陈庄', execStd: '20管:热熔深度14mm,加热时间5s，连接时间4s，冷却时间2s。 | 25管:热熔深度15mm,加热时间7s，连接时间4s，冷却时间2s | 32管:热熔深度16.5mm,加热时间8s，连接时间6s，冷却时间4s | 40管:热熔深度18mm,加热时间12s，连接时间6s，冷却时间4s | 热熔插管时禁止旋转', confStd: '不渗漏', liableStd: '承担因热熔问题产生的返工费、材料费和延期费用' },
+            { name: '出水口位置调整', exec: '张水电', conf: '陈庄', execStd: '水口外截面低于墙面完成面线100mm | 位置水平方正。\n存证标准：每个水口位置拍摄1张测量照片', confStd: '参照工艺执行标准验收', liableStd: '扣除100元/个的工费 | 整改至工艺要求范围' },
+            { name: '打压', exec: '张水电', conf: '陈庄', execStd: '试验压力不低于0.8Map，时间1小时以上。\n存证标准：拍摄压力表数值照片', confStd: '稳压1小时，30分钟内降压不超过0.05Map为合格', liableStd: '因不合格，承担产生的返工费、材料费和延期费用' }
+        ] },
+        { name: '排水阶段', order: '顺序执行', tasks: [
+            { name: '清理基层', exec: '张水电', conf: '陈庄', execStd: '作业面清扫干净。\n存证标准：每个空间拍摄不少于1张照片', confStd: '不能见垃圾和杂物，无明显浮灰', liableStd: '未清理或不干净，扣除100元/空间的工费，并立即清扫干净' },
+            { name: '放线', exec: '张水电', conf: '陈庄', execStd: '依据排水点位位置，以管径中心点，放出管路的路径线。\n存证标准：每个空间拍摄不少于1张照片', confStd: '线路清晰 | 卫生器具排水口纵横坐标：单独器具≤10mm，成排器具≤5mm | 卫生设备接口标高：单独器具≤10mm，成排器具≤5mm', liableStd: '未放线就开槽布管，扣除100元/空间的工费并重新放线' },
+            { name: '开槽', exec: '张水电', conf: '陈庄', execStd: '严禁不放线的情况下进行开槽 | 开槽要求横平竖直，严禁开斜槽，严禁开长度＞500mm横槽，严禁切断钢筋 | 开槽深度为管径+12mm（不包含混凝土构件）', confStd: '参照工艺执行标准验收', liableStd: '承担因违规开槽所造成的所有责任，包含安全、经济、延期等' },
+            { name: '布管固定', exec: '张水电', conf: '陈庄', execStd: '成品带孔涂塑红色角铁固定 | 立管间距≤1000mm，横管间距≤800mm | 按照固定点的位置用U型卡、吊卡进行安装，安装卡件固定牢固，不能破坏管外壁 | 断管时，断面应同管轴线垂直、无毛刺。\n存证标准：每个空间拍摄不少于1张照片', confStd: '参照工艺执行标准验收', liableStd: '按要求拆除重做或加装固定点，直至符合工艺要求，并承担材料费和延期费用' },
+            { name: '链接', exec: '张水电', conf: '陈庄', execStd: '接口干燥无污染物 | 管件接口内侧，直管外侧刷胶 | 施压使管插入至标记深度，左右旋转90°，使胶均匀，擦掉挤出的胶', confStd: '参照工艺执行标准验收', liableStd: '承担因链接问题产生的返工费、材料费和延期费用' },
+            { name: '测量坡度及通排实验', exec: '张水电', conf: '陈庄', execStd: '横管坡度≥1%；管道施工完毕后进行通水试验，排水口无积水、倒灌现象。\n存证标准：每个空间录制1条通排实验视频', confStd: '参照工艺执行标准验收', liableStd: '按要求整改或拆除重做，并承担材料费和延期费用' },
+            { name: '封堵管道口', exec: '张水电', conf: '陈庄', execStd: '用专用管口封堵或其他材料封堵，保证牢固密实', confStd: '参照工艺执行标准验收', liableStd: '承担因未封堵造成管道堵塞，所产生的所有费用' },
+            { name: '管道隔音', exec: '张水电', conf: '陈庄', execStd: '用黑色保温进行包裹，切口、连接处用保温胶粘接，用保温扎带绑扎牢固。\n存证标准：每个空间拍摄不少于1张照片', confStd: '参照工艺执行标准验收', liableStd: '按要求整改或拆除重做，并承担材料费和延期费用' }
+        ] },
+        { name: '强弱电阶段', order: '顺序执行', tasks: [
+            { name: '清理基层', exec: '张水电', conf: '陈庄', execStd: '作业面清扫干净。\n存证标准：每个空间拍摄不少于1张照片', confStd: '不能见垃圾和杂物，无明显浮灰', liableStd: '未清理或不干净，扣除100元/空间的工费，并立即清扫干净' },
+            { name: '放线', exec: '张水电', conf: '陈庄', execStd: '依据强弱电点位位置，放出管路的路径线。\n存证标准：每个空间拍摄不少于1张照片', confStd: '线路清晰、横平竖直', liableStd: '未放线就开槽布管，扣除100元/空间的工费并重新放线' },
+            { name: '开槽', exec: '张水电', conf: '陈庄', execStd: '严禁不放线的情况下进行开槽 | 开槽要求横平竖直，严禁开斜槽，严禁开长度＞500mm横槽，严禁切断钢筋 | 开槽深度为管径+12mm（不包含混凝土构件） | 顶面混凝土板必须开S型槽', confStd: '参照工艺执行标准验收', liableStd: '承担因违规开槽所造成的所有责任，包含安全、经济、延期等' },
+            { name: '线管线盒安装', exec: '张水电', conf: '陈庄', execStd: '分色：强电红色，弱电蓝色 | 管接头用PVC胶粘接牢固,用吊筋及金属勾卡固定，间距≤1000mm,固定点距管边缘(箱 盒)距离≤200mm,管路弯曲部位两端200mm内需加设固定点；整体横平竖直，大气美观 | 过线盒设置规定（管路弯曲用大弧弯）： | ①无弯曲情况管路长度超过30m必须加设过线盒 | ②有一个弯曲，管路长度超过20m必须加设过线盒 | ③有两个弯曲，管路长度超过15m必须加设过线盒 | ④有3个弯曲，管路长度超过8m必须加设过线盒  | 灯头盒部位使用软管连接，软管长度不小于线盒到吊顶之间的距离，不大于1米。\n存证标准：每个空间拍摄不少于1张照片', confStd: '参照工艺执行标准验收', liableStd: '按要求整改或拆除重做，并承担材料费和延期费用' },
+            { name: '穿线', exec: '张水电', conf: '陈庄', execStd: '强电穿线（4²线不超过3根，2.5²线不超过5根） | 双色为接地线，蓝色为零线，黄、绿、红为项线。 | 接线盒、开关盒、插销盒及灯头盒内导线的预留长度150-200mm | 电箱内导线的预留长度应为配电箱体周长的1/2 | 弱电穿线（不超过2根）', confStd: '参照工艺执行标准验收', liableStd: '按要求整改或拆除重做，并承担材料费和延期费用' },
+            { name: '接线', exec: '张水电', conf: '陈庄', execStd: '单铜芯导线直线连接：用双手同时把两芯线互绞两圈后，将两个线芯在另一个线芯上缠绕5-7圈，剪掉余头。\n存证标准：拍摄3张不同位置的照片', confStd: '参照工艺执行标准验收', liableStd: '按要求整改重做，并承担材料费和延期费用' },
+            { name: '涮锡', exec: '张水电', conf: '陈庄', execStd: '温度控制在250°350°，浸锡时间13秒，锡层覆盖完整光亮均匀无毛刺。\n存证标准：拍摄3张不同位置的照片', confStd: '锡层覆盖完整 | 光亮均匀无毛刺', liableStd: '未涮锡就包裹线头，扣除1000元/次的工费 | 并承担材料费和延期费用' },
+            { name: '线头包裹', exec: '张水电', conf: '陈庄', execStd: '第一层PVC胶带包裹—第二层绝缘胶布包裹 | 每层至少缠绕3层以上，拉伸率为30%~50%，增强密合性', confStd: '拆开验收 | 外观应整齐，相对美观', liableStd: '按要求整改或拆除重做，并承担材料费和延期费用' }
+        ] },
+        { name: '配电箱安装阶段', order: '顺序执行', tasks: [
+            { name: '基础型钢安装', exec: '张水电', conf: '陈庄', execStd: '电箱、柜的基础支架型钢安装允许偏差：垂直度每米误差＜3mm，总体误差＜5mm；水平度每米误差＜3mm，总体误差＜5mm；不平行度整体误差＜5mm； | 基础支架应做防锈处理。\n存证标准：拍摄3张不同位置的照片', confStd: '参照工艺执行标准验收', liableStd: '按要求整改或重做，并承担材料费和延期费用' },
+            { name: '箱体内部检查', exec: '张水电', conf: '陈庄', execStd: '箱内配件规格型号符合设计要求 | 闭锁装置动作准确有效 | 辅助开关与主开关切换动作一致 | 箱内系统图及配件编号清晰明确', confStd: '参照工艺执行标准验收', liableStd: '按要求整改或重做，并承担材料费和延期费用' },
+            { name: '箱体安装', exec: '张水电', conf: '陈庄', execStd: '箱体与基础支架型钢必须用镀锌螺栓连接 | 箱体安装垂直度允许偏差1.5%，相互间接缝＜2mm | 箱体安装高度底边距地1.5m', confStd: '参照工艺执行标准验收', liableStd: '按要求整改或重做，并承担材料费和延期费用' },
+            { name: '箱盘接线', exec: '张水电', conf: '陈庄', execStd: '连接的线束外应有塑料管等加强绝缘保护层 | 连接部位绞合紧密，且有不开口的终端端子或涮锡，不松散断股。\n存证标准：拍摄3张不同位置的照片', confStd: '参照工艺执行标准验收', liableStd: '按要求整改或重做，并承担材料费和延期费用' }
+        ] },
+        { name: '桥架铺设阶段', order: '顺序执行', tasks: [
+            { name: '支架制作及安装', exec: '张水电', conf: '陈庄', execStd: 'φ8mm吊筋及涂塑成品角铁制作支架，切口处做防锈处理；水平安装支架间距≤1.5，垂直安装支架间距不大于1m | 支架与桥架采用不同金属材质时，连接固定时要做防电腐化隔离层措施', confStd: '参照工艺执行标准验收', liableStd: '按要求整改或重做，并承担材料费和延期费用' },
+            { name: '桥架制作与安装', exec: '张水电', conf: '陈庄', execStd: '桥架弯曲半径：敷设有钢凯电缆的桥架，弯曲半径不小于电缆直径20倍；敷设无钢凯电缆的桥架，弯曲半径不小于电缆直径10倍 | 钢制桥架直线段长度超过30米，铝合金或玻璃钢桥架超过15米，应设有伸缩节；桥架跨建筑物伸缩缝、变形缝处设置补偿装置 | 所有桥架连接时使用的螺栓，一律要螺母朝外，防止电缆敷设时划伤 | 桥架安装位于易燃易爆、热力管道下方无设计要求时距离要求如下：平行距离：一般管道0.4m，易燃易爆管道0.5m,无保温热管1m，有保温热管0.5m。\n存证标准：拍摄3张不同位置的照片', confStd: '参照工艺执行标准验收', liableStd: '按要求整改或重做，并承担材料费和延期费用' },
+            { name: '桥架内电缆敷设', exec: '张水电', conf: '陈庄', execStd: '电缆出入各种沟、井、盘、柜时端头必须做密封处理 | 大于45°倾斜敷设的电缆每隔2m应设一个固定点 | 电缆两端应设标识牌', confStd: '参照工艺执行标准验收', liableStd: '按要求整改或重做，并承担材料费和延期费用' }
+        ] },
+        { name: '面板安装阶段', order: '顺序执行', tasks: [
+            { name: '清理', exec: '张水电', conf: '陈庄', execStd: '清理盒内杂物及灰尘，用毛刷、抹布将灰尘擦净。\n存证标准：拍摄3张不同位置的照片', confStd: '不能见垃圾和杂物，无明显浮灰', liableStd: '未清理或不干净，扣除100元/空间的工费并清理干净' },
+            { name: '开关插座接线安装', exec: '张水电', conf: '陈庄', execStd: '将盒内甩出的导线与开关或插座面板连接，将开关或插座推入盒内（如果盒边缘距离饰面完成面≥30mm，应增加套盒），对正盒眼，用机螺丝固定，固定后要面板端正与墙平齐。\n存证标准：每个空间拍摄不少于1张照片', confStd: '面板端正、严密、与墙平齐，多个面板间并排安装高度、间距应相同，误差≤0.5mm | 同一室内的不同位置的开关安装，开关高度误差≤2mm，方向应一致面板垂直偏差≤0.5mm', liableStd: '按要求整改或重做，并承担材料费和延期费用' }
+        ] }
+    ];
+    function renderStages() {
+        var stageHtml = STAGES.map(function (s, i) {
+            var tasks = (s.tasks || []).map(function (t) {
+                return '<div class="task-item" onclick="viewTaskDetail(this)"' +
+                    ' data-task-name="' + esc(t.name) + '"' +
+                    ' data-executor="' + esc(t.exec || '') + '"' +
+                    ' data-confirmers="' + esc(t.conf || '') + '"' +
+                    ' data-exec-standard="' + esc(t.execStd || '') + '"' +
+                    ' data-exec-refs="' + esc(JSON.stringify(t.execRefs || [])) + '"' +
+                    ' data-confirm-standard="' + esc(t.confStd || '') + '"' +
+                    ' data-confirm-refs="' + esc(JSON.stringify(t.confirmRefs || [])) + '"' +
+                    ' data-liable-standard="' + esc(t.liableStd || '') + '">' +
+                    '<div class="task-info"><div class="task-name">' + esc(t.name) + '</div></div></div>';
+            }).join('');
+            return '<div class="stage-item"><div class="stage-header" onclick="toggleStage(this)">' +
+                '<div class="stage-icon">' + (i + 1) + '</div>' +
+                '<div class="stage-info"><div class="stage-name">' + esc(s.name) + '</div>' +
+                '<div class="stage-meta">' + (s.tasks ? s.tasks.length : 0) + '个任务 · 待开始</div>' +
+                '<div class="stage-order-tag" style="background-color:#FFF7E6;color:#FA8C16;">' + esc(s.order || '并行执行') + '</div></div>' +
+                '<div class="arrow expanded">▼</div></div>' +
+                '<div class="stage-tasks show">' + tasks + '</div></div>';
+        }).join('');
+        var html = '<div class="stage-section-title"><span>📊</span><span>阶段任务 (' + STAGES.length + '个阶段)</span></div>' +
+            '<div class="stage-card">' + stageHtml + '</div>';
+        var box = $('stagesSection'); if (box) box.innerHTML = html;
+    }
+    function toggleStage(header) {
+        var tasks = header.parentElement.querySelector('.stage-tasks');
+        var arrow = header.querySelector('.arrow');
+        if (!tasks) return;
+        var collapsed = tasks.style.display === 'none';
+        tasks.style.display = collapsed ? 'block' : 'none';
+        if (arrow) arrow.classList.toggle('expanded', collapsed);
+    }
+    function viewTaskDetail(el) {
+        var item = el.closest('.task-item') || el;
+        var m = $('taskDetailModal'); if (!m) return;
+        $('detailTaskName').textContent = item.getAttribute('data-task-name') || '—';
+        $('detailExecutor').textContent = item.getAttribute('data-executor') || '暂未设置';
+        $('detailConfirmers').textContent = item.getAttribute('data-confirmers') || '暂未设置';
+        // 标准文本换行渲染：\n 转 <br/>（执行标准含「工艺执行标准 / 存证标准」两段）
+        function fmtStd(v) {
+            return esc(v == null ? '' : v).replace(/\n/g, '<br/>');
+        }
+        $('detailExecStandard').innerHTML = fmtStd(item.getAttribute('data-exec-standard') || '—');
+        $('detailConfirmStandard').innerHTML = fmtStd(item.getAttribute('data-confirm-standard') || '—');
+        $('detailLiableStandard').innerHTML = fmtStd(item.getAttribute('data-liable-standard') || '—');
+        // 工艺参考示例：只读展示（共享模块 CraftRef，可点击放大）
+        CraftRef.renderDisplay('detailExecCraftRef', item.getAttribute('data-exec-refs'));
+        CraftRef.renderDisplay('detailConfirmCraftRef', item.getAttribute('data-confirm-refs'));
+        m.classList.add('show');
+    }
+    function closeTaskDetailModal() { var m = $('taskDetailModal'); if (m) m.classList.remove('show'); }
+
+    // 导出合同文件（参考「确认中（发起方）」原页）
+    function exportContract() { showExportModal(); }
+    function showExportModal() { var m = $('exportModal'); if (m) m.classList.add('show'); }
+    function closeExportModal() { var m = $('exportModal'); if (m) m.classList.remove('show'); }
+    function exportToPDF() {
+        closeExportModal(); showToast('正在生成PDF文件...');
+        setTimeout(function () { showToast('PDF文件已保存到手机本地\n\n文件包含：合同基本信息、签约双方信息、合同正文、附件'); }, 1500);
+    }
+    function shareToWechat() {
+        closeExportModal(); showToast('正在生成PDF文件...');
+        setTimeout(function () { showToast('PDF文件已生成，正在打开微信分享...\n\n文件包含：合同基本信息、签约双方信息、合同正文、附件'); }, 1500);
+    }
+
+    /* ===================== 从「拟定中（发起方）」带入的意向乙方（提交后按所选人数与状态展示） ===================== */
+    function getQueryParam(name) {
+        var m = new RegExp('[?&]' + name + '=([^&]*)').exec(window.location.search);
+        return m ? decodeURIComponent(m[1]) : null;
+    }
+    function renderInvitedFromQuery() {
+        var raw = getQueryParam('invites');
+        var box = $('inviteChips');
+        if (!box || !raw) return; // 无参数则保留默认演示 chip
+        var list;
+        try { list = JSON.parse(raw); } catch (e) { return; }
+        if (!Array.isArray(list) || !list.length) return;
+        box.innerHTML = '';
+        list.forEach(function (m) {
+            var initial = (m.name || '?').charAt(0);
+            var chip = document.createElement('span');
+            chip.className = 'invite-chip';
+            chip.innerHTML =
+                '<span class="member-avatar" style="background:#1677ff;">' + esc(initial) + '</span>' +
+                '<span class="chip-text">' + esc(m.name) + '（' + esc(m.role) + '）</span>' +
+                '<span class="chip-status pending">待确认</span>';
+            box.appendChild(chip);
+        });
+        var title = $('inviteRoleTitle');
+        if (title) title.textContent = '意向乙方（已邀请 ' + list.length + ' 人，待确认）';
+    }
+
+    renderMoreOps();
+    renderStages();
+    renderInvitedFromQuery();
+    /* 工艺参考示例：复用本页 toast（共享模块 js/craft-ref.js，不注入时模块用自身兜底 toast） */
+    if (window.CraftRef) { CraftRef.setToastHandler(function (msg) { showToast(msg); }); }
+</script>
+<script src="../shared/doc-viewer/doc-viewer.js"></script>
+</body>
+</html>

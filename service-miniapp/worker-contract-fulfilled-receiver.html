@@ -1,0 +1,672 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>家装平台小程序原型 - 工人合同详情（已签约（已履约））</title>
+    <link rel="stylesheet" href="common.css">
+    <link rel="stylesheet" href="css/contract-detail.css">
+    <script src="js/craft-ref.js"></script>
+    <style>
+        /* ===== 已签约（已履约）受邀方：合同全部任务已执行完成 ===== */
+        * { box-sizing: border-box; }
+
+        /* 手机端小程序：隐藏所有滚动条（项目全局约定） */
+        ::-webkit-scrollbar { display: none; }
+        * { scrollbar-width: none; -ms-overflow-style: none; }
+
+        body {
+            margin: 0; background: #e9ebee; min-height: 100vh;
+            font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
+            display: flex; align-items: flex-start; justify-content: center; padding: 24px;
+        }
+
+        /* 手机框 */
+        .phone-frame {
+            width: 375px; height: 812px; background: #f2f3f5;
+            border-radius: 40px; overflow: hidden; position: relative; flex-shrink: 0;
+            box-shadow: 0 12px 40px rgba(0,0,0,.25); display: flex; flex-direction: column;
+        }
+        .status-bar {
+            height: 44px; background: #fff; display: flex; align-items: center;
+            justify-content: space-between; padding: 0 22px; font-size: 14px;
+            font-weight: 600; color: #000; flex-shrink: 0;
+        }
+        .nav-bar {
+            height: 48px; background: #fff; display: flex; align-items: center;
+            position: relative; border-bottom: 1px solid #ececec; flex-shrink: 0;
+        }
+        .nav-bar .nb-back {
+            position: absolute; left: 14px; font-size: 26px; line-height: 1;
+            color: #1a1a1a; text-decoration: none; width: 28px;
+        }
+        .nav-bar .title { flex: 1; text-align: center; font-size: 17px; font-weight: 600; color: #1a1a1a; }
+
+        .receive-scroll { flex: 1; overflow-y: auto; padding: 12px; }
+
+        /* 主接单卡（hero） */
+        .hero-card {
+            background: #fff; border-radius: 16px; padding: 14px 16px;
+            box-shadow: 0 2px 12px rgba(0,0,0,.06); position: relative; overflow: hidden;
+        }
+        .hero-card::before {
+            content: ""; position: absolute; left: 0; top: 0; right: 0; height: 4px;
+            background: linear-gradient(135deg, #52c41a 0%, #73d13d 100%);
+        }
+        .hero-inviter { display: flex; align-items: center; gap: 10px; }
+        .hero-avatar {
+            width: 40px; height: 40px; border-radius: 50%; background: #1677ff; color: #fff;
+            display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: 600; flex: 0 0 auto;
+        }
+        .hero-inviter-text { font-size: 13px; color: #666; }
+        .hero-inviter-text b { color: #222; }
+        .hero-trade { font-size: 20px; font-weight: 700; color: #1a1a1a; margin: 10px 0 3px; }
+        .hero-amount {
+            font-size: 34px; font-weight: 800; color: #fa541c; line-height: 1.1; margin: 4px 0 2px;
+        }
+        .hero-amount small { font-size: 16px; font-weight: 600; }
+        .hero-amount-label { font-size: 12px; color: #999; margin-bottom: 7px; }
+        .hero-meta-row { display: flex; gap: 18px; flex-wrap: wrap; margin: 7px 0; }
+        .hero-meta { font-size: 13px; color: #555; }
+        .hero-meta b { color: #222; display: block; font-size: 12px; color: #999; font-weight: 400; margin-bottom: 2px; }
+        .hero-confirmed-badge {
+            display: inline-block; margin-top: 8px; background: #f6ffed; border: 1px solid #b7eb8f;
+            color: #52c41a; font-size: 12px; padding: 6px 10px; border-radius: 8px;
+        }
+
+        .hero-status-badge {
+            position: absolute; top: 12px; right: 14px; z-index: 2;
+            display: inline-flex; align-items: center; gap: 4px;
+            font-size: 12px; font-weight: 600; padding: 4px 10px; border-radius: 999px;
+        }
+        .hero-status-badge.doing { background: #e6f4ff; border: 1px solid #91caff; color: #1677ff; }
+        .hero-status-badge.done { background: #f6ffed; border: 1px solid #b7eb8f; color: #52c41a; }
+        .task-done-tag {
+            margin-left: auto; display: inline-flex; align-items: center; gap: 3px; flex: 0 0 auto;
+            font-size: 11px; font-weight: 600; color: #52c41a;
+            background: #f6ffed; border: 1px solid #b7eb8f; border-radius: 8px; padding: 2px 7px;
+        }
+        /* 下一步任务流（已确认态） */
+        .next-flow { margin-top: 10px; border-top: 1px dashed #eee; padding-top: 8px; }
+        .next-flow-title { font-size: 13px; font-weight: 600; color: #333; margin-bottom: 6px; }
+        .next-step { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 7px; }
+        .next-dot {
+            width: 18px; height: 18px; border-radius: 50%; flex: 0 0 auto; margin-top: 1px;
+            background: #52c41a; color: #fff; font-size: 11px; display: flex; align-items: center; justify-content: center;
+        }
+        .next-dot.pending { background: #fff; border: 1px solid #d9d9d9; color: #bbb; }
+        .next-step-text { font-size: 13px; color: #333; }
+        .next-step-text span { display: block; font-size: 11px; color: #999; margin-top: 1px; }
+
+        /* 卡片流 */
+        .flow-card {
+            background: #fff; border-radius: 14px; padding: 11px 16px; margin-top: 8px;
+            box-shadow: 0 1px 6px rgba(0,0,0,.04);
+        }
+        .flow-title { font-size: 15px; font-weight: 600; color: #222; margin-bottom: 7px; display: flex; align-items: center; gap: 6px; }
+        .flow-title .badge { font-size: 11px; font-weight: 400; color: #999; }
+        .fold-arrow { font-size: 12px; color: #999; margin-left: auto; }
+        .flow-line { font-size: 13px; color: #555; line-height: 1.55; }
+        .flow-line b { color: #222; }
+        .call-link {
+            color: var(--primary-color, #1677ff); text-decoration: none; font-weight: 600;
+            display: inline-flex; align-items: center; gap: 4px;
+            padding: 3px 10px; border: 1px solid #91caff; border-radius: 14px; font-size: 12px;
+            background: #f0f7ff;
+        }
+        .call-link:active { background: #e6f4ff; }
+
+        /* 可编辑字段（工期输入框 / 违约责任文本域） */
+        .field-label { font-size: 13px; font-weight: 600; color: #333; margin-bottom: 6px; }
+        .field-row { display: flex; align-items: center; gap: 8px; }
+        .field-input {
+            flex: 1; height: 40px; border: 1px solid #d9d9d9; border-radius: 8px;
+            padding: 0 12px; font-size: 14px; color: #333; background: #fff; min-width: 0;
+        }
+        .field-input:focus { border-color: #1677ff; outline: none; box-shadow: 0 0 0 2px rgba(22,119,255,.12); }
+        .field-unit { font-size: 13px; color: #666; flex: 0 0 auto; }
+        .field-textarea {
+            width: 100%; min-height: 108px; border: 1px solid #d9d9d9; border-radius: 8px;
+            padding: 10px 12px; font-size: 13px; color: #333; line-height: 1.8; resize: vertical;
+            background: #fff; font-family: inherit;
+        }
+        .field-textarea:focus { border-color: #1677ff; outline: none; box-shadow: 0 0 0 2px rgba(22,119,255,.12); }
+        .field-hint { font-size: 11px; color: #999; margin-top: 6px; line-height: 1.5; }
+
+        /* 合同全部正文：链接式 + 只读「已阅读并同意」标记（紧凑） */
+        .full-text-link-row { display: flex; align-items: center; justify-content: space-between; }
+        .full-text-link {
+            display: inline-flex; align-items: center; gap: 4px;
+            font-size: 12px; font-weight: 600; color: var(--primary-color, #1677ff); text-decoration: none;
+            padding: 4px 9px; border: 1px solid #91caff; border-radius: 8px; background: #f0f7ff;
+        }
+        .full-text-link:active { background: #e6f4ff; }
+        .agreed-badge {
+            display: inline-flex; align-items: center; gap: 3px;
+            font-size: 11px; font-weight: 600; color: #52c41a;
+            padding: 3px 7px; border: 1px solid #b7eb8f; border-radius: 8px; background: #f6ffed;
+            flex: 0 0 auto;
+        }
+        .clause-agree {
+            display: flex; align-items: center; justify-content: space-between; gap: 10px;
+            padding: 8px 12px; background: #f7f9ff;
+            border: 1px solid #e6edff; border-radius: 10px;
+        }
+        .clause-agree.error { border-color: #ff4d4f; background: #fff2f0; }
+        .agree-check { display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 12px; color: #444; line-height: 1.4; }
+        .agree-check input { position: absolute; opacity: 0; width: 0; height: 0; }
+        .agree-check .agree-dot {
+            width: 18px; height: 18px; border-radius: 50%; border: 1.5px solid #c9c9c9;
+            flex: 0 0 auto; position: relative; transition: all .15s;
+        }
+        .agree-check input:checked + .agree-dot { border-color: #1677ff; background: #1677ff; }
+        .agree-check input:checked + .agree-dot::after {
+            content: ""; position: absolute; left: 5px; top: 2px; width: 5px; height: 9px;
+            border: solid #fff; border-width: 0 2px 2px 0; transform: rotate(45deg);
+        }
+
+        /* 附件 */
+        .mini-att { display: flex; align-items: center; gap: 10px; padding: 7px 0; border-bottom: 1px solid #f5f5f5; }
+        .mini-att:last-child { border-bottom: none; }
+        .mini-att-icon { font-size: 20px; }
+        .mini-att-name { font-size: 13px; color: #333; flex: 1; }
+        .mini-att-meta { font-size: 11px; color: #999; }
+
+        /* toast（定位在手机框内） */
+        .app-toast {
+            position: absolute; left: 50%; top: 50%; transform: translate(-50%,-50%);
+            background: rgba(0,0,0,.8); color: #fff; font-size: 13px; padding: 10px 16px;
+            border-radius: 8px; z-index: 100; opacity: 0; pointer-events: none; transition: opacity .2s; white-space: pre-line; text-align: center;
+        }
+        .app-toast.show { opacity: 1; }
+
+        /* ===== 合同操作 更多（已签约-受邀方 / 已履约） ===== */
+        .contract-ops-bar { display:flex; align-items:center; justify-content:space-between; padding:10px 12px 2px; }
+        .contract-ops-bar .ops-label { font-size:12px; color:#999; }
+        .contract-ops-bar .ops-more { display:inline-flex; align-items:center; gap:4px; font-size:13px; color:#1677ff; padding:4px 8px; border-radius:6px; cursor:pointer; }
+        .contract-ops-bar .ops-more:active { background:#f0f7ff; }
+        .contract-ops-bar .ops-more .caret { font-size:10px; transition:transform .2s; }
+        .contract-ops-bar .ops-more.open .caret { transform:rotate(180deg); }
+        .ops-panel { display:none; margin:4px 12px 0; background:#fff; border:1px solid #e5e6eb; border-radius:10px; overflow:hidden; }
+        .ops-panel.show { display:block; }
+        .ops-panel .op-item { display:flex; align-items:center; gap:10px; padding:11px 14px; font-size:14px; color:#1d2129; border-bottom:1px solid #f2f3f5; cursor:pointer; }
+        .ops-panel .op-item:last-child { border-bottom:none; }
+        .ops-panel .op-icon { font-size:15px; }
+        .ops-rec-row { padding:11px 14px; border-bottom:1px solid #f2f3f5; font-size:13px; color:#444; line-height:1.6; }
+        .ops-rec-row:last-child { border-bottom:none; }
+        .ops-rec-tag { display:inline-block; font-size:11px; color:#1677ff; background:#e6f4ff; border-radius:4px; padding:1px 6px; margin-right:6px; }
+        .ops-rec-time { display:block; font-size:11px; color:#999; margin-top:3px; }
+        .ops-export-row { display:flex; align-items:center; gap:10px; padding:12px; border:1px solid #eef0f3; border-radius:10px; margin:12px 14px; cursor:pointer; }
+        .ops-export-row:active { background:#f7faff; }
+        .ops-export-row .e-icon { font-size:20px; }
+        .ops-export-row .e-title { font-size:14px; color:#222; font-weight:600; }
+        .ops-export-row .e-desc { font-size:11px; color:#999; margin-top:2px; }
+    </style>
+</head>
+<body>
+<div class="phone-frame">
+    <div class="status-bar">
+        <div class="time">9:41</div>
+        <div class="icons">📶 🔋</div>
+    </div>
+    <div class="nav-bar">
+        <a class="nb-back" href="worker-contract-detail.html">&lsaquo;</a>
+        <div class="title">工人合同详情</div>
+    </div>
+
+    <!-- 合同操作 更多 -->
+    <div class="contract-ops-bar">
+        <span class="ops-label">合同操作</span>
+        <span class="ops-more" id="opsMoreBtn" onclick="toggleOpsPanel()">更多<span class="caret">▾</span></span>
+    </div>
+    <div class="ops-panel" id="opsPanel">
+        <div class="op-item" onclick="openInfoModal('版本记录')"><span class="op-icon">📋</span><span>版本记录</span></div>
+        <div class="op-item" onclick="openInfoModal('变更记录')"><span class="op-icon">📜</span><span>变更记录</span></div>
+        <div class="op-item" onclick="showExportModal()"><span class="op-icon">📄</span><span>导出合同文本</span></div>
+    </div>
+
+    <div class="receive-scroll">
+        <!-- 主接单卡（hero）：已确认 -->
+        <div id="hero"></div>
+
+        <!-- 合作方 -->
+        <div class="flow-card">
+            <div class="flow-title">🤝 合作方 <span class="badge">甲方（工长）· 乙方（您）</span></div>
+            <div class="flow-line">甲方（雇主）：<a href="tel:13888888888" class="call-link">📞 陈庄（工长）拨打电话</a></div>
+            <div class="flow-line">乙方（您）：<b>张水电</b></div>
+        </div>
+
+        <!-- 工期（只读） -->
+        <div class="flow-card">
+            <div class="flow-line">📅 工期：<b>30 天</b></div>
+        </div>
+
+        <!-- 违约责任（只读） -->
+        <div class="flow-card">
+            <div class="flow-title">⚠️ 违约责任</div>
+            <div class="flow-line">1. 甲方逾期付款的，按逾期金额千分之三/日支付违约金。</div>
+            <div class="flow-line">2. 乙方工期延误或质量不符的，应无偿返工并承担违约责任。</div>
+        </div>
+
+        <!-- 合同全部正文：链接式 + 只读「已阅读并同意」标记 -->
+        <div class="flow-card">
+            <div class="full-text-link-row">
+                <a class="full-text-link" href="worker-contract-receive-clauses-new.html">📄 查看《合同全部正文》 ›</a>
+                <span class="agreed-badge">✓ 已阅读并同意</span>
+            </div>
+        </div>
+
+        <!-- 承接任务（阶段任务，整体收纳展开） -->
+        <div class="flow-card">
+            <div class="flow-title" onclick="toggleStageWrap()" style="cursor:pointer;">
+                🔧 承接任务 <span class="badge" id="stageCount">4 个阶段</span>
+                <span class="fold-arrow" id="stageFoldArrow">▶</span>
+            </div>
+            <div id="stageWrap" style="display:none;"></div>
+        </div>
+
+        <!-- 附件 -->
+        <div class="flow-card">
+            <div class="flow-title">📎 合同附件 <span class="badge">4 项</span></div>
+            <div class="mini-att"><div class="mini-att-icon">📄</div><div class="mini-att-name">水电班组服务合同.pdf</div><div class="mini-att-meta">2.3MB</div></div>
+            <div class="mini-att"><div class="mini-att-icon">🖼️</div><div class="mini-att-name">量房照片.jpg</div><div class="mini-att-meta">1.5MB</div></div>
+            <div class="mini-att"><div class="mini-att-icon">📊</div><div class="mini-att-name">材料清单.xlsx</div><div class="mini-att-meta">156KB</div></div>
+            <div class="mini-att"><div class="mini-att-icon">📐</div><div class="mini-att-name">施工图纸.dwg</div><div class="mini-att-meta">5.8MB</div></div>
+        </div>
+    </div>
+
+    <!-- 任务详情（只读）弹窗：位于 phone-frame 内 -->
+    <div class="task-detail-modal" id="taskDetailModal">
+        <div class="modal-content">
+            <div class="modal-header"><div class="modal-title">任务详情</div><div class="modal-close" onclick="closeTaskDetailModal()">✕</div></div>
+            <div class="modal-body">
+                <div class="detail-section"><div class="detail-label">任务名称</div><div class="detail-value" id="detailTaskName">—</div></div>
+                <div class="detail-section"><div class="detail-label">执行人</div><div class="detail-value" id="detailExecutor">—</div></div>
+                <div class="detail-section"><div class="detail-label">确认人</div><div class="detail-value" id="detailConfirmers">—</div></div>
+                <div class="detail-section"><div class="detail-label">执行标准</div><div class="detail-value" id="detailExecStandard">—</div></div>
+                <div class="detail-section"><div class="detail-label">工艺参考示例（执行标准）</div><div class="detail-value craft-ref-display" id="detailExecCraftRef"></div></div>
+                <div class="detail-section"><div class="detail-label">确认标准</div><div class="detail-value" id="detailConfirmStandard">—</div></div>
+                <div class="detail-section"><div class="detail-label">工艺参考示例（确认标准）</div><div class="detail-value craft-ref-display" id="detailConfirmCraftRef"></div></div>
+                <div class="detail-section"><div class="detail-label">担责标准</div><div class="detail-value" id="detailLiableStandard">—</div></div>
+            </div>
+            <div class="modal-footer"><button class="submit-btn" onclick="closeTaskDetailModal()">关闭</button></div>
+        </div>
+    </div>
+
+    <!-- 合同操作 · 版本/变更记录 弹窗 -->
+    <div class="task-detail-modal" id="opsInfoModal">
+        <div class="modal-content">
+            <div class="modal-header"><div class="modal-title" id="opsInfoTitle">版本记录</div><div class="modal-close" onclick="closeInfoModal()">✕</div></div>
+            <div class="modal-body" id="opsInfoBody"></div>
+            <div class="modal-footer"><button class="submit-btn" onclick="closeInfoModal()">关闭</button></div>
+        </div>
+    </div>
+
+    <!-- 合同操作 · 导出合同文本 弹窗 -->
+    <div class="task-detail-modal" id="opsExportModal">
+        <div class="modal-content">
+            <div class="modal-header"><div class="modal-title">导出合同文本</div><div class="modal-close" onclick="closeExportModal()">✕</div></div>
+            <div class="modal-body">
+                <div class="ops-export-row" onclick="exportToPDF()">
+                    <div class="e-icon">📄</div>
+                    <div><div class="e-title">导出为 PDF</div><div class="e-desc">生成完整合同 PDF 保存至手机</div></div>
+                </div>
+                <div class="ops-export-row" onclick="shareToWechat()">
+                    <div class="e-icon">💬</div>
+                    <div><div class="e-title">分享到微信</div><div class="e-desc">生成 PDF 并通过微信发送给对方</div></div>
+                </div>
+            </div>
+            <div class="modal-footer"><button class="submit-btn" onclick="closeExportModal()">取消</button></div>
+        </div>
+    </div>
+
+    
+        <!-- 工艺参考示例·放大查看器（共享模块 js/craft-ref.js 驱动） -->
+        <div class="craft-ref-viewer" id="craftRefViewer" onclick="CraftRef.closeViewer()">
+            <div class="craft-ref-viewer-img"></div>
+            <div class="craft-ref-viewer-title"></div>
+            <div class="craft-ref-viewer-close" onclick="CraftRef.closeViewer()">✕ 关闭</div>
+        </div>
+<div class="app-toast" id="appToast"></div>
+</div>
+
+    <div class="page-nav" data-page-node-id="rcNvRoot">
+        <div class="page-nav-title" onclick="WCP.togglePageNav()" title="收起 / 展开 原型导航" data-page-node-id="rcNvTitle">
+            原型导航 <span class="toggle-btn" id="pageNavToggle" data-page-node-id="rcNvToggle">▼</span>
+        </div>
+        <a href="home.html" class="page-nav-item" data-page-node-id="rcNvHome">首页</a>
+        <a href="project-list.html" class="page-nav-item" data-page-node-id="rcNvProj1">项目主页（进行中）</a>
+        <a href="project-list.html" class="page-nav-item" data-page-node-id="rcNvProj2">项目主页（进行中）</a>
+        <a href="contract-detail.html" class="page-nav-item" data-page-node-id="rcNvComp">合同详情（非工人）</a>
+        <a href="message.html" class="page-nav-item" data-page-node-id="rcNvMsg">消息</a>
+        <a href="worker-contract-detail.html" class="page-nav-item active" data-page-node-id="rcNvWorker">工人合同详情（新流程）</a>
+        <div style="margin-top: 16px; padding-top: 12px; border-top: 1px solid #E8E8E8;" data-page-node-id="rcNvDiv">
+            <div class="page-nav-title" data-page-node-id="rcNvStateTitle">合同状态切换（工人合同）</div>
+
+            <!-- 发起方视角 -->
+            <div class="status-group" data-page-node-id="rcNvInitGrp">
+                <div class="status-group-header" onclick="WCP.toggleStatusGroup(this)" data-page-node-id="rcNvInitHdr">
+                    <span class="status-group-icon" data-page-node-id="rcNvInitIco">▼</span>
+                    <span class="status-group-title" data-page-node-id="rcNvInitTtl">发起方视角</span>
+                    <span class="status-group-count" data-page-node-id="rcNvInitCnt">5</span>
+                </div>
+                <div class="status-group-content" data-page-node-id="rcNvInitCtn">
+                    <a class="status-switch-item" href="worker-contract-draft-initial-new.html" style="text-decoration:none;" data-page-node-id="rcNvI1">拟定中(发起方)-新</a>
+                    <a class="status-switch-item" href="worker-contract-confirming-initiator-new.html" style="text-decoration:none;" data-page-node-id="rcNvI2">确认中(发起方)</a>
+                    <a class="status-switch-item" href="worker-contract-detail.html?status=worker_draft" style="text-decoration:none;" data-page-node-id="rcNvI3">拟定中(撤回后)</a>
+                    <a class="status-switch-item" href="worker-contract-signed-initiator-new.html" style="text-decoration:none;" data-page-node-id="rcNvI4">已签约（发起方）-新</a>
+                    <a class="status-switch-item" href="worker-contract-detail.html?demo=fulfilled" style="text-decoration:none;" data-page-node-id="rcNvI5">已签约（已履约完成）</a>
+                </div>
+            </div>
+
+            <!-- 受邀方视角 -->
+            <div class="status-group" data-page-node-id="rcNvRecvGrp">
+                <div class="status-group-header" onclick="WCP.toggleStatusGroup(this)" data-page-node-id="rcNvRecvHdr">
+                    <span class="status-group-icon" data-page-node-id="rcNvRecvIco">▼</span>
+                    <span class="status-group-title" data-page-node-id="rcNvRecvTtl">受邀方视角</span>
+                    <span class="status-group-count" data-page-node-id="rcNvRecvCnt">5</span>
+                </div>
+                <div class="status-group-content" data-page-node-id="rcNvRecvCtn">
+                    <a class="status-switch-item" href="worker-contract-receive-inviting.html" style="text-decoration:none;" data-page-node-id="rcNvR4">确认中（受邀方）</a>
+                    <a class="status-switch-item" href="worker-contract-receive-confirmed-new.html" style="text-decoration:none;" data-page-node-id="rcNvR1">已签约（受邀方）</a>
+                    <a class="status-switch-item active" href="worker-contract-fulfilled-receiver.html" style="text-decoration:none;" data-page-node-id="fulRecvNav4">已签约（已履约）</a>
+                    <a class="status-switch-item" href="worker-contract-detail.html?status=worker_rejected_receiver" style="text-decoration:none;" data-page-node-id="rcNvR3">已拒绝(受邀方)</a>
+                    <a class="status-switch-item" href="worker-contract-detail.html?status=worker_lost_receiver" style="text-decoration:none;" data-page-node-id="rcNvR2">抢单失败(受邀方)</a>
+                </div>
+            </div>
+
+            <!-- 演示数据 -->
+            <div class="status-group" data-page-node-id="rcNvDemoGrp">
+                <div class="status-group-header" onclick="WCP.toggleStatusGroup(this)" data-page-node-id="rcNvDemoHdr">
+                    <span class="status-group-icon" data-page-node-id="rcNvDemoIco">▼</span>
+                    <span class="status-group-title" data-page-node-id="rcNvDemoTtl">演示数据</span>
+                    <span class="status-group-count" data-page-node-id="rcNvDemoCnt">2</span>
+                </div>
+                <div class="status-group-content" data-page-node-id="rcNvDemoCtn">
+                    <a class="status-switch-item" href="wechat-service-notice.html" style="text-decoration:none;" data-page-node-id="rcNvD1">微信服务通知</a>
+                    <a class="status-switch-item" href="invite-banner-demo.html" style="text-decoration:none;" data-page-node-id="rcNvD2">应用内顶部通知条（示例）</a>
+                </div>
+            </div>
+
+            <!-- 变更阶段：工人合同无需平台审核，对齐「合同详情（合规版）」变更流程去平台化版本（预览用，不影响其它功能） -->
+            <div class="status-group" data-page-node-id="rcNvChgGrp">
+                <div class="status-group-header" onclick="WCP.toggleStatusGroup(this)" data-page-node-id="rcNvChgHdr">
+                    <span class="status-group-icon" data-page-node-id="rcNvChgIco">▶</span>
+                    <span class="status-group-title" data-page-node-id="rcNvChgTtl">变更阶段</span>
+                    <span class="status-group-count" data-page-node-id="rcNvChgCnt">4</span>
+                </div>
+                <div class="status-group-content" style="display:none;" data-page-node-id="rcNvChgCtn">
+                    <a class="status-switch-item" href="worker-contract-detail.html?status=change_confirming_sender" style="text-decoration:none;" data-page-node-id="rcNvC1">变更确认中(发起方)</a>
+                    <a class="status-switch-item" href="worker-contract-detail.html?status=change_confirming" style="text-decoration:none;" data-page-node-id="rcNvC2">待确认变更(受邀方)</a>
+                    <a class="status-switch-item" href="worker-contract-detail.html?status=change_rejected&viewer=sender" style="text-decoration:none;" data-page-node-id="rcNvC3">变更已驳回(发起方)</a>
+                    <a class="status-switch-item" href="worker-contract-detail.html?status=change_rejected&viewer=receiver" style="text-decoration:none;" data-page-node-id="rcNvC4">变更已驳回（受邀方）</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+<script>
+    window.WCP = window.WCP || {};
+    WCP.togglePageNav = function () {
+        var nav = document.querySelector('.page-nav');
+        var btn = document.getElementById('pageNavToggle');
+        if (!nav) return;
+        var collapsed = nav.classList.toggle('collapsed');
+        if (btn) btn.classList.toggle('collapsed', collapsed);
+    };
+    WCP.toggleStatusGroup = function (header) {
+        var content = header.parentElement.querySelector('.status-group-content');
+        var icon = header.querySelector('.status-group-icon');
+        if (!content || !icon) return;
+        var hidden = content.style.display === 'none';
+        content.style.display = hidden ? 'block' : 'none';
+        icon.textContent = hidden ? '▼' : '▶';
+    };
+</script>
+
+<script>
+    var appState = 'confirmed';
+
+    function $(id) { return document.getElementById(id); }
+    function showToast(msg) {
+        var t = $('appToast'); if (!t) return;
+        t.textContent = msg; t.classList.add('show');
+        setTimeout(function () { t.classList.remove('show'); }, 2200);
+    }
+
+    // 阶段任务（与 worker-contract-receive-confirmed.html 保持一致）
+    var DEMO_STAGES = [
+        { name: '给水阶段', order: '顺序执行', tasks: [
+            { name: '清理基层', exec: '张水电', conf: '陈庄', execRefs: [{ src: '../shared/images/site-1.png', title: '工艺参考：水电进场清理' }], confirmRefs: [{ src: '../shared/images/site-2.png', title: '确认参考：验收拍照' }], execStd: '作业面清扫干净。\n存证标准：每个空间拍摄不少于1张照片', confStd: '不能见垃圾和杂物，无明显浮灰', liableStd: '未清理或不干净，扣除100元/空间的工费，并立即清扫干净' },
+            { name: '✅放线', exec: '张水电', conf: '陈庄', execStd: '依据水点位位置，放出管路的路径线。\n存证标准：每个空间拍摄不少于1张照片', confStd: '线路清晰、横平竖直', liableStd: '未放线就开槽布管，扣除100元/空间的工费并重新放线' },
+            { name: '开槽', exec: '张水电', conf: '陈庄', execStd: '严禁不放线的情况下进行开槽 | 开槽要求横平竖直，严禁开斜槽，严禁开长度＞500mm横槽，严禁切断钢筋 | 开槽深度为管径+12mm（不包含混凝土构件）', confStd: '参照工艺执行标准验收', liableStd: '承担因违规开槽所造成的所有责任，包含安全、经济、延期等' },
+            { name: '管路保温', exec: '张水电', conf: '陈庄', execStd: '热供：红色、热回：黄色、自来水：白色、软水：蓝色、净水：绿色、中水：黑色 | 所有管道的裸露位置都应做保温，接头处刷保温胶密实链接，缠绕同色保温扎带 | 管道接头部位裸露，带验收完成后恢复', confStd: '参照工艺执行标准验收', liableStd: '未按标准做保温，更换对应要求的保温颜色，并承担材料费和延期费用' },
+            { name: '✅布管固定', exec: '张水电', conf: '陈庄', execStd: '平管固定点间距≤600mm，立管固定点间距≤1000mm | 水管末端、转弯处及阀门、水表两侧距离固定点距离≤200mm | 断管时，断面应同管轴线垂直、无毛刺 | 按照固定点的位置用成品涂塑带孔角铁做支撑，选用U型卡固定，安装卡件固定牢固，不能破坏管外壁 | 左热右冷，上热下冷，间距150mm | 埋墙水管不允许有接头，必须整管入墙；地面有防水要求的区域严禁布管布线。\n存证标准：每个空间拍摄不少于1张照片', confStd: '参照工艺执行标准验收', liableStd: '按要求拆除重做或加装固定点，直至符合工艺要求，并承担材料费和延期费用' },
+            { name: '热熔连接', exec: '张水电', conf: '陈庄', execStd: '20管:热熔深度14mm,加热时间5s，连接时间4s，冷却时间2s。 | 25管:热熔深度15mm,加热时间7s，连接时间4s，冷却时间2s | 32管:热熔深度16.5mm,加热时间8s，连接时间6s，冷却时间4s | 40管:热熔深度18mm,加热时间12s，连接时间6s，冷却时间4s | 热熔插管时禁止旋转', confStd: '不渗漏', liableStd: '承担因热熔问题产生的返工费、材料费和延期费用' },
+            { name: '✅出水口位置调整', exec: '张水电', conf: '陈庄', execStd: '水口外截面低于墙面完成面线100mm | 位置水平方正。\n存证标准：每个水口位置拍摄1张测量照片', confStd: '参照工艺执行标准验收', liableStd: '扣除100元/个的工费 | 整改至工艺要求范围' },
+            { name: '打压', exec: '张水电', conf: '陈庄', execStd: '试验压力不低于0.8Map，时间1小时以上。\n存证标准：拍摄压力表数值照片', confStd: '稳压1小时，30分钟内降压不超过0.05Map为合格', liableStd: '因不合格，承担产生的返工费、材料费和延期费用' }
+        ] },
+        { name: '排水阶段', order: '顺序执行', tasks: [
+            { name: '清理基层', exec: '张水电', conf: '陈庄', execStd: '作业面清扫干净。\n存证标准：每个空间拍摄不少于1张照片', confStd: '不能见垃圾和杂物，无明显浮灰', liableStd: '未清理或不干净，扣除100元/空间的工费，并立即清扫干净' },
+            { name: '✅放线', exec: '张水电', conf: '陈庄', execStd: '依据排水点位位置，以管径中心点，放出管路的路径线。\n存证标准：每个空间拍摄不少于1张照片', confStd: '线路清晰 | 卫生器具排水口纵横坐标：单独器具≤10mm，成排器具≤5mm | 卫生设备接口标高：单独器具≤10mm，成排器具≤5mm', liableStd: '未放线就开槽布管，扣除100元/空间的工费并重新放线' },
+            { name: '开槽', exec: '张水电', conf: '陈庄', execStd: '严禁不放线的情况下进行开槽 | 开槽要求横平竖直，严禁开斜槽，严禁开长度＞500mm横槽，严禁切断钢筋 | 开槽深度为管径+12mm（不包含混凝土构件）', confStd: '参照工艺执行标准验收', liableStd: '承担因违规开槽所造成的所有责任，包含安全、经济、延期等' },
+            { name: '✅布管固定', exec: '张水电', conf: '陈庄', execStd: '成品带孔涂塑红色角铁固定 | 立管间距≤1000mm，横管间距≤800mm | 按照固定点的位置用U型卡、吊卡进行安装，安装卡件固定牢固，不能破坏管外壁 | 断管时，断面应同管轴线垂直、无毛刺。\n存证标准：每个空间拍摄不少于1张照片', confStd: '参照工艺执行标准验收', liableStd: '按要求拆除重做或加装固定点，直至符合工艺要求，并承担材料费和延期费用' },
+            { name: '链接', exec: '张水电', conf: '陈庄', execStd: '接口干燥无污染物 | 管件接口内侧，直管外侧刷胶 | 施压使管插入至标记深度，左右旋转90°，使胶均匀，擦掉挤出的胶', confStd: '参照工艺执行标准验收', liableStd: '承担因链接问题产生的返工费、材料费和延期费用' },
+            { name: '测量坡度及通排实验', exec: '张水电', conf: '陈庄', execStd: '横管坡度≥1%；管道施工完毕后进行通水试验，排水口无积水、倒灌现象。\n存证标准：每个空间录制1条通排实验视频', confStd: '参照工艺执行标准验收', liableStd: '按要求整改或拆除重做，并承担材料费和延期费用' },
+            { name: '封堵管道口', exec: '张水电', conf: '陈庄', execStd: '用专用管口封堵或其他材料封堵，保证牢固密实', confStd: '参照工艺执行标准验收', liableStd: '承担因未封堵造成管道堵塞，所产生的所有费用' },
+            { name: '✅管道隔音', exec: '张水电', conf: '陈庄', execStd: '用黑色保温进行包裹，切口、连接处用保温胶粘接，用保温扎带绑扎牢固。\n存证标准：每个空间拍摄不少于1张照片', confStd: '参照工艺执行标准验收', liableStd: '按要求整改或拆除重做，并承担材料费和延期费用' }
+        ] },
+        { name: '强弱电阶段', order: '顺序执行', tasks: [
+            { name: '清理基层', exec: '张水电', conf: '陈庄', execStd: '作业面清扫干净。\n存证标准：每个空间拍摄不少于1张照片', confStd: '不能见垃圾和杂物，无明显浮灰', liableStd: '未清理或不干净，扣除100元/空间的工费，并立即清扫干净' },
+            { name: '✅放线', exec: '张水电', conf: '陈庄', execStd: '依据强弱电点位位置，放出管路的路径线。\n存证标准：每个空间拍摄不少于1张照片', confStd: '线路清晰、横平竖直', liableStd: '未放线就开槽布管，扣除100元/空间的工费并重新放线' },
+            { name: '开槽', exec: '张水电', conf: '陈庄', execStd: '严禁不放线的情况下进行开槽 | 开槽要求横平竖直，严禁开斜槽，严禁开长度＞500mm横槽，严禁切断钢筋 | 开槽深度为管径+12mm（不包含混凝土构件） | 顶面混凝土板必须开S型槽', confStd: '参照工艺执行标准验收', liableStd: '承担因违规开槽所造成的所有责任，包含安全、经济、延期等' },
+            { name: '✅线管线盒安装', exec: '张水电', conf: '陈庄', execStd: '分色：强电红色，弱电蓝色 | 管接头用PVC胶粘接牢固,用吊筋及金属勾卡固定，间距≤1000mm,固定点距管边缘(箱 盒)距离≤200mm,管路弯曲部位两端200mm内需加设固定点；整体横平竖直，大气美观 | 过线盒设置规定（管路弯曲用大弧弯）： | ①无弯曲情况管路长度超过30m必须加设过线盒 | ②有一个弯曲，管路长度超过20m必须加设过线盒 | ③有两个弯曲，管路长度超过15m必须加设过线盒 | ④有3个弯曲，管路长度超过8m必须加设过线盒  | 灯头盒部位使用软管连接，软管长度不小于线盒到吊顶之间的距离，不大于1米。\n存证标准：每个空间拍摄不少于1张照片', confStd: '参照工艺执行标准验收', liableStd: '按要求整改或拆除重做，并承担材料费和延期费用' },
+            { name: '穿线', exec: '张水电', conf: '陈庄', execStd: '强电穿线（4²线不超过3根，2.5²线不超过5根） | 双色为接地线，蓝色为零线，黄、绿、红为项线。 | 接线盒、开关盒、插销盒及灯头盒内导线的预留长度150-200mm | 电箱内导线的预留长度应为配电箱体周长的1/2 | 弱电穿线（不超过2根）', confStd: '参照工艺执行标准验收', liableStd: '按要求整改或拆除重做，并承担材料费和延期费用' },
+            { name: '接线', exec: '张水电', conf: '陈庄', execStd: '单铜芯导线直线连接：用双手同时把两芯线互绞两圈后，将两个线芯在另一个线芯上缠绕5-7圈，剪掉余头。\n存证标准：拍摄3张不同位置的照片', confStd: '参照工艺执行标准验收', liableStd: '按要求整改重做，并承担材料费和延期费用' },
+            { name: '✅涮锡', exec: '张水电', conf: '陈庄', execStd: '温度控制在250°350°，浸锡时间13秒，锡层覆盖完整光亮均匀无毛刺。\n存证标准：拍摄3张不同位置的照片', confStd: '锡层覆盖完整 | 光亮均匀无毛刺', liableStd: '未涮锡就包裹线头，扣除1000元/次的工费 | 并承担材料费和延期费用' },
+            { name: '线头包裹', exec: '张水电', conf: '陈庄', execStd: '第一层PVC胶带包裹—第二层绝缘胶布包裹 | 每层至少缠绕3层以上，拉伸率为30%~50%，增强密合性', confStd: '拆开验收 | 外观应整齐，相对美观', liableStd: '按要求整改或拆除重做，并承担材料费和延期费用' }
+        ] },
+        { name: '配电箱安装阶段', order: '顺序执行', tasks: [
+            { name: '基础型钢安装', exec: '张水电', conf: '陈庄', execStd: '电箱、柜的基础支架型钢安装允许偏差：垂直度每米误差＜3mm，总体误差＜5mm；水平度每米误差＜3mm，总体误差＜5mm；不平行度整体误差＜5mm； | 基础支架应做防锈处理。\n存证标准：拍摄3张不同位置的照片', confStd: '参照工艺执行标准验收', liableStd: '按要求整改或重做，并承担材料费和延期费用' },
+            { name: '箱体内部检查', exec: '张水电', conf: '陈庄', execStd: '箱内配件规格型号符合设计要求 | 闭锁装置动作准确有效 | 辅助开关与主开关切换动作一致 | 箱内系统图及配件编号清晰明确', confStd: '参照工艺执行标准验收', liableStd: '按要求整改或重做，并承担材料费和延期费用' },
+            { name: '箱体安装', exec: '张水电', conf: '陈庄', execStd: '箱体与基础支架型钢必须用镀锌螺栓连接 | 箱体安装垂直度允许偏差1.5%，相互间接缝＜2mm | 箱体安装高度底边距地1.5m', confStd: '参照工艺执行标准验收', liableStd: '按要求整改或重做，并承担材料费和延期费用' },
+            { name: '✅箱盘接线', exec: '张水电', conf: '陈庄', execStd: '连接的线束外应有塑料管等加强绝缘保护层 | 连接部位绞合紧密，且有不开口的终端端子或涮锡，不松散断股。\n存证标准：拍摄3张不同位置的照片', confStd: '参照工艺执行标准验收', liableStd: '按要求整改或重做，并承担材料费和延期费用' }
+        ] },
+        { name: '桥架铺设阶段', order: '顺序执行', tasks: [
+            { name: '支架制作及安装', exec: '张水电', conf: '陈庄', execStd: 'φ8mm吊筋及涂塑成品角铁制作支架，切口处做防锈处理；水平安装支架间距≤1.5，垂直安装支架间距不大于1m | 支架与桥架采用不同金属材质时，连接固定时要做防电腐化隔离层措施', confStd: '参照工艺执行标准验收', liableStd: '按要求整改或重做，并承担材料费和延期费用' },
+            { name: '✅桥架制作与安装', exec: '张水电', conf: '陈庄', execStd: '桥架弯曲半径：敷设有钢凯电缆的桥架，弯曲半径不小于电缆直径20倍；敷设无钢凯电缆的桥架，弯曲半径不小于电缆直径10倍 | 钢制桥架直线段长度超过30米，铝合金或玻璃钢桥架超过15米，应设有伸缩节；桥架跨建筑物伸缩缝、变形缝处设置补偿装置 | 所有桥架连接时使用的螺栓，一律要螺母朝外，防止电缆敷设时划伤 | 桥架安装位于易燃易爆、热力管道下方无设计要求时距离要求如下：平行距离：一般管道0.4m，易燃易爆管道0.5m,无保温热管1m，有保温热管0.5m。\n存证标准：拍摄3张不同位置的照片', confStd: '参照工艺执行标准验收', liableStd: '按要求整改或重做，并承担材料费和延期费用' },
+            { name: '桥架内电缆敷设', exec: '张水电', conf: '陈庄', execStd: '电缆出入各种沟、井、盘、柜时端头必须做密封处理 | 大于45°倾斜敷设的电缆每隔2m应设一个固定点 | 电缆两端应设标识牌', confStd: '参照工艺执行标准验收', liableStd: '按要求整改或重做，并承担材料费和延期费用' }
+        ] },
+        { name: '面板安装阶段', order: '顺序执行', tasks: [
+            { name: '✅清理', exec: '张水电', conf: '陈庄', execStd: '清理盒内杂物及灰尘，用毛刷、抹布将灰尘擦净。\n存证标准：拍摄3张不同位置的照片', confStd: '不能见垃圾和杂物，无明显浮灰', liableStd: '未清理或不干净，扣除100元/空间的工费并清理干净' },
+            { name: '✅开关插座接线安装', exec: '张水电', conf: '陈庄', execStd: '将盒内甩出的导线与开关或插座面板连接，将开关或插座推入盒内（如果盒边缘距离饰面完成面≥30mm，应增加套盒），对正盒眼，用机螺丝固定，固定后要面板端正与墙平齐。\n存证标准：每个空间拍摄不少于1张照片', confStd: '面板端正、严密、与墙平齐，多个面板间并排安装高度、间距应相同，误差≤0.5mm | 同一室内的不同位置的开关安装，开关高度误差≤2mm，方向应一致面板垂直偏差≤0.5mm', liableStd: '按要求整改或重做，并承担材料费和延期费用' }
+        ] }
+    ];
+
+    function renderStages() {
+        var html = DEMO_STAGES.map(function (s, i) {
+            var tasks = (s.tasks || []).map(function (t) {
+                return '<div class="task-item" onclick="viewTaskDetail(this)"' +
+                    ' data-task-name="' + (t.name || '') + '"' +
+                    ' data-executor="' + (t.exec || '') + '"' +
+                    ' data-confirmers="' + (t.conf || '') + '"' +
+                    ' data-exec-standard="' + (t.execStd || '') + '"' +
+                    ' data-exec-refs="' + CraftRef.esc(JSON.stringify(t.execRefs || [])) + '"' +
+                    ' data-confirm-standard="' + (t.confStd || '') + '"' +
+                    ' data-confirm-refs="' + CraftRef.esc(JSON.stringify(t.confirmRefs || [])) + '"' +
+                    ' data-liable-standard="' + (t.liableStd || '') + '"><div class="task-info">' +
+                    '<div class="task-name">' + t.name + '</div>' +
+                    '<div class="task-meta-row"><span class="task-meta-item"><span class="role-tag executor">执行</span> ' + t.exec + '</span>' +
+                    '<span class="task-meta-item"><span class="role-tag confirmer">确认</span> ' + t.conf + '</span><span class="task-done-tag">✓ 已完成</span></div>' +
+                    '</div></div>';
+            }).join('');
+            return '<div class="stage-item"><div class="stage-header" onclick="toggleStage(this)">' +
+                '<div class="stage-icon">' + (i + 1) + '</div>' +
+                '<div class="stage-info"><div class="stage-name">' + s.name + '</div>' +
+                '<div class="stage-meta">' + (s.tasks ? s.tasks.length : 0) + '个任务 · 已完成</div>' +
+                '<div class="stage-order-tag" style="background-color:#FFF7E6;color:#FA8C16;">' + (s.order || '并行执行') + '</div></div>' +
+                '<div class="arrow expanded">▼</div></div>' +
+                '<div class="stage-tasks show">' + tasks + '</div></div>';
+        }).join('');
+        var wrap = $('stageWrap');
+        if (wrap) wrap.innerHTML = html;
+        var cnt = $('stageCount');
+        if (cnt) cnt.textContent = DEMO_STAGES.length + ' 个阶段 · 全部完成';
+    }
+
+    function toggleStage(header) {
+        var tasks = header.parentElement.querySelector('.stage-tasks');
+        var arrow = header.querySelector('.arrow');
+        if (!tasks) return;
+        var collapsed = tasks.style.display === 'none';
+        tasks.style.display = collapsed ? 'block' : 'none';
+        if (arrow) arrow.classList.toggle('expanded', collapsed);
+    }
+
+    // 承接任务：整体收纳展开
+    function toggleStageWrap() {
+        var wrap = $('stageWrap');
+        var arrow = $('stageFoldArrow');
+        if (!wrap) return;
+        var collapsed = wrap.style.display === 'none';
+        wrap.style.display = collapsed ? 'block' : 'none';
+        if (arrow) arrow.textContent = collapsed ? '▼' : '▶';
+    }
+
+    // ============== 任务详情（只读）弹窗 ==============
+    // 任务名称 → 三标准映射（保证只读弹窗三项标准均有值）
+var TASK_STD_MAP = {
+        '清理基层': { exec: '作业面清扫干净。\n存证标准：每个空间拍摄不少于1张照片', confirm: '不能见垃圾和杂物，无明显浮灰', liable: '未清理或不干净，扣除100元/空间的工费，并立即清扫干净' },
+        '✅放线': { exec: '依据水点位位置，放出管路的路径线。\n存证标准：每个空间拍摄不少于1张照片', confirm: '线路清晰、横平竖直', liable: '未放线就开槽布管，扣除100元/空间的工费并重新放线' },
+        '开槽': { exec: '严禁不放线的情况下进行开槽 | 开槽要求横平竖直，严禁开斜槽，严禁开长度＞500mm横槽，严禁切断钢筋 | 开槽深度为管径+12mm（不包含混凝土构件）', confirm: '参照工艺执行标准验收', liable: '承担因违规开槽所造成的所有责任，包含安全、经济、延期等' },
+        '管路保温': { exec: '热供：红色、热回：黄色、自来水：白色、软水：蓝色、净水：绿色、中水：黑色 | 所有管道的裸露位置都应做保温，接头处刷保温胶密实链接，缠绕同色保温扎带 | 管道接头部位裸露，带验收完成后恢复', confirm: '参照工艺执行标准验收', liable: '未按标准做保温，更换对应要求的保温颜色，并承担材料费和延期费用' },
+        '✅布管固定': { exec: '平管固定点间距≤600mm，立管固定点间距≤1000mm | 水管末端、转弯处及阀门、水表两侧距离固定点距离≤200mm | 断管时，断面应同管轴线垂直、无毛刺 | 按照固定点的位置用成品涂塑带孔角铁做支撑，选用U型卡固定，安装卡件固定牢固，不能破坏管外壁 | 左热右冷，上热下冷，间距150mm | 埋墙水管不允许有接头，必须整管入墙；地面有防水要求的区域严禁布管布线。\n存证标准：每个空间拍摄不少于1张照片', confirm: '参照工艺执行标准验收', liable: '按要求拆除重做或加装固定点，直至符合工艺要求，并承担材料费和延期费用' },
+        '热熔连接': { exec: '20管:热熔深度14mm,加热时间5s，连接时间4s，冷却时间2s。 | 25管:热熔深度15mm,加热时间7s，连接时间4s，冷却时间2s | 32管:热熔深度16.5mm,加热时间8s，连接时间6s，冷却时间4s | 40管:热熔深度18mm,加热时间12s，连接时间6s，冷却时间4s | 热熔插管时禁止旋转', confirm: '不渗漏', liable: '承担因热熔问题产生的返工费、材料费和延期费用' },
+        '✅出水口位置调整': { exec: '水口外截面低于墙面完成面线100mm | 位置水平方正。\n存证标准：每个水口位置拍摄1张测量照片', confirm: '参照工艺执行标准验收', liable: '扣除100元/个的工费 | 整改至工艺要求范围' },
+        '打压': { exec: '试验压力不低于0.8Map，时间1小时以上。\n存证标准：拍摄压力表数值照片', confirm: '稳压1小时，30分钟内降压不超过0.05Map为合格', liable: '因不合格，承担产生的返工费、材料费和延期费用' },
+        '链接': { exec: '接口干燥无污染物 | 管件接口内侧，直管外侧刷胶 | 施压使管插入至标记深度，左右旋转90°，使胶均匀，擦掉挤出的胶', confirm: '参照工艺执行标准验收', liable: '承担因链接问题产生的返工费、材料费和延期费用' },
+        '测量坡度及通排实验': { exec: '横管坡度≥1%；管道施工完毕后进行通水试验，排水口无积水、倒灌现象。\n存证标准：每个空间录制1条通排实验视频', confirm: '参照工艺执行标准验收', liable: '按要求整改或拆除重做，并承担材料费和延期费用' },
+        '封堵管道口': { exec: '用专用管口封堵或其他材料封堵，保证牢固密实', confirm: '参照工艺执行标准验收', liable: '承担因未封堵造成管道堵塞，所产生的所有费用' },
+        '✅管道隔音': { exec: '用黑色保温进行包裹，切口、连接处用保温胶粘接，用保温扎带绑扎牢固。\n存证标准：每个空间拍摄不少于1张照片', confirm: '参照工艺执行标准验收', liable: '按要求整改或拆除重做，并承担材料费和延期费用' },
+        '✅线管线盒安装': { exec: '分色：强电红色，弱电蓝色 | 管接头用PVC胶粘接牢固,用吊筋及金属勾卡固定，间距≤1000mm,固定点距管边缘(箱 盒)距离≤200mm,管路弯曲部位两端200mm内需加设固定点；整体横平竖直，大气美观 | 过线盒设置规定（管路弯曲用大弧弯）： | ①无弯曲情况管路长度超过30m必须加设过线盒 | ②有一个弯曲，管路长度超过20m必须加设过线盒 | ③有两个弯曲，管路长度超过15m必须加设过线盒 | ④有3个弯曲，管路长度超过8m必须加设过线盒  | 灯头盒部位使用软管连接，软管长度不小于线盒到吊顶之间的距离，不大于1米。\n存证标准：每个空间拍摄不少于1张照片', confirm: '参照工艺执行标准验收', liable: '按要求整改或拆除重做，并承担材料费和延期费用' },
+        '穿线': { exec: '强电穿线（4²线不超过3根，2.5²线不超过5根） | 双色为接地线，蓝色为零线，黄、绿、红为项线。 | 接线盒、开关盒、插销盒及灯头盒内导线的预留长度150-200mm | 电箱内导线的预留长度应为配电箱体周长的1/2 | 弱电穿线（不超过2根）', confirm: '参照工艺执行标准验收', liable: '按要求整改或拆除重做，并承担材料费和延期费用' },
+        '接线': { exec: '单铜芯导线直线连接：用双手同时把两芯线互绞两圈后，将两个线芯在另一个线芯上缠绕5-7圈，剪掉余头。\n存证标准：拍摄3张不同位置的照片', confirm: '参照工艺执行标准验收', liable: '按要求整改重做，并承担材料费和延期费用' },
+        '✅涮锡': { exec: '温度控制在250°350°，浸锡时间13秒，锡层覆盖完整光亮均匀无毛刺。\n存证标准：拍摄3张不同位置的照片', confirm: '锡层覆盖完整 | 光亮均匀无毛刺', liable: '未涮锡就包裹线头，扣除1000元/次的工费 | 并承担材料费和延期费用' },
+        '线头包裹': { exec: '第一层PVC胶带包裹—第二层绝缘胶布包裹 | 每层至少缠绕3层以上，拉伸率为30%~50%，增强密合性', confirm: '拆开验收 | 外观应整齐，相对美观', liable: '按要求整改或拆除重做，并承担材料费和延期费用' },
+        '基础型钢安装': { exec: '电箱、柜的基础支架型钢安装允许偏差：垂直度每米误差＜3mm，总体误差＜5mm；水平度每米误差＜3mm，总体误差＜5mm；不平行度整体误差＜5mm； | 基础支架应做防锈处理。\n存证标准：拍摄3张不同位置的照片', confirm: '参照工艺执行标准验收', liable: '按要求整改或重做，并承担材料费和延期费用' },
+        '箱体内部检查': { exec: '箱内配件规格型号符合设计要求 | 闭锁装置动作准确有效 | 辅助开关与主开关切换动作一致 | 箱内系统图及配件编号清晰明确', confirm: '参照工艺执行标准验收', liable: '按要求整改或重做，并承担材料费和延期费用' },
+        '箱体安装': { exec: '箱体与基础支架型钢必须用镀锌螺栓连接 | 箱体安装垂直度允许偏差1.5%，相互间接缝＜2mm | 箱体安装高度底边距地1.5m', confirm: '参照工艺执行标准验收', liable: '按要求整改或重做，并承担材料费和延期费用' },
+        '✅箱盘接线': { exec: '连接的线束外应有塑料管等加强绝缘保护层 | 连接部位绞合紧密，且有不开口的终端端子或涮锡，不松散断股。\n存证标准：拍摄3张不同位置的照片', confirm: '参照工艺执行标准验收', liable: '按要求整改或重做，并承担材料费和延期费用' },
+        '支架制作及安装': { exec: 'φ8mm吊筋及涂塑成品角铁制作支架，切口处做防锈处理；水平安装支架间距≤1.5，垂直安装支架间距不大于1m | 支架与桥架采用不同金属材质时，连接固定时要做防电腐化隔离层措施', confirm: '参照工艺执行标准验收', liable: '按要求整改或重做，并承担材料费和延期费用' },
+        '✅桥架制作与安装': { exec: '桥架弯曲半径：敷设有钢凯电缆的桥架，弯曲半径不小于电缆直径20倍；敷设无钢凯电缆的桥架，弯曲半径不小于电缆直径10倍 | 钢制桥架直线段长度超过30米，铝合金或玻璃钢桥架超过15米，应设有伸缩节；桥架跨建筑物伸缩缝、变形缝处设置补偿装置 | 所有桥架连接时使用的螺栓，一律要螺母朝外，防止电缆敷设时划伤 | 桥架安装位于易燃易爆、热力管道下方无设计要求时距离要求如下：平行距离：一般管道0.4m，易燃易爆管道0.5m,无保温热管1m，有保温热管0.5m。\n存证标准：拍摄3张不同位置的照片', confirm: '参照工艺执行标准验收', liable: '按要求整改或重做，并承担材料费和延期费用' },
+        '桥架内电缆敷设': { exec: '电缆出入各种沟、井、盘、柜时端头必须做密封处理 | 大于45°倾斜敷设的电缆每隔2m应设一个固定点 | 电缆两端应设标识牌', confirm: '参照工艺执行标准验收', liable: '按要求整改或重做，并承担材料费和延期费用' },
+        '✅清理': { exec: '清理盒内杂物及灰尘，用毛刷、抹布将灰尘擦净。\n存证标准：拍摄3张不同位置的照片', confirm: '不能见垃圾和杂物，无明显浮灰', liable: '未清理或不干净，扣除100元/空间的工费并清理干净' },
+        '✅开关插座接线安装': { exec: '将盒内甩出的导线与开关或插座面板连接，将开关或插座推入盒内（如果盒边缘距离饰面完成面≥30mm，应增加套盒），对正盒眼，用机螺丝固定，固定后要面板端正与墙平齐。\n存证标准：每个空间拍摄不少于1张照片', confirm: '面板端正、严密、与墙平齐，多个面板间并排安装高度、间距应相同，误差≤0.5mm | 同一室内的不同位置的开关安装，开关高度误差≤2mm，方向应一致面板垂直偏差≤0.5mm', liable: '按要求整改或重做，并承担材料费和延期费用' }
+};
+    var GENERIC_STD = {
+        exec: '按合同约定及国家/行业相关施工规范执行，过程中做好自检与记录。',
+        confirm: '由相关确认人按合同约定的标准进行核验并签字确认。',
+        liable: '因执行或确认不到位造成质量、安全、工期问题的，由责任方承担相应责任。'
+    };
+    function viewTaskDetail(el) {
+        var item = el.closest('.task-item') || el;
+        var name = item.getAttribute('data-task-name') || '—';
+        var executor = item.getAttribute('data-executor') || '暂未设置';
+        var confirmers = item.getAttribute('data-confirmers') || '暂未设置';
+        var stdMap = TASK_STD_MAP[name] || {};
+        var execStd = item.getAttribute('data-exec-standard') || stdMap.exec || GENERIC_STD.exec;
+        var confStd = item.getAttribute('data-confirm-standard') || stdMap.confirm || GENERIC_STD.confirm;
+        var liableStd = item.getAttribute('data-liable-standard') || stdMap.liable || GENERIC_STD.liable;
+        var m = $('taskDetailModal');
+        if (!m) return;
+        $('detailTaskName').textContent = name;
+        $('detailExecutor').textContent = executor;
+        $('detailConfirmers').textContent = confirmers;
+        // 标准文本换行渲染：\n 转 <br/>（执行标准含「工艺执行标准 / 存证标准」两段）
+        function fmtStd(v) {
+            return String(v == null ? '' : v)
+                .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+                .replace(/\n/g, '<br/>');
+        }
+        $('detailExecStandard').innerHTML = fmtStd(execStd);
+        $('detailConfirmStandard').innerHTML = fmtStd(confStd);
+        $('detailLiableStandard').innerHTML = fmtStd(liableStd);
+        // 工艺参考示例：只读展示（共享模块 CraftRef，可点击放大）
+        CraftRef.renderDisplay('detailExecCraftRef', item.getAttribute('data-exec-refs'));
+        CraftRef.renderDisplay('detailConfirmCraftRef', item.getAttribute('data-confirm-refs'));
+        m.classList.add('show');
+    }
+    function closeTaskDetailModal() {
+        var m = $('taskDetailModal');
+        if (m) m.classList.remove('show');
+    }
+
+    function renderHero() {
+        var html = '<div class="hero-card">';
+        html += '<div class="hero-status-badge done">🏆 已履约完成</div>';
+        html += '<div class="hero-trade">全屋水电改造合同</div>';
+        html += '<div class="hero-amount"><small>¥</small>12,600<small> 元</small></div>';
+        html += '<div class="hero-amount-label">合同报酬（施工完成且验收通过后由线下进行支付）</div>';
+        html += '<div class="hero-meta-row">' +
+                '<div class="hero-meta"><b>项目地址</b>XX市XX区XX路XX号 · 阳光里小区 8 栋 2 单元 1101 室</div></div>';
+        html += '</div>';
+        $('hero').innerHTML = html;
+    }
+
+    // 初始化
+    renderStages();
+    renderHero();
+
+    /* ===== 合同操作 更多（版本记录 / 变更记录 / 导出合同文本） ===== */
+    var OPS_VERSION_HTML = '<div class="ops-rec-row"><span class="ops-rec-tag">V1</span>初始版本（确认签约）<div class="ops-rec-time">2024-01-06 签约生效</div></div>' +
+        '<div class="ops-rec-row"><span class="ops-rec-tag">V2</span>履约完成版本<div class="ops-rec-time">2024-01-20 全部任务完成</div></div>';
+    var OPS_CHANGE_HTML = '<div class="ops-rec-row">暂无变更记录</div>';
+
+    function toggleOpsPanel() {
+        var p = $('opsPanel'), b = $('opsMoreBtn');
+        if (!p) return;
+        p.classList.toggle('show');
+        if (b) b.classList.toggle('open');
+    }
+    function closeOpsPanel() {
+        var p = $('opsPanel'), b = $('opsMoreBtn');
+        if (p) p.classList.remove('show');
+        if (b) b.classList.remove('open');
+    }
+    function openInfoModal(title) {
+        var t = $('opsInfoTitle'), b = $('opsInfoBody'), m = $('opsInfoModal');
+        if (t) t.textContent = title;
+        if (b) b.innerHTML = (title === '版本记录') ? OPS_VERSION_HTML : OPS_CHANGE_HTML;
+        if (m) m.classList.add('show');
+        closeOpsPanel();
+    }
+    function closeInfoModal() {
+        var m = $('opsInfoModal');
+        if (m) m.classList.remove('show');
+    }
+    function showExportModal() {
+        var m = $('opsExportModal');
+        if (m) m.classList.add('show');
+        closeOpsPanel();
+    }
+    function closeExportModal() {
+        var m = $('opsExportModal');
+        if (m) m.classList.remove('show');
+    }
+    function exportToPDF() {
+        closeExportModal();
+        showToast('正在生成PDF文件...');
+        setTimeout(function () { showToast('PDF文件已保存到手机本地\n\n文件包含：合同基本信息、签约双方信息、合同正文、附件'); }, 1500);
+    }
+    function shareToWechat() {
+        closeExportModal();
+        showToast('正在生成PDF文件...');
+        setTimeout(function () { showToast('PDF文件已生成，正在打开微信分享...'); }, 1500);
+    }
+    /* 工艺参考示例：复用本页 toast（共享模块 js/craft-ref.js，不注入时模块用自身兜底 toast） */
+    if (window.CraftRef) { CraftRef.setToastHandler(function (msg) { showToast(msg); }); }
+</script>
+
+<script src="../shared/doc-viewer/doc-viewer.js"></script>
+</body>
+</html>
