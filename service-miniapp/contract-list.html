@@ -1,0 +1,747 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>家装平台小程序原型 - 合同列表</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; scrollbar-width: none; -ms-overflow-style: none; }
+::-webkit-scrollbar { display: none; }
+html, body { height: 100%; }
+body {
+  font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
+  background: linear-gradient(160deg, #d7e1f2 0%, #e9eef8 100%);
+  color: var(--text); font-size: 12px; line-height: 1.5;
+  display: flex; align-items: flex-start; justify-content: center;
+  min-height: 100vh; padding: 24px; gap: 16px;
+}
+:root {
+  --sp-1: 4px; --sp-2: 8px; --sp-3: 12px; --sp-4: 16px; --sp-5: 20px;
+  --r-card: 12px; --r-block: 8px; --r-pill: 999px;
+  --fs-11: 11px; --fs-12: 12px; --fs-13: 13px; --fs-15: 15px; --fs-17: 17px;
+  --primary: #1677ff; --primary-deep: #0b57d0; --primary-bg: #e8f1ff; --primary-light: #4096ff;
+  --success: #2f9e2f; --success-bg: #eaf7e8; --warning: #fa8c16; --warning-bg: #fff7e6;
+  --danger: #f5544f; --danger-bg: #fff2f0; --orange: #fa541c;
+  --text: #1f2a3d; --text-2: #5a6b85; --text-3: #93a1b5; --bg: #eef4ff;
+  --bg-grad: linear-gradient(180deg, #e8f1ff 0%, #f2f6ff 26%, #f7faff 100%);
+  --grad-brand: linear-gradient(135deg, #1e7dff 0%, #0b57d0 100%);
+  --card: #fff; --border: #e2eaf8; --shadow: 0 2px 12px rgba(22,119,255,.07);
+  --shadow-2: 0 8px 24px rgba(22,119,255,.14);
+  --bg-secondary: #f3f7ff; --line-light: #eef3fb; --demo-blue: #1677ff;
+}
+.phone-frame {
+  width: 375px; flex-shrink: 0; height: 812px; background: var(--bg-grad);
+  border-radius: 40px; overflow: hidden; position: relative;
+  display: flex; flex-direction: column; border: 10px solid #1a1a1a;
+  box-shadow: 0 12px 40px rgba(0,0,0,.25);
+}
+.status-bar {
+  height: 44px; background: var(--grad-brand); flex-shrink: 0;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 22px; font-size: 14px; font-weight: 600; color: #fff;
+}
+.sb-ic { display: flex; align-items: center; gap: 6px; }
+.sb-signal { display: inline-flex; align-items: flex-end; gap: 2px; height: 11px; }
+.sb-signal i { width: 3px; background: #fff; border-radius: 1px; }
+.sb-signal i:nth-child(1){height:4px} .sb-signal i:nth-child(2){height:6px}
+.sb-signal i:nth-child(3){height:8px} .sb-signal i:nth-child(4){height:11px}
+.sb-battery { width: 22px; height: 11px; border: 1px solid rgba(255,255,255,.85); border-radius: 3px; position: relative; padding: 1.5px; }
+.sb-battery::after { content: ""; position: absolute; right: -3px; top: 3px; width: 2px; height: 4px; background: rgba(255,255,255,.85); border-radius: 0 1px 1px 0; }
+.sb-battery i { display: block; height: 100%; width: 70%; background: #fff; border-radius: 1px; }
+.nav-bar {
+  height: 48px; background: var(--grad-brand); flex-shrink: 0; position: relative;
+  display: flex; align-items: center; box-shadow: 0 2px 10px rgba(11,87,208,.18);
+}
+.nav-bar .nb-back { position: absolute; left: 14px; font-size: 26px; line-height: 1; color: #fff; text-decoration: none; }
+.nav-bar .title { flex: 1; text-align: center; font-size: 17px; font-weight: 600; color: #fff; }
+.nav-bar .nb-actions { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); }
+.nb-plus {
+  width: 30px; height: 30px; border-radius: 50%; background: rgba(255,255,255,.22);
+  border: 1px solid rgba(255,255,255,.5); color: #fff; font-size: 18px; line-height: 1;
+  display: flex; align-items: center; justify-content: center; cursor: pointer;
+}
+.native-capsule {
+  display: inline-flex; align-items: center; justify-content: space-between;
+  min-width: 56px; height: 28px; padding: 0 10px; box-sizing: border-box;
+  border: 1px solid rgba(255,255,255,.5); border-radius: 14px; background: rgba(255,255,255,.22);
+  color: #fff; font-size: 12px; line-height: 1; user-select: none;
+}
+.native-capsule .nc-left, .native-capsule .nc-right { display: inline-flex; align-items: center; justify-content: center; flex: 1; min-width: 16px; }
+.native-capsule .nc-right { font-size: 10px; }
+.native-capsule .nc-divider { width: 1px; height: 14px; background: rgba(255,255,255,.45); margin: 0 4px; }
+.page-body { flex: 1; overflow-y: auto; overflow-x: hidden; background: transparent; -webkit-overflow-scrolling: touch; }
+.card { background: var(--card); border: 1px solid var(--border); box-shadow: var(--shadow); border-radius: var(--r-card); padding: 10px var(--sp-3); margin: 0 var(--sp-3) 7px; }
+.card:first-of-type { margin-top: 4px; }
+
+/* ===== 汇总条 ===== */
+.sum-card { display: flex; align-items: center; justify-content: space-between; padding: 9px var(--sp-3); }
+.sum-item { text-align: center; flex: 1; }
+.sum-num { font-size: var(--fs-15); font-weight: 600; color: var(--text); }
+.sum-num.blue { color: var(--primary); } .sum-num.green { color: var(--success); } .sum-num.orange { color: var(--warning); }
+.sum-lab { font-size: 10px; color: var(--text-3); margin-top: 1px; }
+.sum-amt { text-align: right; padding-left: var(--sp-2); border-left: 1px dashed var(--border); }
+.sum-amt .sa-v { font-size: var(--fs-13); font-weight: 600; color: var(--primary-deep); }
+.sum-amt .sa-l { font-size: 10px; color: var(--text-3); }
+.sum-scope { font-size: 10px; color: var(--text-3); margin: -2px var(--sp-3) var(--sp-2); }
+
+/* ===== 搜索 + 状态筛选 ===== */
+.filter-card { padding: 7px var(--sp-3); }
+.ct-search { display: flex; align-items: center; gap: 6px; background: var(--bg-secondary); border-radius: var(--r-pill); padding: 6px 11px; }
+.ct-search input { flex: 1; border: 0; outline: 0; background: transparent; font-size: var(--fs-12); color: var(--text); font-family: inherit; }
+.ct-search input::placeholder { color: var(--text-3); }
+.chip-row { display: flex; gap: 6px; overflow-x: auto; margin-top: 7px; }
+.chip { flex-shrink: 0; font-size: var(--fs-11); color: var(--text-2); background: var(--bg-secondary); border: 1px solid transparent; border-radius: var(--r-pill); padding: 4px 10px; cursor: pointer; }
+.chip.on { color: var(--primary); background: var(--primary-bg); border-color: var(--primary); font-weight: 500; }
+
+/* ===== 合同卡（主合同为容器）+ 子合同树 ===== */
+.ct-main { padding: 0; overflow: hidden; border-left: 3px solid var(--primary-light); cursor: pointer; }
+.ct-main-head { padding: 11px var(--sp-3) 10px; }
+
+/* 标题行：合同名称 + 类型标签 + 状态胶囊 */
+.ct-hd { display: flex; align-items: flex-start; gap: 8px; }
+.ct-hd-l { flex: 1; min-width: 0; }
+.ct-name { font-size: 15px; font-weight: 600; color: var(--text); line-height: 1.35; }
+.ct-tags { display: flex; flex-wrap: wrap; align-items: center; gap: 5px; margin-top: 5px; }
+.tag { font-size: 10px; line-height: 1.6; border-radius: 4px; padding: 2px 7px; }
+.tag-type { color: var(--primary); background: var(--primary-bg); }
+.tag-ver { color: var(--text-2); background: var(--bg-secondary); }
+/* 合同体系标识：工人合同 / 服务合同（状态体系不同，需一眼区分） */
+.tag-sys { color: var(--text-3); background: #f4f6fa; }
+
+/* 状态胶囊：色点 + 文字 */
+.st-pill {
+  flex-shrink: 0; display: inline-flex; align-items: center; gap: 5px;
+  font-size: 11px; font-weight: 500; line-height: 1.5; border-radius: var(--r-pill); padding: 3px 9px;
+  background: var(--bg-secondary); color: var(--text-2); white-space: nowrap;
+}
+.st-pill::before { content: ""; width: 5px; height: 5px; border-radius: 50%; background: currentColor; }
+.st-pill.st-draft { color: var(--text-2); background: #f1f4f9; }
+.st-pill.st-confirming { color: var(--warning); background: var(--warning-bg); }
+.st-pill.st-confirmed { color: var(--orange); background: #fff3ec; }
+.st-pill.st-signed { color: var(--success); background: var(--success-bg); }
+.st-pill.st-change { color: var(--orange); background: #fff3ec; }
+.st-pill.st-completed { color: var(--text-2); background: #f1f4f9; }
+.st-pill.st-reviewing { color: #722ED1; background: rgba(114,46,209,0.10); }
+.st-pill.st-rejected { color: var(--danger); background: var(--danger-bg); }
+.st-pill.st-neutral { color: var(--text-3); background: #f1f4f9; }
+
+/* 字段网格：标签在上、值在下，两列对齐 */
+.kv-grid {
+  display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px 10px;
+  margin-top: 9px; padding-top: 9px; border-top: 1px dashed var(--line-light);
+}
+.kv { min-width: 0; }
+.kv .k { display: block; font-size: 10px; color: var(--text-3); line-height: 1.4; }
+.kv .v { display: block; font-size: 13px; font-weight: 500; color: var(--text); line-height: 1.4; word-break: break-word; }
+.kv .v.amt { font-size: 15px; font-weight: 600; color: var(--primary-deep); letter-spacing: .2px; }
+.kv .v.mono { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 11px; font-weight: 500; color: var(--text-2); }
+.kv.full { grid-column: 1 / -1; }
+
+/* 承接任务进度条 */
+.ct-bar { height: 3px; background: var(--line-light); border-radius: 2px; margin-top: 9px; overflow: hidden; }
+.ct-bar i { display: block; height: 100%; border-radius: 2px; background: var(--grad-brand); }
+
+/* 底部：流程项入口 + 操作 */
+.ct-foot { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-top: 9px; }
+.ct-flow { flex: 1; min-width: 0; font-size: 11px; color: var(--primary); }
+.ct-ops { display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
+.op {
+  font-size: var(--fs-11); border-radius: var(--r-pill); padding: 5px 11px; cursor: pointer;
+  border: 1px solid var(--border); color: var(--text-2); background: #fff; min-height: 28px; display: inline-flex; align-items: center;
+}
+.op.primary { color: #fff; background: var(--primary); border-color: var(--primary); }
+.op.warn { color: var(--warning); border-color: #ffd8a8; background: var(--warning-bg); }
+.op.ghost { color: var(--primary); border-color: #bad7ff; background: var(--primary-bg); }
+.op.danger { color: var(--danger); border-color: #ffd6d3; background: var(--danger-bg); }
+
+/* 子合同：缩进 + 树形连接线 */
+.sub-wrap { margin: 0 0 0 13px; border-left: 2px solid #e3ecfb; padding: 0 0 6px; }
+.sub-row { padding: 9px 10px 9px 11px; position: relative; border-bottom: 1px dashed var(--line-light); cursor: pointer; }
+.sub-row:last-child { border-bottom: 0; padding-bottom: 6px; }
+.sub-row::before { content: ""; position: absolute; left: -2px; top: 22px; width: 8px; height: 2px; background: #e3ecfb; }
+.sub-top { display: flex; align-items: flex-start; gap: 6px; }
+.sub-name { flex: 1; min-width: 0; font-size: 13px; font-weight: 500; color: var(--text); line-height: 1.45; }
+.sub-kv { gap: 7px 10px; margin-top: 7px; padding-top: 7px; }
+.sub-kv .v { font-size: 12px; }
+.sub-kv .v.amt { font-size: 13px; }
+.sub-ops { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
+/* 二级及更深（孙合同）：缩进递进 + 字号降一级，层级一眼可辨 */
+.sub-row .sub-wrap { margin-left: 9px; margin-top: 5px; padding-bottom: 0; }
+.sub-wrap .sub-wrap .sub-name { font-size: 12.5px; }
+.sub-wrap .sub-wrap .sub-kv .v { font-size: 11.5px; }
+.sub-wrap .sub-wrap .sub-kv .v.amt { font-size: 12.5px; }
+.sub-wrap .sub-wrap .sub-row { padding: 8px 8px 8px 9px; }
+/* 上下文节点：仅承载「命中的下级」，收缩为轻量标题行 */
+.ct-ctx .ct-main-head { padding: 9px var(--sp-3) 8px; }
+.sub-row.ctx { padding-top: 6px; padding-bottom: 6px; }
+.sub-row.ctx .sub-name, .ct-ctx .ct-name { color: var(--text-2); }
+
+.lock-row { display: flex; align-items: center; gap: 8px; padding: 10px 12px; color: var(--text-3); font-size: var(--fs-11); }
+.lock-row .lk { font-size: var(--fs-13); }
+.ct-lock-banner { display: flex; align-items: flex-start; gap: 6px; background: var(--bg-secondary); border: 1px dashed var(--border); border-radius: var(--r-block); padding: 8px 10px; margin: 0 var(--sp-3) var(--sp-2); font-size: var(--fs-11); color: var(--text-2); }
+.mask { color: var(--text-3); font-weight: 500; letter-spacing: 1px; }
+
+/* ===== 提示条 / 空态 ===== */
+.ct-hint { display: none; margin: 0 var(--sp-3) var(--sp-2); background: var(--primary-bg); color: var(--primary-deep); border-radius: var(--r-block); padding: 8px 10px; font-size: var(--fs-11); }
+.ct-hint.show { display: block; }
+.empty-card { text-align: center; padding: 40px 20px; }
+.empty-ic { width: 52px; height: 52px; margin: 0 auto 12px; border-radius: 50%; background: var(--primary-bg); color: var(--primary); font-size: 22px; display: flex; align-items: center; justify-content: center; }
+.empty-t { font-size: var(--fs-13); color: var(--text); margin-bottom: 6px; }
+.empty-s { font-size: var(--fs-11); color: var(--text-3); line-height: 1.7; }
+.empty-btn { display: inline-block; margin-top: 14px; font-size: var(--fs-12); color: #fff; background: var(--primary); border-radius: var(--r-pill); padding: 9px 22px; cursor: pointer; }
+
+
+/* ===== 框外演示面板 ===== */
+.demo-panel { width: 240px; flex-shrink: 0; background: #fff; border-left: 2px dashed var(--demo-blue); border-radius: var(--r-block); padding: var(--sp-3); align-self: flex-start; box-shadow: var(--shadow); }
+.demo-panel h4 { font-size: var(--fs-13); font-weight: 500; color: var(--text); margin-bottom: var(--sp-2); }
+.demo-panel .dp-group { margin-bottom: var(--sp-4); }
+.demo-panel .dp-lab { font-size: var(--fs-11); color: var(--text-2); margin-bottom: var(--sp-2); }
+.demo-panel .dp-opts { display: flex; flex-wrap: wrap; gap: var(--sp-2); }
+.demo-panel .dp-opt { font-size: var(--fs-11); color: var(--text-2); border: 1px solid var(--border); border-radius: var(--r-pill); padding: 6px 10px; min-height: 32px; display: flex; align-items: center; cursor: pointer; }
+.demo-panel .dp-opt.on { color: var(--primary); border-color: var(--primary); background: var(--primary-bg); font-weight: 500; }
+.demo-panel .dp-note { font-size: 10px; color: var(--text-3); line-height: 1.7; }
+@media (max-width: 720px) { body { flex-direction: column; align-items: center; } .demo-panel { width: 375px; border-left: none; border-top: 2px dashed var(--demo-blue); } }
+@media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
+</style>
+</head>
+<body>
+<!-- ===== 手机框 ===== -->
+<div class="phone-frame">
+  <div class="status-bar">
+    <span class="time">9:41</span>
+    <div class="sb-ic">
+      <span class="sb-signal"><i></i><i></i><i></i><i></i></span>
+      <span class="sb-battery"><i></i></span>
+    </div>
+  </div>
+  <div class="nav-bar">
+    <a class="nb-back" href="project-list.html" title="返回项目主页">‹</a>
+    <div class="title">合同列表</div>
+    <div class="nb-actions" style="right:auto;left:auto;position:absolute;right:12px;top:50%;transform:translateY(-50%);display:flex;align-items:center;gap:10px">
+      <span class="nb-plus" id="navPlus" onclick="createContract()" title="发起合同">＋</span>
+      <div class="native-capsule" title="微信原生胶囊：由微信客户端渲染，开发者不可自定义其内容"><span class="nc-left">⋯</span><span class="nc-divider"></span><span class="nc-right">○</span></div>
+    </div>
+  </div>
+
+  <div class="page-body" id="pageBody">
+    <div id="ctRoot"></div>
+  </div>
+
+</div>
+
+<!-- ===== 演示面板（手机框外） ===== -->
+<div class="demo-panel">
+  <h4>演示开关</h4>
+  <div class="dp-group">
+    <div class="dp-lab">角色视角</div>
+    <div class="dp-opts" id="optRole">
+      <span class="dp-opt on" data-v="owner">项目负责人</span>
+      <span class="dp-opt" data-v="worker">受邀乙方</span>
+    </div>
+  </div>
+  <div class="dp-group">
+    <div class="dp-lab">数据权限</div>
+    <div class="dp-opts" id="optData">
+      <span class="dp-opt on" data-v="all">全部合同</span>
+      <span class="dp-opt" data-v="mine">仅本人相关</span>
+      <span class="dp-opt" data-v="none">无数据权限</span>
+    </div>
+  </div>
+  <div class="dp-group">
+    <div class="dp-lab">治理权限</div>
+    <div class="dp-opts" id="optManage">
+      <span class="dp-opt on" data-v="all">全部</span>
+      <span class="dp-opt" data-v="edit">仅编辑</span>
+      <span class="dp-opt" data-v="none">无</span>
+    </div>
+  </div>
+  <div class="dp-group">
+    <div class="dp-lab">合同数据</div>
+    <div class="dp-opts" id="optEmpty">
+      <span class="dp-opt on" data-v="normal">正常</span>
+      <span class="dp-opt" data-v="empty">空态</span>
+    </div>
+  </div>
+  <div class="dp-note">
+    说明：本版无在线支付能力，页面不展示支付进度；合同与项目架构无关联字段，仅通过<b>服务流程项</b>关联。<b>状态按合同体系区分</b>——服务合同（基础施工/设计）取合同详情页状态集（含待平台审核、变更审核中、变更签约中），工人合同（六工种班组）取工人合同详情页状态集（含确认中/已拒绝/未中选）；列表状态与详情页一一对应，点入即落到同一状态。详情页无「催办确认」「撤回」动作，故列表不提供。合同支持多级：主合同 → 班组子合同 → 强电/弱电等二级子合同。
+  </div>
+</div>
+
+<script>
+/* ================= 状态映射（严格对齐两个合同详情页） =================
+   非工人合同（基础施工 / 设计服务）：状态取自 js/contract-detail.js 的 statusConfig
+   工人合同（六工种班组合同）：状态取自 worker-contract-detail.js 的 STATUS_CONFIG
+   两套状态集合不同 → 列表按合同体系取表，文案与详情页逐字一致；
+   同一状态因视角不同文案不同（发起方「待对方确认」/ 受邀方「待我方确认」）。 */
+var SERVICE_STATUS = {
+  draft:                      { text: '拟定中',       cls: 'st-draft',      fam: 'draft' },
+  platform_reviewing:         { text: '待平台审核',    cls: 'st-reviewing',  fam: 'confirming' },
+  platform_rejected:          { text: '审核驳回',      cls: 'st-rejected',   fam: 'draft' },
+  confirming_sender:          { text: '待对方确认',    cls: 'st-confirming', fam: 'confirming' },
+  confirming_receiver:        { text: '待我方确认',    cls: 'st-confirming', fam: 'confirming' },
+  confirmed:                  { text: '已确认待签约',  cls: 'st-confirmed',  fam: 'confirming' },
+  signed:                     { text: '已签约',        cls: 'st-signed',     fam: 'signed' },
+  changing:                   { text: '变更中',        cls: 'st-change',     fam: 'changing' },
+  change_platform_reviewing:  { text: '变更审核中',    cls: 'st-reviewing',  fam: 'changing' },
+  change_confirming_sender:   { text: '变更确认中',    cls: 'st-change',     fam: 'changing' },
+  change_confirming_receiver: { text: '待确认变更',    cls: 'st-change',     fam: 'changing' },
+  change_signing_wait:        { text: '变更签约中',    cls: 'st-change',     fam: 'changing' },
+  change_platform_rejected:   { text: '变更已驳回',    cls: 'st-rejected',   fam: 'signed' },
+  change_confirming_rejected: { text: '变更已驳回',    cls: 'st-rejected',   fam: 'signed' }
+};
+
+var WORKER_STATUS = {
+  worker_draft:               { text: '拟定中',       cls: 'st-draft',      fam: 'draft' },
+  worker_inviting_sender:     { text: '确认中',       cls: 'st-confirming', fam: 'confirming' },
+  worker_inviting_receiver:   { text: '确认中',       cls: 'st-confirming', fam: 'confirming' },
+  worker_confirmed_receiver:  { text: '已确认',       cls: 'st-confirmed',  fam: 'confirming' },
+  worker_rejected_receiver:   { text: '已拒绝',       cls: 'st-rejected',   fam: 'closed' },
+  worker_lost_receiver:       { text: '未中选',       cls: 'st-neutral',    fam: 'closed' },
+  worker_signed:              { text: '已签约',       cls: 'st-signed',     fam: 'signed' },
+  changing:                   { text: '变更中',       cls: 'st-change',     fam: 'changing' },
+  change_confirming_sender:   { text: '变更确认中',    cls: 'st-change',     fam: 'changing' },
+  change_confirming:          { text: '待确认变更',    cls: 'st-change',     fam: 'changing' },
+  change_rejected:            { text: '变更已驳回',    cls: 'st-rejected',   fam: 'signed' }
+};
+
+/* 合同数据：字段与现有合同模型一致（contract-store.js / worker-contract-detail.js）
+   ct: 'service' = 非工人合同（基础施工 / 设计服务）→ contract-detail.html
+       'worker'  = 工人合同（六工种班组合同）→ worker-contract-detail.html
+   status 存「中立态」：confirming / worker_inviting / change_confirming 按当前角色在渲染时
+   换算为详情页的 _sender（发起方）/ _receiver（受邀方）版本
+   parent 表达上下级：基础施工(根) → 水电班组(一级子) → 强电/弱电(二级子)，层级不限
+   无架构层级字段、无支付进度字段 → 不展示「架构层级」「已付」
+   工期 duration 仅工人合同有（自签订之日起计算，单位天）；服务合同无此字段 */
+var CONTRACTS = [
+  /* ---- 根合同：基础施工服务合同（非工人合同） ---- */
+  {
+    id: 'base', name: '基础施工服务合同', ct: 'service', typeName: '基础施工服务',
+    flowId: 'sg', flowName: '基础施工服务',
+    status: 'signed', version: 'V1', amount: 186000,
+    partyA: '陈庄（工长）', partyB: '张三（项目经理）', no: 'BJSDSWHT000001', duration: null,
+    taskDone: 4, taskTotal: 7, changed: false, parent: null, mine: true
+  },
+  /* ---- 一级子合同：水电班组（工人合同）→ 其下再分强电 / 弱电 ---- */
+  {
+    id: 'water', name: '水电班组服务合同', ct: 'worker', typeName: '水电班组',
+    flowId: 'sg', flowName: '基础施工服务',
+    status: 'worker_signed', version: 'V2', amount: 26000,
+    partyA: '陈庄（工长）', partyB: '赵六（水电工长）', created: '2026-09-18', duration: 52,
+    taskDone: 2, taskTotal: 5, changed: true, parent: 'base', mine: true
+  },
+  /* ---- 二级子合同：强电 / 弱电（工人合同） ---- */
+  {
+    id: 'strong', name: '强电服务合同', ct: 'worker', typeName: '强电',
+    flowId: 'sg', flowName: '基础施工服务',
+    status: 'worker_inviting', version: 'V1', amount: 16000,
+    partyA: '赵六（水电工长）', partyB: '孙八（强电）', created: '2026-10-08', duration: 30,
+    taskDone: 0, taskTotal: 3, changed: false, parent: 'water', mine: true
+  },
+  {
+    id: 'weak', name: '弱电服务合同', ct: 'worker', typeName: '弱电',
+    flowId: 'sg', flowName: '基础施工服务',
+    status: 'worker_draft', version: 'V1', amount: 0,
+    partyA: '赵六（水电工长）', partyB: '钱九（弱电）', created: '2026-10-09', duration: null,
+    taskDone: 0, taskTotal: 2, changed: false, parent: 'water', mine: true
+  },
+  {
+    id: 'tile', name: '泥瓦班组服务合同', ct: 'worker', typeName: '泥瓦班组',
+    flowId: 'sg', flowName: '基础施工服务',
+    status: 'worker_inviting', version: 'V1', amount: 19800,
+    partyA: '陈庄（工长）', partyB: '周十（泥瓦工长）', created: '2026-11-01', duration: 45,
+    taskDone: 0, taskTotal: 4, changed: false, parent: 'base', mine: false
+  },
+  {
+    id: 'wood', name: '木作班组服务合同', ct: 'worker', typeName: '木作班组',
+    flowId: 'sg', flowName: '基础施工服务',
+    status: 'worker_draft', version: 'V1', amount: 0,
+    partyA: '陈庄（工长）', partyB: '吴十一（木工）', created: '2026-11-02', duration: null,
+    taskDone: 0, taskTotal: 3, changed: false, parent: 'base', mine: false
+  },
+  {
+    id: 'demo', name: '拆除班组服务合同', ct: 'worker', typeName: '拆除班组',
+    flowId: 'sg', flowName: '基础施工服务',
+    status: 'worker_signed', fulfilled: true, version: 'V1', amount: 8600,
+    partyA: '陈庄（工长）', partyB: '郑十二（拆除）', created: '2026-08-20', duration: 12,
+    taskDone: 3, taskTotal: 3, changed: false, parent: 'base', mine: false
+  },
+  /* ---- 根合同：设计服务合同（非工人合同，无子合同） ---- */
+  {
+    id: 'design', name: '设计服务合同', ct: 'service', typeName: '设计服务',
+    flowId: 'ht', flowName: '设计服务',
+    status: 'confirming', version: 'V1', amount: 42000,
+    partyA: '陈庄（工长）', partyB: '李四（设计师）', no: 'SJFWHT000007', duration: null,
+    taskDone: 3, taskTotal: 5, changed: false, parent: null, mine: false
+  }
+];
+
+var state = { role: 'owner', dataPerm: 'all', manage: 'all', keyword: '', statusFilter: 'all', empty: false };
+
+function money(n) {
+  if (!n) return '¥0';
+  return '¥' + n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+}
+function maskMoney() { return '<span class="mask">¥•••</span>'; }
+/* 金额文案：草稿未填写时不显示 ¥0，避免误读为免费合同 */
+function amountText(c) {
+  if (!amountVisible()) return maskMoney();
+  if (!c.amount) return '<span style="color:var(--text-3)">待填写</span>';
+  return money(c.amount);
+}
+function maskText() { return '<span class="mask">•••</span>'; }
+
+/* ================= 权限判定（依据：合同受邀关系 + 治理权限） ================= */
+function isWorkerRole() { return state.role === 'worker'; }
+function canManage(kind) {
+  if (isWorkerRole()) return false;
+  if (state.dataPerm === 'none') return false;
+  if (state.manage === 'all') return true;
+  if (state.manage === 'edit') return kind !== 'copy';
+  return false;
+}
+function amountVisible() { return state.dataPerm !== 'none'; }
+function partyVisible() { return amountVisible(); }
+function taskDetailVisible() { return amountVisible(); }
+
+/* 行级可见性：仅本人相关的合同（我签署 / 我被邀请）才可展开 */
+function isLocked(c) {
+  if (state.dataPerm === 'none') return false;      // 全项目降级：显示名称与状态，字段全部隐藏
+  if (isWorkerRole() || state.dataPerm === 'mine') return !c.mine;
+  return false;
+}
+
+/* 汇总：仅统计可见并未加密的合同 */
+function visibleContracts() {
+  return CONTRACTS.filter(function (c) { return !isLocked(c); });
+}
+
+/* ================= 渲染 ================= */
+function statusTable(c) { return c.ct === 'worker' ? WORKER_STATUS : SERVICE_STATUS; }
+
+/* 中立态 → 详情页状态 key（按当前角色换算视角）
+   项目负责人=发起方取 _sender（待对方确认/变更确认中）
+   受邀乙方  =受邀方取 _receiver（待我方确认/待确认变更）
+   工人合同的受邀方变更态在详情页里就叫 change_confirming（无 _receiver 后缀） */
+function resolveKey(c) {
+  var k = c.status;
+  var receiver = isWorkerRole();
+  if (k === 'confirming') return receiver ? 'confirming_receiver' : 'confirming_sender';
+  if (k === 'worker_inviting') return receiver ? 'worker_inviting_receiver' : 'worker_inviting_sender';
+  if (k === 'change_confirming') {
+    if (c.ct === 'worker') return receiver ? 'change_confirming' : 'change_confirming_sender';
+    return receiver ? 'change_confirming_receiver' : 'change_confirming_sender';
+  }
+  return k;
+}
+function statusOf(c) {
+  var t = statusTable(c);
+  return t[resolveKey(c)] || t[c.ct === 'worker' ? 'worker_draft' : 'draft'];
+}
+/* 状态族：两套体系状态 key 不同，筛选用族归一 */
+function familyOf(c) { return statusOf(c).fam; }
+
+function childrenOf(id) {
+  return CONTRACTS.filter(function (x) { return x.parent === id; });
+}
+function ancestorsOf(c) {
+  var out = [], p = contractById(c.parent);
+  while (p) { out.push(p); p = contractById(p.parent); }
+  return out;
+}
+function lockedDescendants(c) {
+  var n = 0;
+  childrenOf(c.id).forEach(function (k) {
+    if (isLocked(k)) n++; else n += lockedDescendants(k);
+  });
+  return n;
+}
+function sysTag(c) { return '<span class="tag tag-sys">' + (c.ct === 'worker' ? '工人合同' : '服务合同') + '</span>'; }
+
+function summaryHtml() {
+  var list = visibleContracts();
+  var total = list.length;
+  var signed = list.filter(function (c) { return familyOf(c) === 'signed'; }).length;
+  var doing = list.filter(function (c) { return familyOf(c) === 'confirming' || familyOf(c) === 'changing'; }).length;
+  var amount = list.reduce(function (s, c) { return s + (c.amount || 0); }, 0);
+  var showAmt = amountVisible();
+  var h = '<div class="card sum-card">';
+  h += '<div class="sum-item"><div class="sum-num">' + total + '</div><div class="sum-lab">合同份数</div></div>';
+  h += '<div class="sum-item"><div class="sum-num green">' + signed + '</div><div class="sum-lab">已签约</div></div>';
+  h += '<div class="sum-item"><div class="sum-num orange">' + doing + '</div><div class="sum-lab">进行中</div></div>';
+  h += '<div class="sum-amt"><div class="sa-v">' + (showAmt ? money(amount) : maskMoney()) + '</div><div class="sa-l">合同总额</div></div>';
+  h += '</div>';
+  if (isWorkerRole() || state.dataPerm === 'mine') {
+    h += '<div class="sum-scope">※ 仅统计与您相关的 ' + total + ' 份合同</div>';
+  } else if (state.dataPerm === 'none') {
+    h += '<div class="sum-scope">※ 金额已按数据权限隐藏</div>';
+  }
+  return h;
+}
+
+function filterCardHtml() {
+  var chips = [
+    { k: 'all', t: '全部' }, { k: 'draft', t: '拟定中' }, { k: 'confirming', t: '确认中' },
+    { k: 'signed', t: '已签约' }, { k: 'changing', t: '变更中' }, { k: 'closed', t: '已结束' }
+  ];
+  var h = '<div class="card filter-card">';
+  h += '<div class="ct-search"><span style="font-size:12px;color:var(--text-3)">⌕</span><input id="ctSearch" placeholder="搜索合同名称 / 合同类型" value="' + state.keyword + '" oninput="onSearch(this.value)"></div>';
+  h += '<div class="chip-row">';
+  chips.forEach(function (ch) {
+    h += '<span class="chip' + (state.statusFilter === ch.k ? ' on' : '') + '" onclick="setStatusFilter(\'' + ch.k + '\')">' + ch.t + '</span>';
+  });
+  h += '</div></div>';
+  return h;
+}
+
+/* 操作入口只保留详情页真实存在的动作（均在详情页有对应按钮）：
+   草稿→继续拟定（无治理权限时降级为只读「查看草稿」，任何情况只出现一个）
+   已签约→发起变更 / 复制发起；变更相关→查看变更；待我回应→查看邀请；其余→查看合同
+   详情页无「催办确认」「撤回」动作 → 列表不提供 */
+function opsHtml(c) {
+  if (state.dataPerm === 'none') return '';
+  var key = resolveKey(c);
+  var isDraft = (key === 'draft' || key === 'worker_draft');
+  var isSigned = (key === 'signed' || key === 'worker_signed');
+  var isChanging = (key === 'changing' || key.indexOf('change_') === 0);
+  var isInvitee = (key === 'worker_inviting_receiver');
+
+  if (isDraft) {
+    return canManage('edit')
+      ? '<span class="op primary" onclick="actDraft(\'' + c.id + '\')">继续拟定</span>'
+      : '<span class="op ghost" onclick="actView(\'' + c.id + '\')">查看草稿</span>';
+  }
+
+  var h = isInvitee
+    ? '<span class="op ghost" onclick="actView(\'' + c.id + '\')">查看邀请</span>'
+    : '<span class="op ghost" onclick="actView(\'' + c.id + '\')">' + (isChanging ? '查看变更' : '查看合同') + '</span>';
+  if (isSigned && canManage('edit')) h += '<span class="op" onclick="actChange(\'' + c.id + '\')">发起变更</span>';
+  if (isSigned && canManage('copy') && c.ct === 'service') h += '<span class="op" onclick="actCopy(\'' + c.id + '\')">复制发起</span>';
+  return h;
+}
+
+/* 根合同卡（容器）：ctx=true 时仅作命中子级的上下文，不展开字段 */
+function rootCardHtml(c, shown) {
+  var st = statusOf(c);
+  var ctx = shown[c.id] === 'ctx';
+  var pct = Math.round(c.taskDone / Math.max(1, c.taskTotal) * 100);
+
+  var h = '<div class="card ct-main' + (ctx ? ' ct-ctx' : '') + '" data-main="' + c.id + '" data-ct="' + c.ct + '" onclick="rowOpen(event, \'' + c.id + '\')">';
+  h += '<div class="ct-main-head">';
+  h += '<div class="ct-hd"><div class="ct-hd-l">';
+  h += '<div class="ct-name">' + c.name + '</div>';
+  h += '<div class="ct-tags"><span class="tag tag-type">' + c.typeName + '</span>' + sysTag(c);
+  if (c.changed) h += '<span class="tag tag-ver">' + c.version + '</span>';
+  h += '</div></div>';
+  h += '<span class="st-pill ' + st.cls + '">' + st.text + '</span>';
+  h += '</div>';
+
+  if (!ctx) {
+    h += '<div class="kv-grid">';
+    h += '<div class="kv"><span class="k">合同金额</span><span class="v amt">' + amountText(c) + '</span></div>';
+    h += '<div class="kv"><span class="k">承接任务</span><span class="v">' + (taskDetailVisible() ? c.taskDone + ' / ' + c.taskTotal : c.taskTotal + ' 项') + '</span></div>';
+    h += '<div class="kv"><span class="k">乙方</span><span class="v">' + (partyVisible() ? c.partyB : maskText()) + '</span></div>';
+    if (c.duration) {
+      h += '<div class="kv"><span class="k">工期</span><span class="v">' + c.duration + ' 天</span></div>';
+      if (c.no) h += '<div class="kv full"><span class="k">合同编号</span><span class="v mono">' + c.no + '</span></div>';
+    } else if (c.no) {
+      h += '<div class="kv"><span class="k">合同编号</span><span class="v mono">' + c.no + '</span></div>';
+    }
+    h += '</div>';
+    h += '<div class="ct-bar"><i style="width:' + pct + '%"></i></div>';
+    h += '<div class="ct-foot">';
+    h += c.flowName
+      ? '<span class="ct-flow" onclick="openFlow(\'' + c.flowId + '\')">流程：' + c.flowName + ' ›</span>'
+      : '<span class="ct-flow"></span>';
+    h += '<span class="ct-ops">' + opsHtml(c) + '</span>';
+    h += '</div>';
+  }
+  h += '</div>';
+
+  /* 下级合同树（可无限层级：子 → 孙 …） */
+  var kids = childrenOf(c.id).filter(function (k) { return shown[k.id]; });
+  if (kids.length) {
+    h += '<div class="sub-wrap">';
+    kids.forEach(function (k) { h += nodeRowHtml(k, 1, shown); });
+    h += '</div>';
+  }
+  var lk = lockedDescendants(c);
+  if (!ctx) {
+    if (!kids.length && !lk) h += '<div class="lock-row"><span class="lk">·</span>暂无下级合同</div>';
+    if (lk) h += '<div class="lock-row"><span class="lk">🔒</span>' + lk + ' 份下级合同不在您的合同范围内，无查看权限</div>';
+  }
+  h += '</div>';
+  return h;
+}
+
+/* 下级合同行（depth>=1），自身可再挂下级 */
+function nodeRowHtml(c, depth, shown) {
+  var st = statusOf(c);
+  var ctx = shown[c.id] === 'ctx';
+  var kids = childrenOf(c.id).filter(function (k) { return shown[k.id]; });
+  var h = '<div class="sub-row' + (ctx ? ' ctx' : '') + '" data-sub="' + c.id + '" data-ct="' + c.ct + '" data-depth="' + depth + '" onclick="rowOpen(event, \'' + c.id + '\')">';
+  h += '<div class="sub-top"><span class="sub-name">' + c.name + '</span>' + sysTag(c);
+  if (c.changed) h += '<span class="tag tag-ver">' + c.version + '</span>';
+  h += '<span class="st-pill ' + st.cls + '">' + st.text + '</span></div>';
+  if (!ctx) {
+    h += '<div class="kv-grid sub-kv">';
+    h += '<div class="kv"><span class="k">合同金额</span><span class="v amt">' + amountText(c) + '</span></div>';
+    h += '<div class="kv"><span class="k">承接任务</span><span class="v">' + (taskDetailVisible() ? c.taskDone + ' / ' + c.taskTotal : c.taskTotal + ' 项') + '</span></div>';
+    if (c.duration) h += '<div class="kv"><span class="k">工期</span><span class="v">' + c.duration + ' 天</span></div>';
+    if (partyVisible()) h += '<div class="kv"><span class="k">乙方</span><span class="v">' + c.partyB + '</span></div>';
+    h += '</div>';
+    h += '<div class="sub-ops">' + opsHtml(c) + '</div>';
+  }
+  if (kids.length) {
+    h += '<div class="sub-wrap">';
+    kids.forEach(function (k) { h += nodeRowHtml(k, depth + 1, shown); });
+    h += '</div>';
+  }
+  h += '</div>';
+  return h;
+}
+
+function lockedCardHtml(c) {
+  return '<div class="card ct-main"><div class="lock-row" style="padding:14px 14px"><span class="lk">🔒</span><span style="flex:1">' +
+    c.name + '<br><span style="font-size:10px">不在您的合同范围内，如需访问请联系项目负责人调整数据权限</span></span>' +
+    '<span class="op" onclick="showHint(\'请让项目负责人在「团队成员 → 数据权限」为您开通\')">如何查看</span></div></div>';
+}
+
+/* 命中集合：full=展示全部字段，ctx=仅作为命中下级合同的上下文 */
+function computeShown() {
+  var kw = (state.keyword || '').trim();
+  var shown = {};
+  CONTRACTS.forEach(function (c) {
+    if (isLocked(c)) return;
+    var kwOk = !kw || c.name.indexOf(kw) > -1 || c.typeName.indexOf(kw) > -1;
+    var fOk = state.statusFilter === 'all' || familyOf(c) === state.statusFilter;
+    if (!kwOk || !fOk) return;
+    shown[c.id] = 'full';
+    ancestorsOf(c).forEach(function (p) { if (!shown[p.id]) shown[p.id] = 'ctx'; });
+  });
+  return shown;
+}
+
+function render() {
+  var root = document.getElementById('ctRoot');
+  var h = '';
+  if (state.empty) {
+    h += '<div class="card empty-card"><div class="empty-ic">🗂</div><div class="empty-t">项目暂无合同</div>' +
+      '<div class="empty-s">合同由服务流程项发起：在项目主页「服务流程」中选择对应流程项，点击「拟定合同」即可创建。</div>' +
+      '<span class="empty-btn" onclick="goFlow()">去服务流程拟定合同</span></div>';
+    root.innerHTML = h;
+    return;
+  }
+  if (state.dataPerm === 'none') {
+    h += '<div class="ct-lock-banner"><span>🔒</span><span>您的数据权限为「无」：仅可见合同名称与状态，金额、甲乙方、承接任务明细均按权限隐藏。</span></div>';
+  }
+  h += summaryHtml();
+  h += filterCardHtml();
+  h += '<div class="ct-hint" id="ctHint"></div>';
+
+  var shown = computeShown();
+  var filtering = !!((state.keyword || '').trim()) || state.statusFilter !== 'all';
+  var any = false;
+  CONTRACTS.filter(function (c) { return !c.parent; }).forEach(function (r) {
+    if (isLocked(r)) {
+      if (!filtering) { any = true; h += lockedCardHtml(r); }
+      return;
+    }
+    if (!shown[r.id]) return;
+    any = true;
+    h += rootCardHtml(r, shown);
+  });
+  if (!any) {
+    h += '<div class="card empty-card"><div class="empty-ic">🔍</div><div class="empty-t">没有匹配的合同</div>' +
+      '<div class="empty-s">换个关键字，或把状态筛选切回「全部」试试。</div></div>';
+  }
+  root.innerHTML = h;
+}
+
+/* ================= 交互 ================= */
+function onSearch(v) {
+  state.keyword = v;
+  var box = document.getElementById('ctSearch');
+  var pos = box ? box.selectionStart : 0;
+  render();
+  var nb = document.getElementById('ctSearch');
+  if (nb) { nb.focus(); try { nb.setSelectionRange(pos, pos); } catch (e) {} }
+}
+function setStatusFilter(k) { state.statusFilter = k; render(); }
+function showHint(msg) {
+  var el = document.getElementById('ctHint');
+  if (!el) { render(); el = document.getElementById('ctHint'); }
+  if (!el) return;
+  el.textContent = msg;
+  el.classList.add('show');
+  clearTimeout(showHint._t);
+  showHint._t = setTimeout(function () { el.classList.remove('show'); }, 2600);
+}
+function contractById(id) {
+  for (var i = 0; i < CONTRACTS.length; i++) if (CONTRACTS[i].id === id) return CONTRACTS[i];
+  return null;
+}
+/* 按合同体系进入对应详情页，带上「当前视角换算后的状态」→ 详情页落到同一状态与视角 */
+function actView(id) {
+  var c = contractById(id);
+  if (!c) return;
+  var url = c.ct === 'worker' ? 'worker-contract-detail.html' : 'contract-detail.html';
+  var q = '?from=contract-list&id=' + c.id + '&status=' + encodeURIComponent(resolveKey(c));
+  if (c.ct === 'worker') q += '&viewer=' + (isWorkerRole() ? 'receiver' : 'sender');
+  location.href = url + q;
+}
+/* 整行可点：点合同行任一非按钮区域进入详情（按钮 / 流程入口自行处理） */
+function rowOpen(e, id) {
+  var t = e.target;
+  if (t && t.closest && (t.closest('.op') || t.closest('.ct-flow'))) return;
+  actView(id);
+}
+function actDraft(id) {
+  if (!canManage('edit')) { showHint('您没有编辑合同的治理权限'); return; }
+  location.href = 'create-contract.html?from=contract-list&id=' + id;
+}
+function actChange(id) {
+  var c = contractById(id);
+  if (!c || !canManage('edit')) { showHint('您没有发起变更的治理权限'); return; }
+  c.status = 'change_confirming';
+  c.changed = true;
+  render();
+  showHint('已发起变更，等待对方确认：' + c.name);
+}
+function actCopy(id) {
+  var c = contractById(id);
+  if (!c || !canManage('copy')) { showHint('您没有复制发起的治理权限'); return; }
+  location.href = 'contract-copy-initiate.html?from=contract-list&group=' + encodeURIComponent(c.typeName) + '&source=' + c.id;
+}
+function createContract() {
+  if (!canManage('edit')) { showHint('您没有创建合同的治理权限'); return; }
+  location.href = 'create-contract.html?from=contract-list';
+}
+function openFlow(flowId) { location.href = 'project-list.html?item=' + flowId; }
+function goFlow() { location.href = 'project-list.html'; }
+
+/* ================= 演示开关 ================= */
+function bindOpts(id, fn) {
+  var box = document.getElementById(id);
+  if (!box) return;
+  var opts = box.querySelectorAll('.dp-opt');
+  for (var i = 0; i < opts.length; i++) {
+    opts[i].addEventListener('click', function () {
+      for (var j = 0; j < opts.length; j++) opts[j].classList.remove('on');
+      this.classList.add('on');
+      fn(this.getAttribute('data-v'));
+    });
+  }
+}
+function setRole(v) { state.role = v; render(); }
+function setDataPerm(v) { state.dataPerm = v; render(); }
+function setManage(v) { state.manage = v; render(); }
+function setEmpty(v) { state.empty = (v === 'empty'); render(); }
+
+bindOpts('optRole', setRole);
+bindOpts('optData', setDataPerm);
+bindOpts('optManage', setManage);
+bindOpts('optEmpty', setEmpty);
+render();
+</script>
+</body>
+</html>

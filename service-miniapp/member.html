@@ -7,21 +7,21 @@
     <link rel="stylesheet" href="common.css" data-page-node-id="Z0h2aqQmR1jqHMgyP3Ohgl">
     <style>
         .page-content {
-            height: calc(100% - 44px);
+            height: calc(100% - 88px); /* 状态栏 44 + 导航栏 44，避免底部被 phone-frame 裁切 */
             background-color: var(--bg-secondary);
             overflow-y: auto;
         }
 
         .member-header {
             background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-light) 100%);
-            padding: 16px;
+            padding: 10px 16px;
             color: #FFFFFF;
         }
 
         .member-header .project-name {
-            font-size: 16px;
+            font-size: 15px;
             font-weight: 600;
-            margin-bottom: 4px;
+            margin-bottom: 2px;
         }
 
         .member-header .member-count {
@@ -263,6 +263,240 @@
             box-shadow: 0 1px 3px rgba(0,0,0,0.12);
         }
 
+        /* ===== 项目架构卡（只读通讯录式，点击节点=筛选联动成员区） ===== */
+        .arch-card {
+            margin-bottom: 12px;
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 10px 14px 8px;
+        }
+        .arch-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 2px 0 6px;
+        }
+        .arch-head-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .arch-head-sub {
+            font-size: 12px;
+            color: var(--text-tertiary);
+        }
+        .arch-toggle {
+            font-size: 12px;
+            color: var(--primary-color);
+            padding: 6px 2px 6px 10px;
+            cursor: pointer;
+            user-select: none;
+        }
+        .arch-tree { padding-bottom: 4px; }
+        /* ===== 顶部头部：创建人 + 架构组统计（与成员数去重后合并至此） ===== */
+        .member-header .header-meta { margin-top: 3px; }
+        .hm-creator {
+            font-size: 12px;
+            opacity: 0.95;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .hm-creator em {
+            font-style: normal;
+            font-size: 11px;
+            color: #FFFFFF;
+            background: rgba(255,255,255,0.22);
+            padding: 1px 7px;
+            border-radius: 8px;
+        }
+        .hm-stats {
+            font-size: 11px;
+            opacity: 0.85;
+            margin-top: 2px;
+        }
+        .hm-stats b { font-weight: 600; opacity: 1; }
+        .tree-node-row {
+            display: flex;
+            align-items: center;
+            min-height: 38px;
+            border-radius: 8px;
+            padding: 0 6px;
+            cursor: pointer;
+            transition: background-color 0.15s;
+        }
+        .tree-node-row:active { background-color: var(--bg-secondary); }
+        .tree-node-row.active { background-color: var(--status-primary-bg); }
+        .tree-caret {
+            width: 22px;
+            height: 22px;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-tertiary);
+            font-size: 10px;
+            transition: transform 0.2s;
+        }
+        .tree-caret.leaf { visibility: hidden; }
+        .tree-caret.expanded { transform: rotate(90deg); }
+        .tree-icon { margin-right: 6px; font-size: 14px; }
+        .tree-name { font-size: 13px; color: var(--text-primary); font-weight: 500; }
+        .tree-node-row.l0 .tree-name { font-weight: 600; }
+        .tree-count {
+            margin-left: auto;
+            font-size: 11px;
+            color: var(--text-tertiary);
+            background: var(--bg-secondary);
+            padding: 2px 8px;
+            border-radius: 9px;
+            white-space: nowrap;
+        }
+        .tree-node-row.active .tree-count {
+            color: var(--primary-color);
+            background: rgba(24,144,255,0.14);
+            font-weight: 600;
+        }
+        .tree-children {
+            margin-left: 12px;
+            border-left: 1px dashed var(--border-color);
+            padding-left: 4px;
+        }
+        .tree-children.collapsed { display: none; }
+
+        /* 架构筛选条（方式二：筛选联动后显示，可关闭恢复全量） */
+        .arch-filter-chip {
+            display: none;
+            align-items: center;
+            gap: 6px;
+            margin-bottom: 10px;
+            padding: 7px 12px;
+            background: var(--status-primary-bg);
+            border-radius: 10px;
+            font-size: 13px;
+            color: var(--primary-color);
+        }
+        .arch-filter-chip.show { display: flex; }
+        .arch-filter-chip .chip-label { font-weight: 600; }
+        .arch-filter-chip .chip-close {
+            margin-left: auto;
+            width: 22px;
+            height: 22px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            background: rgba(24,144,255,0.18);
+            font-size: 11px;
+            color: var(--primary-color);
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+
+        /* ===== 节点操作（增删改/退出，参照架构页原功能） ===== */
+        .tree-ops {
+            margin-left: 8px;
+            width: 28px;
+            height: 28px;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 6px;
+            color: var(--text-tertiary);
+            font-size: 14px;
+            cursor: pointer;
+        }
+        .tree-ops:active { background: var(--bg-secondary); }
+        .tree-node-row.has-ops .tree-count { margin-left: 0; }
+        .tree-actions {
+            display: none;
+            flex-wrap: wrap;
+            gap: 6px;
+            padding: 2px 6px 8px 30px;
+        }
+        .tree-actions.show { display: flex; }
+        .tree-action {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 12px;
+            padding: 7px 11px;
+            border-radius: 8px;
+            background: var(--bg-secondary);
+            color: var(--text-secondary);
+            cursor: pointer;
+            border: 1px solid var(--border-color);
+            white-space: nowrap;
+        }
+        .tree-action.primary { color: var(--primary-color); background: var(--status-primary-bg); border-color: transparent; }
+        .tree-action.danger { color: #F5222D; background: rgba(245,34,45,0.08); border-color: transparent; }
+
+        /* ===== 架构/人员合并视图：人员区显隐 ===== */
+        .page-content.mem-hidden .filter-bar,
+        .page-content.mem-hidden .search-bar,
+        .page-content.mem-hidden .search-result-info,
+        .page-content.mem-hidden .arch-filter-chip,
+        .page-content.mem-hidden .member-list,
+        .page-content.mem-hidden .invite-fab { display: none !important; }
+        /* ===== 树内成员嵌套（紧凑行，复用 member-card） ===== */
+        .node-members { margin: 2px 0 6px 12px; }
+        .node-members.members-collapsed { display: none; }
+        /* 树内成员卡紧凑化：深层级缩进叠加下防止姓名/标签竖排折行 */
+        .node-members .member-card { padding: 10px 12px; }
+        .node-members .member-card .avatar {
+            width: 36px; height: 36px; font-size: 14px; margin-right: 10px;
+        }
+        .node-members .member-card .name-row { flex-wrap: wrap; gap: 6px; }
+        .node-members .member-card .name { font-size: 14px; white-space: nowrap; }
+        .node-members .member-card .role-tag { white-space: nowrap; padding: 2px 6px; }
+        .node-members .member-card .info .name-row:last-child { margin-bottom: 0; }
+        .node-members .member-card .permission-badge { flex-shrink: 0; }
+        .node-members .member-card .permission-tag { white-space: nowrap; }
+        .tree-mem-toggle {
+            font-size: 11px; color: var(--primary-color); background: var(--status-primary-bg);
+            border-radius: 10px; padding: 2px 8px; cursor: pointer; flex-shrink: 0; white-space: nowrap;
+        }
+
+        /* ===== 层级操作底部动作面板（小程序标准 ActionSheet） ===== */
+        .as-mask { position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 1200; display: none; }
+        .as-mask.show { display: block; animation: asFadeIn 0.18s; }
+        @keyframes asFadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .as-sheet { position: fixed; left: 8px; right: 8px; bottom: 10px; z-index: 1201; display: none; }
+        .as-sheet.show { display: block; animation: asSlideUp 0.2s; }
+        @keyframes asSlideUp { from { transform: translateY(30px); opacity: 0.4; } to { transform: translateY(0); opacity: 1; } }
+        .as-group { border-radius: 12px; overflow: hidden; box-shadow: 0 -2px 14px rgba(0,0,0,0.08); }
+        .as-title { background: #F7F7F7; text-align: center; font-size: 12px; color: var(--text-tertiary); padding: 11px 0; }
+        .as-item { background: #fff; text-align: center; font-size: 16px; padding: 16px 0; border-top: 1px solid var(--border-color); cursor: pointer; }
+        .as-item:active { background: var(--bg-secondary); }
+        .as-item.danger { color: #F5222D; }
+        .as-cancel { background: #fff; border-radius: 12px; margin-top: 8px; text-align: center; font-size: 16px; font-weight: 600; padding: 16px 0; cursor: pointer; }
+        .as-cancel:active { background: var(--bg-secondary); }
+
+        .arch-empty {
+            text-align: center;
+            color: var(--text-tertiary);
+            font-size: 12px;
+            padding: 12px 0;
+        }
+        .tree-form-display {
+            padding: 10px 12px;
+            background: var(--bg-secondary);
+            border-radius: 8px;
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+        .tree-form-err {
+            display: none;
+            color: #F5222D;
+            font-size: 12px;
+            margin-top: 6px;
+        }
+
         /* When demo toggled off, hide arrows and disable permission controls (avatar/name still clickable) */
         .member-list.no-manage .arrow { display: none; }
         .member-list.no-manage .permission-badge { pointer-events: none; opacity: 0.7; }
@@ -338,6 +572,7 @@
             vertical-align: middle;
         }
         .member-level-tag.lv2 { color: #722ED1; background-color: rgba(114,46,209,0.12); }
+        .member-level-tag.lv1 { color: #1890FF; background-color: rgba(24,144,255,0.12); }
 
         .member-card {
             display: flex;
@@ -430,6 +665,10 @@
             color: #FA8C16;
         }
 
+        .member-card .role-tag.creator {
+            color: #D48806;
+            background: #FFF7E6;
+        }
         .member-card .role-tag.manager {
             background-color: #F9F0FF;
             color: #722ED1;
@@ -714,6 +953,52 @@
             color: var(--text-tertiary);
         }
 
+        /* 指派任务范围面板：勾选「指派任务」后在弹窗内就地展开 */
+        .assign-scope-panel {
+            margin: 4px 0 6px 30px;
+            padding: 10px 12px;
+            background: #F7F7FE;
+            border: 1px solid #E4E2F8;
+            border-radius: 10px;
+        }
+        .assign-scope-panel .as-scope-title {
+            font-size: 12px;
+            font-weight: 500;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+        }
+        .assign-scope-panel .permission-option {
+            padding: 7px 9px;
+            margin-bottom: 6px;
+        }
+        .assign-scope-panel .permission-option:last-of-type {
+            margin-bottom: 0;
+        }
+        .assign-scope-panel .option-title {
+            font-size: 12px;
+        }
+        .assign-scope-panel .option-desc {
+            font-size: 11px;
+        }
+        .assign-scope-panel .permission-option.disabled {
+            opacity: 0.45;
+            pointer-events: none;
+        }
+        .assign-scope-panel .as-scope-note {
+            font-size: 11px;
+            color: var(--text-tertiary);
+            line-height: 1.5;
+            margin-top: 8px;
+            padding-top: 7px;
+            border-top: 1px solid #E4E2F8;
+        }
+        .section-footnote {
+            font-size: 11px;
+            color: var(--text-tertiary);
+            line-height: 1.5;
+            margin-top: 8px;
+        }
+
         .permission-warning {
             display: flex;
             align-items: flex-start;
@@ -896,7 +1181,7 @@
         .search-bar {
             display: none;
             align-items: center;
-            padding: 12px 16px;
+            padding: 8px 16px;
             background-color: var(--bg-primary);
             border-bottom: 1px solid var(--border-color);
             gap: 12px;
@@ -923,7 +1208,7 @@
 
         .search-bar .search-input-wrap .search-input {
             flex: 1;
-            height: 40px;
+            height: 34px;
             border: none;
             background: none;
             font-size: 14px;
@@ -1632,85 +1917,45 @@
             <div class="member-header" data-page-node-id="uWzxT6U8b0GQ1EDJX3exNx">
                 <div class="project-name" data-page-node-id="skIItT0anVteATmp6VlgPI">XX小区整体装修</div>
                 <div class="member-header-row" data-page-node-id="webDMFPEisrwyX13j6Y30H">
-                    <div class="member-count" id="memberCount" data-page-node-id="Bz0SuMcU5aRmbyqM8sdkIO">共 24 位成员</div>
+                    <div class="header-meta" id="headerMeta">
+                        <div class="hm-creator">创建人：张三 <em>项目总</em> <em>工长</em></div>
+                        <div class="hm-stats" id="archMetaStats"></div>
+                    </div>
                     <button class="exit-btn-header" onclick="showSelfExitConfirm()" data-page-node-id="DOQKt91UZJ9Ig17HHzb0NU">退出项目</button>
                 </div>
             </div>
-            
-            <div class="filter-bar" data-page-node-id="lsVjt2sUoMP38ObB68STld">
-                <div class="filter-wrapper" style="flex: 1;" data-page-node-id="IPAxwf0ulooZE58C3AhSLt">
-                    <div class="filter-selector" id="filterSelector" onclick="toggleFilterDropdown()" data-page-node-id="iz1D4SSesB7cYVZauQFmIn">
-                        <div class="selector-text" data-page-node-id="KLkBJ5c9dajwArNKOeqwpP">
-                            <span class="icon" data-page-node-id="4aH1e6IeRHHi3JXSVPtj4z">🏢</span>
-                            <span class="label" id="filterLabel" data-page-node-id="CnGXS7iQjQTfuwFpKcKLpM">全部成员</span>
-                        </div>
-                        <span class="arrow" data-page-node-id="Y4QLU7CNloDEeb1iq8dG7l">▼</span>
-                    </div>
-                    <div class="filter-dropdown" id="filterDropdown" data-page-node-id="FMWqCU19KxmCy4EO3itzHY">
-                        <div class="dropdown-item selected" onclick="selectFilter('all', '全部成员', 24)" data-page-node-id="69OEP2Ki4MDCyv4pkMNcsF">
-                            <div class="item-text" data-page-node-id="WImwUsEFal96HzayVtbZ3E">
-                                <span class="item-icon" data-page-node-id="hBMX2g1eFZ8qaimVEbBE9C">🏢</span>
-                                <span class="item-name" data-page-node-id="pdkVCYkwO3YB9O188SGIWx">全部成员</span>
-                            </div>
-                            <div class="item-count" data-page-node-id="wPpEFliwrlls1XnZ2HntRJ">24人</div>
-                        </div>
-                        <div class="dropdown-item" onclick="selectFilter('project', '项目部', 3)" data-page-node-id="yuMZPdFEa3WW1irXeROcg9">
-                            <div class="item-text" data-page-node-id="P0TlrgTvoum4TFenlVFQfV">
-                                <span class="item-icon" data-page-node-id="uLMDqlPleOGKR3uxaqbYeX">🏢</span>
-                                <span class="item-name" data-page-node-id="zwWUTNRsCflwSomOqEOmKu">项目部</span>
-                            </div>
-                            <div class="item-count" data-page-node-id="3gac6RpQzuJdxiuDJGtZoF">3人</div>
-                        </div>
-                        <div class="dropdown-item" onclick="selectFilter('water', '水电工作组', 8)" data-page-node-id="5uXK1LyLtCE2aHIPHYsF8R">
-                            <div class="item-text" data-page-node-id="AuXux10os6xBils0dvSZaU">
-                                <span class="item-icon" data-page-node-id="itxkgcDMmfaZCTfGEiROpG">👷</span>
-                                <span class="item-name" data-page-node-id="5zxEPZPO7dfjc3hMkTWQGW">水电工作组</span>
-                            </div>
-                            <div class="item-count" data-page-node-id="Jrl4DLeqDhRsTOHA7rdN6y">8人</div>
-                        </div>
-                        <div class="dropdown-item" onclick="selectFilter('tile', '泥瓦工作组', 6)" data-page-node-id="NQCY75pWUmptJccRHS24oE">
-                            <div class="item-text" data-page-node-id="J869gGUVjtnnyh2GTtoaNs">
-                                <span class="item-icon" data-page-node-id="H3En7EeQhi1J7s3NIlMKKD">🧱</span>
-                                <span class="item-name" data-page-node-id="KrWXtKHRpwsrvhYkEAIJ8h">泥瓦工作组</span>
-                            </div>
-                            <div class="item-count" data-page-node-id="r2VhAHZDApNQAuj4a01pzY">6人</div>
-                        </div>
-                        <div class="dropdown-item" onclick="selectFilter('wood', '木工工作组', 4)" data-page-node-id="XXFjYNrbj9ZRwnCxi4jbwC">
-                            <div class="item-text" data-page-node-id="CGfJIOFjBeFOyVNM5I9ocP">
-                                <span class="item-icon" data-page-node-id="ylwOAFeE8nifUilgfsqE6n">🪵</span>
-                                <span class="item-name" data-page-node-id="eCRdg6aDx59I3kjMTnyf9V">木工工作组</span>
-                            </div>
-                            <div class="item-count" data-page-node-id="k1DaLHLu9scGG7FhTh9XIe">4人</div>
-                        </div>
-                        <div class="dropdown-item" onclick="selectFilter('paint', '油漆工作组', 3)" data-page-node-id="Sk8QUjkSeKDSKJtfMroi87">
-                            <div class="item-text" data-page-node-id="6VnPug0LcTEoToqdGJHCpO">
-                                <span class="item-icon" data-page-node-id="STOvItntazMUHzxZmsLPgv">🎨</span>
-                                <span class="item-name" data-page-node-id="IMJjmVdGY95i6CaAfXQD34">油漆工作组</span>
-                            </div>
-                            <div class="item-count" data-page-node-id="gfOT48ZsMEkqkkv2E6cCcp">3人</div>
-                        </div>
-                    </div>
-                </div>
-                <div class="search-btn" onclick="toggleSearchBar()" data-page-node-id="QcfXJhNj4HcfRd6zopPm9q">🔍</div>
-            </div>
-            
-            <div class="search-bar" id="searchBar" data-page-node-id="JeWOQgcNzp3irMnWsYHKZ8">
+
+            <div class="search-bar show" id="searchBar" data-page-node-id="JeWOQgcNzp3irMnWsYHKZ8">
                 <div class="search-input-wrap" data-page-node-id="OKUTr2cWUsnWmqzNGAdr98">
                     <span class="search-icon" data-page-node-id="WQVwtgMCplSppIsqGX1AP9">🔍</span>
-                    <input type="text" class="search-input" id="searchInput" placeholder="搜索成员姓名、角色..." oninput="handleSearch(this.value)" data-page-node-id="YIqDSiIF42gSohDnhxsWNK">
+                    <input type="text" class="search-input" id="searchInput" placeholder="搜索架构层级 / 成员姓名、角色..." oninput="handleSearch(this.value)" data-page-node-id="YIqDSiIF42gSohDnhxsWNK">
                     <span class="clear-btn" onclick="clearSearch()" data-page-node-id="ButpzZAjMMZ6dXPyq8Hcm0">✕</span>
                 </div>
-                <span class="cancel-btn" onclick="closeSearchBar()" data-page-node-id="jQeaUNDIdMOq7aEDx1u86T">取消</span>
+                <span class="cancel-btn" onclick="clearSearch()" data-page-node-id="jQeaUNDIdMOq7aEDx1u86T">取消</span>
             </div>
             
-            <div class="search-result-info" id="searchResultInfo" data-page-node-id="lyQxcj47Hu9ir6afTeaOjE"></div>
-            
-            <div class="member-list no-manage" id="memberList" data-page-node-id="icB0HQstOpcYYCgDINxCaE">
+            <div class="arch-card" id="archCard">
+                <div class="arch-head">
+                    <div class="arch-head-title">🗂️ 项目架构</div>
+                    <div style="display:flex;align-items:center;">
+                        <span class="arch-head-sub" id="archHeadSub"></span>
+                        <span class="arch-toggle" id="memAllToggle" onclick="toggleAllMem()">展示全部人员</span>
+                    </div>
+                </div>
+                <div class="arch-tree" id="archTree"></div>
             </div>
-            
-            <div class="invite-fab" onclick="showInviteModal()" data-page-node-id="3zvLoEa527xlAo946aAU8H">+</div>
+
         </div>
         
+        <div class="as-mask" id="archSheetMask" onclick="closeArchSheet()"></div>
+        <div class="as-sheet" id="archSheet">
+            <div class="as-group">
+                <div class="as-title" id="archSheetTitle"></div>
+                <div id="archSheetItems"></div>
+            </div>
+            <div class="as-cancel" onclick="closeArchSheet()">取消</div>
+        </div>
+
         <div class="invite-modal" id="inviteModal" data-page-node-id="IUY3eNMCKRWE1r0uRpjG0B">
             <div class="modal-content" data-page-node-id="1VQspBaiFU3dadb9rwOFE7">
                 <div class="modal-header" data-page-node-id="GuaQtYBRcURHqwr3cf02Rp">
@@ -1767,6 +2012,16 @@
                                         <span class="item-name" data-page-node-id="xDbxK4bztlLUZUtPjWDB6u">油漆工作组</span>
                                         <span class="check-icon" style="display: none;" data-page-node-id="6ywqoHlSSlaNEVhUW3ZsmC">✓</span>
                                     </div>
+                                    <div class="dropdown-item" data-value="base" data-icon="🏗️" data-name="基础施工组" onclick="selectGroup(this)">
+                                        <span class="item-icon">🏗️</span>
+                                        <span class="item-name">基础施工组</span>
+                                        <span class="check-icon" style="display: none;">✓</span>
+                                    </div>
+                                    <div class="dropdown-item" data-value="design" data-icon="📐" data-name="设计工作组" onclick="selectGroup(this)">
+                                        <span class="item-icon">📐</span>
+                                        <span class="item-name">设计工作组</span>
+                                        <span class="check-icon" style="display: none;">✓</span>
+                                    </div>
                                     <div class="dropdown-item" data-value="hvac" data-icon="❄️" data-name="暖通工作组" onclick="selectGroup(this)" data-page-node-id="MHraeBhy6HntPkmKhOBINK">
                                         <span class="item-icon" data-page-node-id="jBIqy1ZpqMk5bn88AB4zDl">❄️</span>
                                         <span class="item-name" data-page-node-id="quHgIgl0L7C2ehUagDhBTT">暖通工作组</span>
@@ -1813,7 +2068,7 @@
                         <span class="app-icon" data-page-node-id="evxl2FAbUGZfdLwFTqCD1W">🛠️</span>
                         <div class="app-text" data-page-node-id="v6HhbadXUAHkAJtCEpER7p">
                             <div class="app-line" data-page-node-id="6Wel9u1NSZEB0w426AQmVN">被邀请人将进入 <b data-page-node-id="AG3508kkFvByqKb5TB20Nr">服务端小程序</b></div>
-                            <div class="app-perm" data-page-node-id="4OlVQE0gF3EicsDrR6oEs8">默认权限：仅基础公开数据，无治理权限</div>
+                            <div class="app-perm" data-page-node-id="4OlVQE0gF3EicsDrR6oEs8">默认权限：仅公开数据，无治理权限</div>
                         </div>
                     </div>
                     
@@ -1917,24 +2172,25 @@
                     <div class="permission-option" onclick="selectDataPermission(this, 'level')" data-page-node-id="Ijhx2bBsjWoCQNVnciEFia">
                         <div class="radio" data-page-node-id="18BSs1TmPofYKUVdpXrPcC"></div>
                         <div class="option-content" data-page-node-id="tb1Ax9ImbCSl6pOIw8UU8F">
-                            <div class="option-title" data-page-node-id="Rhfyu1pyvLrmYTmBSsw8EO">所在架构层级</div>
-                            <div class="option-desc" data-page-node-id="VwHJdonop2ZdKVjqVvykqC">仅可查看所属工作组及下级的数据</div>
+                            <div class="option-title" data-page-node-id="Rhfyu1pyvLrmYTmBSsw8EO">所在服务流程层级（含子级）</div>
+                            <div class="option-desc" data-page-node-id="VwHJdonop2ZdKVjqVvykqC">仅可查看所属流程项及下级的数据，不含合同与任务明细</div>
                         </div>
                     </div>
                     <div class="permission-option" onclick="selectDataPermission(this, 'level_with_contract')" data-page-node-id="Q4MyMJ0h7osolAFobgL7Ia">
                         <div class="radio" data-page-node-id="hgbKdcX4GVu7bKsMFpbImQ"></div>
                         <div class="option-content" data-page-node-id="CgH9cm3CRgh9lNS4n1nlXh">
-                            <div class="option-title" data-page-node-id="O6uiogBsCHsBcATxhDrs1d">所在架构及下属层级权限（含合同）</div>
-                            <div class="option-desc" data-page-node-id="ZdUFNDyMDs7JCiejl5dYIC">可查看所属工作组及下级的数据，包含合同相关内容</div>
+                            <div class="option-title" data-page-node-id="O6uiogBsCHsBcATxhDrs1d">所在服务流程层级（当前层级，含合同与任务）</div>
+                            <div class="option-desc" data-page-node-id="ZdUFNDyMDs7JCiejl5dYIC">可查看所属流程项当前层级的数据，含流程项内合同（主/子）与任务</div>
                         </div>
                     </div>
                     <div class="permission-option" onclick="selectDataPermission(this, 'none')" data-page-node-id="WWWv7GiTs0vzvG5N842Wbs">
                         <div class="radio" data-page-node-id="2ivGMUElclHy4KypFDYBIe"></div>
                         <div class="option-content" data-page-node-id="AC4ECSvi9cS8anF3p7Zq7e">
-                            <div class="option-title" data-page-node-id="XRMBqu1YdtnRMBMAKfTQ1a">仅基础公开数据</div>
-                            <div class="option-desc" data-page-node-id="N8eS7ZSluu4TwzMW0u9EGm">仅可查看基础公开数据、所在架构层数据及参与签署合同数据</div>
+                            <div class="option-title" data-page-node-id="XRMBqu1YdtnRMBMAKfTQ1a">仅公开 + 本流程项 + 参与（签署/执行）数据</div>
+                            <div class="option-desc" data-page-node-id="N8eS7ZSluu4TwzMW0u9EGm">仅可查看基础公开数据、本人所属流程项数据及参与签署/执行任务的数据</div>
                         </div>
                     </div>
+                    <div class="section-footnote">架构作为团队花名册，组织信息默认项目成员可见（不含合同），不再单列权限维度。</div>
                 </div>
                 
                 <div class="permission-section" data-page-node-id="EtI8g0jDPFsAHX0IABP79v">
@@ -1956,6 +2212,38 @@
                                 <div class="option-desc" data-page-node-id="tVKcHg9aSylJpILmBV1ytb">可编辑项目信息、创建架构和合同</div>
                             </div>
                         </div>
+                        <div class="permission-checkbox" onclick="toggleManagePermission(this, 'assign')">
+                            <div class="checkbox"></div>
+                            <div class="option-content">
+                                <div class="option-title">指派任务</div>
+                                <div class="option-desc">在授权范围内，向成员派遣流程项内临时任务</div>
+                            </div>
+                        </div>
+                        <div class="assign-scope-panel" id="assignScopePanel" style="display: none;">
+                            <div class="as-scope-title">指派任务范围（单选，独立于数据权限）</div>
+                            <div class="permission-option scope-opt" data-scope="scope_all" onclick="selectAssignScope(this, 'scope_all')">
+                                <div class="radio"></div>
+                                <div class="option-content">
+                                    <div class="option-title">全部流程项</div>
+                                    <div class="option-desc">可在项目内所有服务流程项中指派任务</div>
+                                </div>
+                            </div>
+                            <div class="permission-option scope-opt" data-scope="scope_level_children" onclick="selectAssignScope(this, 'scope_level_children')">
+                                <div class="radio"></div>
+                                <div class="option-content">
+                                    <div class="option-title">所在服务流程层级（含子级）</div>
+                                    <div class="option-desc">可在所属流程项及其下级内指派任务</div>
+                                </div>
+                            </div>
+                            <div class="permission-option scope-opt" data-scope="scope_level_current" onclick="selectAssignScope(this, 'scope_level_current')">
+                                <div class="radio"></div>
+                                <div class="option-content">
+                                    <div class="option-title">所在服务流程层级（当前层级，含合同与任务）</div>
+                                    <div class="option-desc">仅在所属流程项本层内指派任务（最小范围，默认）</div>
+                                </div>
+                            </div>
+                            <div class="as-scope-note" id="assignScopeNote">范围随成员隶属层级自动适配，流程项增删改时无需重新授权。</div>
+                        </div>
                         <div class="permission-checkbox" onclick="toggleManagePermission(this, 'remove')" data-page-node-id="BEyjs1dxHtyTELqgfiWare">
                             <div class="checkbox" data-page-node-id="0dUVRDWOSBtkCvqQvZR2ZV"></div>
                             <div class="option-content" data-page-node-id="IKERPO5jSavpFfHEsBeuqF">
@@ -1968,6 +2256,20 @@
                             <div class="option-content" data-page-node-id="ADKzU0n5Z7GpBij7SzSkjx">
                                 <div class="option-title" data-page-node-id="OyPsCO4FEaojml6luHxdGO">添加工作组</div>
                                 <div class="option-desc" data-page-node-id="jb88MDlrcQGjhvFlr6Bvi2">可在项目中创建新的工作组</div>
+                            </div>
+                        </div>
+                        <div class="permission-checkbox" onclick="toggleManagePermission(this, 'manage_flow')">
+                            <div class="checkbox"></div>
+                            <div class="option-content">
+                                <div class="option-title">管理服务流程项</div>
+                                <div class="option-desc">增删 / 调序 / 编辑本项目的服务流程项</div>
+                            </div>
+                        </div>
+                        <div class="permission-checkbox" onclick="toggleManagePermission(this, 'close_noncontract')">
+                            <div class="checkbox"></div>
+                            <div class="option-content">
+                                <div class="option-title">关闭非合同任务</div>
+                                <div class="option-desc">终止非合同类流程项下的任务</div>
                             </div>
                         </div>
                     </div>
@@ -2004,6 +2306,44 @@
                 </div>
                 <div class="remove-member-section" id="actionRemoveSection" data-page-node-id="YLdDCaQUd8nTymSicSLfIw">
                     <button class="remove-btn" id="actionRemoveBtn" onclick="showRemoveConfirm()" data-page-node-id="e0qIN1NvfTv8uEfW9Exd1H">移出项目</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="app-modal" id="createNodeModal">
+            <div class="modal-box">
+                <div class="modal-title" id="createNodeTitle">创建工作组</div>
+                <div class="modal-content" style="text-align:left;">
+                    <div class="form-group">
+                        <label class="form-label"><span class="required">*</span><span id="createNodeNameLabel">工作组名称</span></label>
+                        <input type="text" class="form-input" id="createNodeName" placeholder="请输入名称">
+                        <div class="tree-form-err" id="createNodeErr"></div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">隶属</label>
+                        <div class="tree-form-display" id="createNodeParent">项目部</div>
+                    </div>
+                </div>
+                <div class="modal-actions">
+                    <button class="modal-btn cancel" onclick="closeCreateNodeModal()">取消</button>
+                    <button class="modal-btn confirm" onclick="confirmCreateNode()">确认创建</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="app-modal" id="renameNodeModal">
+            <div class="modal-box">
+                <div class="modal-title" id="renameNodeTitle">重命名</div>
+                <div class="modal-content" style="text-align:left;">
+                    <div class="form-group">
+                        <label class="form-label"><span class="required">*</span><span>名称</span></label>
+                        <input type="text" class="form-input" id="renameNodeInput" placeholder="请输入名称">
+                        <div class="tree-form-err" id="renameNodeErr"></div>
+                    </div>
+                </div>
+                <div class="modal-actions">
+                    <button class="modal-btn cancel" onclick="closeRenameNodeModal()">取消</button>
+                    <button class="modal-btn confirm" onclick="confirmRenameNode()">保存</button>
                 </div>
             </div>
         </div>
@@ -2065,19 +2405,21 @@
                 groupIcon: '🏢',
                 dataPermission: 'all',
                 managePermissions: ['all'],
-                isOnlyAdmin: true
+                isOnlyAdmin: true,
+                flowLevel: null,
             },
             'lisi': {
                 name: '李四',
                 avatar: '李',
-                role: '项目部',
-                roleTag: 'foreman',
-                group: 'project',
-                groupName: '项目部',
-                groupIcon: '🏢',
+                role: '设计师',
+                roleTag: 'designer',
+                group: 'design',
+                groupName: '设计工作组',
+                groupIcon: '📐',
                 dataPermission: 'all',
                 managePermissions: ['edit'],
-                isOnlyAdmin: false
+                isOnlyAdmin: false,
+                flowLevel: '设计服务',
             },
             'wangwu': {
                 name: '王五',
@@ -2089,7 +2431,8 @@
                 groupIcon: '🏢',
                 dataPermission: 'none',
                 managePermissions: [],
-                isOnlyAdmin: false
+                isOnlyAdmin: false,
+                flowLevel: null,
             },
             'zhaoliu': {
                 name: '赵六',
@@ -2101,7 +2444,8 @@
                 groupIcon: '👷',
                 dataPermission: 'level',
                 managePermissions: ['edit'],
-                isOnlyAdmin: false
+                isOnlyAdmin: false,
+                flowLevel: '基础施工服务',
             },
             'sunba': {
                 name: '孙八',
@@ -2113,7 +2457,8 @@
                 groupIcon: '👷',
                 dataPermission: 'level',
                 managePermissions: [],
-                isOnlyAdmin: false
+                isOnlyAdmin: false,
+                flowLevel: '基础施工服务',
             },
             'qianjiu': {
                 name: '钱九',
@@ -2125,7 +2470,8 @@
                 groupIcon: '👷',
                 dataPermission: 'level',
                 managePermissions: [],
-                isOnlyAdmin: false
+                isOnlyAdmin: false,
+                flowLevel: '基础施工服务',
             },
             'zhoushi': {
                 name: '周十',
@@ -2136,8 +2482,10 @@
                 groupName: '泥瓦工作组',
                 groupIcon: '🧱',
                 dataPermission: 'level',
-                managePermissions: ['edit'],
-                isOnlyAdmin: false
+                managePermissions: ['edit', 'assign'],
+                assignScope: 'scope_level_current',
+                isOnlyAdmin: false,
+                flowLevel: '基础施工服务',
             },
             'wushi': {
                 name: '吴十',
@@ -2149,7 +2497,21 @@
                 groupIcon: '🪵',
                 dataPermission: 'level',
                 managePermissions: [],
-                isOnlyAdmin: false
+                isOnlyAdmin: false,
+                flowLevel: '基础施工服务',
+            },
+            'zhangsanBase': {
+                name: '张三',
+                avatar: '张',
+                role: '工长',
+                roleTag: 'foreman',
+                group: 'base',
+                groupName: '基础施工组',
+                groupIcon: '🏗️',
+                dataPermission: 'level',
+                managePermissions: ['edit'],
+                isOnlyAdmin: false,
+                flowLevel: '基础施工服务',
             },
             'zhengshiyi': {
                 name: '郑十一',
@@ -2161,17 +2523,20 @@
                 groupIcon: '🎨',
                 dataPermission: 'level',
                 managePermissions: [],
-                isOnlyAdmin: false
+                isOnlyAdmin: false,
+                flowLevel: '基础施工服务',
             }
         };
 
-        const groupOrder = ['project', 'water', 'tile', 'wood', 'paint'];
+        const groupOrder = ['project', 'base', 'design', 'water', 'tile', 'wood', 'paint'];
         const groupNames = {
             'project': { name: '项目部', icon: '🏢', level: 0 },
             'water': { name: '水电工作组', icon: '👷', level: 1 },
             'tile': { name: '泥瓦工作组', icon: '🧱', level: 1 },
             'wood': { name: '木工工作组', icon: '🪵', level: 1 },
-            'paint': { name: '油漆工作组', icon: '🎨', level: 1 }
+            'paint': { name: '油漆工作组', icon: '🎨', level: 1 },
+            'base': { name: '基础施工组', icon: '🏗️', level: 1 },
+            'design': { name: '设计工作组', icon: '📐', level: 1 }
         };
 
         // 架构层级标识：L0 项目总架构 / L1 工作组 / L2 子施工组（复用架构页配色）
@@ -2188,67 +2553,28 @@
             return 1;
         }
 
-        let currentFilter = 'all';
+        let currentSearchKw = ''; // 统一搜索关键词（架构+人员）
+        let memShown = {}; // 各节点「成员」独立开关
+        let allMemOn = false; // 全局人员开关：false=收起人员（默认）；true=展示全部人员；null=回退到节点跟随展开
         let currentMemberId = '';
         let currentDataPermission = 'all';
+        let currentAssignScope = 'scope_level_current';
         let currentManagePermissions = [];
         let currentUserPermission = 'none'; // 当前登录用户权限：none（无）/ remove（仅移出人员）/ all（全部权限）
 
-        function renderMemberList(filter) {
-            const memberList = document.getElementById('memberList');
-            let html = '';
-            
-            const filteredMembers = {};
-            const groupCounts = {};
-            
+        // 节点直属成员：归属本节点但不归属任何子节点（最具体层级唯一落位，保证每人只出现一次）
+        function nodeDirectMembers(node) {
+            const out = [];
             Object.keys(members).forEach(id => {
-                const member = members[id];
-                if (filter === 'all' || member.group === filter) {
-                    if (!filteredMembers[member.group]) {
-                        filteredMembers[member.group] = [];
-                        groupCounts[member.group] = 0;
-                    }
-                    filteredMembers[member.group].push({ id, ...member });
-                    groupCounts[member.group]++;
-                }
+                const m = members[id];
+                if (!archMemberMatch(m, node.key)) return;
+                const deeper = (node.children || []).some(c => archMemberMatch(m, c.key));
+                if (!deeper) out.push({ id, ...m });
             });
-
-            const totalCount = Object.values(groupCounts).reduce((a, b) => a + b, 0);
-            document.getElementById('memberCount').textContent = `共 ${totalCount} 位成员`;
-
-            if (totalCount === 0) {
-                memberList.innerHTML = `
-                    <div class="empty-state">
-                        <div class="empty-icon">👥</div>
-                        <div class="empty-text">暂无成员</div>
-                    </div>
-                `;
-                return;
-            }
-
-            groupOrder.forEach(groupKey => {
-                if (filteredMembers[groupKey] && filteredMembers[groupKey].length > 0) {
-                    const groupInfo = groupNames[groupKey];
-                    html += `
-                        <div class="member-group">
-                            <div class="group-header">
-                                <div class="group-name"><span class="icon">${groupInfo.icon}</span> ${groupInfo.name}<span class="level-badge lv${groupInfo.level}" title="${LEVEL_META[groupInfo.level].name}">${LEVEL_META[groupInfo.level].label}</span></div>
-                                <div class="group-count">${groupCounts[groupKey]}人</div>
-                            </div>
-                    `;
-                    
-                    filteredMembers[groupKey].forEach(member => {
-                        html += renderMemberCard(member);
-                    });
-                    
-                    html += '</div>';
-                }
-            });
-
-            memberList.innerHTML = html;
+            return out;
         }
 
-        function renderMemberCard(member) {
+        function renderMemberCard(member, creatorId) {
             let dataPermTag = '';
             if (member.dataPermission === 'all') {
                 dataPermTag = '<span class="permission-tag data">数据: 全部</span>';
@@ -2269,6 +2595,11 @@
                 managePermTag = '<span class="permission-tag none">治理: 无</span>';
             }
 
+            /* 层级标识：L1 工作组 / L2 子施工组，随身份标签同行展示（项目部 L0 为根层级不展示） */
+            const lv = memberLevel(member);
+            const lvTag = lv === 2 ? '<span class="member-level-tag lv2" title="L2 · 子施工组">L2</span>'
+                        : lv === 1 ? '<span class="member-level-tag lv1" title="L1 · 工作组">L1</span>' : '';
+
             return `
                 <div class="member-card">
                     <div class="avatar clickable" onclick="event.stopPropagation(); goToProfile('${member.id}', '${member.name}', '${member.role}')">${member.avatar}</div>
@@ -2276,8 +2607,9 @@
                         <div class="name-row">
                             <span class="name clickable" onclick="event.stopPropagation(); goToProfile('${member.id}', '${member.name}', '${member.role}')">${member.name}</span>
                             <span class="role-tag ${member.roleTag}">${getRoleTagName(member.roleTag)}</span>
+                            ${member.id === creatorId ? '<span class="role-tag creator">创建人</span>' : ''}
+                            ${lvTag}
                         </div>
-                        <div class="meta">${member.role}${memberLevel(member) === 2 ? ` <span class="member-level-tag lv2" title="L2 · 子施工组">L2</span>` : ''}</div>
                     </div>
                     <div class="permission-badge" onclick="event.stopPropagation(); showPermissionModalIfAllowed('${member.id}')">
                         ${dataPermTag}
@@ -2299,34 +2631,508 @@
             return names[tag] || tag;
         }
 
-        function toggleFilterDropdown() {
-            const dropdown = document.getElementById('filterDropdown');
-            const selector = document.getElementById('filterSelector');
-            dropdown.classList.toggle('show');
-            selector.classList.toggle('active');
+        /* ===== 项目架构卡（只读通讯录式）：树渲染 + 点击节点筛选联动 ===== */
+        const ARCH_TREE = {
+            key: 'project', name: '项目部', icon: '🏢', level: 0, creator: 'zhangsan',
+            children: [
+                { key: 'base', name: '基础施工组', icon: '🏗️', level: 1, creator: 'zhangsanBase', children: [] },
+                { key: 'design', name: '设计工作组', icon: '📐', level: 1, creator: 'lisi', children: [] },
+                { key: 'water', name: '水电工作组', icon: '👷', level: 1, creator: 'zhaoliu', children: [
+                    { key: 'strong', name: '强电施工组', icon: '⚡', level: 2, creator: 'sunba', children: [] },
+                    { key: 'weak', name: '弱电施工组', icon: '🔌', level: 2, creator: 'qianjiu', children: [] }
+                ] },
+                { key: 'tile', name: '泥瓦工作组', icon: '🧱', level: 1, creator: 'zhoushi', children: [] },
+                { key: 'wood', name: '木工工作组', icon: '🪵', level: 1, creator: 'wushi', children: [] },
+                { key: 'paint', name: '油漆工作组', icon: '🎨', level: 1, creator: 'zhengshiyi', children: [] }
+            ]
+        };
+        const ARCH_LABELS = {
+            all: '全部成员', project: '项目部', water: '水电工作组',
+            tile: '泥瓦工作组', wood: '木工工作组', paint: '油漆工作组',
+            strong: '强电施工组', weak: '弱电施工组', base: '基础施工组', design: '设计工作组'
+        };
+        let archExpanded = { project: true, water: true, tile: false, wood: false, paint: false };
+
+        // 节点成员归属：项目部=直属；工作组=L1 group 匹配；L2 = 上级工作组内按 role 名匹配（兼容动态新建节点）
+        function archMemberMatch(m, key) {
+            if (key === 'all' || !key) return true;
+            const node = findArchNode(key);
+            if (!node) return m.group === key;
+            if (node.level === 0) return m.group === 'project';
+            if (node.level === 1) return m.group === key;
+            // level 2：归属到其上级工作组，并按 role 名匹配
+            const parent = findArchParent(key);
+            const parentKey = parent ? parent.key : null;
+            return m.group === parentKey && m.role === node.name;
         }
 
-        function selectFilter(filter, label, count) {
-            currentFilter = filter;
-            document.getElementById('filterLabel').textContent = label;
-            
-            document.querySelectorAll('.dropdown-item').forEach(item => {
-                item.classList.remove('selected');
+        function archCount(key) {
+            let n = 0;
+            Object.keys(members).forEach(id => {
+                if (archMemberMatch(members[id], key)) n++;
             });
-            event.currentTarget.classList.add('selected');
-            
-            toggleFilterDropdown();
-            renderMemberList(filter);
+            return n;
         }
 
-        document.addEventListener('click', function(e) {
-            const dropdown = document.getElementById('filterDropdown');
-            const selector = document.getElementById('filterSelector');
-            if (!selector.contains(e.target) && !dropdown.contains(e.target)) {
-                dropdown.classList.remove('show');
-                selector.classList.remove('active');
+        function archTotalCount() {
+            return Object.keys(members).length;
+        }
+
+        // 统一搜索：命中架构层级数（按名称包含）
+        function archSearchMatchCount() {
+            const kw = currentSearchKw.trim().toLowerCase();
+            if (!kw) return 0;
+            let n = 0;
+            (function walk(node) {
+                if (node.name.toLowerCase().indexOf(kw) > -1) n++;
+                (node.children || []).forEach(walk);
+            })(ARCH_TREE);
+            return n;
+        }
+
+        function archEsc(s) {
+            return String(s).replace(/[&<>"']/g, function(c) {
+                return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+            });
+        }
+
+        // 成员块显隐优先级：节点记忆 > 全局开关 > 跟随节点展开
+        function memOnFor(node, nodeExpanded) {
+            if (node.key in memShown) return memShown[node.key];
+            if (allMemOn === true) return true;
+            if (allMemOn === false) return false;
+            return !!nodeExpanded;
+        }
+
+        // 搜索命中：成员姓名/角色/角色标签
+        function memberMatchesKw(m, kw) {
+            return m.name.toLowerCase().indexOf(kw) > -1 ||
+                m.role.toLowerCase().indexOf(kw) > -1 ||
+                getRoleTagName(m.roleTag).toLowerCase().indexOf(kw) > -1;
+        }
+
+        // 渲染单树：成员嵌套在各层级下方（紧凑行）；搜索态仅显示命中层级/成员
+        function renderArchTree() {
+            const wrap = document.getElementById('archTree');
+            if (!wrap) return;
+            const kw = currentSearchKw.trim().toLowerCase();
+            let matchedLevels = 0;
+            let matchedMembers = 0;
+
+
+            function build(node) {
+                const direct = nodeDirectMembers(node);
+                const directHits = kw ? direct.filter(m => memberMatchesKw(m, kw)) : [];
+                const parts = (node.children || []).map(build);
+                const countAgg = direct.length + parts.reduce((a, pt) => a + (pt.count || 0), 0);
+                const selfHit = !!kw && node.name.toLowerCase().indexOf(kw) > -1;
+                const childHit = parts.some(pt => pt.matched);
+                const memHit = directHits.length > 0;
+                if (kw && !selfHit && !childHit && !memHit) return { html: '', matched: false, count: countAgg };
+                if (kw) {
+                    matchedLevels++;
+                    matchedMembers += directHits.length;
+                }
+                const expanded = kw ? true : !!archExpanded[node.key];
+                const memOn = memOnFor(node, expanded);
+                const shown = kw ? directHits : direct;
+                let html = '<div class="tree-node-row l' + node.level + '" onclick="toggleArchNode(\'' + node.key + '\')">';
+                html += '<span class="tree-caret' + ((node.children && node.children.length) ? (expanded ? ' expanded' : '') : ' leaf') + '" onclick="event.stopPropagation(); toggleArchNode(\'' + node.key + '\')">▶</span>';
+                html += '<span class="tree-icon">' + node.icon + '</span>';
+                html += '<span class="tree-name">' + archEsc(node.name) + '</span>';
+                html += '<span class="tree-count">' + countAgg + '人</span>';
+                html += '<span class="tree-mem-toggle" onclick="event.stopPropagation(); toggleNodeMem(\'' + node.key + '\')">成员 ' + (memOn ? '▾' : '▸') + '</span>';
+                html += '<span class="tree-ops" title="层级操作" onclick="event.stopPropagation(); openArchSheet(\'' + node.key + '\')">⋯</span>';
+                html += '</div>';
+                if (shown.length) {
+                    html += '<div class="node-members' + (memOn ? '' : ' members-collapsed') + '">';
+                    shown.forEach(m => { html += renderMemberCard(m, node.creator); });
+                    html += '</div>';
+                }
+                if (node.children && node.children.length) {
+                    html += '<div class="tree-children' + (expanded ? '' : ' collapsed') + '">';
+                    parts.forEach(pt => { html += pt.html; });
+                    html += '</div>';
+                }
+                return { html: '<div class="tnode">' + html + '</div>', matched: true, count: countAgg };
             }
-        });
+
+            const res = build(ARCH_TREE);
+            let html = res.html;
+            if (kw && matchedLevels === 0 && matchedMembers === 0) {
+                html = '<div class="arch-empty">未找到匹配"' + archEsc(currentSearchKw.trim()) + '"的架构层级或成员</div>';
+            }
+            wrap.innerHTML = html;
+            const sub = document.getElementById('archHeadSub');
+            if (sub) sub.textContent = kw
+                ? '命中 ' + matchedLevels + ' 个层级 · ' + matchedMembers + ' 位成员'
+                : '';
+            renderArchStats();
+        }
+
+        // 架构组统计：工作组数（L1）+ 施工组数（L2，含动态新建）+ 成员数
+        function renderArchStats() {
+            const el = document.getElementById('archMetaStats');
+            if (!el) return;
+            let wg = 0, sg = 0;
+            (function countLevel1(nodes) {
+                nodes.forEach(n => {
+                    if (n.level === 1) {
+                        wg++;
+                        (function countLevel2(children) {
+                            children.forEach(c => {
+                                if (c.level === 2) sg++;
+                                countLevel2(c.children || []);
+                            });
+                        })(n.children || []);
+                    }
+                    countLevel1(n.children || []);
+                });
+            })(ARCH_TREE.children || []);
+            el.innerHTML = '<b>' + wg + '</b> 个工作组 · <b>' + sg + '</b> 个施工组 · <b>' + archTotalCount() + '</b> 位成员';
+        }
+
+        /* ===== 全局人员开关：展示全部人员 / 收起人员 ===== */
+        function toggleAllMem() {
+            allMemOn = (allMemOn === true) ? false : true;
+            memShown = {}; // 全局态接管，清除节点级记忆
+            syncAllMemToggleText();
+            if (allMemOn) {
+                (function walk(node) {
+                    archExpanded[node.key] = true;
+                    (node.children || []).forEach(walk);
+                })(ARCH_TREE);
+            }
+            renderArchTree();
+        }
+
+        function syncAllMemToggleText() {
+            const btn = document.getElementById('memAllToggle');
+            if (btn) btn.textContent = allMemOn === true ? '收起人员' : '展示全部人员';
+        }
+
+        // 节点级「成员」独立开关：物化当前全局/默认状态到全部节点，仅翻转目标节点
+        function toggleNodeMem(key) {
+            if (currentSearchKw.trim()) return;
+            if (allMemOn !== null || !Object.keys(memShown).length) {
+                (function walk(node) {
+                    memShown[node.key] = memOnFor(node, !!archExpanded[node.key]);
+                    (node.children || []).forEach(walk);
+                })(ARCH_TREE);
+            }
+            memShown[key] = !memShown[key];
+            allMemOn = null;
+            syncAllMemToggleText();
+            renderArchTree();
+        }
+
+        function toggleArchNode(key) {
+            archExpanded[key] = !archExpanded[key];
+            renderArchTree();
+        }
+
+        /* ===== 层级操作：底部动作面板（小程序标准 ActionSheet） ===== */
+        let archSheetKey = '';
+        let archSheetItems = [];
+
+        function openArchSheet(key) {
+            const node = findArchNode(key);
+            if (!node) return;
+            archSheetKey = key;
+            const items = [];
+            if (node.level === 0) {
+                items.push({ t: '＋ 添加工作组', fn: 'openCreateNodeModal', args: ['level1'] });
+                items.push({ t: '👥 邀请成员', fn: 'inviteToNode', args: ['project'] });
+            } else {
+                items.push({ t: '👥 邀请成员', fn: 'inviteToNode', args: [node.key] });
+                if (node.level === 1) items.push({ t: '＋ 添加施工组', fn: 'openCreateNodeModal', args: ['level2', node.key] });
+                items.push({ t: '✏️ 重命名', fn: 'openRenameNodeModal', args: [node.key] });
+                if (archNodeJoined(node)) {
+                    items.push({ t: '🚪 ' + (node.level === 1 ? '退出工作组' : '退出施工组'), fn: 'showExitArchNodeModal', args: [node.key], danger: true });
+                } else {
+                    items.push({ t: '🗑 删除', fn: 'showDeleteNodeModal', args: [node.key], danger: true });
+                }
+            }
+            archSheetItems = items;
+            document.getElementById('archSheetTitle').textContent = node.icon + ' ' + node.name;
+            document.getElementById('archSheetItems').innerHTML = items.map((it, i) =>
+                '<div class="as-item' + (it.danger ? ' danger' : '') + '" onclick="archSheetRun(' + i + ')">' + it.t + '</div>'
+            ).join('');
+            document.getElementById('archSheetMask').classList.add('show');
+            document.getElementById('archSheet').classList.add('show');
+        }
+
+        function archSheetRun(i) {
+            const it = archSheetItems[i];
+            closeArchSheet();
+            if (it && window[it.fn]) window[it.fn].apply(null, it.args || []);
+        }
+
+        function closeArchSheet() {
+            document.getElementById('archSheetMask').classList.remove('show');
+            document.getElementById('archSheet').classList.remove('show');
+        }
+
+        /* ===== 架构节点增删改/退出（参照 architecture.html 原功能） ===== */
+        const currentUserInfo = { name: '张三', role: '项目经理' };
+        let joinedGroups = ['水电工作组', '强电施工组'];
+        const userTaskRoles = {
+            executor: ['水电工作组-开槽布线', '强电施工组-布管'],
+            confirmer: ['水电工作组-水电验收']
+        };
+        let archSeq = 0;
+        let createNodeType = 'level1';
+        let createNodeParentKey = '';
+        let renameTargetKey = '';
+        let deleteNodeKey = '';
+        let exitNodeKey = '';
+
+        function findArchNode(key, node) {
+            node = node || ARCH_TREE;
+            if (node.key === key) return node;
+            const children = node.children || [];
+            for (let i = 0; i < children.length; i++) {
+                const f = findArchNode(key, children[i]);
+                if (f) return f;
+            }
+            return null;
+        }
+
+        function findArchParent(key, node) {
+            node = node || ARCH_TREE;
+            const children = node.children || [];
+            for (let i = 0; i < children.length; i++) {
+                if (children[i].key === key) return node;
+                const f = findArchParent(key, children[i]);
+                if (f) return f;
+            }
+            return null;
+        }
+
+        function archNameExists(name, excludeKey) {
+            let found = false;
+            (function walk(node) {
+                if (node.key !== excludeKey && node.name === name) found = true;
+                (node.children || []).forEach(walk);
+            })(ARCH_TREE);
+            return found;
+        }
+
+        function archNodeJoined(node) {
+            return joinedGroups.indexOf(node.name) > -1;
+        }
+
+        // 退出校验：沿用架构页任务角色口径（合同校验保留在架构页，成员页无合同数据）
+        function checkCanExitArchGroup(name) {
+            const allTaskRoles = [...userTaskRoles.executor, ...userTaskRoles.confirmer];
+            const isTaskRole = allTaskRoles.some(task => task.indexOf(name) === 0);
+            if (isTaskRole) {
+                return { canExit: false, reason: '您是该层级任务的执行人或确认人，无法退出' };
+            }
+            return { canExit: true, reason: '' };
+        }
+
+        // ---- 创建（工作组 / 施工组）----
+        function openCreateNodeModal(type, parentKey) {
+            createNodeType = type;
+            const parent = type === 'level2' ? findArchNode(parentKey) : ARCH_TREE;
+            if (type === 'level2' && !parent) return;
+            createNodeParentKey = type === 'level2' ? parentKey : '';
+            document.getElementById('createNodeTitle').textContent = type === 'level1' ? '创建工作组' : '创建施工组';
+            document.getElementById('createNodeNameLabel').textContent = type === 'level1' ? '工作组名称' : '施工组名称';
+            document.getElementById('createNodeParent').textContent = type === 'level1' ? '项目部' : parent.name;
+            document.getElementById('createNodeName').value = '';
+            document.getElementById('createNodeErr').style.display = 'none';
+            document.getElementById('createNodeModal').classList.add('show');
+        }
+
+        function closeCreateNodeModal() {
+            document.getElementById('createNodeModal').classList.remove('show');
+        }
+
+        function confirmCreateNode() {
+            const input = document.getElementById('createNodeName');
+            const err = document.getElementById('createNodeErr');
+            const name = input.value.trim();
+            if (!name) {
+                err.textContent = '请填写名称';
+                err.style.display = 'block';
+                return;
+            }
+            if (archNameExists(name)) {
+                err.textContent = '该名称已存在，请更换';
+                err.style.display = 'block';
+                return;
+            }
+            closeCreateNodeModal();
+            const node = {
+                key: (createNodeType === 'level1' ? 'wg' : 'sg') + (++archSeq) + '_' + Date.now(),
+                name: name,
+                icon: createNodeType === 'level1' ? '🏗️' : '🔧',
+                level: createNodeType === 'level1' ? 1 : 2,
+                children: []
+            };
+            const parent = createNodeType === 'level2' ? findArchNode(createNodeParentKey) : ARCH_TREE;
+            parent.children.push(node);
+            archExpanded[node.key] = true;
+            archExpanded[parent.key] = true;
+            if (createNodeType === 'level1') {
+                groupOrder.push(node.key);
+                groupNames[node.key] = { name: name, icon: node.icon, level: 1 };
+                addInviteGroupOption(node.key, name, node.icon);
+            }
+            renderArchTree();
+            showToast('创建成功！创建人：' + currentUserInfo.name);
+        }
+
+        // ---- 重命名 ----
+        function openRenameNodeModal(key) {
+            const node = findArchNode(key);
+            if (!node) return;
+            renameTargetKey = key;
+            document.getElementById('renameNodeTitle').textContent = node.level === 0 ? '重命名项目部' : (node.level === 1 ? '重命名工作组' : '重命名施工组');
+            document.getElementById('renameNodeInput').value = node.name;
+            document.getElementById('renameNodeErr').style.display = 'none';
+            document.getElementById('renameNodeModal').classList.add('show');
+        }
+
+        function closeRenameNodeModal() {
+            document.getElementById('renameNodeModal').classList.remove('show');
+        }
+
+        function confirmRenameNode() {
+            const input = document.getElementById('renameNodeInput');
+            const err = document.getElementById('renameNodeErr');
+            const name = input.value.trim();
+            const node = findArchNode(renameTargetKey);
+            if (!node) { closeRenameNodeModal(); return; }
+            if (!name) {
+                err.textContent = '请填写名称';
+                err.style.display = 'block';
+                return;
+            }
+            if (name !== node.name && archNameExists(name, node.key)) {
+                err.textContent = '该名称已存在，请更换';
+                err.style.display = 'block';
+                return;
+            }
+            const oldName = node.name;
+            closeRenameNodeModal();
+            node.name = name;
+            if (node.level === 1) {
+                if (groupNames[node.key]) groupNames[node.key].name = name;
+                Object.keys(members).forEach(id => {
+                    if (members[id].group === node.key) members[id].groupName = name;
+                });
+                syncInviteGroupOption(node.key, name);
+            } else if (node.level === 2) {
+                Object.keys(members).forEach(id => {
+                    if (members[id].role === oldName) members[id].role = name;
+                });
+            }
+            const ji = joinedGroups.indexOf(oldName);
+            if (ji > -1) joinedGroups[ji] = name;
+            Object.keys(userTaskRoles).forEach(roleKey => {
+                userTaskRoles[roleKey] = userTaskRoles[roleKey].map(task => task.indexOf(oldName) === 0 ? name + task.slice(oldName.length) : task);
+            });
+            renderArchTree();
+            showToast('已重命名为"' + name + '"');
+        }
+
+        // ---- 删除 ----
+        function showDeleteNodeModal(key) {
+            const node = findArchNode(key);
+            if (!node) return;
+            deleteNodeKey = key;
+            currentAction = 'deleteNode';
+            const cnt = archCount(key);
+            const hasChildren = node.children && node.children.length > 0;
+            document.getElementById('confirmTitle').textContent = '删除确认';
+            document.getElementById('confirmContent').textContent = '确定要删除"' + node.name + '"吗？' + (hasChildren ? '其下级层级将一并删除。' : '') + (cnt ? '组内 ' + cnt + ' 位成员将一并移出项目成员名单。' : '') + '此操作无法恢复。';
+            document.getElementById('confirmBtn').textContent = '删除';
+            document.getElementById('confirmModal').classList.add('show');
+        }
+
+        function confirmDeleteNode() {
+            const node = findArchNode(deleteNodeKey);
+            closeConfirmModal();
+            if (!node) return;
+            Object.keys(members).forEach(id => {
+                if (archMemberMatch(members[id], deleteNodeKey)) delete members[id];
+            });
+            const parent = findArchParent(deleteNodeKey);
+            if (parent) parent.children = parent.children.filter(c => c.key !== deleteNodeKey);
+            if (node.level === 1) {
+                const gi = groupOrder.indexOf(deleteNodeKey);
+                if (gi > -1) groupOrder.splice(gi, 1);
+                delete groupNames[deleteNodeKey];
+                removeInviteGroupOption(deleteNodeKey);
+            }
+            if (memShown[deleteNodeKey]) delete memShown[deleteNodeKey];
+            renderArchTree();
+            showToast('"' + node.name + '" 已删除');
+        }
+
+        // ---- 退出工作组/施工组 ----
+        function showExitArchNodeModal(key) {
+            const node = findArchNode(key);
+            if (!node) return;
+            const check = checkCanExitArchGroup(node.name);
+            if (!check.canExit) {
+                showAlert('无法退出', check.reason);
+                return;
+            }
+            exitNodeKey = key;
+            currentAction = 'exitNode';
+            document.getElementById('confirmTitle').textContent = node.level === 1 ? '退出工作组' : '退出施工组';
+            document.getElementById('confirmContent').textContent = '确定要退出"' + node.name + '"吗？退出后将无法查看该层级的相关信息。';
+            document.getElementById('confirmBtn').textContent = '退出';
+            document.getElementById('confirmModal').classList.add('show');
+        }
+
+        function confirmExitNode() {
+            const node = findArchNode(exitNodeKey);
+            closeConfirmModal();
+            if (!node) return;
+            const i = joinedGroups.indexOf(node.name);
+            if (i > -1) joinedGroups.splice(i, 1);
+            renderArchTree();
+            showToast('已退出"' + node.name + '"');
+        }
+
+        // ---- 节点级「邀请成员」：打开邀请弹窗并预选该层级 ----
+        function inviteToNode(key) {
+            showInviteModal();
+            const item = document.querySelector('#groupDropdownList .dropdown-item[data-value="' + key + '"]');
+            if (item) selectGroup(item);
+        }
+
+        function addInviteGroupOption(value, name, icon) {
+            const list = document.getElementById('groupDropdownList');
+            if (!list || list.querySelector('.dropdown-item[data-value="' + value + '"]')) return;
+            const div = document.createElement('div');
+            div.className = 'dropdown-item';
+            div.setAttribute('data-value', value);
+            div.setAttribute('data-icon', icon);
+            div.setAttribute('data-name', name);
+            div.onclick = function() { selectGroup(div); };
+            div.innerHTML = '<span class="item-icon">' + icon + '</span><span class="item-name">' + archEsc(name) + '</span><span class="check-icon" style="display:none;">✓</span>';
+            list.appendChild(div);
+        }
+
+        function syncInviteGroupOption(value, name) {
+            const item = document.querySelector('#groupDropdownList .dropdown-item[data-value="' + value + '"]');
+            if (item) {
+                item.setAttribute('data-name', name);
+                const nameEl = item.querySelector('.item-name');
+                if (nameEl) nameEl.textContent = name;
+            }
+        }
+
+        function removeInviteGroupOption(value) {
+            const item = document.querySelector('#groupDropdownList .dropdown-item[data-value="' + value + '"]');
+            if (item) item.remove();
+        }
 
         function showPermissionModal(memberId) {
             currentMemberId = memberId;
@@ -2338,6 +3144,7 @@
             
             currentDataPermission = member.dataPermission;
             currentManagePermissions = [...member.managePermissions];
+            currentAssignScope = member.assignScope || 'scope_level_current';
             
             document.querySelectorAll('.permission-option').forEach(opt => {
                 opt.classList.remove('selected');
@@ -2360,6 +3167,8 @@
                     cb.querySelector('.checkbox').textContent = '✓';
                 }
             });
+
+            updateAssignPanel();
             
             const warning = document.getElementById('permissionWarning');
             const removeBtn = document.getElementById('removeBtn');
@@ -2473,6 +3282,42 @@
                     allCheckbox.querySelector('.checkbox').textContent = '';
                 }
             }
+
+            updateAssignPanel();
+        }
+
+        /* 指派任务范围面板：仅当勾选「指派任务」且未勾选「全部权限」时展开；
+           成员未隶属流程层级时，两个层级范围不可用（自动降级为全部流程项） */
+        function updateAssignPanel() {
+            const panel = document.getElementById('assignScopePanel');
+            if (!panel) return;
+            const show = currentManagePermissions.includes('assign') && !currentManagePermissions.includes('all');
+            panel.style.display = show ? 'block' : 'none';
+            if (!show) return;
+            const member = members[currentMemberId];
+            const hasLevel = !!(member && member.flowLevel);
+            panel.querySelectorAll('.scope-opt').forEach(opt => {
+                const scope = opt.getAttribute('data-scope');
+                const disabled = scope !== 'scope_all' && !hasLevel;
+                opt.classList.toggle('disabled', disabled);
+                if (disabled && currentAssignScope === scope) {
+                    currentAssignScope = 'scope_all';
+                }
+            });
+            panel.querySelectorAll('.scope-opt').forEach(opt => {
+                opt.classList.toggle('selected', opt.getAttribute('data-scope') === currentAssignScope);
+            });
+            document.getElementById('assignScopeNote').textContent = hasLevel
+                ? '范围随成员隶属层级自动适配，流程项增删改时无需重新授权；当前解析为：' + member.flowLevel
+                : '该成员未隶属任何流程层级，层级范围不可用；如需授权请选择「全部流程项」';
+        }
+
+        function selectAssignScope(element, value) {
+            if (element.classList.contains('disabled')) return;
+            currentAssignScope = value;
+            document.querySelectorAll('#assignScopePanel .scope-opt').forEach(opt => {
+                opt.classList.toggle('selected', opt === element);
+            });
         }
 
         function savePermission() {
@@ -2485,10 +3330,17 @@
             
             member.dataPermission = currentDataPermission;
             member.managePermissions = [...currentManagePermissions];
+            if (member.managePermissions.includes('all')) {
+                member.assignScope = 'scope_all';   // 全部权限隐含指派任务全部流程项
+            } else if (member.managePermissions.includes('assign')) {
+                member.assignScope = currentAssignScope;
+            } else {
+                delete member.assignScope;
+            }
             
             showToast('权限设置已保存');
             closePermissionModal();
-            renderMemberList(currentFilter);
+            renderArchTree();
         }
 
         function showRemoveConfirm() {
@@ -2509,6 +3361,10 @@
                 confirmRemove();
             } else if (currentAction === 'selfExit') {
                 confirmSelfExit();
+            } else if (currentAction === 'deleteNode') {
+                confirmDeleteNode();
+            } else if (currentAction === 'exitNode') {
+                confirmExitNode();
             }
         }
 
@@ -2542,106 +3398,28 @@
             showToast('搜索功能开发中');
         }
 
-        function toggleSearchBar() {
-            const searchBar = document.getElementById('searchBar');
-            const filterBar = document.querySelector('.filter-bar');
-            
-            if (searchBar.classList.contains('show')) {
-                closeSearchBar();
-            } else {
-                searchBar.classList.add('show');
-                filterBar.style.display = 'none';
-                document.getElementById('searchInput').focus();
-            }
-        }
-
-        function closeSearchBar() {
-            const searchBar = document.getElementById('searchBar');
-            const filterBar = document.querySelector('.filter-bar');
-            const searchResultInfo = document.getElementById('searchResultInfo');
-            
-            searchBar.classList.remove('show');
-            filterBar.style.display = 'flex';
-            searchResultInfo.classList.remove('show');
-            document.getElementById('searchInput').value = '';
-            renderMemberList(currentFilter);
-        }
-
         function clearSearch() {
             document.getElementById('searchInput').value = '';
-            document.getElementById('searchResultInfo').classList.remove('show');
-            renderMemberList(currentFilter);
+            currentSearchKw = '';
+            allMemOn = false; // 清除搜索恢复默认收起人员
+            syncAllMemToggleText();
+            renderArchTree();
         }
 
         function handleSearch(keyword) {
-            const searchResultInfo = document.getElementById('searchResultInfo');
-            
-            if (!keyword.trim()) {
-                searchResultInfo.classList.remove('show');
-                renderMemberList(currentFilter);
+            currentSearchKw = keyword.trim();
+            if (!currentSearchKw) {
+                allMemOn = false;
+                syncAllMemToggleText();
+                renderArchTree();
                 return;
             }
-
-            const filteredMembers = {};
-            const groupCounts = {};
-            const lowerKeyword = keyword.toLowerCase().trim();
-
-            Object.keys(members).forEach(id => {
-                const member = members[id];
-                const nameMatch = member.name.toLowerCase().includes(lowerKeyword);
-                const roleMatch = member.role.toLowerCase().includes(lowerKeyword);
-                const groupMatch = member.groupName.toLowerCase().includes(lowerKeyword);
-                const roleTagMatch = getRoleTagName(member.roleTag).includes(lowerKeyword);
-
-                if (nameMatch || roleMatch || groupMatch || roleTagMatch) {
-                    if (currentFilter === 'all' || member.group === currentFilter) {
-                        if (!filteredMembers[member.group]) {
-                            filteredMembers[member.group] = [];
-                            groupCounts[member.group] = 0;
-                        }
-                        filteredMembers[member.group].push({ id, ...member });
-                        groupCounts[member.group]++;
-                    }
-                }
-            });
-
-            const totalCount = Object.values(groupCounts).reduce((a, b) => a + b, 0);
-            document.getElementById('memberCount').textContent = `共 ${totalCount} 位成员`;
-
-            searchResultInfo.textContent = `找到 ${totalCount} 个匹配"${keyword}"的成员`;
-            searchResultInfo.classList.add('show');
-
-            if (totalCount === 0) {
-                document.getElementById('memberList').innerHTML = `
-                    <div class="empty-state">
-                        <div class="empty-icon">🔍</div>
-                        <div class="empty-text">未找到匹配"${keyword}"的成员</div>
-                    </div>
-                `;
-                return;
+            // 搜索时自动展示全部人员（含命中成员所在层级）
+            if (allMemOn !== true) {
+                allMemOn = true;
+                syncAllMemToggleText();
             }
-
-            let html = '';
-            groupOrder.forEach(groupKey => {
-                if (filteredMembers[groupKey] && filteredMembers[groupKey].length > 0) {
-                    const groupInfo = groupNames[groupKey];
-                    html += `
-                        <div class="member-group">
-                            <div class="group-header">
-                                <div class="group-name"><span class="icon">${groupInfo.icon}</span> ${groupInfo.name}<span class="level-badge lv${groupInfo.level}" title="${LEVEL_META[groupInfo.level].name}">${LEVEL_META[groupInfo.level].label}</span></div>
-                                <div class="group-count">${groupCounts[groupKey]}人</div>
-                            </div>
-                    `;
-                    
-                    filteredMembers[groupKey].forEach(member => {
-                        html += renderMemberCard(member);
-                    });
-                    
-                    html += '</div>';
-                }
-            });
-
-            document.getElementById('memberList').innerHTML = html;
+            renderArchTree();
         }
 
         function showMoreActions() {
@@ -2826,7 +3604,7 @@
                 ? '被邀请人将进入 <b>服务端小程序</b>'
                 : '被邀请人将进入 <b>业主端小程序</b>（仅查看/确认，不进入施工组）';
             appHint.querySelector('.app-perm').textContent = isService
-                ? '默认权限：仅基础公开数据，无治理权限'
+                ? '默认权限：仅公开数据，无治理权限'
                 : '默认权限：全部权限';
         }
 
@@ -2961,7 +3739,8 @@
             }
         });
 
-        renderMemberList('all');
+        syncAllMemToggleText();
+        renderArchTree();
         
         
         

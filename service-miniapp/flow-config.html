@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>家装平台小程序原型 - 服务流程配置</title>
+<style>
+/* ===== 全局：隐藏滚动条 / 防横向溢出 ===== */
+* { margin: 0; padding: 0; box-sizing: border-box; scrollbar-width: none; -ms-overflow-style: none; }
+::-webkit-scrollbar { display: none; }
+html, body { height: 100%; }
+body {
+  font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
+  background: linear-gradient(160deg, #d7e1f2 0%, #e9eef8 100%); color: var(--text); font-size: 12px; line-height: 1.5;
+  display: flex; align-items: flex-start; justify-content: center;
+  min-height: 100vh; padding: 24px; gap: 16px;
+}
+
+/* ===== 设计令牌（与项目主页一致） ===== */
+:root {
+  --sp-1: 4px; --sp-2: 8px; --sp-3: 12px; --sp-4: 16px; --sp-5: 20px;
+  --r-card: 12px; --r-block: 8px; --r-pill: 999px;
+  --fs-11: 11px; --fs-12: 12px; --fs-13: 13px; --fs-15: 15px; --fs-17: 17px;
+  --primary: #1677ff; --primary-deep: #0b57d0; --primary-bg: #e8f1ff; --primary-light: #4096ff;
+  --success: #2f9e2f; --success-bg: #eaf7e8; --warning: #fa8c16; --warning-bg: #fff7e6;
+  --danger: #f5544f; --danger-bg: #fff2f0;
+  --text: #1f2a3d; --text-2: #5a6b85; --text-3: #93a1b5;
+  --bg-grad: linear-gradient(180deg, #e8f1ff 0%, #f2f6ff 26%, #f7faff 100%);
+  --grad-brand: linear-gradient(135deg, #1e7dff 0%, #0b57d0 100%);
+  --card: #fff; --border: #e2eaf8; --shadow: 0 2px 12px rgba(22,119,255,.07);
+  --bg-secondary: #f3f7ff; --line-light: #eef3fb; --demo-blue: #1677ff;
+}
+
+/* ===== 手机框 ===== */
+.phone-frame {
+  width: 375px; flex-shrink: 0; height: 812px; background: var(--bg-grad);
+  border-radius: 40px; overflow: hidden; position: relative;
+  display: flex; flex-direction: column; border: 10px solid #1a1a1a;
+  box-shadow: 0 12px 40px rgba(0,0,0,.25);
+}
+.status-bar {
+  height: 44px; background: var(--grad-brand); flex-shrink: 0;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 22px; font-size: 14px; font-weight: 600; color: #fff;
+}
+.sb-ic { display: flex; align-items: center; gap: 6px; }
+.sb-signal { display: inline-flex; align-items: flex-end; gap: 2px; height: 11px; }
+.sb-signal i { width: 3px; background: #fff; border-radius: 1px; }
+.sb-signal i:nth-child(1){height:4px} .sb-signal i:nth-child(2){height:6px}
+.sb-signal i:nth-child(3){height:8px} .sb-signal i:nth-child(4){height:11px}
+.sb-battery { width: 22px; height: 11px; border: 1px solid rgba(255,255,255,.85); border-radius: 3px; position: relative; padding: 1.5px; }
+.sb-battery::after { content: ""; position: absolute; right: -3px; top: 3px; width: 2px; height: 4px; background: rgba(255,255,255,.85); border-radius: 0 1px 1px 0; }
+.sb-battery i { display: block; height: 100%; width: 70%; background: #fff; border-radius: 1px; }
+.nav-bar {
+  height: 48px; background: var(--grad-brand); flex-shrink: 0; position: relative;
+  display: flex; align-items: center; box-shadow: 0 2px 10px rgba(11,87,208,.18);
+}
+.nav-bar .nb-back { position: absolute; left: 14px; font-size: 26px; line-height: 1; color: #fff; text-decoration: none; background: none; border: none; cursor: pointer; }
+.nav-bar .title { flex: 1; text-align: center; font-size: 17px; font-weight: 600; color: #fff; }
+.nav-bar .nb-actions { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); }
+.native-capsule {
+  display: inline-flex; align-items: center; justify-content: space-between;
+  min-width: 56px; height: 28px; padding: 0 10px; box-sizing: border-box;
+  border: 1px solid rgba(255,255,255,.5); border-radius: 14px; background: rgba(255,255,255,.22);
+  color: #fff; font-size: 12px; line-height: 1; user-select: none;
+}
+.native-capsule .nc-left, .native-capsule .nc-right { display: inline-flex; align-items: center; justify-content: center; flex: 1; min-width: 16px; }
+.native-capsule .nc-right { font-size: 10px; }
+.native-capsule .nc-divider { width: 1px; height: 14px; background: rgba(255,255,255,.45); margin: 0 4px; }
+
+.page-body { flex: 1; overflow-y: auto; overflow-x: hidden; background: transparent; -webkit-overflow-scrolling: touch; padding-bottom: 12px; }
+
+/* ===== 说明条 ===== */
+.cfg-tip { margin: 8px var(--sp-3) 0; background: var(--primary-bg); border-radius: var(--r-block); padding: 8px 10px; }
+.cfg-tip .ct-1 { font-size: var(--fs-11); color: var(--primary-deep); line-height: 1.6; }
+.cfg-tip .ct-2 { font-size: var(--fs-11); color: var(--text-2); line-height: 1.6; margin-top: 2px; }
+.cfg-tip.readonly { background: var(--warning-bg); }
+.cfg-tip.readonly .ct-1 { color: #ad6800; }
+
+/* ===== 卡片 ===== */
+.card { background: var(--card); border: 1px solid var(--border); box-shadow: var(--shadow); border-radius: var(--r-card); padding: 4px var(--sp-3) var(--sp-3); margin: var(--sp-2) var(--sp-3); }
+.card-head { display: flex; align-items: center; gap: 6px; padding: 8px 0 6px; }
+.card-head .ch-t { font-size: var(--fs-13); font-weight: 500; color: var(--text); }
+.card-head .ch-t::before { content: ''; display: inline-block; width: 3px; height: 12px; border-radius: 2px; background: var(--grad-brand); margin-right: 6px; vertical-align: -1px; }
+.card-head .ch-n { font-size: var(--fs-11); color: var(--text-2); }
+
+/* ===== 流程项行 ===== */
+.cfg-row { display: flex; align-items: center; gap: 9px; min-height: 56px; padding: 8px 0; border-top: 1px solid var(--line-light); }
+.cfg-row:first-of-type { border-top: none; }
+.cfg-idx { width: 20px; height: 20px; border-radius: 50%; background: var(--bg-secondary); color: var(--text-2); font-size: var(--fs-11); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.cfg-row.has-ct .cfg-idx { background: var(--primary-bg); color: var(--primary-deep); }
+.cfg-main { flex: 1; min-width: 0; }
+.cfg-name { display: flex; align-items: center; gap: 6px; }
+.cfg-name .cn-t { font-size: var(--fs-13); color: var(--text); font-weight: 500; }
+.cfg-name .cn-st { font-size: var(--fs-11); padding: 0 5px; border-radius: var(--r-pill); flex-shrink: 0; }
+.cn-st.s-done { color: var(--success); background: var(--success-bg); }
+.cn-st.s-go { color: var(--primary); background: var(--primary-bg); }
+.cn-st.s-wait { color: var(--text-3); background: #f0f3f7; }
+.cn-st.s-stop { color: var(--danger); background: var(--danger-bg); }
+.cfg-sub { font-size: var(--fs-11); color: var(--text-3); margin-top: 2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cfg-sub.has-ct { color: var(--primary-deep); }
+
+/* 开关：触控区 ≥44px */
+.sw-wrap { padding: 11px 2px; flex-shrink: 0; cursor: pointer; }
+.sw { width: 40px; height: 22px; border-radius: 11px; background: #dfe6f0; position: relative; transition: background .18s; }
+.sw.on { background: var(--primary); }
+.sw i { position: absolute; top: 2px; left: 2px; width: 18px; height: 18px; border-radius: 50%; background: #fff; transition: left .18s; box-shadow: 0 1px 3px rgba(0,0,0,.16); }
+.sw.on i { left: 20px; }
+.sw.disabled { opacity: .45; }
+
+.row-more { width: 34px; height: 34px; display: flex; align-items: center; justify-content: center; font-size: 17px; color: var(--text-3); flex-shrink: 0; cursor: pointer; border-radius: 8px; }
+.row-more:active { background: var(--bg-secondary); }
+
+/* 添加按钮 */
+.cfg-add { margin-top: 10px; border: 1px dashed var(--primary-light); border-radius: var(--r-block); min-height: 44px; display: flex; align-items: center; justify-content: center; gap: 4px; font-size: var(--fs-13); color: var(--primary); cursor: pointer; }
+.cfg-add:active { background: var(--primary-bg); }
+.cfg-add.disabled { color: var(--text-3); border-color: var(--border); cursor: not-allowed; }
+
+/* 空态 / 无权限 */
+.cfg-empty { padding: 48px 24px; text-align: center; }
+.cfg-empty .ce-ic { width: 52px; height: 52px; border-radius: 50%; background: var(--bg-secondary); margin: 0 auto 12px; display: flex; align-items: center; justify-content: center; font-size: 22px; color: var(--text-3); }
+.cfg-empty .ce-t { font-size: var(--fs-13); color: var(--text); font-weight: 500; }
+.cfg-empty .ce-s { font-size: var(--fs-12); color: var(--text-2); margin-top: 6px; line-height: 1.6; }
+
+/* ===== 底部动作面板 ===== */
+.sheet-mask { position: absolute; inset: 0; background: rgba(15,26,44,.42); opacity: 0; pointer-events: none; transition: opacity .2s; z-index: 60; }
+.sheet-mask.open { opacity: 1; pointer-events: auto; }
+.sheet { position: absolute; left: 0; right: 0; bottom: 0; background: #fff; border-radius: 16px 16px 0 0; padding: 8px 12px 14px; transform: translateY(110%); transition: transform .24s ease-out; z-index: 61; }
+.sheet.open { transform: translateY(0); }
+.sheet-hd { display: flex; align-items: center; gap: 6px; padding: 8px 4px 10px; border-bottom: 1px solid var(--line-light); }
+.sheet-hd .sh-t { font-size: var(--fs-13); font-weight: 500; color: var(--text); }
+.sheet-hd .sh-s { font-size: var(--fs-11); color: var(--text-3); }
+.sheet-item { display: flex; align-items: center; gap: 8px; min-height: 48px; padding: 0 4px; font-size: var(--fs-13); color: var(--text); border-bottom: 1px solid var(--line-light); cursor: pointer; }
+.sheet-item:active { background: var(--bg-secondary); }
+.sheet-item.danger { color: var(--danger); }
+.sheet-item.disabled { color: var(--text-3); cursor: not-allowed; }
+.sheet-item .si-hint { margin-left: auto; font-size: var(--fs-11); color: var(--text-3); }
+.sheet-cancel { margin-top: 8px; min-height: 46px; display: flex; align-items: center; justify-content: center; font-size: var(--fs-13); color: var(--text-2); background: var(--bg-secondary); border-radius: var(--r-block); cursor: pointer; }
+
+/* ===== 编辑弹窗 ===== */
+.modal-mask { position: absolute; inset: 0; background: rgba(15,26,44,.45); opacity: 0; pointer-events: none; transition: opacity .18s; z-index: 70; }
+.modal-mask.open { opacity: 1; pointer-events: auto; }
+.modal { position: absolute; left: 16px; right: 16px; top: 50%; transform: translateY(-50%) scale(.96); background: #fff; border-radius: 14px; z-index: 71; opacity: 0; pointer-events: none; transition: opacity .18s, transform .18s; overflow: hidden; }
+.modal.open { opacity: 1; pointer-events: auto; transform: translateY(-50%) scale(1); }
+.modal-hd { padding: 14px 16px 6px; font-size: var(--fs-15); font-weight: 500; color: var(--text); }
+.modal-bd { padding: 6px 16px 12px; }
+.fld-lab { font-size: var(--fs-12); color: var(--text-2); margin-bottom: 6px; }
+.fld-lab em { color: var(--danger); font-style: normal; margin-left: 2px; }
+.fld-in { width: 100%; border: 1px solid var(--border); border-radius: var(--r-block); min-height: 44px; padding: 0 12px; font-size: var(--fs-13); color: var(--text); background: #fff; font-family: inherit; }
+.fld-in:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 2px rgba(22,119,255,.12); }
+.fld-err { font-size: var(--fs-11); color: var(--danger); margin-top: 5px; min-height: 15px; }
+.fld-row { display: flex; align-items: center; gap: 10px; margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--line-light); }
+.fld-row .fr-main { flex: 1; min-width: 0; }
+.fld-row .fr-t { font-size: var(--fs-13); color: var(--text); }
+.fld-row .fr-s { font-size: var(--fs-11); color: var(--text-3); margin-top: 2px; line-height: 1.5; }
+.modal-ft { display: flex; border-top: 1px solid var(--line-light); }
+.modal-ft .mf-btn { flex: 1; min-height: 48px; display: flex; align-items: center; justify-content: center; font-size: var(--fs-15); color: var(--text-2); background: #fff; border: none; cursor: pointer; font-family: inherit; }
+.modal-ft .mf-btn.primary { color: var(--primary); font-weight: 500; border-left: 1px solid var(--line-light); }
+
+/* ===== 提示 ===== */
+.toast { position: absolute; left: 50%; bottom: 90px; transform: translateX(-50%) translateY(8px); background: rgba(20,30,48,.9); color: #fff; font-size: var(--fs-12); padding: 8px 14px; border-radius: 20px; opacity: 0; pointer-events: none; transition: opacity .2s, transform .2s; z-index: 90; max-width: 280px; text-align: center; }
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+/* ===== 原型导航（框外） ===== */
+.page-nav { position: fixed; top: 20px; right: 20px; z-index: 1000; width: 180px; background: #fff; border-radius: 10px; padding: 14px; box-shadow: 0 6px 20px rgba(0,0,0,.12); max-height: calc(100vh - 40px); overflow-y: auto; }
+.page-nav-title { font-size: var(--fs-13); font-weight: 500; color: var(--text); display: flex; justify-content: space-between; align-items: center; cursor: pointer; }
+.page-nav-title .toggle-btn { font-size: 11px; color: var(--text-3); transition: transform .3s; }
+.page-nav.collapsed { max-height: 52px; overflow: hidden; }
+.page-nav.collapsed .toggle-btn { transform: rotate(-90deg); }
+.page-nav a { display: block; padding: 8px 10px; margin: 4px 0; background: var(--bg-secondary); border-radius: 6px; color: var(--text-2); font-size: var(--fs-11); text-decoration: none; }
+.page-nav a.active { background: var(--primary); color: #fff; }
+
+/* ===== 演示面板（框外） ===== */
+.demo-panel { width: 220px; flex-shrink: 0; background: #fff; border-left: 2px dashed var(--demo-blue); border-radius: var(--r-block); padding: var(--sp-3); align-self: flex-start; box-shadow: var(--shadow); }
+.demo-panel h4 { font-size: var(--fs-13); font-weight: 500; color: var(--text); margin-bottom: var(--sp-2); }
+.demo-panel .dp-group { margin-bottom: var(--sp-4); }
+.demo-panel .dp-lab { font-size: var(--fs-11); color: var(--text-2); margin-bottom: var(--sp-2); }
+.demo-panel .dp-opts { display: flex; flex-wrap: wrap; gap: var(--sp-2); }
+.demo-panel .dp-opt { font-size: var(--fs-11); color: var(--text-2); border: 1px solid var(--border); border-radius: var(--r-pill); padding: 6px 10px; min-height: 32px; display: flex; align-items: center; cursor: pointer; }
+.demo-panel .dp-opt.on { color: var(--primary); border-color: var(--primary); background: var(--primary-bg); font-weight: 500; }
+.demo-panel .dp-note { font-size: var(--fs-11); color: var(--text-3); line-height: 1.6; margin-top: 4px; }
+.demo-panel .dp-reset { min-height: 34px; display: flex; align-items: center; justify-content: center; border: 1px solid var(--danger); color: var(--danger); border-radius: var(--r-block); font-size: var(--fs-11); cursor: pointer; }
+
+@media (max-width: 720px) { body { flex-direction: column; align-items: center; } .demo-panel { width: 375px; border-left: none; border-top: 2px dashed var(--demo-blue); } }
+</style>
+</head>
+<body>
+
+  <!-- ===== 原型导航（框外右上） ===== -->
+  <div class="page-nav" id="pageNav">
+    <div class="page-nav-title" onclick="togglePageNav()">原型导航 <span class="toggle-btn" id="pageNavToggle">▼</span></div>
+    <a href="project-list.html">项目主页（进行中）</a>
+    <a href="flow-config.html" class="active">服务流程配置</a>
+    <a href="contract-list.html">合同列表</a>
+    <a href="create-contract.html">创建合同</a>
+    <a href="project-info.html">项目信息</a>
+  </div>
+
+  <!-- ===== 手机框 ===== -->
+  <div class="phone-frame">
+    <div class="status-bar">
+      <span class="time">9:41</span>
+      <div class="sb-ic">
+        <span class="sb-signal"><i></i><i></i><i></i><i></i></span>
+        <span class="sb-battery"><i></i></span>
+      </div>
+    </div>
+    <div class="nav-bar">
+      <button class="nb-back" onclick="goBack()" aria-label="返回">‹</button>
+      <div class="title">服务流程配置</div>
+      <div class="nb-actions"><div class="native-capsule" title="微信原生胶囊：由微信客户端渲染，开发者不可自定义其内容"><span class="nc-left">⋯</span><span class="nc-divider"></span><span class="nc-right">○</span></div></div>
+    </div>
+
+    <div class="page-body" id="pageBody">
+      <div class="cfg-tip" id="cfgTip">
+        <div class="ct-1">默认 6 项，可按项目增减；「含合同」决定该项能否创建合同并展示阶段任务。</div>
+        <div class="ct-2">调整只影响流程结构，已产生的合同与任务不会被迁移或删除。</div>
+      </div>
+
+      <div class="card" id="cfgCard">
+        <div class="card-head">
+          <span class="ch-t">流程项</span>
+          <span class="ch-n" id="cfgCount">共 6 项 · 主线顺序即环次</span>
+        </div>
+        <div id="cfgList"></div>
+        <div class="cfg-add" id="cfgAdd" onclick="openEditor('add')">+ 添加流程项</div>
+      </div>
+
+      <div class="card" id="cfgEmptyCard" style="display:none">
+        <div class="cfg-empty">
+          <div class="ce-ic">🔒</div>
+          <div class="ce-t" id="ceTitle">暂无配置权限</div>
+          <div class="ce-s" id="ceSub">服务流程配置仅对项目负责人开放，请联系项目负责人调整。</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== 底部动作面板 ===== -->
+    <div class="sheet-mask" id="sheetMask" onclick="closeSheet()"></div>
+    <div class="sheet" id="sheet">
+      <div class="sheet-hd">
+        <span class="sh-t" id="sheetTitle">流程项</span>
+        <span class="sh-s" id="sheetSub"></span>
+      </div>
+      <div id="sheetBody"></div>
+      <div class="sheet-cancel" onclick="closeSheet()">取消</div>
+    </div>
+
+    <!-- ===== 编辑弹窗 ===== -->
+    <div class="modal-mask" id="modalMask" onclick="closeEditor()"></div>
+    <div class="modal" id="modal">
+      <div class="modal-hd" id="modalTitle">添加流程项</div>
+      <div class="modal-bd">
+        <div class="fld-lab">流程项名称<em>*</em></div>
+        <input class="fld-in" id="fldName" maxlength="10" placeholder="例如：水电验收" autocomplete="off">
+        <div class="fld-err" id="fldErr"></div>
+        <div class="fld-row">
+          <div class="fr-main">
+            <div class="fr-t">包含合同</div>
+            <div class="fr-s" id="fldCtSub">开启后该项可创建合同，阶段与任务在合同内维护</div>
+          </div>
+          <div class="sw-wrap" onclick="toggleFldContract()">
+            <div class="sw" id="fldSw"><i></i></div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-ft">
+        <button class="mf-btn" onclick="closeEditor()">取消</button>
+        <button class="mf-btn primary" id="modalSave" onclick="saveEditor()">保存</button>
+      </div>
+    </div>
+
+    <!-- ===== 提示 ===== -->
+    <div class="toast" id="toast"></div>
+
+    <!-- ===== 阻断提示弹窗 ===== -->
+    <div class="modal-mask" id="alertMask" onclick="closeAlert()"></div>
+    <div class="modal" id="alertModal">
+      <div class="modal-hd" id="alertTitle">无法操作</div>
+      <div class="modal-bd"><div style="font-size:13px;color:var(--text-2);line-height:1.7" id="alertText"></div></div>
+      <div class="modal-ft"><button class="mf-btn primary" style="border-left:none" onclick="closeAlert()">我知道了</button></div>
+    </div>
+  </div>
+
+  <!-- ===== 演示面板 ===== -->
+  <div class="demo-panel">
+    <h4>演示控制</h4>
+    <div class="dp-group">
+      <div class="dp-lab">配置权限</div>
+      <div class="dp-opts" id="optPerm">
+        <div class="dp-opt on" data-v="all">可配置</div>
+        <div class="dp-opt" data-v="readonly">只读</div>
+        <div class="dp-opt" data-v="none">无权限</div>
+      </div>
+      <div class="dp-note" id="permNote">项目负责人默认拥有配置权限</div>
+    </div>
+    <div class="dp-group">
+      <div class="dp-lab">数据状态</div>
+      <div class="dp-opts">
+        <div class="dp-opt" id="optReset" onclick="resetCfg()">恢复默认 6 项</div>
+      </div>
+      <div class="dp-note">配置写入 localStorage，返回项目主页即可看到流程条同步</div>
+    </div>
+  </div>
+
+<script src="js/flow-config-store.js"></script>
+<script>
+/* ===== 页面状态 ===== */
+var perm = 'all';          // all 可配置 | readonly 只读 | none 无权限
+var sheetId = null;        // 当前动作面板对应的流程项
+var editing = null;        // { mode:'add'|'rename', id, name, hasContract }
+var MAX = (window.FlowCfgStore && FlowCfgStore.MAX_ITEMS) || 12;
+
+function $(id) { return document.getElementById(id); }
+function esc(s) { return String(s == null ? '' : s).replace(/[&<>"]/g, function (c) { return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]; }); }
+
+function toast(msg) {
+  var t = $('toast');
+  if (!t) return;
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(t._tm);
+  t._tm = setTimeout(function () { t.classList.remove('show'); }, 1800);
+}
+
+function openAlert(title, text) {
+  $('alertTitle').textContent = title;
+  $('alertText').textContent = text;
+  $('alertMask').classList.add('open');
+  $('alertModal').classList.add('open');
+}
+function closeAlert() {
+  $('alertMask').classList.remove('open');
+  $('alertModal').classList.remove('open');
+}
+
+function statusCls(s) {
+  if (s === '已完成') return 's-done';
+  if (s === '进行中') return 's-go';
+  if (s === '已终止') return 's-stop';
+  return 's-wait';
+}
+
+/* ===== 渲染 ===== */
+function render() {
+  var list = FlowCfgStore.get();
+  var canEdit = perm === 'all';
+  var body = $('pageBody');
+
+  // 无权限：整页替换为空态
+  if (perm === 'none') {
+    $('cfgTip').style.display = 'none';
+    $('cfgCard').style.display = 'none';
+    $('cfgEmptyCard').style.display = '';
+    return;
+  }
+  $('cfgTip').style.display = '';
+  $('cfgCard').style.display = '';
+  $('cfgEmptyCard').style.display = 'none';
+
+  var tip = $('cfgTip');
+  if (perm === 'readonly') tip.classList.add('readonly');
+  else tip.classList.remove('readonly');
+
+  $('cfgCount').textContent = '共 ' + list.length + ' 项 · 主线顺序即环次';
+
+  $('cfgList').innerHTML = list.map(function (it, i) {
+    var sub = FlowCfgStore.summary(it);
+    return '<div class="cfg-row' + (it.hasContract ? ' has-ct' : '') + '">' +
+      '<span class="cfg-idx">' + (i + 1) + '</span>' +
+      '<div class="cfg-main">' +
+        '<div class="cfg-name"><span class="cn-t">' + esc(it.name) + '</span>' +
+          '<span class="cn-st ' + statusCls(it.status) + '">' + esc(it.status || '未开始') + '</span></div>' +
+        '<div class="cfg-sub' + (it.hasContract ? ' has-ct' : '') + '">' +
+          (it.hasContract ? '含合同 · ' : '不含合同 · ') + esc(sub) + '</div>' +
+      '</div>' +
+      '<div class="sw-wrap" data-sw="' + it.id + '" onclick="onToggleContract(\'' + it.id + '\')">' +
+        '<div class="sw' + (it.hasContract ? ' on' : '') + (canEdit ? '' : ' disabled') + '"><i></i></div>' +
+      '</div>' +
+      '<div class="row-more" data-more="' + it.id + '" onclick="openSheet(\'' + it.id + '\')">⋯</div>' +
+    '</div>';
+  }).join('');
+
+  var add = $('cfgAdd');
+  var full = list.length >= MAX;
+  add.classList.toggle('disabled', full || !canEdit);
+  add.textContent = full ? ('已达上限 ' + MAX + ' 项') : '+ 添加流程项';
+
+  if (perm === 'readonly') {
+    $('cfgCount').textContent += ' · 只读';
+  }
+}
+
+/* ===== 开关：含合同 ===== */
+function onToggleContract(id) {
+  if (perm !== 'all') { toast(perm === 'readonly' ? '当前为只读权限，无法修改' : '暂无配置权限'); return; }
+  var it = FlowCfgStore.find(id);
+  if (!it) return;
+  var next = !it.hasContract;
+  var r = FlowCfgStore.setContract(id, next);
+  if (!r.ok) { openAlert('无法关闭「含合同」', r.msg); return; }
+  render();
+  toast(next ? '已开启「含合同」，该项可创建合同' : '已关闭「含合同」，合同入口已收回');
+}
+
+/* ===== 动作面板 ===== */
+function openSheet(id) {
+  sheetId = id;
+  var list = FlowCfgStore.get();
+  var idx = -1;
+  for (var i = 0; i < list.length; i++) { if (list[i].id === id) { idx = i; break; } }
+  var it = list[idx];
+  if (!it) return;
+  $('sheetTitle').textContent = it.name;
+  $('sheetSub').textContent = it.hasContract ? '含合同' : '不含合同';
+
+  var canEdit = perm === 'all';
+  var canUp = canEdit && idx > 0;
+  var canDown = canEdit && idx < list.length - 1;
+  var delChk = FlowCfgStore.canRemove(id);
+
+  $('sheetBody').innerHTML =
+    sheetRow('重命名', 'rename', '', canEdit) +
+    sheetRow('上移一位', 'up', canUp ? '' : (idx === 0 ? '已在第一位' : ''), canUp) +
+    sheetRow('下移一位', 'down', canDown ? '' : (idx === list.length - 1 ? '已在最后一位' : ''), canDown) +
+    sheetRow('删除此项', 'del', delChk.ok ? '' : delChk.msg, canEdit && delChk.ok, true);
+
+  $('sheetMask').classList.add('open');
+  $('sheet').classList.add('open');
+}
+
+function sheetRow(text, act, hint, enabled, danger) {
+  return '<div class="sheet-item' + (danger ? ' danger' : '') + (enabled ? '' : ' disabled') + '"' +
+    ' onclick="sheetAct(\'' + act + '\',' + (enabled ? 'true' : 'false') + ')">' +
+    '<span>' + text + '</span>' + (hint ? '<span class="si-hint">' + esc(hint) + '</span>' : '') + '</div>';
+}
+
+function closeSheet() {
+  $('sheetMask').classList.remove('open');
+  $('sheet').classList.remove('open');
+}
+
+function sheetAct(act, enabled) {
+  if (!enabled) {
+    if (act === 'del') toast('该项下仍有数据，无法删除');
+    else if (act === 'up' || act === 'down') toast('已到边界');
+    else toast('当前为只读权限，无法修改');
+    return;
+  }
+  var id = sheetId;
+  closeSheet();
+  if (act === 'rename') { openEditor('rename', id); return; }
+  if (act === 'up' || act === 'down') {
+    var r = FlowCfgStore.move(id, act);
+    if (!r.ok) { toast(r.msg); return; }
+    render();
+    toast(act === 'up' ? '已上移' : '已下移');
+    return;
+  }
+  if (act === 'del') { doRemove(id); return; }
+}
+
+function doRemove(id) {
+  var it = FlowCfgStore.find(id);
+  if (!it) return;
+  var r = FlowCfgStore.remove(id);
+  if (!r.ok) { openAlert('无法删除', r.msg); return; }
+  render();
+  toast('已删除「' + it.name + '」');
+}
+
+/* ===== 新增 / 重命名 ===== */
+function openEditor(mode, id) {
+  if (perm !== 'all') { toast(perm === 'readonly' ? '当前为只读权限，无法修改' : '暂无配置权限'); return; }
+  var it = id ? FlowCfgStore.find(id) : null;
+  editing = { mode: mode, id: id || '', hasContract: it ? !!it.hasContract : false };
+  $('modalTitle').textContent = mode === 'add' ? '添加流程项' : '重命名流程项';
+  $('fldName').value = it ? it.name : '';
+  $('fldErr').textContent = '';
+  $('fldSw').classList.toggle('on', editing.hasContract);
+  $('fldCtSub').textContent = editing.hasContract
+    ? '开启后该项可创建合同，阶段与任务在合同内维护'
+    : '关闭时该项只保留任务清单，不出现合同入口';
+  $('modalMask').classList.add('open');
+  $('modal').classList.add('open');
+  setTimeout(function () { try { $('fldName').focus(); } catch (e) {} }, 120);
+}
+
+function closeEditor() {
+  $('modalMask').classList.remove('open');
+  $('modal').classList.remove('open');
+  editing = null;
+}
+
+function toggleFldContract() {
+  if (!editing) return;
+  editing.hasContract = !editing.hasContract;
+  $('fldSw').classList.toggle('on', editing.hasContract);
+  $('fldCtSub').textContent = editing.hasContract
+    ? '开启后该项可创建合同，阶段与任务在合同内维护'
+    : '关闭时该项只保留任务清单，不出现合同入口';
+}
+
+function saveEditor() {
+  if (!editing) return;
+  var name = $('fldName').value;
+  var alertMsg = '';
+  var r;
+  if (editing.mode === 'add') {
+    r = FlowCfgStore.add(name, editing.hasContract);
+  } else {
+    r = FlowCfgStore.rename(editing.id, name);
+    if (r.ok) {
+      // 重命名时一并提交「含合同」的变更；关闭被阻断时保留改名结果并单独提示
+      var it = FlowCfgStore.find(editing.id);
+      if (it && !!it.hasContract !== editing.hasContract) {
+        var r2 = FlowCfgStore.setContract(editing.id, editing.hasContract);
+        if (!r2.ok) alertMsg = r2.msg;
+      }
+    }
+  }
+  if (!r.ok) { $('fldErr').textContent = r.msg; return; }
+  closeEditor();
+  render();
+  if (alertMsg) openAlert('无法关闭「含合同」', alertMsg);
+  else toast('已保存');
+}
+
+/* ===== 返回 / 演示控制 ===== */
+function goBack() {
+  if (window.history.length > 1) window.history.back();
+  else location.href = 'project-list.html';
+}
+
+function setPerm(v) {
+  perm = v;
+  Array.prototype.forEach.call(document.querySelectorAll('#optPerm .dp-opt'), function (el) {
+    el.classList.toggle('on', el.getAttribute('data-v') === v);
+  });
+  $('permNote').textContent = v === 'all' ? '项目负责人默认拥有配置权限'
+    : v === 'readonly' ? '只读：可查看结构与规模，不能改'
+    : '无权限：入口不渲染，直接访问被拦';
+  render();
+}
+
+function resetCfg() {
+  FlowCfgStore.reset();
+  render();
+  toast('已恢复默认 6 项');
+}
+
+Array.prototype.forEach.call(document.querySelectorAll('#optPerm .dp-opt'), function (el) {
+  el.addEventListener('click', function () { setPerm(el.getAttribute('data-v')); });
+});
+
+/* 支持 ?perm=none|readonly 直接进入对应权限态 */
+(function () {
+  var m = /[?&]perm=([^&]+)/.exec(location.search);
+  setPerm(m ? decodeURIComponent(m[1]) : 'all');
+})();
+
+/* 弹窗输入：回车即保存 */
+$('fldName').addEventListener('keydown', function (e) {
+  if (e.key === 'Enter') saveEditor();
+});
+
+/* 打开编辑弹窗时清掉上一次的错误提示 */
+$('fldName').addEventListener('input', function () { $('fldErr').textContent = ''; });
+</script>
+</body>
+</html>
