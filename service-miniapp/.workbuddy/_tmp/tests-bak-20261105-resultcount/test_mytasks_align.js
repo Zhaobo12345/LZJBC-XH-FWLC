@@ -1,0 +1,158 @@
+const fs = require('fs');
+const { JSDOM, VirtualConsole } = require('jsdom');
+
+const storeCfg = fs.readFileSync('js/flow-config-store.js', 'utf-8');
+const storeTasks = fs.readFileSync('js/my-tasks-store.js', 'utf-8');
+
+function load(file, qs) {
+  let h = fs.readFileSync(file, 'utf-8');
+  h = h.replace(/<script src="js\/flow-config-store\.js"><\/script>/g, '<script>' + storeCfg + '</script>');
+  h = h.replace(/<script src="js\/my-tasks-store\.js"><\/script>/g, '<script>' + storeTasks + '</script>');
+  const vc = new VirtualConsole();
+  const errs = [];
+  vc.on('jsdomError', e => errs.push(e.message));
+  const dom = new JSDOM(h, {
+    runScripts: 'dangerously', pretendToBeVisual: true,
+    url: 'https://example.com/' + file + (qs || ''), virtualConsole: vc
+  });
+  const result = { dom, d: dom.window.document, w: dom.window, errs };
+  return new Promise(resolve => {
+    let done = false;
+    const finish = () => { if (!done) { done = true; setTimeout(() => resolve(result), 20); } };
+    dom.window.addEventListener('load', finish);
+    setTimeout(finish, 150);
+  });
+}
+
+let pass = 0, fail = 0;
+function assert(c, m) { if (c) pass++; else { fail++; console.log('FAIL: ' + m); } }
+function qa(o, s) { return Array.prototype.slice.call(o.querySelectorAll(s)); }
+function q(o, s) { return o.querySelector(s); }
+
+(async function run() {
+  // ============ A. 项目主页：数字由共享清单派生 + 跳转契约 ============
+  {
+    const { d, w, errs } = await load('project-list.html');
+    assert(!!w.MyTasksStore, '主页加载 MyTasksStore');
+    assert(q(d, '#mtSNonworker').textContent.trim() === '待处理 5 · 确认中 2 · 已完成 3',
+      '非工人三态由清单派生 5/2/3，实际 ' + q(d, '#mtSNonworker').textContent);
+    assert(q(d, '#mtSWorker').textContent.trim() === '待处理 1 · 确认中 3 · 已完成 4',
+      '工人三态由清单派生 1/3/4，实际 ' + q(d, '#mtSWorker').textContent);
+    assert(w.eval('myTasksHref()') === 'task-list.html?scope=mytasks&role=nonworker', '默认跳转 href 带 nonworker');
+    w.eval("setRole('worker')");
+    assert(w.eval('myTasksHref()') === 'task-list.html?scope=mytasks&role=worker', '切工人后 href 带 worker');
+    assert(q(d, '#mtSWorker').textContent.trim() === '待处理 1 · 确认中 3 · 已完成 4', 'setRole 后重算三态');
+    w.eval("setRole('nonworker')");
+    const cards = qa(d, '.mytask-row');
+    assert(cards.length === 2 && cards.every(x => /myTasksHref\(\)/.test(x.getAttribute('onclick'))), '两处卡片均改用动态 href');
+    assert(!/task-list\.html\?role=exec/.test(fs.readFileSync('project-list.html', 'utf-8')), '主页旧 URL 已清除');
+    assert(errs.length === 0, '主页无运行时错误: ' + errs.join('|'));
+  }
+
+  // ============ B. 三个状态页：URL 契约统一 ============
+  const jumpPages = ['project-detail-initial-v2.html', 'project-detail-completed-v2.html', 'project-list-empty-demo.html'];
+  for (const f of jumpPages) {
+    const src = fs.readFileSync(f, 'utf-8');
+    assert(!src.includes('task-list.html?role=exec'), f + ' 旧 URL 已清除');
+    assert((src.match(/task-list\.html\?scope=mytasks&role=' \+ currentRole \+ '/g) || []).length === 2,
+      f + ' 两处新 URL 拼接');
+    const { d, errs } = await load(f);
+    const cards = qa(d, '.my-task-card');
+    const ok = cards.length === 0 || cards.every(c => /scope=mytasks&role=(worker|nonworker)/.test(c.getAttribute('onclick') || ''));
+    assert(ok, f + ' 渲染出的卡片 onclick 含合法 role（卡片数 ' + cards.length + '）');
+    assert(errs.length === 0, f + ' 无运行时错误: ' + errs.join('|'));
+  }
+
+  // ============ C. task-list 普通访问：零影响 ============
+  {
+    const { d, errs } = await load('task-list.html');
+    assert(q(d, '#tabMyTasks').style.display === 'none', '普通访问第三个 Tab 隐藏');
+    assert(d.querySelector('#panelContract').classList.contains('is-active'), '普通访问默认合同面板');
+    assert(!d.querySelector('#panelMyTasks').classList.contains('is-active'), '普通访问我的任务面板隐藏');
+    assert(/共 50 个任务/.test(q(d, '#resultCount').textContent), '普通访问结果条 50，实际 ' + q(d, '#resultCount').textContent);
+    assert(!d.querySelector('#flowRail .flow-rail-item[data-flow-id="all"]'), '普通访问 rail 无「全部流程项」');
+    assert(errs.length === 0, '普通访问无运行时错误: ' + errs.join('|'));
+  }
+
+  // ============ D. ?scope=mytasks&role=nonworker ============
+  {
+    const { d, w, errs } = await load('task-list.html', '?scope=mytasks&role=nonworker');
+    const p = q(d, '#panelMyTasks');
+    assert(w.eval('myTasksMode') === true && w.eval('myTasksRole') === 'nonworker', '解析出 mytasks / nonworker');
+    assert(q(d, '#tabMyTasks').style.display !== 'none', '我的任务 Tab 显示');
+    assert(q(d, '#taskTabBar .task-tab[data-tab="mytasks"]').classList.contains('active'), '默认选中我的任务 Tab');
+    assert(p.classList.contains('is-active'), '我的任务面板显示');
+    assert(!q(d, '#panelContract').classList.contains('is-active') && !q(d, '#panelTemp').classList.contains('is-active'), '另两面板隐藏');
+    assert(q(d, '#tabBadgeMyTasks').textContent === '10', 'Tab 徽标 10');
+    assert(qa(p, '.task-item').length === 10, '我的任务 10 条，实际 ' + qa(p, '.task-item').length);
+    assert(q(p, '.mt-sum-title') && /全部流程项 · 我的任务 10 条/.test(q(p, '.mt-sum-title').textContent), '概览总数 10（全部流程项）');
+    assert(q(p, '.mt-sum-stats') && /待处理 5/.test(q(p, '.mt-sum-stats').textContent) && /确认中 2/.test(q(p, '.mt-sum-stats').textContent) && /已完成 3/.test(q(p, '.mt-sum-stats').textContent), '概览三态与主页一致 5/2/3');
+    assert(/我的任务 10 条/.test(q(d, '#resultCount').textContent), '结果条与主页一致，实际 ' + q(d, '#resultCount').textContent);
+    assert(q(d, '#flowRail').style.display !== 'none', '我的任务视图 rail 常驻');
+    assert(q(d, '#flowRail .flow-rail-item[data-flow-id="all"]') && q(d, '#flowRail .flow-rail-item[data-flow-id="all"]').classList.contains('active'), '默认选中「全部流程项」');
+    assert(q(d, '.expand-all-btn').style.display === 'none', '我的任务视图隐藏收起全部');
+
+    const groups = qa(p, '.mt-flow-group').map(g => ({ id: g.getAttribute('data-flow-id'), name: q(g, '.mt-flow-head span').textContent.trim(), n: g.querySelectorAll('.task-item').length }));
+    console.log('nonworker 流程项分组:', JSON.stringify(groups));
+    const cfg = w.FlowCfgStore.get();
+    groups.forEach(g => {
+      const c = cfg.filter(x => x.id === g.id)[0];
+      assert(!!c && c.name === g.name, '分组名来自配置 ' + g.id + ' → ' + (c && c.name) + ' / ' + g.name);
+    });
+    assert(groups.reduce((a, g) => a + g.n, 0) === 10, '分组条数合计 10');
+    assert(groups.length === 3, '跨 3 个流程项，实际 ' + groups.length);
+
+    const allNames = {};
+    qa(d, '#panelContract .task-name, #panelTemp .task-name').forEach(x => { allNames[x.textContent.trim()] = true; });
+    const miss = qa(p, '.task-name').map(x => x.textContent.trim()).filter(n => !allNames[n]);
+    assert(miss.length === 0, '我的任务每条都能在全部任务中逐字找到，缺失: ' + miss.join('、'));
+    console.log('nonworker 任务名:', qa(p, '.task-name').map(x => x.textContent.trim()).join('、'));
+
+    assert(qa(p, '.task-item[data-type="contract"]').length === 5 && qa(p, '.task-item[data-type="temp"]').length === 5, '合同 5 / 非合同 5');
+    assert(qa(p, '.task-item[data-status="pending"]').length === 5 && qa(p, '.task-item[data-status="confirming"]').length === 2 && qa(p, '.task-item[data-status="completed"]').length === 3, '状态分布 5/2/3');
+
+    w.eval("switchTaskTab('contract')");
+    assert(q(d, '#panelContract').classList.contains('is-active') && !p.classList.contains('is-active'), '切合同后面板互换');
+    assert(/共 50 个任务/.test(q(d, '#resultCount').textContent), '切合同后结果条 50');
+    assert(q(d, '#flowRail').style.display !== 'none', '切合同后 rail 仍显示');
+    assert(!q(d, '#flowRail .flow-rail-item[data-flow-id="all"]'), '切合同后不出现「全部流程项」');
+    w.eval("switchTaskTab('mytasks')");
+    assert(p.classList.contains('is-active') && /我的任务 10 条/.test(q(d, '#resultCount').textContent), '切回我的任务恢复 10 条');
+
+    w.eval("document.getElementById('searchInput').value='巡检'; filterTasks()");
+    assert(/我的任务 1 条/.test(q(d, '#resultCount').textContent), '搜「巡检」命中 1 条（竣工前全面巡检），实际 ' + q(d, '#resultCount').textContent);
+    w.eval("document.getElementById('searchInput').value=''; filterTasks()");
+    w.eval("selectStatus('completed')");
+    assert(/我的任务 3 条/.test(q(d, '#resultCount').textContent), '筛已完成命中 3 条，实际 ' + q(d, '#resultCount').textContent);
+    w.eval("selectStatus('all')");
+    assert(errs.length === 0, 'mytasks 无运行时错误: ' + errs.join('|'));
+  }
+
+  // ============ E. ?scope=mytasks&role=worker ============
+  {
+    const { d, w, errs } = await load('task-list.html', '?scope=mytasks&role=worker');
+    const p = q(d, '#panelMyTasks');
+    assert(w.eval('myTasksRole') === 'worker', 'worker 视角解析');
+    assert(qa(p, '.task-item').length === 8, '工人我的任务 8 条');
+    assert(/待处理 1/.test(q(p, '.mt-sum-stats').textContent) && /确认中 3/.test(q(p, '.mt-sum-stats').textContent) && /已完成 4/.test(q(p, '.mt-sum-stats').textContent), '工人三态 1/3/4 与主页一致');
+    assert(/我的任务 8 条/.test(q(d, '#resultCount').textContent), '工人结果条 8');
+    const groups = qa(p, '.mt-flow-group');
+    assert(groups.length === 1 && groups[0].getAttribute('data-flow-id') === 'sg', '工人只归属基础施工服务 1 个流程项');
+    assert(errs.length === 0, 'worker 无运行时错误: ' + errs.join('|'));
+  }
+
+  // ============ F. 配置驱动：改流程项名称后分组名跟随 ============
+  {
+    const { d, w, errs } = await load('task-list.html', '?scope=mytasks&role=nonworker');
+    const cfg = w.FlowCfgStore.get().map(c => c.id === 'sg' ? Object.assign({}, c, { name: '基础施工（改名）' }) : c);
+    w.eval("localStorage.setItem('lzj_flow_cfg_v1', JSON.stringify(" + JSON.stringify(cfg) + "))");
+    w.eval("renderMyTasksPanel(cfgList())");
+    const g = q(d, '#panelMyTasks .mt-flow-group[data-flow-id="sg"]');
+    assert(g && /基础施工（改名）/.test(q(g, '.mt-flow-head span').textContent), '改名后分组名跟随配置');
+    assert(qa(d, '#panelMyTasks .task-item').length === 10, '改名后 10 条守恒');
+    assert(errs.length === 0, '配置驱动无运行时错误: ' + errs.join('|'));
+  }
+
+  console.log('\nRESULT: ' + pass + ' PASS / ' + fail + ' FAIL');
+  if (fail) process.exitCode = 1;
+})();

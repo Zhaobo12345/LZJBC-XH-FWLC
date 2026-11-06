@@ -1,0 +1,100 @@
+/* 我的任务共享清单 —— 项目主页与「全部任务」页的唯一数据源（原型演示数据，无后端）
+   口径：
+   - 每条任务名逐字取自 task-list.html 现有任务条目，保证两页可逐条对应；
+   - flowId 为服务流程项配置 id（FlowCfgStore），流程项名称/数量/顺序由配置驱动；
+   - type: contract 合同内任务 / temp 非合同任务（临时任务或流程项自带流程任务）；
+   - status: pending 待处理 / confirming 确认中 / completed 已完成（对应主页三态）；
+   - exec / confirms：归属口径。我的任务 = 我参与 = 执行人是我 ∨ 确认人含我；
+     待我执行 = 执行人是我且非已完成/确认中；待我确认 = 确认人含我且确认中。
+   导出：window.MyTasksStore = { list, summary, text, byFlow, names, flowIds } */
+(function (global) {
+  'use strict';
+
+  var DEFAULT_CFG = [
+    { id: 'lh', name: '量房' }, { id: 'cs', name: '初步设计' },
+    { id: 'ht', name: '设计服务' }, { id: 'sg', name: '基础施工服务' },
+    { id: 'cz', name: '主材安装' }, { id: 'sh', name: '售后' }
+  ];
+
+  var LISTS = {
+    // 非工人（项目总）：待处理 5 · 确认中 2 · 已完成 3 = 10
+    nonworker: [
+      { id: 'n01', name: '强弱电穿线与底盒安装', flowId: 'sg', type: 'contract', status: 'pending', stage: '水电隐蔽工程', contract: '水电班组服务合同', exec: '张三', confirms: ['陈庄'] },
+      { id: 'n02', name: '闭水试验48小时联合签字', flowId: 'sg', type: 'contract', status: 'pending', stage: '泥瓦铺贴与防水防渗', contract: '泥瓦工班组服务合同', exec: '张三', confirms: ['陈庄'] },
+      { id: 'n03', name: '水电节点复检', flowId: 'sg', type: 'temp', status: 'pending', exec: '张三', confirms: ['陈庄'] },
+      { id: 'n04', name: '竣工前全面巡检', flowId: 'sg', type: 'temp', status: 'pending', exec: '张三', confirms: ['陈庄'] },
+      { id: 'n05', name: '瓷砖/石材进场', flowId: 'cz', type: 'temp', status: 'pending', stage: '主材进场阶段', exec: '张三', confirms: ['陈庄'] },
+      { id: 'n06', name: '穿线验收', flowId: 'sg', type: 'contract', status: 'confirming', stage: '布管布线', contract: '水电班组服务合同', exec: '陈庄', confirms: ['张三'] },
+      { id: 'n07', name: '材料进场验收', flowId: 'sg', type: 'temp', status: 'confirming', exec: '陈庄', confirms: ['张三'] },
+      { id: 'n08', name: '现场放线与三方交底', flowId: 'sg', type: 'contract', status: 'completed', stage: '基础施工阶段', contract: '基础施工服务合同', exec: '张三', confirms: ['陈庄'] },
+      { id: 'n09', name: '瓷砖/石材进场复验', flowId: 'sg', type: 'temp', status: 'completed', exec: '张三', confirms: ['陈庄'] },
+      { id: 'n10', name: '原始量房尺寸复测', flowId: 'ht', type: 'contract', status: 'completed', stage: '方案设计阶段', contract: '设计服务合同', exec: '张三', confirms: ['陈庄'] }
+    ],
+    // 工人：待处理 1 · 确认中 3 · 已完成 4 = 8；只归属其签署合同所在的 sg 流程项
+    worker: [
+      { id: 'w01', name: '水电节点复检', flowId: 'sg', type: 'temp', status: 'pending', exec: '张三', confirms: ['陈庄'] },
+      { id: 'w02', name: '穿线验收', flowId: 'sg', type: 'contract', status: 'confirming', stage: '布管布线', contract: '水电班组服务合同', exec: '陈庄', confirms: ['张三'] },
+      { id: 'w03', name: '材料进场验收', flowId: 'sg', type: 'temp', status: 'confirming', exec: '陈庄', confirms: ['张三'] },
+      { id: 'w04', name: '瓷砖空鼓与平整度抽检', flowId: 'sg', type: 'temp', status: 'confirming', exec: '陈庄', confirms: ['张三'] },
+      { id: 'w05', name: '现场放线与三方交底', flowId: 'sg', type: 'contract', status: 'completed', stage: '基础施工阶段', contract: '基础施工服务合同', exec: '张三', confirms: ['陈庄'] },
+      { id: 'w06', name: '瓷砖/石材进场复验', flowId: 'sg', type: 'temp', status: 'completed', exec: '张三', confirms: ['陈庄'] },
+      { id: 'w07', name: '工地巡检', flowId: 'sg', type: 'temp', status: 'completed', exec: '张三', confirms: ['陈庄'] },
+      { id: 'w08', name: '成品保护与文明施工验收', flowId: 'sg', type: 'contract', status: 'completed', stage: '基础施工阶段', contract: '基础施工服务合同', exec: '张三', confirms: ['陈庄'] }
+    ]
+  };
+
+  function normalize(role) { return role === 'worker' ? 'worker' : 'nonworker'; }
+
+  function list(role) {
+    return LISTS[normalize(role)].map(function (x) {
+      var o = {};
+      for (var k in x) if (Object.prototype.hasOwnProperty.call(x, k)) o[k] = x[k];
+      return o;
+    });
+  }
+
+  function summary(role) {
+    var s = { pending: 0, confirming: 0, completed: 0, total: 0 };
+    list(role).forEach(function (t) { if (s[t.status] !== undefined) s[t.status] += 1; s.total += 1; });
+    return s;
+  }
+
+  function text(role) {
+    var s = summary(role);
+    return '待处理 ' + s.pending + ' · 确认中 ' + s.confirming + ' · 已完成 ' + s.completed;
+  }
+
+  function names(role) {
+    var m = {};
+    list(role).forEach(function (t) { m[t.name] = true; });
+    return m;
+  }
+
+  function flowIds(role) {
+    var seen = {}, out = [];
+    list(role).forEach(function (t) { if (!seen[t.flowId]) { seen[t.flowId] = 1; out.push(t.flowId); } });
+    return out;
+  }
+
+  /* 按配置顺序分组：新增/改名/排序流程项后自动跟随，未在配置中的流程项追加在末尾 */
+  function byFlow(role, cfg) {
+    var order = (cfg && cfg.length ? cfg : DEFAULT_CFG).map(function (c) {
+      return { id: c.id, name: c.name };
+    });
+    var map = {}, inOrder = {};
+    order.forEach(function (o) { map[o.id] = { id: o.id, name: o.name, items: [] }; inOrder[o.id] = true; });
+    list(role).forEach(function (t) {
+      if (!map[t.flowId]) map[t.flowId] = { id: t.flowId, name: t.flowId, items: [] };
+      map[t.flowId].items.push(t);
+    });
+    var groups = order.map(function (o) { return map[o.id]; });
+    Object.keys(map).forEach(function (k) { if (!inOrder[k]) groups.push(map[k]); });
+    return groups.filter(function (g) { return g.items.length > 0; });
+  }
+
+  global.MyTasksStore = {
+    list: list, summary: summary, text: text,
+    names: names, flowIds: flowIds, byFlow: byFlow,
+    DEFAULT_CFG: DEFAULT_CFG
+  };
+})(window);

@@ -31,14 +31,14 @@
             font-weight: 600; color: #000; flex-shrink: 0;
         }
         .nav-bar {
-            height: 48px; background: #fff; display: flex; align-items: center;
+            height: 44px; background: #fff; display: flex; align-items: center;
             position: relative; border-bottom: 1px solid #ececec; flex-shrink: 0;
         }
         .nav-bar .nb-back {
             position: absolute; left: 14px; font-size: 26px; line-height: 1;
             color: #1a1a1a; text-decoration: none; width: 28px;
         }
-        .nav-bar .title { flex: 1; text-align: center; font-size: 17px; font-weight: 600; color: #1a1a1a; }
+        .nav-bar .title { flex: 1; text-align: center; font-size: 17px; font-weight: 600; color: #1a1a1a;  padding: 0 72px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
         .nav-bar .actions { position: absolute; right: 14px; }
         .native-capsule {
             display: inline-flex; align-items: center; border: 1px solid #e3e3e3; border-radius: 14px;
@@ -344,7 +344,7 @@
             font-weight: 600; color: #000; flex-shrink: 0;
         }
         .fulltext-modal .nav-bar {
-            position: relative; height: 48px; background: #fff; display: flex;
+            position: relative; height: 44px; background: #fff; display: flex;
             align-items: center; border-bottom: 1px solid #e5e6eb; flex-shrink: 0; padding: 0 16px;
         }
         .fulltext-modal .nav-bar .back {
@@ -354,7 +354,7 @@
         .fulltext-modal .nav-bar .back .back-arrow { margin-right: 4px; font-size: 16px; }
         .fulltext-modal .nav-bar .title {
             flex: 1; text-align: center; font-size: 16px; font-weight: 600; color: #222;
-        }
+         padding: 0 72px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
         .fulltext-modal .nav-bar .nb-actions {
             position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
             display: flex; align-items: center; z-index: 2;

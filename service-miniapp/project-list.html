@@ -55,11 +55,11 @@ body {
 .sb-battery::after { content: ""; position: absolute; right: -3px; top: 3px; width: 2px; height: 4px; background: rgba(255,255,255,.85); border-radius: 0 1px 1px 0; }
 .sb-battery i { display: block; height: 100%; width: 70%; background: #fff; border-radius: 1px; }
 .nav-bar {
-  height: 48px; background: var(--grad-brand); flex-shrink: 0; position: relative;
+  height: 44px; background: var(--grad-brand); flex-shrink: 0; position: relative;
   display: flex; align-items: center; box-shadow: 0 2px 10px rgba(11,87,208,.18);
 }
 .nav-bar .nb-back { position: absolute; left: 14px; font-size: 26px; line-height: 1; color: #fff; text-decoration: none; }
-.nav-bar .title { flex: 1; text-align: center; font-size: 17px; font-weight: 600; color: #fff; }
+.nav-bar .title { flex: 1; text-align: center; font-size: 17px; font-weight: 600; color: #fff; padding: 0 72px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .nav-bar .nb-actions { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); }
 .native-capsule {
   display: inline-flex; align-items: center; justify-content: space-between;
@@ -110,7 +110,7 @@ body {
 .mytask-row .mt-s { font-size: var(--fs-12); color: var(--text-2); }
 .mytask-row .mt-a { margin-left: auto; font-size: var(--fs-11); color: var(--text-2); }
 
-/* ===== 服务流程卡（核心） ===== */
+/* ===== 项目流程卡（核心） ===== */
 .flow-card { background: var(--card); border: 1px solid var(--border); box-shadow: var(--shadow); border-radius: var(--r-card); margin: 0 var(--sp-3) var(--sp-2); overflow: hidden; }
 .flow-sticky { position: sticky; top: 0; z-index: 20; overflow: visible; background: linear-gradient(180deg,#f8fbff 0%,#ffffff 100%); padding: 8px var(--sp-3) 0; border-bottom: 1px solid transparent; transition: border-color 120ms ease-out, box-shadow 160ms ease-out; }
 .flow-sticky.stuck { border-bottom-color: var(--line-light); box-shadow: 0 4px 14px rgba(22,119,255,.08); }
@@ -124,9 +124,6 @@ body {
 .flow-stats .fs-seg { display: flex; align-items: baseline; gap: 4px; }
 .flow-stats .fs-num { font-size: var(--fs-13); font-weight: 600; color: var(--primary-deep); }
 .flow-stats .fs-lab { font-size: var(--fs-11); color: var(--text-2); }
-.flow-stats .fs-act { margin-left: auto; font-size: var(--fs-11); padding: 3px 9px; border-radius: 999px; cursor: pointer; white-space: nowrap; flex-shrink: 0; }
-.flow-stats .fs-act.create { background: var(--primary); color: #fff; }
-.flow-stats .fs-act.view { background: #fff; color: var(--primary); border: 1px solid rgba(22,119,255,.35); }
 .flow-stats .fs-div { width: 1px; height: 12px; background: var(--dot-ring); }
 
 /* 横滑流程条 */
@@ -209,7 +206,7 @@ body {
 .demo-panel .dp-opt { font-size: var(--fs-11); color: var(--text-2); border: 1px solid var(--border); border-radius: var(--r-pill); padding: 6px 10px; min-height: 32px; display: flex; align-items: center; cursor: pointer; }
 .demo-panel .dp-opt.on { color: var(--primary); border-color: var(--primary); background: var(--primary-bg); font-weight: 500; }
 
-/* ===== 右侧「服务流程项」浮窗（参考 owner 项目导航） ===== */
+/* ===== 右侧「项目流程项」浮窗（参考 owner 项目导航） ===== */
 /* 右缘常驻触发条 */
 .flow-trigger {
   position: absolute; right: 0; top: 50%; transform: translateY(-50%);
@@ -223,12 +220,12 @@ body {
 
 /* 遮罩 + 抽屉 */
 .flow-drawer-mask {
-  position: absolute; inset: 0; background: rgba(0,0,0,.35); z-index: 50;
+  position: absolute; inset: 44px 0 0 0; background: rgba(0,0,0,.35); z-index: 50;
   opacity: 0; visibility: hidden; transition: opacity 200ms ease-out, visibility 200ms;
 }
 .flow-drawer-mask.open { opacity: 1; visibility: visible; }
 .flow-drawer {
-  position: absolute; top: 0; right: 0; height: 100%; width: 300px; max-width: 86%;
+  position: absolute; top: 44px; right: 0; height: calc(100% - 44px); width: 300px; max-width: 86%;
   background: #fff; z-index: 60; transform: translateX(100%);
   transition: transform 240ms cubic-bezier(.22,.61,.36,1);
   display: flex; flex-direction: column; box-shadow: -6px 0 24px rgba(0,0,0,.18);
@@ -269,7 +266,7 @@ body {
 .fd-empty { text-align: center; color: var(--text-3); font-size: 12px; padding: 14px 0; }
 .fd-footer { flex-shrink: 0; padding: 10px 14px; font-size: 11px; color: var(--text-3); text-align: center; border-top: 1px solid var(--line-light); background: #f5f9ff; }
 
-/* ===== 指派任务（临时派遣）：明细区底部吸底入口 + 轻量表单弹窗 ===== */
+/* ===== 指派任务（临时任务）：明细区底部吸底入口 + 轻量表单弹窗 ===== */
 .fd-assignbar { position: sticky; bottom: 0; z-index: 4; margin: 4px 0 0; padding: 10px 0 2px; background: linear-gradient(180deg, rgba(255,255,255,0) 0%, #fff 42%); }
 .fd-ext-add { width: 100%; min-height: 44px; display: flex; align-items: center; justify-content: center; gap: 4px; border: none; border-radius: 10px; background: var(--grad-brand); color: #fff; font-size: 14px; font-weight: 500; font-family: inherit; cursor: pointer; box-shadow: 0 4px 12px rgba(22,119,255,.24); user-select: none; }
 .fd-ext-add:active { opacity: .92; }
@@ -379,7 +376,7 @@ body {
 .fd-task-tag { display: inline-flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 600; width: 18px; height: 18px; border-radius: 4px; background: linear-gradient(135deg,#FF6B6B,#FF4757); color: #fff; flex-shrink: 0; }
 .fd-task-arrow { color: #D9D9D9; font-size: 14px; flex-shrink: 0; font-weight: 700; }
 
-/* 临时派遣任务列表（已取消「隶属阶段」：单一平铺列表） */
+/* 临时任务列表（已取消「隶属阶段」：单一平铺列表） */
 .fd-ext-list { padding-top: 2px; }
 .fd-ext-task { display: flex; align-items: center; gap: 8px; min-height: 44px; padding: 8px 0; border-top: 1px solid var(--line-light); }
 .fd-ext-task:first-of-type { border-top: none; }
@@ -388,7 +385,7 @@ body {
 .fd-ext-task .fd-meta { font-size: 11px; color: var(--text-2); }
 .fd-ext-task .fd-badge { font-size: 11px; font-weight: 500; border-radius: 999px; padding: 2px 8px; flex-shrink: 0; white-space: nowrap; }
 .fd-ext-none { text-align: center; color: var(--text-3); font-size: 12px; padding: 14px 0; }
-/* 任务型流程项内的临时派遣小区块（与该项自身任务区分） */
+/* 任务型流程项内的临时任务小区块（与该项自身任务区分） */
 .fd-ext-sub { margin-top: 10px; }
 .fd-ext-sub-h { font-size: 12px; font-weight: 600; color: var(--text-2); padding: 8px 0 4px; display: flex; align-items: center; gap: 6px; border-top: 1px solid var(--line-light); }
 .fd-ext-sub-n { font-size: 10px; font-weight: 600; color: var(--primary); background: var(--primary-bg); border-radius: 999px; padding: 1px 7px; }
@@ -441,7 +438,7 @@ body {
 #myFlowCard.hl { animation: ctHl 1.3s ease-out; }
 @keyframes ctHl { 0% { background: rgba(22,119,255,.12); box-shadow: 0 0 0 2px rgba(22,119,255,.35); } 100% { background: #fff; box-shadow: 0 0 0 2px rgba(22,119,255,0); } }
 
-/* ===== 工人视角「我的服务流程」：由我签署的合同驱动，一个合同对应一个流程项块 ===== */
+/* ===== 工人视角「我的项目流程」：由我签署的合同驱动，一个合同对应一个流程项块 ===== */
 .mf-item { border: 1px solid #e2eaf8; border-radius: var(--r-block); padding: 9px 10px; margin-top: 8px; background: #fbfdff; }
 .mf-item:first-child { margin-top: 4px; }
 .mf-top { display: flex; align-items: center; gap: 6px; }
@@ -490,6 +487,7 @@ body {
 @media (max-width: 720px) { body { flex-direction: column; align-items: center; } .demo-panel { width: 375px; border-left: none; border-top: 2px dashed var(--demo-blue); } }
 </style>
 <script src="js/flow-config-store.js"></script>
+<script src="js/my-tasks-store.js"></script>
 </head>
 <body>
   <!-- ===== 原型导航（框外右上，沿用旧项目主页） ===== -->
@@ -551,12 +549,12 @@ body {
     </div>
 
     <div class="page-body" id="pageBody">
-      <!-- ===== 非工人（项目负责人）视角：服务流程主视图 ===== -->
+      <!-- ===== 非工人（项目负责人）视角：项目流程主视图 ===== -->
       <div id="nonworkerView">
       <!-- quick-nav 4 项 -->
       <div class="card qn-card">
         <div class="quick-nav">
-          <div class="qn" onclick="go('member.html')"><span class="qn-ic">众</span><span class="qn-tx">团队成员</span></div>
+          <div class="qn" onclick="go('member.html')"><span class="qn-ic">众</span><span class="qn-tx">项目成员</span></div>
           <div class="qn" onclick="go('project-files.html')"><span class="qn-ic">资</span><span class="qn-tx">资料</span></div>
           <div class="qn" onclick="go('statement-list.html')"><span class="qn-ic">账</span><span class="qn-tx">对账单</span></div>
           <div class="qn" onclick="go('contract-list.html')"><span class="qn-ic">合</span><span class="qn-tx">合同</span></div>
@@ -580,21 +578,20 @@ body {
 
       <!-- 我的任务 -->
       <div class="card">
-        <div class="mytask-row" onclick="go('task-list.html?role=exec')">
+        <div class="mytask-row" onclick="go(myTasksHref())">
           <span class="mt-t">我的任务</span>
-          <span class="mt-s">待处理 5 · 确认中 2 · 已完成 3</span>
+          <span class="mt-s" id="mtSNonworker">待处理 5 · 确认中 2 · 已完成 3</span>
           <span class="mt-a">›</span>
         </div>
       </div>
 
-      <!-- 服务流程卡 -->
+      <!-- 项目流程卡 -->
       <div class="flow-card flow-sticky" id="flowSticky">
-        <div class="flow-head" onclick="openFlowDrawer()" style="cursor:pointer"><span class="fh-t">服务流程 <span style="font-size:12px;color:var(--primary)">›</span></span><span class="fh-n" id="mainLine">主线 3/6</span><span class="fh-cfg" id="flowCfgBtn" onclick="event.stopPropagation();openFlowConfig()">⚙ 配置</span></div>
+        <div class="flow-head" onclick="openFlowDrawer()" style="cursor:pointer"><span class="fh-t">项目流程 <span style="font-size:12px;color:var(--primary)">›</span></span><span class="fh-n" id="mainLine">主线 3/6</span><span class="fh-cfg" id="flowCfgBtn" onclick="event.stopPropagation();openFlowConfig()">⚙ 配置</span></div>
         <div class="flow-stats" onclick="openFlowDrawer()" style="cursor:pointer">
           <span class="fs-seg"><span class="fs-num" id="cNum">3/5</span><span class="fs-lab">合同 · <span id="cPct">60%</span></span></span>
           <span class="fs-div"></span>
           <span class="fs-seg"><span class="fs-num" id="tNum">12/20</span><span class="fs-lab">任务 · <span id="tPct">60%</span></span></span>
-          <span class="fs-act" id="flowContractAct" onclick="event.stopPropagation();goContract('home');" style="display:none"></span>
         </div>
         <div class="rail-wrap">
           <div class="flow-rail" id="flowRail"></div>
@@ -685,7 +682,7 @@ body {
       <div style="height:var(--sp-3)"></div>
       </div><!-- /#nonworkerView -->
 
-      <!-- ===== 工人视角：待办 / 我的任务 / 快捷入口 / 合同 / 任务统计（无服务流程卡） ===== -->
+      <!-- ===== 工人视角：待办 / 我的任务 / 快捷入口 / 合同 / 任务统计（无项目流程卡） ===== -->
       <div id="workerView" style="display:none">
         <div class="card">
           <div class="card-head"><span class="ch-t">待办事项</span><span class="ch-n">3</span><span class="ch-a" onclick="go('todo-list.html')">全部 ›</span></div>
@@ -707,9 +704,9 @@ body {
         </div>
 
         <div class="card">
-          <div class="mytask-row" onclick="go('task-list.html?role=exec')">
+          <div class="mytask-row" onclick="go(myTasksHref())">
             <span class="mt-t">我的任务</span>
-            <span class="mt-s">待处理 1 · 确认中 3 · 已完成 4</span>
+            <span class="mt-s" id="mtSWorker">待处理 1 · 确认中 3 · 已完成 4</span>
             <span class="mt-a">›</span>
           </div>
         </div>
@@ -717,13 +714,13 @@ body {
         <div class="card qn-card">
           <div class="quick-nav">
             <div class="qn" onclick="go('activity-list.html')"><span class="qn-ic">动</span><span class="qn-tx">项目动态</span></div>
-            <div class="qn" onclick="go('member.html')"><span class="qn-ic">团</span><span class="qn-tx">团队成员</span></div>
+            <div class="qn" onclick="go('member.html')"><span class="qn-ic">团</span><span class="qn-tx">项目成员</span></div>
             <div class="qn" onclick="go('project-files.html')"><span class="qn-ic">资</span><span class="qn-tx">资料</span></div>
             <div class="qn" onclick="scrollToMyFlow()"><span class="qn-ic">合</span><span class="qn-tx">我的合同</span></div>
           </div>
         </div>
 
-        <!-- 我的合同：只渲染「我签署的工人合同」（2 条示例）；服务流程不在此展开，仅保留卡头「全部流程」入口 -->
+        <!-- 我的合同：只渲染「我签署的工人合同」（2 条示例）；项目流程不在此展开，仅保留卡头「全部流程」入口 -->
         <div class="card" id="myFlowCard">
           <div class="card-head">
             <span class="ch-t">我的合同</span>
@@ -745,16 +742,16 @@ body {
       <div class="tab-item" onclick="toast('个人中心开发中')"><span class="ti">👤</span><span class="tl">我的</span></div>
     </div>
 
-    <!-- 右侧「服务流程项」浮窗（参考 owner 项目导航） -->
+    <!-- 右侧「项目流程项」浮窗（参考 owner 项目导航） -->
     <div class="flow-trigger" id="flowTrigger" onclick="openFlowDrawer()">
       <span class="ft-arrow">‹</span>
-      <span class="ft-text">服务流程</span>
+      <span class="ft-text">项目流程</span>
     </div>
     <div class="flow-drawer-mask" id="flowDrawerMask" onclick="closeFlowDrawer()"></div>
     <div class="flow-drawer" id="flowDrawer">
       <div class="fd-header">
         <span class="fd-ic">ⓘ</span>
-        <span class="fd-title">服务流程项</span>
+        <span class="fd-title">项目流程项</span>
         <span class="fd-tag">施工路线</span>
         <span class="fd-right">
           <span class="fd-cfg" id="fdCfg" onclick="openFlowConfig()">配置</span>
@@ -773,7 +770,7 @@ body {
       <div class="fd-footer">点击流程项可切换 · 点击任务查看详情</div>
     </div>
 
-    <!-- 指派任务（临时派遣）轻量表单：布局参考「添加新任务」弹窗，确认/担责标准非必填 -->
+    <!-- 指派任务（临时任务）轻量表单：布局参考「添加新任务」弹窗，确认/担责标准非必填 -->
     <div class="assign-modal" id="assignModal">
       <div class="am-content">
         <div class="am-header">
@@ -990,7 +987,7 @@ function baseItems() {
         { name: '竣工前全面巡检', exec: '王强', status: '未开始', confirms: ['孙磊', '李伟'] }
       ] },
     { id: 'cz', name: '主材安装', kind: 'contract', status: '未开始', done: 0, total: 5,
-      subCount: 0, mainDone: false, subDone: 0, hasContract: false,
+      subCount: 0, mainDone: false, subDone: 0, hasContract: true,
       stages: [
         { id: 'cz-s1', name: '主材进场阶段', status: '未开始', collapsed: false, tasks: [
           { name: '瓷砖/石材进场', status: '未开始' },
@@ -1006,8 +1003,8 @@ function baseItems() {
     { id: 'sh', name: '售后', kind: 'task', status: '未开始', done: 0, total: 0, tasks: [] }
   ];
 }
-/* ===== 服务流程项：结构由「服务流程配置」驱动（SSOT = js/flow-config-store.js） =====
-   配置项提供顺序 / 名称 / 是否含合同 / 增减；明细（阶段、任务、临时派遣）按 id 从 baseItems 继承。
+/* ===== 项目流程项：结构由「项目流程配置」驱动（SSOT = js/flow-config-store.js） =====
+   配置项提供顺序 / 名称 / 是否含合同 / 增减；明细（阶段、任务、临时任务）按 id 从 baseItems 继承。
    新增项无明细 → stages/tasks 为空，浮窗显示「暂无阶段任务」；是否含合同决定有无合同入口。 */
 function cfgItems() {
   var cfg = (window.FlowCfgStore ? FlowCfgStore.get() : null);
@@ -1111,7 +1108,7 @@ function setDetail(open) {
 
 /* ===== 统计 / 主线 ===== */
 function refreshStats() {
-  // 合同：主合同 + 子合同数 / 已签(进行中+已完成)；任务：阶段任务 + 临时派遣任务 的 已完成/总数
+  // 合同：主合同 + 子合同数 / 已签(进行中+已完成)；任务：阶段任务 + 临时任务 的 已完成/总数
   var list = ITEMS;
   var cTotal = 0, cDone = 0, tTotal = 0, tDone = 0, mainDone = 0;
   list.forEach(function (it) {
@@ -1213,6 +1210,13 @@ function viewProjectInfo() { window.location.href = 'project-info.html'; }
 
 /* 统一真实跳转（对齐旧页 navigate/go/openPage 口径：全部跳转到既有原型页） */
 function go(href) { if (href) window.location.href = href; }
+/* 我的任务：与 task-list.html 的 ?scope=mytasks 契约同源，带上当前视角 */
+function myTasksHref() { return 'task-list.html?scope=mytasks&role=' + currentRole; }
+function renderMyTaskSummary() {
+  if (!window.MyTasksStore) return;
+  var el = document.getElementById(currentRole === 'worker' ? 'mtSWorker' : 'mtSNonworker');
+  if (el) el.textContent = MyTasksStore.text(currentRole);
+}
 function navigate(href) { go(href); }
 function openPage(href) { go(href); }
 
@@ -1236,12 +1240,12 @@ function togglePageNav() {
   } catch (e) {}
 })();
 
-/* 角色视角：非工人 = 服务流程主视图；工人 = 待办/我的任务/合同/任务统计 */
+/* 角色视角：非工人 = 项目流程主视图；工人 = 待办/我的任务/合同/任务统计 */
 /* ===== 工人视角：我的合同（由「我签订的工人合同」驱动） =====
    一处只展示工人合同本身（contract-store.js 六类工种合同：拆除/水电/木作/泥瓦/油漆/小零工），
-   不以项目级服务流程项（基础施工服务 / 主材安装 / 设计服务…）作为卡片主体——那是非工人的服务合同口径。
+   不以项目级项目流程项（基础施工服务 / 主材安装 / 设计服务…）作为卡片主体——那是非工人的服务合同口径。
    卡片 = 一份工种合同：合同名 + 签订状态 + 甲方/工期 + 该合同的「承接任务」阶段轨 + 我的任务。
-   本块不展开服务流程，服务流程统一收在卡头「全部流程」入口（按权限显隐）。
+   本块不展开项目流程，项目流程统一收在卡头「全部流程」入口（按权限显隐）。
    示例数据取 2 条（已签约 / 待确认 各一），覆盖两种签订态。
    跳转带 id（demo-<工种>-example）+ 受邀方状态，落到对应的工种合同详情。 */
 var MY_CONTRACTS = [
@@ -1307,12 +1311,13 @@ function setRole(role) {
   currentRole = role;
   document.getElementById('nonworkerView').style.display = role === 'nonworker' ? '' : 'none';
   document.getElementById('workerView').style.display = role === 'worker' ? '' : 'none';
-  // 服务流程仅非工人（项目负责人）视角存在：工人视角隐藏右侧浮窗入口
+  // 项目流程仅非工人（项目负责人）视角存在：工人视角隐藏右侧浮窗入口
   var ft = document.getElementById('flowTrigger');
   if (ft) ft.style.display = role === 'worker' ? 'none' : 'flex';
   if (role === 'worker') closeFlowDrawer();
   syncFlowCfgEntry();
   document.getElementById('pageBody').scrollTop = 0;
+  renderMyTaskSummary();
 }
 function setCertified(yes) {
   isUserCertified = yes;
@@ -1353,7 +1358,7 @@ document.getElementById('pageBody').addEventListener('scroll', function () {
   });
 })();
 
-/* ===== 右侧「服务流程项」浮窗 ===== */
+/* ===== 右侧「项目流程项」浮窗 ===== */
 function mainDoneCount() {
   var list = ITEMS;
   return list.filter(function (x) { return x.status === '已完成'; }).length;
@@ -1388,7 +1393,7 @@ function selectFlow(id) {
   setDetail(true);
   renderFlowDrawer();   // 抽屉内流程条由 renderFlowDrawer 自行居中
 }
-var fdDetailTab = 'stage';   // 'stage' = 主合同内的阶段任务；'ext' = 临时派遣阶段任务
+var fdDetailTab = 'stage';   // 'stage' = 主合同内的阶段任务；'ext' = 临时任务阶段任务
 var fdStageCollapsed = {};   // 阶段卡片折叠态（按 stage id 记忆）
 var fdLastSelId = null;
 function fdStageCls(s) { return s === '已完成' ? 'completed' : (s === '进行中' ? 'in_progress' : 'pending'); }
@@ -1409,14 +1414,11 @@ function centerRail(rail, item, smooth) {
 }
 /* ===== 合同入口：与选中流程项强关联（仅含合同型流程项出现） =====
    浮窗（抽屉）全口径：已建合同显示「查看合同」，未建合同显示「拟定合同」；
-   主页服务流程卡：按需求取消「查看合同」，仅保留「拟定合同」（已建合同不在主页提供查看，改走「合同」模块）。 */
+   主页项目流程卡为纯概览，不再提供任何合同动作（查看/拟定统一收归浮窗与「合同」模块）。 */
 function fdList() { return ITEMS; }
 function contractAction(sel, surface) {
   if (!sel || !sel.hasContract) return null;            // 未配置「含合同」的流程项不出现任何合同入口
-  if (surface === 'home') {
-    if (sel.subCount) return null;                      // 主页：已建合同项不显示「查看合同」（按需求已取消）
-    return { text: '拟定合同', cls: 'create', url: 'create-contract.html?from=flow&item=' + sel.id };
-  }
+  if (surface === 'home') return null;                  // 主页项目流程卡 = 纯概览，不渲染任何合同按钮
   if (sel.subCount) return { text: '查看合同', cls: 'view', url: 'contract-detail.html?from=flow&item=' + sel.id };
   return { text: '拟定合同', cls: 'create', url: 'create-contract.html?from=flow&item=' + sel.id };
 }
@@ -1426,17 +1428,16 @@ function goContract(surface) {
   if (!a) return;
   window.location.href = a.url;
 }
+/* 仅浮窗头部渲染合同动作（查看/拟定）；主页项目流程卡已取消合同按钮，纯概览。 */
 function renderContractAction() {
   var sel = fdList().filter(function (x) { return x.id === selectedId; })[0];
-  ['fdContractAct', 'flowContractAct'].forEach(function (id) {
-    var el = document.getElementById(id);
-    if (!el) return;
-    var a = contractAction(sel, id === 'fdContractAct' ? 'drawer' : 'home');
-    if (!a) { el.style.display = 'none'; el.textContent = ''; return; }
-    el.style.display = '';
-    el.className = (id === 'fdContractAct' ? 'fd-act ' : 'fs-act ') + a.cls;
-    el.textContent = a.text;
-  });
+  var el = document.getElementById('fdContractAct');
+  if (!el) return;
+  var a = contractAction(sel, 'drawer');
+  if (!a) { el.style.display = 'none'; el.textContent = ''; return; }
+  el.style.display = '';
+  el.className = 'fd-act ' + a.cls;
+  el.textContent = a.text;
 }
 function centerFdRail(smooth) {
   var rail = document.querySelector('#fdFlowList .fd-rail');
@@ -1495,7 +1496,7 @@ function locateCurrent() {
     selectedId = it.id;
     renderRail(true);                   // 主页面流程条同步选中并居中
   }
-  fdDetailTab = 'stage';                // 合同项若停在「临时派遣」页签，先回到阶段页签，阶段才可见
+  fdDetailTab = 'stage';                // 合同项若停在「临时任务」页签，先回到阶段页签，阶段才可见
   renderFlowDrawer();
   var stage = locateStageOf(it);
   if (stage && fdStageCollapsed[stage.id]) {
@@ -1506,7 +1507,7 @@ function locateCurrent() {
   toast('已定位 · ' + it.name + (stage ? ' · ' + stage.name : ''));
 }
 
-/* ===== 指派任务（临时派遣）：轻量表单弹窗，确认/担责标准非必填 ===== */
+/* ===== 指派任务（临时任务）：轻量表单弹窗，确认/担责标准非必填 ===== */
 var AS_WORKERS = [
   { name: '王强', role: '施工' },
   { name: '李伟', role: '施工' },
@@ -1516,7 +1517,7 @@ var AS_WORKERS = [
 ];
 var asExecutor = '';
 var asConfirmers = [];
-/* 工人视角是否可查看全部服务流程（决定「我的服务流程」卡头「查看全部」的显隐） */
+/* 工人视角是否可查看全部项目流程（决定「我的项目流程」卡头「查看全部」的显隐） */
 var canViewAllFlow = true;
 /* 流程配置权限：非工人 + 有权配置才出现「⚙ 配置」入口（演示三态 all/readonly/none） */
 var flowCfgPerm = 'all';
@@ -1624,12 +1625,12 @@ function confirmAssignTask() {
   if (!std) { var e2 = document.getElementById('asStdErr'); e2.textContent = '请输入执行标准'; e2.style.display = 'block'; valid = false; }
   if (!asExecutor) { var e3 = document.getElementById('asExecutorErr'); e3.textContent = '请选择执行人'; e3.style.display = 'block'; valid = false; }
   if (!valid) return;
-  // 写回数据：插入该流程项的临时派遣列表（未开始），流程项任务总数 +1，各处计数自动重算
+  // 写回数据：插入该流程项的临时任务列表（未开始），流程项任务总数 +1，各处计数自动重算
   sel.externals = sel.externals || [];
   sel.externals.push({ name: name, exec: asExecutor, confirms: asConfirmers.slice(), status: '未开始' });
   sel.total = (sel.total || 0) + 1;
   closeAssignModal();
-  if (sel.kind === 'contract') fdDetailTab = 'ext';   // 合同型项：切到临时派遣 Tab；任务型项内容内联，无需切 Tab
+  if (sel.kind === 'contract') fdDetailTab = 'ext';   // 合同型项：切到临时任务 Tab；任务型项内容内联，无需切 Tab
   refreshStats();
   renderFlowDrawer();
 }
@@ -1703,7 +1704,7 @@ function renderFdDetail(sel) {
     return '<div class="fd-bm-wrap">' +
       '<div class="fd-bm-col">' +
       '<div class="fd-bm' + stageOn + '" data-g="stage" onclick="switchFdTab(\'stage\')">合同内<span class="fd-bm-n">' + stageCount + ' 阶段</span></div>' +
-      '<div class="fd-bm' + extOn + '" data-g="ext" onclick="switchFdTab(\'ext\')">临时派遣<span class="fd-bm-n">' + extDone + '/' + extList.length + '</span></div>' +
+      '<div class="fd-bm' + extOn + '" data-g="ext" onclick="switchFdTab(\'ext\')">临时任务<span class="fd-bm-n">' + extDone + '/' + extList.length + '</span></div>' +
       '<div class="fd-bm-util"' + (fdDetailTab === 'ext' ? ' style="display:none"' : '') + ' onclick="toggleAllFdStages()"><span id="fdcLabel">收起</span></div>' +
       '</div>' +
       '<div class="fd-bm-panel">' +
@@ -1711,7 +1712,7 @@ function renderFdDetail(sel) {
       '</div>' +
       '</div>';
   }
-  // 任务型流程项（量房/初步设计/售后等）：本项任务 + 临时派遣内联列表 + 吸底指派入口
+  // 任务型流程项（量房/初步设计/售后等）：本项任务 + 临时任务内联列表 + 吸底指派入口
   var tRows = sel.tasks && sel.tasks.length
     ? sel.tasks.map(function (t) { return fdRow(t.name, '执行 ' + t.exec, badgeText(t.status), t.status); }).join('')
     : '<div class="fd-empty">' + ((sel.stages && sel.stages.length)
@@ -1720,7 +1721,7 @@ function renderFdDetail(sel) {
   var ext = sel.externals || [];
   var extHtml = '';
   if (ext.length) {
-    extHtml = '<div class="fd-ext-sub"><div class="fd-ext-sub-h">临时派遣<span class="fd-ext-sub-n">' + ext.length + '</span></div>' +
+    extHtml = '<div class="fd-ext-sub"><div class="fd-ext-sub-h">临时任务<span class="fd-ext-sub-n">' + ext.length + '</span></div>' +
       ext.map(function (e) { return fdExtRow(e); }).join('') + '</div>';
   }
   return '<div id="fdDetailBody">' + tRows + extHtml + fdAssignBar(sel) + '</div>';
@@ -1765,10 +1766,10 @@ function fdExtHtml(sel) {
   var list = sel.externals || [];
   var body = list.length
     ? '<div class="fd-ext-list">' + list.map(function (e) { return fdExtRow(e); }).join('') + '</div>'
-    : '<div class="fd-ext-none">暂无临时派遣任务</div>';
+    : '<div class="fd-ext-none">暂无临时任务</div>';
   return body + fdAssignBar(sel);
 }
-/* 指派任务入口：明细区底部吸底（有权限才渲染），临时派遣任务再多也一步可达 */
+/* 指派任务入口：明细区底部吸底（有权限才渲染），临时任务再多也一步可达 */
 function fdAssignBar(sel) {
   if (!canAssign(sel)) return '';
   return '<div class="fd-assignbar"><button type="button" class="fd-ext-add" onclick="openAssignModal()">＋ 指派任务</button></div>';
@@ -1831,7 +1832,7 @@ function switchFdTab(group) {
   fdDetailTab = group;
   var tabs = document.querySelectorAll('#fdDetail .fd-bm');
   tabs.forEach(function (t) { t.classList.toggle('on', t.getAttribute('data-g') === group); });
-  // 收起/展开工具只对「合同内」阶段卡有效，临时派遣平铺列表下隐藏
+  // 收起/展开工具只对「合同内」阶段卡有效，临时任务平铺列表下隐藏
   var util = document.querySelector('#fdDetail .fd-bm-util');
   if (util) util.style.display = group === 'ext' ? 'none' : 'flex';
   var body = document.getElementById('fdDetailBody');
@@ -1868,7 +1869,7 @@ renderMyFlow();
 renderSwitchBar();
 syncFlowCfgEntry();
 
-/* 从「服务流程配置」返回（含 bfcache 恢复）时重新读取配置：流程条 / 浮窗 / 主线统计同步 */
+/* 从「项目流程配置」返回（含 bfcache 恢复）时重新读取配置：流程条 / 浮窗 / 主线统计同步 */
 window.addEventListener('pageshow', function () {
   if (!window.FlowCfgStore) return;
   reloadFlowItems();

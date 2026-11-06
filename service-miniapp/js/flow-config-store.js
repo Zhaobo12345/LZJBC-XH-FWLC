@@ -12,13 +12,13 @@
   var MAX_ITEMS = 12;
   var MIN_ITEMS = 1;
 
-  /* 默认 6 项：hasContract 默认值按业务口径给出（量房/初步设计/售后为纯任务项） */
+  /* 默认 6 项：hasContract 默认值按业务口径给出（量房/初步设计/售后为纯任务项；主材安装/设计服务/基础施工服务为含合同项） */
   var DEFAULTS = [
     { id: 'lh', name: '量房', hasContract: false, status: '已完成', tasks: 3, contracts: 0, stages: 0 },
     { id: 'cs', name: '初步设计', hasContract: false, status: '已完成', tasks: 4, contracts: 0, stages: 0 },
     { id: 'ht', name: '设计服务', hasContract: true, status: '已完成', tasks: 7, contracts: 1, stages: 2 },
     { id: 'sg', name: '基础施工服务', hasContract: true, status: '进行中', tasks: 39, contracts: 4, stages: 5 },
-    { id: 'cz', name: '主材安装', hasContract: false, status: '未开始', tasks: 5, contracts: 0, stages: 2 },
+    { id: 'cz', name: '主材安装', hasContract: true, status: '未开始', tasks: 5, contracts: 0, stages: 2 },
     { id: 'sh', name: '售后', hasContract: false, status: '未开始', tasks: 0, contracts: 0, stages: 0 }
   ];
 

@@ -49,11 +49,11 @@ body {
 .sb-battery::after { content: ""; position: absolute; right: -3px; top: 3px; width: 2px; height: 4px; background: rgba(255,255,255,.85); border-radius: 0 1px 1px 0; }
 .sb-battery i { display: block; height: 100%; width: 70%; background: #fff; border-radius: 1px; }
 .nav-bar {
-  height: 48px; background: var(--grad-brand); flex-shrink: 0; position: relative;
+  height: 44px; background: var(--grad-brand); flex-shrink: 0; position: relative;
   display: flex; align-items: center; box-shadow: 0 2px 10px rgba(11,87,208,.18);
 }
 .nav-bar .nb-back { position: absolute; left: 14px; font-size: 26px; line-height: 1; color: #fff; text-decoration: none; }
-.nav-bar .title { flex: 1; text-align: center; font-size: 17px; font-weight: 600; color: #fff; }
+.nav-bar .title { flex: 1; text-align: center; font-size: 17px; font-weight: 600; color: #fff; padding: 0 72px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .nav-bar .nb-actions { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); }
 .nb-plus {
   width: 30px; height: 30px; border-radius: 50%; background: rgba(255,255,255,.22);
@@ -603,7 +603,7 @@ function nodeRowHtml(c, depth, shown) {
 function lockedCardHtml(c) {
   return '<div class="card ct-main"><div class="lock-row" style="padding:14px 14px"><span class="lk">🔒</span><span style="flex:1">' +
     c.name + '<br><span style="font-size:10px">不在您的合同范围内，如需访问请联系项目负责人调整数据权限</span></span>' +
-    '<span class="op" onclick="showHint(\'请让项目负责人在「团队成员 → 数据权限」为您开通\')">如何查看</span></div></div>';
+    '<span class="op" onclick="showHint(\'请让项目负责人在「项目成员 → 数据权限」为您开通\')">如何查看</span></div></div>';
 }
 
 /* 命中集合：full=展示全部字段，ctx=仅作为命中下级合同的上下文 */

@@ -1,0 +1,877 @@
+
+    /* =========================================================================
+       业主端「全部任务」— 服务流程口径对齐（2026-11-06）
+       · 分组维度：服务流程项（顺序 / 名称 / 是否含合同由 FlowCfgStore 驱动）
+       · 明细快照：与 owner-miniapp/js/flow-drawer.js 的 flowBaseItems() 同源，
+         统计口径与项目主页服务流程卡一致（任务 24/58 · 41%）
+       · 业主端只读：无拟定合同、无临时任务指派、无服务方「我的任务」执行 Tab
+       · 搜索 + 筛选融合：一行仅两个入口，搜索含 9 个维度；筛选为底部浮窗（遮罩 + 上滑面板，对齐服务端），
+         收起零占用、展开不推挤列表；保留任务详情跳转与 ?role/?level/?item/?dim/?kw/?filter 参数兼容
+       ========================================================================= */
+    (function () {
+        'use strict';
+
+        /* ---------- 只读明细快照（与主页服务流程浮窗同源） ---------- */
+        var SNAP = {
+            lh: { hasContract: false, tasks: [
+                ['原始尺寸复测', '张设计', '已完成'], ['墙体结构勘测', '李设计', '已完成'],
+                ['设备点位确认', '王设计', '已完成']
+            ], stages: [], temp: [] },
+            cs: { hasContract: false, tasks: [
+                ['方案文件·户型优化', '张设计', '已完成'], ['内部评审', '李设计', '已完成'],
+                ['会审', '王设计', '已完成'], ['方案定稿', '张设计', '已完成']
+            ], stages: [], temp: [] },
+            ht: { hasContract: true, hasRealContract: true, stages: [
+                { n: '方案设计阶段', tasks: [
+                    ['原始量房尺寸复测', '张设计', '已完成'], ['户型优化方案', '张设计', '已完成'], ['方案评审与定稿', '李设计', '已完成']
+                ] },
+                { n: '施工图设计阶段', tasks: [
+                    ['平立面布置图', '张设计', '已完成'], ['水电点位深化图', '李设计', '已完成'], ['节点大样图', '王设计', '已完成']
+                ] }
+            ], temp: [ ['设计交底', '张设计', '已完成', ''] ] },
+            sg: { hasContract: true, hasRealContract: true, stages: [
+                { n: '基础施工阶段', tasks: [
+                    ['现场放线与三方交底', '王强', '已完成'], ['墙体拆除与建筑垃圾清运', '李伟', '已完成'],
+                    ['新建砌墙与植筋加固', '李伟', '已完成'], ['门窗洞口修整与过梁浇筑', '王强', '已完成'],
+                    ['成品保护与文明施工验收', '孙磊', '已完成']
+                ] },
+                { n: '水电隐蔽工程', tasks: [
+                    ['强弱电开槽与弹线定位', '赵敏', '已完成'], ['冷热水管路铺设与打压测试', '李伟', '已完成'],
+                    ['卫生间沉箱防漏与二次排水', '赵敏', '进行中'], ['中央空调/新风主机吊装穿梁', '赵敏', '进行中'],
+                    ['强弱电穿线与底盒安装', '赵敏', '未开始'], ['隐蔽工程节点联合三方验收', '王强', '未开始']
+                ] },
+                { n: '泥瓦铺贴与防水防渗', tasks: [
+                    ['卫生间及阳台高分子防水刷制', '李伟', '未开始'], ['闭水试验48小时联合签字', '李伟', '未开始'],
+                    ['墙地砖铺贴与地面找平', '李伟', '未开始'], ['窗台石与门槛石安装', '李伟', '未开始'],
+                    ['泥瓦工程完工验收', '李伟', '未开始']
+                ] },
+                { n: '木工吊顶与柜体制作', tasks: [
+                    ['轻钢龙骨吊顶封板', '钱七', '未开始'], ['背景墙基层与造型制作', '钱七', '未开始'],
+                    ['现场柜体下料与组装', '钱七', '未开始'], ['木工工程完工验收', '钱七', '未开始']
+                ] },
+                { n: '油漆涂饰与竣工收尾', tasks: [
+                    ['墙面挂网与腻子批刮三遍', '孙磊', '未开始'], ['顶面乳胶漆滚涂两遍', '孙磊', '未开始'],
+                    ['木作油漆与收口补缝', '孙磊', '未开始'], ['开荒保洁与竣工初验', '孙磊', '未开始']
+                ] }
+            ], temp: [
+                ['工地巡检', '王强', '已完成', ''], ['材料进场验收', '李伟', '进行中', ''],
+                ['收口验收', '孙磊', '未开始', ''], ['水电节点复检', '赵敏', '未开始', ''],
+                ['隐蔽工程旁站', '赵敏', '未开始', ''],
+                ['瓷砖/石材进场复验', '李伟', '已完成', '孙磊、王强'],
+                ['卫生间防水闭水旁站', '赵敏', '已完成', ''],
+                ['瓷砖空鼓与平整度抽检', '李伟', '进行中', ''],
+                ['吊顶龙骨间距抽检', '钱七', '进行中', '孙磊'],
+                ['墙面腻子打磨验收', '钱七', '未开始', ''],
+                ['门套与柜体基层尺寸复核', '王强', '未开始', ''],
+                ['强弱电箱回路核对', '赵敏', '未开始', '孙磊'],
+                ['成品保护巡查', '孙磊', '未开始', ''],
+                ['工地安全用电检查', '孙磊', '未开始', ''],
+                ['竣工前全面巡检', '王强', '未开始', '孙磊、李伟']
+            ] },
+            cz: { hasContract: true, noContractYet: true, tasks: [], stages: [
+                { n: '主材进场阶段', tasks: [
+                    ['瓷砖/石材进场', '', '未开始'], ['卫浴洁具进场', '', '未开始'], ['橱柜进场', '', '未开始']
+                ] },
+                { n: '安装收尾阶段', tasks: [
+                    ['灯具安装', '', '未开始'], ['开关插座安装', '', '未开始']
+                ] }
+            ], temp: [] },
+            sh: { hasContract: false, tasks: [], stages: [], temp: [] }
+        };
+
+        var DEFAULT_CFG = [
+            { id: 'lh', name: '量房', hasContract: false, status: '已完成' },
+            { id: 'cs', name: '初步设计', hasContract: false, status: '已完成' },
+            { id: 'ht', name: '设计服务', hasContract: true, status: '已完成' },
+            { id: 'sg', name: '基础施工服务', hasContract: true, status: '进行中' },
+            { id: 'cz', name: '主材安装', hasContract: true, status: '未开始' },
+            { id: 'sh', name: '售后', hasContract: false, status: '未开始' }
+        ];
+
+        var ST_KEY = { '已完成': 'completed', '进行中': 'executing', '确认中': 'confirming', '未开始': 'pending', '待配置': 'config' };
+        var ST_UI = {
+            completed: { d: '✓', t: '已完成' }, executing: { d: '▶', t: '执行中' },
+            confirming: { d: '⏳', t: '确认中' }, pending: { d: '○', t: '待开始' },
+            config: { d: '⚙', t: '待配置' }
+        };
+        var CURRENT_USER = '王五';   // 业主端演示身份（与任务详情页「业主」角色一致）
+        var activeFlow = 'all';      // 默认聚焦首个「全部」流程项：打开即展示全部流程任务，后续流程项由横向左滑切换
+        var activeTab = 'contract';
+        var allExpanded = true;
+        var filters = { status: 'all', statusText: '全部状态', role: 'all', dim: 'all', dimLabel: '全部', dimText: '全部字段' };
+        /* 搜索维度：字段 -> 短标签 / 完整名称；data-search-* 由 decorateSearchMeta() 生成 */
+        var DIM_META = {
+            all: { label: '全部', text: '全部字段' },
+            name: { label: '任务', text: '任务名称' },
+            exec: { label: '执行人', text: '执行人' },
+            confirm: { label: '确认人', text: '确认人' },
+            flow: { label: '流程', text: '服务流程项' },
+            contract: { label: '合同', text: '合同名称' },
+            stage: { label: '阶段', text: '阶段 / 区块' },
+            status: { label: '状态', text: '任务状态' },
+            type: { label: '类型', text: '任务类型' }
+        };
+        var DIM_KEYS = Object.keys(DIM_META);
+        var PLACEHOLDER_ALL = '搜索任务 / 人员 / 流程 / 合同';
+
+        function esc(v) {
+            return String(v == null ? '' : v).replace(/&/g, '&amp;').replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+        }
+        function cfgList() {
+            var list = null;
+            try { if (window.FlowCfgStore && FlowCfgStore.get) list = FlowCfgStore.get(); } catch (e) {}
+            if (!list || !list.length) list = DEFAULT_CFG;
+            return list.slice(0, 12);
+        }
+        function cfgName(id) {
+            var c = cfgList(), i;
+            for (i = 0; i < c.length; i++) if (c[i].id === id) return c[i].name;
+            return '全部流程项';
+        }
+        function snap(id) {
+            return SNAP[id] || { hasContract: false, tasks: [], stages: [], temp: [] };
+        }
+
+        /* ---------- 子合同（与 owner contract-list.html 的 CONTRACTS 同源，取流程项最具体的子合同树） ----------
+           基础施工服务合同（主合同）→ 水电/泥瓦/木作/拆除班组（一级子）→ 强电/弱电（二级子）
+           字段：name 合同名 / team 班组 / status 状态 / partyA-B 甲乙关联 / parent 父合同
+           任务进度不再写死：由「阶段任务 → 班组」归属实时统计，点开子合同即可看到该班组的真实任务清单 */
+        var SUBS = {
+            sg: [
+                { id: 'water', name: '水电班组服务合同', team: '水电班组', status: 'worker_signed', statusText: '已签订', partyA: '陈庄（工长）', partyB: '赵六（水电工长）', parent: null },
+                { id: 'strong', name: '强电服务合同', team: '强电', status: 'worker_inviting', statusText: '邀请中', partyA: '赵六（水电工长）', partyB: '孙八（强电）', parent: 'water' },
+                { id: 'weak', name: '弱电服务合同', team: '弱电', status: 'worker_draft', statusText: '草稿', partyA: '赵六（水电工长）', partyB: '钱九（弱电）', parent: 'water' },
+                { id: 'tile', name: '泥瓦班组服务合同', team: '泥瓦班组', status: 'worker_inviting', statusText: '邀请中', partyA: '陈庄（工长）', partyB: '周十（泥瓦工长）', parent: null },
+                { id: 'wood', name: '木作班组服务合同', team: '木作班组', status: 'worker_draft', statusText: '草稿', partyA: '陈庄（工长）', partyB: '吴十一（木工）', parent: null },
+                { id: 'demo', name: '拆除班组服务合同', team: '拆除班组', status: 'worker_signed', statusText: '已签订', partyA: '陈庄（工长）', partyB: '郑十二（拆除）', parent: null }
+            ]
+        };
+
+        /* 阶段任务 → 班组归属：阶段默认班组 + 阶段内跨班组任务覆盖；空字符串 = 暂无对应班组合同 */
+        var TRADE_OF_STAGE = {
+            '基础施工阶段': 'demo',
+            '水电隐蔽工程': 'water',
+            '泥瓦铺贴与防水防渗': 'tile',
+            '木工吊顶与柜体制作': 'wood',
+            '油漆涂饰与竣工收尾': ''
+        };
+        var TRADE_OVERRIDE = {
+            '新建砌墙与植筋加固': 'tile',
+            '门窗洞口修整与过梁浇筑': 'tile',
+            '强弱电开槽与弹线定位': 'strong',
+            '强弱电穿线与底盒安装': 'weak'
+        };
+        function tradeOf(stageName, taskName) {
+            if (Object.prototype.hasOwnProperty.call(TRADE_OVERRIDE, taskName)) return TRADE_OVERRIDE[taskName];
+            return TRADE_OF_STAGE[stageName] || '';
+        }
+        function stageTaskRefs(fid) {
+            var out = [];
+            (snap(fid).stages || []).forEach(function (sg) {
+                (sg.tasks || []).forEach(function (t) {
+                    out.push({ t: t, stage: sg.n, trade: tradeOf(sg.n, t[0]) });
+                });
+            });
+            return out;
+        }
+
+        /* ---------- 子合同任务区（主合同下的子级合同树：合同名/班组/状态/甲乙关联 + 该班组真实任务清单） ---------- */
+        function subctTaskRow(fid, item) {
+            var t = item.t;
+            var key = ST_KEY[t[2]] || 'pending';
+            var ui = ST_UI[key];
+            var exec = t[1] || '待指派';
+            var conf = t[3] || '';
+            return '<div class="subct-task" data-status="' + key + '" data-priority="normal" data-participant="true"' +
+                ' data-type="contract" data-flow-id="' + esc(fid) + '"' +
+                ' data-exec="' + esc(exec) + '" data-confirmers="' + esc(conf) + '"' +
+                ' onclick="goToTaskDetail(this)">' +
+                '<div class="task-status ' + key + '">' + ui.d + '</div>' +
+                '<div class="task-info"><div class="task-name">' + esc(t[0]) + '</div>' +
+                '<div class="task-meta">执行人：' + esc(exec) + (conf ? ' · 确认人：' + esc(conf) : '') + ' · ' + esc(item.stage) + '</div></div>' +
+                '<div class="task-status-text ' + key + '">' + ui.t + '</div></div>';
+        }
+        function subsHtml(fid) {
+            var list = SUBS[fid] || [];
+            if (!list.length) return '';
+            var refs = stageTaskRefs(fid);
+            function mineOf(id) {
+                return refs.filter(function (r) { return r.trade === id; });
+            }
+            function node(s, depth) {
+                var kids = list.filter(function (x) { return x.parent === s.id; });
+                var mine = mineOf(s.id);
+                var done = mine.filter(function (r) { return r.t[2] === '已完成'; }).length;
+                return '<div class="subct-row" data-depth="' + depth + '" data-sub-id="' + esc(s.id) + '">' +
+                    '<div class="subct-main" onclick="toggleSubct(this)">' +
+                    '<span class="subct-arw">▸</span>' +
+                    '<span class="subct-name">' + esc(s.name) + '</span>' +
+                    '<span class="subct-tag">' + esc(s.team) + '</span>' +
+                    '<span class="subct-status ' + esc(s.status) + '">' + esc(s.statusText) + '</span>' +
+                    '<span class="subct-n">任务 ' + done + '/' + mine.length + '</span>' +
+                    '</div>' +
+                    '<div class="subct-meta">甲方 ' + esc(s.partyA) + ' · 乙方 ' + esc(s.partyB) + '</div>' +
+                    '<div class="subct-body">' +
+                    (mine.length ? mine.map(function (r) { return subctTaskRow(fid, r); }).join('')
+                        : '<div class="subct-empty">该班组暂无归属任务</div>') +
+                    '</div>' +
+                    (kids.length ? '<div class="subct-children">' + kids.map(function (k) { return node(k, depth + 1); }).join('') + '</div>' : '') +
+                    '</div>';
+            }
+            var roots = list.filter(function (s) { return !s.parent; });
+            var mapped = refs.filter(function (r) { return !!r.trade; }).length;
+            var un = refs.filter(function (r) { return !r.trade; });
+            var note = un.length
+                ? '<div class="subct-note">「' + esc(un[0].stage) + '」' + un.length + ' 个任务暂无对应班组合同，仍保留在「主合同阶段任务」中</div>'
+                : '';
+            return '<div class="mc-band"><span>子合同任务</span><span class="mc-band-n">' + list.length + ' 份子合同 · 归属 ' + mapped + ' 个任务</span></div>' +
+                '<div class="subct-tree">' + roots.map(function (s) { return node(s, 0); }).join('') + note + '</div>';
+        }
+
+        /* ---------- 任务行（复用本页 .task-item 样式） ---------- */
+        function taskRow(t, fid, type) {
+            var key = ST_KEY[t[2]] || 'pending';
+            var ui = ST_UI[key];
+            var exec = t[1] || '待指派';
+            var conf = t[3] || '';
+            var meta = '执行人：' + exec + (conf ? ' · 确认人：' + conf : '');
+            return '<div class="task-item" data-type="' + type + '" data-status="' + key +
+                '" data-priority="normal" data-participant="true" data-flow-id="' + esc(fid) +
+                '" data-exec="' + esc(exec) + '" data-confirmers="' + esc(conf) +
+                '" onclick="goToTaskDetail(this)">' +
+                '<div class="task-status ' + key + '">' + ui.d + '</div>' +
+                '<div class="task-info"><div class="task-name">' + esc(t[0]) + '</div>' +
+                '<div class="task-meta">' + esc(meta) + '</div></div>' +
+                '<div class="task-status-text ' + key + '"><span class="status-icon">' + ui.d + '</span>' + ui.t + '</div>' +
+                '</div>';
+        }
+        function rowsHtml(list, fid, type) {
+            return (list || []).map(function (t) { return taskRow(t, fid, type); }).join('');
+        }
+        function listHtml(rows) {
+            return '<div class="task-list show">' + rows + '</div>';
+        }
+        function bandHtml(title, tag, rows, count) {
+            if (!count) return '';
+            return '<div class="temp-block">' +
+                '<div class="block-band" onclick="toggleStage(this)">' +
+                '<span class="band-t">' + esc(title) + '</span>' +
+                (tag ? '<span class="src-tag">' + esc(tag) + '</span>' : '') +
+                '<span class="band-n">' + count + '</span><span class="arrow expanded">▼</span></div>' +
+                listHtml(rows) + '</div>';
+        }
+
+        /* ---------- 搜索维度元数据：把每个任务行的可检索字段写入 data-search-* ---------- */
+        function decorateSearchMeta() {
+            document.querySelectorAll('#taskContainer .task-item, #taskContainer .subct-task').forEach(function (t) {
+                function pick(root, sel) {
+                    var e = root && root.querySelector(sel);
+                    return e ? e.textContent.trim() : '';
+                }
+                var g = t.closest('.flow-group');
+                var cs = t.closest('.contract-section');
+                var si = t.closest('.stage-item');
+                var bd = t.closest('.temp-block');
+                var isSub = t.classList.contains('subct-task');
+                var f = {
+                    name: pick(t, '.task-name'),
+                    exec: t.getAttribute('data-exec') || '',
+                    confirm: t.getAttribute('data-confirmers') || '',
+                    flow: pick(g, '.flow-group-name'),
+                    contract: (pick(cs, '.contract-name') + ' ' + pick(cs, '.contract-meta') + ' ' +
+                        (isSub ? pick(t.closest('.subct-row'), '.subct-name') : '')).trim(),
+                    stage: (isSub ? pick(t, '.task-meta') : (pick(si, '.stage-name') + ' ' + pick(bd, '.band-t'))).trim(),
+                    status: pick(t, '.task-status-text'),
+                    type: isSub ? '子合同任务 合同任务' : (t.getAttribute('data-type') === 'temp' ? '临时任务 流程任务' : '合同任务')
+                };
+                f.all = [f.name, f.exec, f.confirm, f.flow, f.contract, f.stage, f.status, f.type].join(' ');
+                Object.keys(f).forEach(function (k) {
+                    t.setAttribute('data-search-' + k, String(f[k]).toLowerCase());
+                });
+            });
+        }
+
+        /* ---------- 合同任务面板 ---------- */
+        function contractHtml(c, s) {
+            var stages = s.stages || [];
+            if (s.hasContract && stages.length) {
+                var total = 0, done = 0;
+                var stageHtml = stages.map(function (sg) {
+                    var ts = sg.tasks || [];
+                    var d = ts.filter(function (t) { return t[2] === '已完成'; }).length;
+                    total += ts.length; done += d;
+                    var dotCls = d === ts.length ? 'completed' : (d > 0 ? 'confirming' : '');
+                    return '<div class="stage-item"><div class="stage-header" onclick="toggleStage(this)">' +
+                        '<div class="stage-dot ' + dotCls + '"></div>' +
+                        '<div class="stage-name">' + esc(sg.n) + '</div>' +
+                        '<div class="stage-count">' + d + '/' + ts.length + ' 已完成</div>' +
+                        '<div class="arrow expanded">▼</div></div>' +
+                        listHtml(rowsHtml(ts, c.id, 'contract')) + '</div>';
+                }).join('');
+                var pct = total ? Math.round(done / total * 100) : 0;
+                var signed = !!s.hasRealContract;
+                var badge = signed ? '' :
+                    '<span class="contract-status-badge pending">拟创建 · 尚未签署</span>';
+                return '<div class="contract-section" data-contract="' + esc(c.id) + '" data-level="' + esc(c.name) + '">' +
+                    '<div class="contract-header" onclick="toggleContract(this)">' +
+                    '<div class="contract-icon">📄</div><div class="contract-main">' +
+                    '<div class="contract-name">' + esc(c.name + '合同') + (signed ? '' : '（拟创建）') + badge + '</div>' +
+                    '<div class="contract-footer-row">' +
+                    '<div class="contract-meta">' + esc(c.name) + ' · ' + stages.length + ' 个阶段 · ' + total + ' 个任务' + (signed ? '' : ' · 待签约生效') + '</div>' +
+                    '<div class="contract-progress"><div class="progress-track"><div class="progress-fill" style="width:' + pct + '%"></div></div>' +
+                    '<div class="progress-text">已完成 ' + done + '/' + total + '</div></div></div></div>' +
+                    '<div class="arrow expanded">▼</div></div>' +
+                    '<div class="stage-group show">' +
+                    '<div class="mc-band"><span>主合同阶段任务</span><span class="mc-band-n">' + total + ' 个任务</span></div>' +
+                    stageHtml + subsHtml(c.id) + '</div></div>';
+            }
+            if (s.hasContract) {
+                /* 已开启合同但暂无阶段任务（如尚未配置）：明确状态，避免死胡同 */
+                return '<div class="block-empty"><span class="be-t">合同暂无阶段任务</span>' +
+                    '该项合同已开启' + (s.hasRealContract ? '' : '（拟创建）') + '，阶段任务将在签约生效后归入此处</div>';
+            }
+            /* 纯任务流程项（不含合同）：说明任务归属与查看入口，保持与临时任务面板关联 */
+            return '<div class="block-empty"><span class="be-t">该流程项不含合同</span>' +
+                '该项为纯任务流程项，其阶段任务 / 单独任务统一在「临时任务」中按所属流程项查看</div>';
+        }
+
+        /* ---------- 临时任务面板：合同外任务（阶段任务 + 单独任务）+ 含合同项的临时派遣 ---------- */
+        function tempHtml(c, s) {
+            var h = '';
+            if (!s.hasContract) {
+                /* 合同外流程项：阶段任务按阶段分组、零散任务归入「单独任务」，二者可并存 */
+                (s.stages || []).forEach(function (sg) {
+                    var ts = sg.tasks || [];
+                    if (ts.length) h += bandHtml(sg.n, '阶段任务', rowsHtml(ts, c.id, 'temp'), ts.length);
+                });
+                var loose = s.tasks || [];
+                if (loose.length) h += bandHtml('单独任务', '', rowsHtml(loose, c.id, 'temp'), loose.length);
+            } else {
+                /* 含合同的流程项：阶段任务已在「合同任务」呈现，此处仅放合同外派遣的临时任务，避免重复 */
+                var ext = s.temp || [];
+                if (ext.length) h += bandHtml('临时任务', '', rowsHtml(ext, c.id, 'temp'), ext.length);
+            }
+            return h || '<div class="block-empty">该流程项暂无合同外任务</div>';
+        }
+
+        function groupEl(c, inner, type) {
+            var d = document.createElement('div');
+            d.className = 'flow-group';
+            d.setAttribute('data-flow-id', c.id);
+            d.setAttribute('data-tab-panel', type);
+            /* 上方 rail 已选中流程项并展示其全部任务，两栏组头均不再重复「查看流程」入口 */
+            d.innerHTML = '<div class="flow-group-head">' +
+                '<span class="flow-group-name">' + esc(c.name) + '</span>' +
+                '<span class="flow-group-meta" data-group-count>共 0 个任务</span>' +
+                '</div><div class="flow-body">' + inner + '</div>';
+            return d;
+        }
+
+        function buildAll() {
+            var cfg = cfgList();
+            var pc = document.getElementById('panelContract');
+            var pt = document.getElementById('panelTemp');
+            pc.innerHTML = ''; pt.innerHTML = '';
+            cfg.forEach(function (c) {
+                var s = snap(c.id);
+                pc.appendChild(groupEl(c, contractHtml(c, s), 'contract'));
+                pt.appendChild(groupEl(c, tempHtml(c, s), 'temp'));
+            });
+            decorateSearchMeta();
+            renderRail(cfg);
+            /* 打开页面：横向流程项栏停在最左，首个「全部」完整可见 */
+            var _rail = document.getElementById('flowRail');
+            if (_rail) _rail.scrollLeft = 0;
+            refreshBadges();
+            selectFlow(activeFlow, true);
+            /* 带 ?item=/?flow= 直达某个流程项时，才把该项滚进可视区（保持静默、不打断首屏） */
+            if (activeFlow !== 'all') revealRail(activeFlow, true);
+            switchTaskTab(activeTab, true);
+            syncPills();
+            updateFilterTags();
+            filterTasks();
+        }
+
+        function refreshBadges() {
+            var total = 0, done = 0;
+            document.querySelectorAll('#taskContainer .task-item').forEach(function (t) {
+                total++;
+                if (t.getAttribute('data-status') === 'completed') done++;
+            });
+            var pct = total ? Math.round(done / total * 100) : 0;
+            var pg = document.getElementById('flowProgress');
+            if (pg) pg.textContent = '已完成 ' + done + '/' + total + ' · ' + pct + '%';
+            var bc = document.getElementById('tabBadgeContract');
+            var bt = document.getElementById('tabBadgeTemp');
+            if (bc) bc.textContent = document.querySelectorAll('#panelContract .task-item').length;
+            if (bt) bt.textContent = document.querySelectorAll('#panelTemp .task-item').length;
+        }
+
+        function renderRail(cfg) {
+            var rail = document.getElementById('flowRail');
+            if (!rail) return;
+            var h = '<button type="button" class="flow-rail-item" data-flow-id="all" onclick="selectFlow(\'all\')">全部</button>';
+            h += cfg.map(function (c) {
+                return '<button type="button" class="flow-rail-item" data-flow-id="' + esc(c.id) +
+                    '" onclick="selectFlow(\'' + esc(c.id) + '\')">' + esc(c.name) + '</button>';
+            }).join('');
+            rail.innerHTML = h;
+            syncRail();
+        }
+        function syncRail() {
+            document.querySelectorAll('#flowRail .flow-rail-item').forEach(function (b) {
+                b.classList.toggle('active', b.getAttribute('data-flow-id') === activeFlow);
+            });
+        }
+
+        /* 横向流程项栏：默认停在最左（首个「全部」）；仅在选中项不可见时做最小滚动，
+           不整栏居中、不改动首屏位置，后续流程项靠横向左滑查看 */
+        function revealRail(id, instant) {
+            var rail = document.getElementById('flowRail');
+            if (!rail || !rail.clientWidth) return;
+            var b = rail.querySelector('.flow-rail-item[data-flow-id="' + id + '"]');
+            if (!b) return;
+            var left = Math.max(0, b.offsetLeft - 4);
+            var right = left + b.offsetWidth + 8;
+            var vLeft = rail.scrollLeft, vRight = vLeft + rail.clientWidth;
+            var target = null;
+            if (left < vLeft) target = left;
+            else if (right > vRight) target = right - rail.clientWidth;
+            if (target === null) return;
+            if (rail.scrollTo) rail.scrollTo({ left: target, behavior: instant ? 'auto' : 'smooth' });
+            else rail.scrollLeft = target;
+        }
+
+        function selectFlow(fid, quiet) {
+            activeFlow = fid;
+            document.querySelectorAll('.task-panel .flow-group').forEach(function (g) {
+                var ok = fid === 'all' || g.getAttribute('data-flow-id') === fid;
+                g.classList.toggle('is-active', ok);
+            });
+            syncRail();
+            if (!quiet) {
+                revealRail(fid);
+                filterTasks();
+            }
+        }
+
+        function switchTaskTab(tab, quiet) {
+            activeTab = tab;
+            document.querySelectorAll('#taskTabBar .task-tab').forEach(function (b) {
+                b.classList.toggle('active', b.getAttribute('data-tab') === tab);
+            });
+            document.querySelectorAll('.task-panel').forEach(function (p) {
+                p.classList.toggle('is-active', p.getAttribute('data-tab-panel') === tab);
+            });
+            if (!quiet) filterTasks();
+        }
+
+        /* ---------- 筛选交互：状态 / 参与角色 chips + 搜索 ---------- */
+        function passesRole(t) {
+            var r = filters.role;
+            if (r === 'all') return true;
+            if (r === 'mine') return t.getAttribute('data-participant') === 'true';
+            if (r === 'exec') return t.getAttribute('data-exec') === CURRENT_USER &&
+                t.getAttribute('data-status') !== 'completed';
+            if (r === 'confirm') {
+                var cs = (t.getAttribute('data-confirmers') || '').split(/[、,，]/);
+                return cs.indexOf(CURRENT_USER) !== -1 && t.getAttribute('data-status') === 'confirming';
+            }
+            return true;
+        }
+        function syncPills() {
+            /* 角色 chips（保留既有 id/class，供参数兼容与验收复用） */
+            document.querySelectorAll('#roleFilterBar .quick-filter-btn[data-role]').forEach(function (b) {
+                b.classList.toggle('active', b.getAttribute('data-role') === filters.role);
+            });
+            /* 状态 chips */
+            document.querySelectorAll('#statusChips .sf-chip[data-status]').forEach(function (i) {
+                i.classList.toggle('active', i.getAttribute('data-status') === filters.status);
+            });
+            /* 搜索维度下拉 */
+            var db = document.getElementById('dimSelectBtn');
+            if (db) db.textContent = filters.dimLabel + ' ▾';
+            var dm = document.getElementById('dimDropdownMenu');
+            if (dm) dm.querySelectorAll('.status-dropdown-item').forEach(function (i) {
+                i.classList.toggle('active', i.getAttribute('data-dim') === filters.dim);
+            });
+            /* 唯一筛选入口：已选数量角标 + 展开箭头 */
+            var panel = document.getElementById('filterPanel');
+            var fb = document.getElementById('filterToggleBtn');
+            var n = (filters.status !== 'all' ? 1 : 0) + (filters.role !== 'all' ? 1 : 0);
+            if (fb) {
+                fb.classList.toggle('has-value', n > 0);
+                var badge = document.getElementById('filterBadge');
+                if (badge) badge.textContent = n;
+                var arrow = fb.querySelector('.sf-arrow');
+                if (arrow) arrow.textContent = (panel && panel.classList.contains('show')) ? '▴' : '▾';
+            }
+            var sum = document.getElementById('filterSummary');
+            if (sum) {
+                var parts = [];
+                if (filters.status !== 'all') parts.push(filters.statusText);
+                if (filters.role !== 'all') {
+                    parts.push({ mine: '我参与', exec: '待我执行', confirm: '待我确认' }[filters.role]);
+                }
+                sum.textContent = parts.length ? '已选：' + parts.join(' · ') : '未设置筛选条件';
+            }
+        }
+        function applyPill(key, btn) {
+            /* 融合后状态与角色为独立维度，可叠加；选角色不再清空已选状态 */
+            filters.role = key;
+            closeMenus(null);
+            syncPills(); updateFilterTags(); filterTasks();
+        }
+        function selectStatus(status, text, item) {
+            filters.status = status;
+            filters.statusText = text;
+            var box = document.getElementById('statusChips');
+            if (box) {
+                box.querySelectorAll('.sf-chip').forEach(function (i) { i.classList.remove('active'); });
+                if (item) item.classList.add('active');
+            }
+            closeMenus(null);
+            syncPills(); updateFilterTags(); filterTasks();
+        }
+
+        /* ---------- 搜索维度下拉 + 底部筛选浮窗 ---------- */
+        function closeMenus(except) {
+            if (except === 'dimDropdownMenu') return;
+            var m = document.getElementById('dimDropdownMenu'), b = document.getElementById('dimSelectBtn');
+            if (m) {
+                m.classList.remove('show');
+                m.style.position = ''; m.style.top = ''; m.style.left = ''; m.style.right = ''; m.style.zIndex = '';
+            }
+            if (b) b.classList.remove('active');
+        }
+        function openMenu(menuId, btnId) {
+            closeFilterPanel(); /* 维度下拉 z3000 与底部浮窗互斥，避免两层同时打开 */
+            var menu = document.getElementById(menuId), btn = document.getElementById(btnId);
+            if (!menu || !btn) return;
+            var show = !menu.classList.contains('show');
+            closeMenus(show ? menuId : null);
+            if (!show) return;
+            menu.classList.add('show');
+            btn.classList.add('active');
+            var rect = btn.getBoundingClientRect();
+            var w = menu.offsetWidth || 168;
+            menu.style.position = 'fixed';
+            menu.style.top = (rect.bottom + 6) + 'px';
+            menu.style.right = 'auto';
+            menu.style.left = Math.max(8, Math.min(rect.left, (window.innerWidth || 375) - w - 8)) + 'px';
+            menu.style.zIndex = '3000';
+        }
+        function toggleDimDropdown(e) { if (e) e.stopPropagation(); openMenu('dimDropdownMenu', 'dimSelectBtn'); }
+
+        /* 底部筛选浮窗：遮罩 + 上滑面板，absolute 不占文档流；点选即时生效 */
+        function toggleFilterPanel(e) {
+            if (e) e.stopPropagation();
+            var panel = document.getElementById('filterPanel');
+            if (!panel) return;
+            if (panel.classList.contains('show')) { closeFilterPanel(); return; }
+            openFilterPanel();
+        }
+        function openFilterPanel() {
+            var panel = document.getElementById('filterPanel');
+            var mask = document.getElementById('filterSheetMask');
+            var btn = document.getElementById('filterToggleBtn');
+            if (panel) panel.classList.add('show');
+            if (mask) mask.classList.add('show');
+            if (btn) btn.classList.add('active');
+            closeMenus(null);
+            syncPills();
+        }
+        function closeFilterPanel() {
+            var panel = document.getElementById('filterPanel');
+            var mask = document.getElementById('filterSheetMask');
+            var btn = document.getElementById('filterToggleBtn');
+            if (panel) panel.classList.remove('show');
+            if (mask) mask.classList.remove('show');
+            if (btn) btn.classList.remove('active');
+            syncPills();
+        }
+        function resetFilters() {
+            filters.status = 'all'; filters.statusText = '全部状态';
+            filters.role = 'all';
+            syncPills(); updateFilterTags(); filterTasks();
+        }
+
+        /* ---------- 搜索维度 / 关键词 ---------- */
+        function selectDim(key) {
+            var meta = DIM_META[key];
+            if (!meta) return;
+            filters.dim = key; filters.dimLabel = meta.label; filters.dimText = meta.text;
+            closeMenus(null);
+            var inp = document.getElementById('searchInput');
+            if (inp) inp.placeholder = key === 'all' ? PLACEHOLDER_ALL : '搜索' + meta.text + '…';
+            syncPills(); updateFilterTags(); filterTasks();
+        }
+        function onSearchInput() {
+            var inp = document.getElementById('searchInput');
+            var cl = document.getElementById('searchClear');
+            if (cl) cl.classList.toggle('show', !!(inp && inp.value));
+            filterTasks();
+        }
+        function clearSearch() {
+            var inp = document.getElementById('searchInput');
+            if (inp) inp.value = '';
+            onSearchInput();
+        }
+        function updateFilterTags() {
+            var tags = [];
+            if (filters.status !== 'all') tags.push({ type: 'status', text: filters.statusText });
+            if (filters.dim !== 'all') tags.push({ type: 'dim', text: '搜索维度：' + filters.dimText });
+            if (filters.role !== 'all') {
+                tags.push({ type: 'role', text: { mine: '我参与', exec: '待我执行', confirm: '待我确认' }[filters.role] });
+            }
+            var html = tags.length ? tags.map(function (t) {
+                return '<div class="filter-tag"><span>' + esc(t.text) + '</span>' +
+                    '<span class="remove" onclick="removeFilter(\'' + t.type + '\')">×</span></div>';
+            }).join('') : '';
+            /* 结果条 + 浮窗「已选条件」两处回显，内容一致、可分别移除 */
+            ['filterTags', 'sheetFilterTags'].forEach(function (id) {
+                var box = document.getElementById(id);
+                if (!box) return;
+                box.style.display = tags.length ? 'flex' : 'none';
+                box.innerHTML = html;
+            });
+        }
+        function removeFilter(type) {
+            if (type === 'status') { filters.status = 'all'; filters.statusText = '全部状态'; }
+            if (type === 'role') filters.role = 'all';
+            if (type === 'dim') {
+                filters.dim = 'all'; filters.dimLabel = '全部'; filters.dimText = '全部字段';
+                var inp = document.getElementById('searchInput');
+                if (inp) inp.placeholder = PLACEHOLDER_ALL;
+            }
+            syncPills(); updateFilterTags(); filterTasks();
+        }
+
+        function expandAncestors(t) {
+            var tl = t.closest('.task-list');
+            if (tl) {
+                tl.classList.add('show');
+                var h = tl.previousElementSibling;
+                var a = h && h.querySelector('.arrow');
+                if (a) a.classList.add('expanded');
+            }
+            var sg = t.closest('.stage-group');
+            if (sg) {
+                sg.classList.add('show');
+                var sec = sg.closest('.contract-section');
+                var a2 = sec && sec.querySelector('.contract-header .arrow');
+                if (a2) a2.classList.add('expanded');
+            }
+        }
+
+        function filterTasks() {
+            var input = document.getElementById('searchInput');
+            var kw = (input && input.value ? input.value : '').trim().toLowerCase();
+            var dim = DIM_KEYS.indexOf(filters.dim) >= 0 ? filters.dim : 'all';
+            var attr = 'data-search-' + dim;
+            var panel = document.querySelector('.task-panel.is-active');
+            var visible = 0;
+            if (panel) {
+                panel.querySelectorAll('.flow-group.is-active').forEach(function (g) {
+                    var n = 0;
+                    g.querySelectorAll('.task-item').forEach(function (t) {
+                        var ok = true;
+                        if (filters.status !== 'all' && t.getAttribute('data-status') !== filters.status) ok = false;
+                        var hay = t.getAttribute(attr) || '';
+                        if (kw && hay.indexOf(kw) < 0) ok = false;
+                        if (!passesRole(t)) ok = false;
+                        t.style.display = ok ? 'flex' : 'none';
+                        if (ok) { n++; visible++; expandAncestors(t); }
+                    });
+                    g.querySelectorAll('.stage-item, .temp-block, .contract-section').forEach(function (sec) {
+                        var any = Array.prototype.some.call(sec.querySelectorAll('.task-item'), function (x) {
+                            return x.style.display !== 'none';
+                        });
+                        sec.style.display = any ? '' : 'none';
+                    });
+                    /* 子合同任务清单：与主列表同一筛选口径，并按「该行自身任务 / 下级子合同」汇总显隐 */
+                    g.querySelectorAll('.subct-task').forEach(function (t) {
+                        var ok = true;
+                        if (filters.status !== 'all' && t.getAttribute('data-status') !== filters.status) ok = false;
+                        var hay = t.getAttribute(attr) || '';
+                        if (kw && hay.indexOf(kw) < 0) ok = false;
+                        if (!passesRole(t)) ok = false;
+                        t.style.display = ok ? 'flex' : 'none';
+                    });
+                    Array.prototype.slice.call(g.querySelectorAll('.subct-row')).reverse().forEach(function (r) {
+                        var body = null, c = r.firstElementChild;
+                        while (c) {
+                            if (c.classList && c.classList.contains('subct-body')) { body = c; break; }
+                            c = c.nextElementSibling;
+                        }
+                        /* 只统计本行直属任务（下级子合同任务在各自 body 内，不参与本行汇总） */
+                        var own = body ? Array.prototype.some.call(body.querySelectorAll('.subct-task'), function (x) {
+                            return x.style.display !== 'none';
+                        }) : false;
+                        var kidVis = !!r.querySelector('.subct-row[data-vis="1"]');
+                        var vis = own || kidVis;
+                        r.setAttribute('data-vis', vis ? '1' : '0');
+                        r.style.display = vis ? '' : 'none';
+                        if (body) body.style.display = own ? '' : 'none';
+                    });
+                    var cnt = g.querySelector('[data-group-count]');
+                    if (cnt) cnt.textContent = '共 ' + n + ' 个任务';
+                });
+            }
+            var rc = document.getElementById('resultCount');
+            if (rc) rc.textContent = '共 ' + visible + ' 个任务 · ' + (activeFlow === 'all' ? '全部流程项' : cfgName(activeFlow)) +
+                (kw && dim !== 'all' ? ' · 按「' + filters.dimText + '」' : '');
+            var es = document.getElementById('emptyState');
+            if (es) es.style.display = visible ? 'none' : 'flex';
+            var et = document.getElementById('emptyText');
+            if (et) et.textContent = (filters.role === 'exec' || filters.role === 'confirm')
+                ? '暂无符合条件的任务（业主端默认只读查看）' : '暂无符合条件的任务';
+        }
+
+        /* ---------- 折叠 / 展开 ---------- */
+        function toggleContract(header) {
+            var box = header.nextElementSibling;
+            var arrow = header.querySelector('.arrow');
+            if (!box) return;
+            var show = !box.classList.contains('show');
+            box.classList.toggle('show', show);
+            if (arrow) arrow.classList.toggle('expanded', show);
+        }
+        function toggleStage(header) {
+            var box = header.nextElementSibling;
+            var arrow = header.querySelector('.arrow');
+            if (!box) return;
+            var show = !box.classList.contains('show');
+            box.classList.toggle('show', show);
+            if (arrow) arrow.classList.toggle('expanded', show);
+        }
+        /* 子合同行：点开查看该班组归属的真实任务清单（默认收起，避免长列表撑高页面） */
+        function toggleSubct(main) {
+            var row = main.closest ? main.closest('.subct-row') : null;
+            if (!row) return;
+            var body = null, n = row.firstElementChild;
+            while (n) {
+                if (n.classList && n.classList.contains('subct-body')) { body = n; break; }
+                n = n.nextElementSibling;
+            }
+            if (!body) return;
+            var show = !body.classList.contains('show');
+            body.classList.toggle('show', show);
+            var arw = main.querySelector('.subct-arw');
+            if (arw) arw.classList.toggle('open', show);
+        }
+        function expandAllContracts() {
+            var btn = document.querySelector('.expand-all-btn');
+            var boxes = document.querySelectorAll('.task-panel .task-list, .task-panel .stage-group, .task-panel .subct-body');
+            boxes.forEach(function (b) { b.classList.toggle('show', !allExpanded); });
+            document.querySelectorAll('.task-panel .stage-header .arrow, .task-panel .block-band .arrow, .task-panel .contract-header .arrow')
+                .forEach(function (a) { a.classList.toggle('expanded', !allExpanded); });
+            document.querySelectorAll('.task-panel .subct-arw').forEach(function (a) { a.classList.toggle('open', !allExpanded); });
+            allExpanded = !allExpanded;
+            if (btn) btn.textContent = allExpanded ? '收起全部' : '展开全部';
+        }
+
+        function goToTaskDetail(el) {
+            var st = el.getAttribute('data-status') || 'pending';
+            var nm = el.querySelector('.task-name');
+            var g = el.closest('.flow-group');
+            location.href = 'task-detail.html?status=' + encodeURIComponent(st) +
+                '&taskName=' + encodeURIComponent(nm ? nm.textContent : '') +
+                '&flow=' + encodeURIComponent(g ? g.getAttribute('data-flow-id') : '');
+        }
+        function goFlow(fid) {
+            location.href = 'project-detail-ongoing-v2.html?item=' + encodeURIComponent(fid);
+        }
+        function showToast(msg) {
+            var old = document.querySelector('.app-toast');
+            if (old) old.remove();
+            var t = document.createElement('div');
+            t.className = 'app-toast';
+            t.textContent = msg;
+            t.style.cssText = 'position:absolute;bottom:80px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,.7);color:#fff;padding:10px 20px;border-radius:8px;font-size:13px;z-index:3000;max-width:90%;text-align:center;';
+            var f = document.querySelector('.phone-frame');
+            if (f) f.appendChild(t);
+            setTimeout(function () { t.remove(); }, 2500);
+        }
+
+        /* ---------- 事件委托：查看流程 / 关闭状态下拉 ---------- */
+        document.addEventListener('click', function (e) {
+            var go = e.target.closest && e.target.closest('[data-flow-go]');
+            if (go) { goFlow(go.getAttribute('data-flow-go')); return; }
+            /* 仅维度下拉需要点外部关闭；底部浮窗由遮罩 / × / 完成显式关闭，点内容区不误收起 */
+            var m = document.getElementById('dimDropdownMenu');
+            var b = document.getElementById('dimSelectBtn');
+            if (m && m.classList.contains('show') && !m.contains(e.target) && !(b && b.contains(e.target))) {
+                closeMenus(null);
+            }
+        });
+
+        /* ---------- 导出（仅 inline-onclick 所需） ---------- */
+        window.selectFlow = selectFlow;
+        window.revealRail = revealRail;
+        window.switchTaskTab = switchTaskTab;
+        window.filterTasks = filterTasks;
+        window.applyPill = applyPill;
+        window.selectStatus = selectStatus;
+        window.toggleStatusDropdown = toggleFilterPanel; /* 兼容别名：旧状态入口统一走筛选面板 */
+        window.removeFilter = removeFilter;
+        window.selectDim = selectDim;
+        window.toggleDimDropdown = toggleDimDropdown;
+        window.toggleRoleDropdown = toggleFilterPanel; /* 兼容别名 */
+        window.clearSearch = clearSearch;
+        window.onSearchInput = onSearchInput;
+        window.closeMenus = closeMenus;
+        window.toggleFilterPanel = toggleFilterPanel;
+        window.openFilterPanel = openFilterPanel;
+        window.closeFilterPanel = closeFilterPanel;
+        window.resetFilters = resetFilters;
+        window.toggleContract = toggleContract;
+        window.toggleStage = toggleStage;
+        window.toggleSubct = toggleSubct;
+        window.expandAllContracts = expandAllContracts;
+        window.goToTaskDetail = goToTaskDetail;
+        window.goFlow = goFlow;
+        window.showToast = showToast;
+        window.reloadFlowTasks = buildAll;
+
+        /* 既有入口参数兼容：?role=exec|confirm|mine / ?mine=1 / ?level= / ?item=|?flow= */
+        /* 新分组维度为服务流程项，不再有架构层级轴；带 ?level= 时默认展示全部流程项 */
+        function applyUrlParams() {
+            var q;
+            try { q = new URLSearchParams(location.search); } catch (e) { return; }
+            var role = q.get('role');
+            if (role === 'exec' || role === 'confirm' || role === 'mine') filters.role = role;
+            var mine = q.get('mine');
+            if ((mine === '1' || mine === 'true') && filters.role === 'all') filters.role = 'mine';
+            if (q.get('level')) activeFlow = 'all';
+            var item = q.get('item') || q.get('flow');
+            if (item) activeFlow = item;
+            var dim = q.get('dim');
+            if (dim && DIM_META[dim]) {
+                filters.dim = dim;
+                filters.dimLabel = DIM_META[dim].label;
+                filters.dimText = DIM_META[dim].text;
+                var di = document.getElementById('searchInput');
+                if (di) di.placeholder = dim === 'all' ? PLACEHOLDER_ALL : '搜索' + DIM_META[dim].text + '…';
+            }
+            var kw = q.get('kw');
+            if (kw) {
+                var ki = document.getElementById('searchInput');
+                if (ki) ki.value = kw;
+                var cl = document.getElementById('searchClear');
+                if (cl) cl.classList.add('show');
+            }
+            if (q.get('filter') === '1') {
+                var fp = document.getElementById('filterPanel');
+                var ft = document.getElementById('filterToggleBtn');
+                var fm = document.getElementById('filterSheetMask');
+                if (fp && ft) { fp.classList.add('show'); ft.classList.add('active'); }
+                if (fm) fm.classList.add('show');
+            }
+        }
+
+        applyUrlParams();
+        buildAll();
+    })();
+    

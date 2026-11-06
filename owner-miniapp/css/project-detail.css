@@ -138,6 +138,7 @@
 .quick-nav-item .icon.member { background: var(--gradient-orange); }
 .quick-nav-item .icon.file { background: var(--gradient-purple); }
 .quick-nav-item .icon.statement { background: linear-gradient(135deg, #FAAD14 0%, #FFC53D 100%); }
+.quick-nav-item .icon.task { background: linear-gradient(135deg, #13C2C2 0%, #08979C 100%); }
 
 .quick-nav-item .label {
     font-size: 12px;

@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>量房服务告知书 · ③ 已确认归档（独立演示）</title>
+    <link rel="stylesheet" href="demo.css">
+</head>
+<!-- 骨架同源：本页与 02-notice-wait-confirm.html 的 #letterDocument 与底栏逐字相同，勿单独改结构。
+     差异仅来自 data-default-state 与共享 renderState()。说明文字一律在框外。 -->
+<body data-page="03" data-default-state="notice_confirmed">
+<div class="demo-wrap">
+    <div class="phone-frame">
+        <div class="status-bar">
+            <div class="time">9:41</div>
+            <div class="icons">📶 🔋</div>
+        </div>
+        <div class="nav-bar">
+            <div class="back">← 返回</div>
+            <div class="title centered">量房服务告知书</div>
+            <div class="actions">
+                <div class="native-capsule" title="微信原生胶囊：由微信客户端渲染，开发者不可自定义其内容">
+                    <span class="nc-left">⋯</span><span class="nc-divider"></span><span class="nc-right">○</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="content-area" id="contentArea">
+            <div class="paper-document" id="letterDocument">
+                <div class="document-header">
+                    <div class="document-title">量 房 服 务 告 知 书</div>
+                    <div class="stamp pending" id="statusStamp">
+                        <div class="stamp-border">
+                            <span class="stamp-text" id="stampText">待确认</span>
+                            <span class="stamp-star star-1">★</span>
+                            <span class="stamp-star star-2">★</span>
+                            <span class="stamp-star star-3">★</span>
+                            <span class="stamp-star star-4">★</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="document-meta">
+                    <div class="meta-item">编号：GL-2024-LH-001</div>
+                    <div class="meta-item">日期：2024年01月25日</div>
+                </div>
+                <div class="divider"></div>
+                <div class="section">
+                    <div class="section-title">一、服务标准</div>
+                    <div class="standard-list">
+                        <div class="standard-item"><span class="si-num">1</span><span>全屋净尺寸逐项实测，<span class="si-th">误差 ≤ 5mm</span>；数据当场记录，不得事后补录。</span></div>
+                        <div class="standard-item"><span class="si-num">2</span><span>每个空间不少于 <span class="si-th">4 个角度留影</span>，全屋照片 <span class="si-th">≥ 8 张</span>，照片带时间水印。</span></div>
+                        <div class="standard-item"><span class="si-num">3</span><span>量房数据当场向业主复述确认并留痕，<span class="si-th">24 小时内</span>出具量房成果。</span></div>
+                    </div>
+                </div>
+                <div class="divider"></div>
+                <div class="section">
+                    <div class="section-title">二、服务流程</div>
+                    <div class="flow-steps">
+                        <div class="flow-step"><span class="fs-dot">1</span><div class="fs-body"><div class="fs-title">预约到场</div><div class="fs-desc">提前 1 日与业主确认到场时段，平台记录预约凭证。</div></div></div>
+                        <div class="flow-step"><span class="fs-dot">2</span><div class="fs-body"><div class="fs-title">现场实测</div><div class="fs-desc">逐空间记录净尺寸、层高、门窗位置，同步拍照留痕。</div></div></div>
+                        <div class="flow-step"><span class="fs-dot">3</span><div class="fs-body"><div class="fs-title">数据复核</div><div class="fs-desc">业主当场复述确认关键数据，双方在成果单留痕。</div></div></div>
+                        <div class="flow-step"><span class="fs-dot">4</span><div class="fs-body"><div class="fs-title">成果交付</div><div class="fs-desc">24 小时内出具量房图与尺寸数据表，平台备案归档。</div></div></div>
+                    </div>
+                </div>
+                <div class="divider"></div>
+                <div class="section">
+                    <div class="section-title">三、服务结果</div>
+                    <div class="result-placeholder" id="resultPlaceholder">量房完成后回填</div>
+                    <div class="result-filled hidden" id="resultFilled">
+                        <div class="info-row"><div class="info-label">建筑面积</div><div class="info-value">118.60 ㎡（实测）</div></div>
+                        <div class="info-row"><div class="info-label">套内面积</div><div class="info-value">96.35 ㎡（实测）</div></div>
+                        <div class="info-row"><div class="info-label">实测层高</div><div class="info-value">2.85 m（各空间一致）</div></div>
+                        <div class="info-row"><div class="info-label">覆盖空间</div><div class="info-value">7 个（3 室 / 2 厅 / 1 厨 / 1 卫）</div></div>
+                        <div class="section-subtitle">交付物</div>
+                        <div class="info-row"><div class="info-label">量房成果</div><div class="info-value">量房图 1 份 · 尺寸数据表 1 份 · 现场留影 12 张</div></div>
+                        <div class="clause-map">
+                            <div class="cm-head table-row"><div class="table-cell">服务标准</div><div class="table-cell">实测结果</div><div class="table-cell">判定</div></div>
+                            <div class="table-row"><div class="table-cell">1 净尺寸误差 ≤ 5mm</div><div class="table-cell">最大偏差 3mm</div><div class="table-cell result-pass">达标</div></div>
+                            <div class="table-row"><div class="table-cell">2 每空间 ≥ 4 角度 · 照片 ≥ 8 张</div><div class="table-cell">7 空间 · 12 张</div><div class="table-cell result-pass">达标</div></div>
+                            <div class="table-row"><div class="table-cell">3 当场复述 · 24h 内出具成果</div><div class="table-cell">当场确认 · 21h 出具</div><div class="table-cell result-pass">达标</div></div>
+                            <div class="cm-pass">标准逐条对照 3/3 达标</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="divider"></div>
+                <div class="section">
+                    <div class="section-title">四、业主确认</div>
+                    <div class="clause-agree" id="agreeRow">
+                        <label class="agree-check">
+                            <input type="checkbox" id="agreeCheck">
+                            <span class="agree-dot"></span>
+                            <span class="agree-text">我已阅读并同意《量房服务告知书》</span>
+                        </label>
+                    </div>
+                    <span class="agreed-badge hidden" id="agreedBadge">✓ 已阅读并同意</span>
+                </div>
+                <div class="divider"></div>
+                <div class="section sign-row">
+                    <div class="section-title">五、甲乙方签署</div>
+                    <div class="sign-placeholder" id="signPending">甲方（业主）、乙方（工长或项目经理）待签署</div>
+                    <div class="signature-section hidden" id="signDone">
+                        <div class="signature-area">
+                            <div class="signature-item"><div class="signature-label">甲方 · 业主</div><div class="signature-box"><span class="signature-text">王先生</span></div><div class="signature-date">2024-01-25</div></div>
+                            <div class="signature-item"><div class="signature-label">乙方 · 工长</div><div class="signature-box"><span class="signature-text">陈庄</span></div><div class="signature-date">2024-01-25</div></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="document-footer">
+                    <div class="footer-text">生成时间：2024年01月25日 09:30 · 平台备案</div>
+                    <div class="footer-text hidden" id="footerConfirmed">确认时间：2024年01月25日 10:12 · 文书已归档</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="report-actions" id="letterActions">
+            <div class="report-btn primary is-disabled" id="btnConfirm">确认并同意</div>
+            <div class="report-btn primary hidden" id="btnSave">保存告知书长图</div>
+            <div class="report-btn is-disabled hidden" id="btnReadonly">待结果回填</div>
+        </div>
+    </div>
+
+    <div class="side-col">
+        <div class="demo-panel">
+            <h4>演示控制（不影响页面语义）</h4>
+            <div class="dp-group" id="optState" data-role="state">
+                <div class="dp-lab">告知书状态</div>
+                <div class="dp-opts">
+                    <div class="dp-opt" data-v="notice_pending_result">结果未回填</div>
+                    <div class="dp-opt" data-v="notice_wait_confirm">待确认</div>
+                    <div class="dp-opt on" data-v="notice_confirmed">已确认</div>
+                </div>
+            </div>
+            <div class="dp-status" id="dpStateText">当前：已确认 · 绿章 · 可保存长图</div>
+        </div>
+        <div class="letter-nav">
+            <span class="ln-label">演示页串联 · 非小程序 UI</span>
+            <a class="ln-btn" id="btnPrev" href="02-notice-wait-confirm.html">← 返回 ②</a>
+            <a class="ln-btn primary" id="btnNext" href="04-no-block-board.html">下一步 · 链路说明 →</a>
+        </div>
+    </div>
+
+    <div class="diff-card">
+        <div class="dm-title">改动点对照表 · ③ 已确认归档</div>
+        <div class="dm-sub">与 ② 是同一张单据的两个状态：DOM 逐字同源，差异全部由 <code>data-default-state</code> 与共享 <code>renderState()</code> 产生。</div>
+        <table class="dm-table">
+            <thead><tr><th style="width:52px">类型</th><th>状态差异</th><th>既有口径 → 本页对应</th></tr></thead>
+            <tbody>
+                <tr><td><span class="dm-tag same">沿用</span></td><td>绿章「已确认」</td><td><code>css/task-report.css:59-62</code> .stamp.passed(#52C41A)</td></tr>
+                <tr><td><span class="dm-tag new">新增</span></td><td>结果回填 + 标准逐条对照</td><td>沿用 <code>css/task-report.css:158-173</code> .info-row / .table-row → 实测数据、交付物、3/3 达标</td></tr>
+                <tr><td><span class="dm-tag same">沿用</span></td><td>甲乙方签署与备案时间</td><td><code>css/task-report.css:313-372</code> .signature-* / .document-footer</td></tr>
+                <tr><td><span class="dm-tag same">沿用</span></td><td>「✓ 已阅读并同意」徽标</td><td><code>worker-contract-fulfilled-receiver.html:144-149</code> → 单据「四、业主确认」章节</td></tr>
+                <tr><td><span class="dm-tag same">沿用</span></td><td>底栏「保存告知书长图」</td><td><code>task-report.html:408-412</code> .report-btn.primary → 两段轻提示，无真实下载</td></tr>
+            </tbody>
+        </table>
+        <div class="dm-foot">本页与 ② 的单据 DOM 完全一致，二期实现时只是一页多态，不需要两个页面文件。</div>
+    </div>
+</div>
+<div class="app-toast" id="appToast"></div>
+<script src="demo.js"></script>
+</body>
+</html>

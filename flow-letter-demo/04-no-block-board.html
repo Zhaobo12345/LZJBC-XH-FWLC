@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>量房服务告知书 · ④ 不阻断链路（独立演示 · 看板）</title>
+    <link rel="stylesheet" href="demo.css">
+</head>
+<!-- 看板式说明页：不是小程序页面，不含手机框；全部内容均在「框外」，用于对照改动点与链路边界。 -->
+<body data-page="04">
+<div class="board">
+    <div class="board-badge">看板式说明页 · 非小程序页面</div>
+    <h1 class="board-h1">量房服务告知书 · 不阻断任务链路</h1>
+    <p class="board-lead">文书是<strong>并行展示轨</strong>，任务轨零改动。正式感来自有编号、有章节、有印章、可存档的单据，不来自拦截任务的门禁。</p>
+
+    <div class="diff-card">
+        <div class="dm-title">改动点对照总表（四页汇总）</div>
+        <div class="dm-sub">左列为二期嵌入时唯一需要动的位置；右列为本轮四页中的对应体现。本轮全部为独立新增文件，既有页面、配置与文档零改动。</div>
+        <table class="dm-table">
+            <thead><tr><th style="width:52px">页</th><th>既有位置（改动点）</th><th>改动内容</th></tr></thead>
+            <tbody>
+                <tr><td><span class="dm-tag new">①</span></td><td><code>service-miniapp/project-list.html:763</code> #fdContractAct</td><td>无合同流程项由隐藏改为显示「告知书」chip</td></tr>
+                <tr><td><span class="dm-tag new">①</span></td><td><code>project-list.html:1419-1424</code> contractAction</td><td>在 <code>hasContract</code> 判断前增加无合同分支，与查看 / 拟定合同互斥</td></tr>
+                <tr><td><span class="dm-tag new">①</span></td><td><code>project-list.html:1432-1441</code> renderContractAction / goContract</td><td>新增 chip 样式与跳转；DOM 结构不变</td></tr>
+                <tr><td><span class="dm-tag new">②③</span></td><td>新增单据页（无既有页面）</td><td>版式沿用 <code>owner-miniapp/task-report.html:181-206, 403-412</code> 与 <code>css/task-report.css</code></td></tr>
+                <tr><td><span class="dm-tag new">②③</span></td><td>印章 / 勾选 / 徽标</td><td>沿用既有 <code>.stamp.pending/.passed</code>、<code>.agree-dot</code>、<code>.agreed-badge</code> 三套现成状态</td></tr>
+                <tr><td><span class="dm-tag same">业主端</span></td><td><code>owner-miniapp/js/flow-drawer.js:287-308</code>、<code>project-detail-ongoing-v2.html:433-459</code></td><td>浮窗结构同源，二期需同步同一 chip 分支</td></tr>
+                <tr><td><span class="dm-tag same">配置</span></td><td><code>flow-config.html:257-265</code> #fldSw</td><td>「包含合同」开关语义不变，不新增配置字段</td></tr>
+                <tr><td><span class="dm-tag same">任务轨</span></td><td><code>project-list.html:1696-1728, 1772-1776</code></td><td>任务清单与指派入口零改动（见下方两轨示意）</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="board-track">
+        <div class="board-track-label">上 · 任务轨（零改动）</div>
+        <div class="board-steps">
+            <div class="board-step"><span class="bs-num">1</span><div class="bs-body"><div class="bs-title">派发</div><div class="bs-desc">量房 3 条任务照常派发，指派入口始终可用。</div></div><span class="bs-tag">零改动</span></div>
+            <div class="board-step"><span class="bs-num">2</span><div class="bs-body"><div class="bs-title">执行 / 确认</div><div class="bs-desc">按既有任务状态机推进，不新增前置条件。</div></div><span class="bs-tag">零改动</span></div>
+            <div class="board-step"><span class="bs-num">3</span><div class="bs-body"><div class="bs-title">已完成</div><div class="bs-desc">量房任务 3 / 3 已完成，统计口径守恒。</div></div><span class="bs-tag">3/3</span></div>
+        </div>
+    </div>
+
+    <div class="board-isolation">
+        <div class="bi-title">中 · 隔离带（两轨互不写入）</div>
+        <div class="bi-grid">
+            <div class="bi-item"><span class="bi-code">不写 status</span><div class="bi-desc">三态仅为展示变量</div></div>
+            <div class="bi-item"><span class="bi-code">不进计数</span><div class="bi-desc">不参与任务统计求和</div></div>
+            <div class="bi-item"><span class="bi-code">不碰 canAssign</span><div class="bi-desc">不新增指派门禁</div></div>
+            <div class="bi-item"><span class="bi-code">不进任务状态机</span><div class="bi-desc">不新增任务态枚举</div></div>
+            <div class="bi-item"><span class="bi-code">不改空态</span><div class="bi-desc">两端任务页分支不变</div></div>
+            <div class="bi-item"><span class="bi-code">不落盘</span><div class="bi-desc">不写本地存储、不增字段</div></div>
+        </div>
+    </div>
+
+    <div class="board-track">
+        <div class="board-track-label">下 · 文书轨（并行展示）</div>
+        <div class="board-steps">
+            <div class="board-step"><span class="bs-num">1</span><div class="bs-body"><div class="bs-title">出具</div><div class="bs-desc">无合同流程项挂载告知书入口：服务标准、流程、结果三段齐备，带编号与生成时间。</div></div></div>
+            <div class="board-step"><span class="bs-num">2</span><div class="bs-body"><div class="bs-title">查看确认</div><div class="bs-desc">业主阅读海报长图，橙章「待确认」；勾选同意后点底栏按钮。</div></div></div>
+            <div class="board-step"><span class="bs-num">3</span><div class="bs-body"><div class="bs-title">结果回填</div><div class="bs-desc">印章转绿，回填实测数据、交付物与标准逐条对照 3/3 达标，补甲乙签署。</div></div></div>
+            <div class="board-step"><span class="bs-num">4</span><div class="bs-body"><div class="bs-title">保存长图</div><div class="bs-desc">平台备案归档，原型以两段轻提示模拟，不做真实下载。</div></div></div>
+        </div>
+    </div>
+
+    <div class="board-sample">
+        <div class="sample-title">可选触达小样（默认关 · 本轮不实现）</div>
+        <div class="wx-bubble invite">
+            <div class="m-title">📄 量房服务告知书待您确认</div>
+            <div class="m-sub">XX 小区整体装修工程 · 陈庄（工长）已出具</div>
+            <div class="m-sub">服务标准 3 条 · 服务流程 4 步 · 结果待回填</div>
+            <div class="m-go">点击查看并确认 ›</div>
+        </div>
+        <div class="sample-note">静态小样，不可点击、不跳转、不新增页面；形态参考 <code>wechat-service-notice.html:147-178</code>。</div>
+    </div>
+
+    <div class="letter-nav">
+        <span class="ln-label">演示页串联 · 非小程序 UI</span>
+        <a class="ln-btn" id="btnPrev" href="03-notice-confirmed.html">← 返回 ③</a>
+        <a class="ln-btn primary" id="btnNext" href="01-config-launch.html">重新走查 → ①</a>
+    </div>
+
+    <div class="board-foot">四页集中在独立目录，未嵌入任何既有原型页面，未改动任何既有文件、配置或文档，未加任何原型导航入口。请确认四页效果后，再决定是否添加到已有原型内。</div>
+</div>
+<div class="app-toast" id="appToast"></div>
+<script src="demo.js"></script>
+</body>
+</html>
