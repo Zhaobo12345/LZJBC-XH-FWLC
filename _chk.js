@@ -149,7 +149,7 @@
                     '</div></div>' +
                 '<div class="sticky-header" id="stickyHeader">' +
                     '<div class="quick-nav" id="quickNavNon">' +
-                        '<div class="quick-nav-item" onclick="go(\'architecture.html\')"><div class="icon structure">🏗️</div><div class="label">架构</div></div>' +
+                        '<div class="quick-nav-item" onclick="go(\'member.html\')"><div class="icon structure">🏗️</div><div class="label">架构</div></div>' +
                         '<div class="quick-nav-item" onclick="go(\'member.html\')"><div class="icon member">👥</div><div class="label">成员</div></div>' +
                         '<div class="quick-nav-item" onclick="go(\'project-files.html\')"><div class="icon file">📁</div><div class="label">资料</div></div>' +
                         '<div class="quick-nav-item" onclick="go(\'statement-list.html\')"><div class="icon statement">💰</div><div class="label">对账单</div></div></div>' +
@@ -257,7 +257,7 @@
                 '<div class="sticky-header" id="stickyHeader">' +
                     '<div class="quick-nav work-quick-nav" id="quickNavWork">' +
                         '<div class="quick-nav-item keep" onclick="go(\'activity-list.html\')"><div class="icon activity">📝</div><div class="label">项目动态</div></div>' +
-                        '<div class="quick-nav-item" onclick="go(\'architecture.html\')"><div class="icon structure">🏗️</div><div class="label">架构</div></div>' +
+                        '<div class="quick-nav-item" onclick="go(\'member.html\')"><div class="icon structure">🏗️</div><div class="label">架构</div></div>' +
                         '<div class="quick-nav-item" onclick="go(\'member.html\')"><div class="icon member">👥</div><div class="label">成员</div></div>' +
                         '<div class="quick-nav-item" onclick="go(\'project-files.html\')"><div class="icon file">📁</div><div class="label">资料</div></div></div>' +
                     '<div class="level-selector arch-half" id="levelSelectorWork"><div class="level-dropdown" onclick="toggleLevelOpts(this)">' +

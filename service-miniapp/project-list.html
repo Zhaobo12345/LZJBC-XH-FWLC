@@ -242,13 +242,13 @@ body {
 .fd-header .fd-close { cursor: pointer; font-size: 20px; line-height: 1; }
 
 /* 信息栏 */
-.fd-info { display: flex; align-items: center; gap: 10px; padding: 10px 14px; background: linear-gradient(90deg,#eef5ff,#f8fbff); border-bottom: 1px solid var(--border); flex-shrink: 0; }
-.fd-info .fd-badge { font-size: 12px; color: var(--text); flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.fd-info { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding: 10px 14px; background: linear-gradient(90deg,#eef5ff,#f8fbff); border-bottom: 1px solid var(--border); flex-shrink: 0; }
+.fd-info .fd-badge { font-size: 12px; color: var(--text); flex: 0 0 auto; white-space: nowrap; }
 .fd-info .fd-badge b { color: var(--primary); font-weight: 600; }
 .fd-info .fd-act { font-size: 11px; padding: 4px 10px; border-radius: 999px; cursor: pointer; white-space: nowrap; flex-shrink: 0; }
 .fd-info .fd-act.create { background: var(--primary); color: #fff; }
 .fd-info .fd-act.view { background: #fff; color: var(--primary); border: 1px solid rgba(22,119,255,.35); }
-.fd-info .fd-locate { font-size: 11px; color: var(--primary); background: var(--primary-bg); padding: 4px 10px; border-radius: 999px; cursor: pointer; white-space: nowrap; flex-shrink: 0; }
+.fd-footer .fd-locate { display: flex; align-items: center; justify-content: center; min-height: 44px; border-radius: 10px; background: var(--primary-bg); color: var(--primary); font-size: 13px; font-weight: 600; cursor: pointer; user-select: none; }
 
 /* 内容区（顶部 padding 归零：首子元素即吸顶 Tab 条，避免吸顶后上方留透明缝） */
 .fd-content { flex: 1; overflow-y: auto; padding: 0 14px 16px; -webkit-overflow-scrolling: touch; background: linear-gradient(180deg,#ffffff 0%,#f8fbff 100%); }
@@ -264,7 +264,7 @@ body {
 .fd-item .fd-badge { font-size: 11px; font-weight: 500; border-radius: 999px; padding: 2px 8px; flex-shrink: 0; white-space: nowrap; }
 .fd-item.active .fd-name { color: var(--primary); font-weight: 600; }
 .fd-empty { text-align: center; color: var(--text-3); font-size: 12px; padding: 14px 0; }
-.fd-footer { flex-shrink: 0; padding: 10px 14px; font-size: 11px; color: var(--text-3); text-align: center; border-top: 1px solid var(--line-light); background: #f5f9ff; }
+.fd-footer { flex-shrink: 0; padding: 8px 14px; border-top: 1px solid var(--line-light); background: #f5f9ff; }
 
 /* ===== 指派任务（临时任务）：明细区底部吸底入口 + 轻量表单弹窗 ===== */
 .fd-assignbar { position: sticky; bottom: 0; z-index: 4; margin: 4px 0 0; padding: 10px 0 2px; background: linear-gradient(180deg, rgba(255,255,255,0) 0%, #fff 42%); }
@@ -363,6 +363,7 @@ body {
   100% { background: #fff; border-color: var(--line-light); box-shadow: 0 1px 6px rgba(22,119,255,.06); }
 }
 .fd-locate:active { background: rgba(22,119,255,.18); }
+.fd-footer .fd-locate:active { transform: scale(.985); }
 .fd-stage-task-item { display: flex; align-items: center; padding: 10px 14px 10px 34px; gap: 10px; cursor: pointer; position: relative; transition: background .15s ease; }
 .fd-stage-task-item + .fd-stage-task-item { border-top: 1px solid #F5F6F8; }
 .fd-stage-task-item:active { background: #FAFBFC; }
@@ -495,11 +496,9 @@ body {
     <div class="page-nav-title" onclick="togglePageNav()" title="收起 / 展开 原型导航">原型导航 <span class="toggle-btn" id="pageNavToggle">▼</span></div>
     <a href="home.html">首页</a>
     <a href="project-list.html" class="active">项目主页（进行中）</a>
-    <a href="project-list-empty-demo.html">项目列表（空状态演示）</a>
     <a href="project-detail-initial-v2.html">项目详情（初始-新版）</a>
     <a href="project-detail-completed-v2.html">项目详情（已完成-新版）</a>
     <a href="project-info.html">项目信息</a>
-    <a href="architecture.html">项目架构</a>
     <a href="create-project.html">创建项目</a>
     <a href="task-list.html">任务列表</a>
     <a href="contract-detail.html">合同详情</a>
@@ -761,13 +760,12 @@ body {
       <div class="fd-info">
         <span class="fd-badge" id="fdMainCount">主线 3/6</span>
         <span class="fd-act" id="fdContractAct" onclick="goContract('drawer')" style="display:none"></span>
-        <span class="fd-locate" id="fdLocate" onclick="locateCurrent()">📍 定位当前</span>
       </div>
       <div class="fd-content">
         <div id="fdFlowList"></div>
         <div id="fdDetailWrap"><div id="fdDetail"></div></div>
       </div>
-      <div class="fd-footer">点击流程项可切换 · 点击任务查看详情</div>
+      <div class="fd-footer"><span class="fd-locate" id="fdLocate" onclick="locateCurrent()">📍 定位当前</span></div>
     </div>
 
     <!-- 指派任务（临时任务）轻量表单：布局参考「添加新任务」弹窗，确认/担责标准非必填 -->
@@ -1003,32 +1001,60 @@ function baseItems() {
     { id: 'sh', name: '售后', kind: 'task', status: '未开始', done: 0, total: 0, tasks: [] }
   ];
 }
+/* ===== 临时派遣（externals）持久化 =====
+   用户新增的派遣写入本地；刷新 / 配置重载后由 cfgItems() 自动恢复，演示基线明细保持不变。 */
+var FLOW_EXTERNALS_KEY = 'lzj_flow_externals_v1';
+function readFlowExternals() {
+  try { return JSON.parse(localStorage.getItem(FLOW_EXTERNALS_KEY) || '{}') || {}; } catch (e) { return {}; }
+}
+function persistFlowExternal(flowId, entry) {
+  if (!flowId || !entry) return;
+  var all = readFlowExternals();
+  (all[flowId] = all[flowId] || []).push(entry);
+  try { localStorage.setItem(FLOW_EXTERNALS_KEY, JSON.stringify(all)); } catch (e) {}
+}
+function mergeFlowExternals(items) {
+  var all = readFlowExternals();
+  items.forEach(function (it) {
+    var extra = all[it.id] || [];
+    if (!extra.length) return;
+    it.externals = (it.externals || []).concat(extra);
+    it.total = (it.total || 0) + extra.length;
+  });
+  return items;
+}
+
 /* ===== 项目流程项：结构由「项目流程配置」驱动（SSOT = js/flow-config-store.js） =====
    配置项提供顺序 / 名称 / 是否含合同 / 增减；明细（阶段、任务、临时任务）按 id 从 baseItems 继承。
    新增项无明细 → stages/tasks 为空，浮窗显示「暂无阶段任务」；是否含合同决定有无合同入口。 */
 function cfgItems() {
   var cfg = (window.FlowCfgStore ? FlowCfgStore.get() : null);
-  if (!cfg || !cfg.length) return baseItems();
-  var detail = {};
-  baseItems().forEach(function (it) { detail[it.id] = it; });
-  return cfg.map(function (c) {
-    var d = detail[c.id] || {};
-    return {
-      id: c.id,
-      name: c.name,
-      kind: c.hasContract ? 'contract' : 'task',
-      hasContract: !!c.hasContract,
-      status: d.status || c.status || '未开始',
-      done: typeof d.done === 'number' ? d.done : 0,
-      total: typeof d.total === 'number' ? d.total : (c.tasks || 0),
-      subCount: d.subCount || 0,
-      mainDone: !!d.mainDone,
-      subDone: d.subDone || 0,
-      stages: d.stages || [],
-      tasks: d.tasks || [],
-      externals: d.externals || []
-    };
-  });
+  var items;
+  if (!cfg || !cfg.length) {
+    items = baseItems();
+  } else {
+    var detail = {};
+    baseItems().forEach(function (it) { detail[it.id] = it; });
+    items = cfg.map(function (c) {
+      var d = detail[c.id] || {};
+      return {
+        id: c.id,
+        name: c.name,
+        kind: c.hasContract ? 'contract' : 'task',
+        hasContract: !!c.hasContract,
+        status: d.status || c.status || '未开始',
+        done: typeof d.done === 'number' ? d.done : 0,
+        total: typeof d.total === 'number' ? d.total : (c.tasks || 0),
+        subCount: d.subCount || 0,
+        mainDone: !!d.mainDone,
+        subDone: d.subDone || 0,
+        stages: d.stages || [],
+        tasks: d.tasks || [],
+        externals: d.externals || []
+      };
+    });
+  }
+  return mergeFlowExternals(items);
 }
 /* 配置变更后重新载入：流程条、浮窗、主线统计一起刷新，选中项失效则兜底第一项 */
 function reloadFlowItems() {
@@ -1414,13 +1440,32 @@ function centerRail(rail, item, smooth) {
 }
 /* ===== 合同入口：与选中流程项强关联（仅含合同型流程项出现） =====
    浮窗（抽屉）全口径：已建合同显示「查看合同」，未建合同显示「拟定合同」；
-   主页项目流程卡为纯概览，不再提供任何合同动作（查看/拟定统一收归浮窗与「合同」模块）。 */
+   主页项目流程卡为纯概览，不再提供任何合同动作（查看/拟定统一收归浮窗与「合同」模块）。
+   去重口径：未建合同由头部 chip 承担首次拟定；已建合同由明细区行承担追加/子级合同，
+   任一状态下同屏只出现一个「拟定合同」入口。 */
 function fdList() { return ITEMS; }
 function contractAction(sel, surface) {
   if (!sel || !sel.hasContract) return null;            // 未配置「含合同」的流程项不出现任何合同入口
   if (surface === 'home') return null;                  // 主页项目流程卡 = 纯概览，不渲染任何合同按钮
   if (sel.subCount) return { text: '查看合同', cls: 'view', url: 'contract-detail.html?from=flow&item=' + sel.id };
+  if (!canCreateFlowContract()) return null;           // 未建合同的「拟定合同」按权限显隐
   return { text: '拟定合同', cls: 'create', url: 'create-contract.html?from=flow&item=' + sel.id };
+}
+/* 流程项公共拟定入口：头部 chip 与明细区入口行共用，参数一致 */
+function createContractForFlow() {
+  if (!canCreateFlowContract()) return;
+  var sel = fdList().filter(function (x) { return x.id === selectedId; })[0];
+  if (!sel || !sel.hasContract) return;
+  window.location.href = 'create-contract.html?from=flow&item=' + encodeURIComponent(sel.id);
+}
+/* 明细区拟定入口：放在流程项下、本项任务上，隶属关系直观；
+   未建合同时头部 chip 已是「拟定合同」，此处隐藏，避免同屏重复 */
+function fdContractCreateRow(sel) {
+  if (!sel || !sel.hasContract || !canCreateFlowContract()) return '';
+  var head = contractAction(sel, 'drawer');
+  if (head && head.cls === 'create') return '';
+  return '<div class="fd-item" style="background:var(--primary-bg);border-top:none;border-radius:8px;padding:10px 12px;color:var(--primary);font-weight:600;justify-content:space-between;min-height:48px" onclick="createContractForFlow()">' +
+    '<span>＋ 拟定合同</span><span>›</span></div>';
 }
 function goContract(surface) {
   var sel = fdList().filter(function (x) { return x.id === selectedId; })[0];
@@ -1428,12 +1473,12 @@ function goContract(surface) {
   if (!a) return;
   window.location.href = a.url;
 }
-/* 仅浮窗头部渲染合同动作（查看/拟定）；主页项目流程卡已取消合同按钮，纯概览。 */
+/* 仅浮窗头部渲染合同动作（查看/拟定）；明细区拟定行自行按头部状态去重。 */
 function renderContractAction() {
   var sel = fdList().filter(function (x) { return x.id === selectedId; })[0];
+  var a = contractAction(sel, 'drawer');
   var el = document.getElementById('fdContractAct');
   if (!el) return;
-  var a = contractAction(sel, 'drawer');
   if (!a) { el.style.display = 'none'; el.textContent = ''; return; }
   el.style.display = '';
   el.className = 'fd-act ' + a.cls;
@@ -1522,6 +1567,8 @@ var canViewAllFlow = true;
 /* 流程配置权限：非工人 + 有权配置才出现「⚙ 配置」入口（演示三态 all/readonly/none） */
 var flowCfgPerm = 'all';
 function canConfigFlow() { return currentRole !== 'worker' && flowCfgPerm !== 'none'; }
+/* 拟定合同入口权限：沿用流程配置三态，只读/无权/工人不出现拟定入口（查看合同不受限） */
+function canCreateFlowContract() { return currentRole !== 'worker' && flowCfgPerm === 'all'; }
 function syncFlowCfgEntry() {
   var b = document.getElementById('flowCfgBtn');
   if (b) b.style.display = canConfigFlow() ? '' : 'none';
@@ -1627,7 +1674,9 @@ function confirmAssignTask() {
   if (!valid) return;
   // 写回数据：插入该流程项的临时任务列表（未开始），流程项任务总数 +1，各处计数自动重算
   sel.externals = sel.externals || [];
-  sel.externals.push({ name: name, exec: asExecutor, confirms: asConfirmers.slice(), status: '未开始' });
+  var externalEntry = { name: name, exec: asExecutor, confirms: asConfirmers.slice(), status: '未开始' };
+  sel.externals.push(externalEntry);
+  persistFlowExternal(sel.id, externalEntry);   // 持久化：刷新 / 配置重载后自动恢复
   sel.total = (sel.total || 0) + 1;
   closeAssignModal();
   if (sel.kind === 'contract') fdDetailTab = 'ext';   // 合同型项：切到临时任务 Tab；任务型项内容内联，无需切 Tab
@@ -1708,7 +1757,7 @@ function renderFdDetail(sel) {
       '<div class="fd-bm-util"' + (fdDetailTab === 'ext' ? ' style="display:none"' : '') + ' onclick="toggleAllFdStages()"><span id="fdcLabel">收起</span></div>' +
       '</div>' +
       '<div class="fd-bm-panel">' +
-        '<div id="fdDetailBody">' + fdDetailBody(sel, fdDetailTab) + '</div>' +
+        '<div id="fdDetailBody">' + fdContractCreateRow(sel) + fdDetailBody(sel, fdDetailTab) + '</div>' +
       '</div>' +
       '</div>';
   }
@@ -1724,7 +1773,7 @@ function renderFdDetail(sel) {
     extHtml = '<div class="fd-ext-sub"><div class="fd-ext-sub-h">临时任务<span class="fd-ext-sub-n">' + ext.length + '</span></div>' +
       ext.map(function (e) { return fdExtRow(e); }).join('') + '</div>';
   }
-  return '<div id="fdDetailBody">' + tRows + extHtml + fdAssignBar(sel) + '</div>';
+  return '<div id="fdDetailBody">' + fdContractCreateRow(sel) + tRows + extHtml + fdAssignBar(sel) + '</div>';
 }
 function fdDetailBody(sel, group) {
   if (sel.kind !== 'contract') return '';
@@ -1856,7 +1905,7 @@ function bindOpts(groupId, cb) {
 bindOpts('optStatus', function (v) { overrideStatus = v; renderRail(); renderDetail(); syncDrawerIfOpen(); });
 bindOpts('optAssignPerm', function (v) { assignPermMode = v; syncDrawerIfOpen(); });
 bindOpts('optViewAll', function (v) { canViewAllFlow = v === 'yes'; renderMyFlow(); });
-bindOpts('optCfgPerm', function (v) { flowCfgPerm = v; syncFlowCfgEntry(); });
+bindOpts('optCfgPerm', function (v) { flowCfgPerm = v; syncFlowCfgEntry(); syncDrawerIfOpen(); });
 bindOpts('optRole', function (v) { setRole(v); });
 bindOpts('optAuth', function (v) { setCertified(v === 'yes'); });
 

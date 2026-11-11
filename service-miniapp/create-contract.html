@@ -3,7 +3,7 @@
 <head data-page-node-id="0ljyGV5UueX6afm47i8E4W">
     <meta charset="UTF-8" data-page-node-id="1xMsT1pi9G3Y4VmgQfzakb">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" data-page-node-id="pqAFACT0UCQMTZHHhGuhjK">
-    <title>家装平台小程序原型 - 创建合同</title>
+    <title>家装平台小程序原型 - 拟定合同</title>
     <link rel="stylesheet" href="common.css" data-page-node-id="CoMvTkpPEohncEFXlHlprZ">
     <style>
         .page-content {
@@ -49,7 +49,7 @@
             margin-right: 4px;
         }
 
-        /* 只读展示（所属架构层级） */
+        /* 只读展示（已带归属的入口）；外侧公共入口改用 .form-select 下拉选择 */
         .form-display {
             width: 100%;
             height: 44px;
@@ -387,8 +387,8 @@
             <span data-page-node-id="76cYba2KMgLdXQlDwvJDDl">100%</span>
         </div>
         <div class="nav-bar" data-page-node-id="bmUErMVnzGr6fvqso1SrH5">
-            <div class="back" onclick="location.href='architecture.html'" data-page-node-id="bNjBTsPK7X1Oyb1nTl2t3Q">‹ 返回</div>
-            <div class="title centered" data-page-node-id="RfXzDqynq6rbii1SsKI6Vm">创建合同</div>
+            <div class="back" onclick="goBack()" data-page-node-id="bNjBTsPK7X1Oyb1nTl2t3Q">‹ 返回</div>
+            <div class="title centered" data-page-node-id="RfXzDqynq6rbii1SsKI6Vm">拟定合同</div>
             <div style="width:32px;" data-page-node-id="pjuUicVOs2wvEjiHyvJn8D"></div>
         
             <div class="actions" data-page-node-id="KkXgtCty5IO3cXCWN4L4S4"><div class="native-capsule" title="微信原生胶囊：由微信客户端渲染，开发者不可自定义其内容" data-page-node-id="Rm2N62fEGQXm506wWW2Uj4"><span class="nc-left" data-page-node-id="jSfwqtrGF9Wd4z1D3ow3kg">⋯</span><span class="nc-divider" data-page-node-id="RUyHC54MJv60xG7UCPem5T"></span><span class="nc-right" data-page-node-id="YK5u5hNDwviAmRfbzRaUWm">○</span></div></div>
@@ -401,8 +401,18 @@
                 <div class="form-section-title" data-page-node-id="wGN35C32q0KXmvSDQMLsGE">合同基本信息</div>
 
                 <div class="form-group" data-page-node-id="dgmtIkIOel9gpkrifjSr76">
-                    <label class="form-label" data-page-node-id="SEeY1UUF8AAslVLAnFYbE1">所属架构层级</label>
-                    <div class="form-display" id="groupDisplay" data-page-node-id="SGjaEP74b7ZIRxaesckigc">项目架构</div>
+                    <label class="form-label" id="flowLabel" data-page-node-id="SEeY1UUF8AAslVLAnFYbE1">所属服务流程项</label>
+                    <div class="form-display" id="flowDisplay" data-page-node-id="SGjaEP74b7ZIRxaesckigc">未指定流程项</div>
+                    <!-- 合同列表底部「拟定合同」为外侧公共入口（无既定流程项），归属可在页内选择；其余入口保持只读 -->
+                    <select class="form-select" id="flowSelect" style="display:none" onchange="onFlowChange()"></select>
+                    <div class="error-message" id="flowSelectError">请选择服务流程项</div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">隶属合同（选填）</label>
+                    <select class="form-select" id="parentContract" onchange="onParentContractChange()">
+                        <option value="">不选择 · 直属本流程项</option>
+                    </select>
                 </div>
 
                 <div class="form-group" data-page-node-id="2EXwgs5QEnpc8C4RjAfkhQ">
@@ -503,13 +513,15 @@
         </div>
 
         <div class="app-bar" data-page-node-id="qcRPI563RBaB5TAFJD5z0q">
-            <button class="submit-btn" onclick="submitCreateContract()" data-page-node-id="7s643s1YsmBmPKlic5md0h">创建合同</button>
+            <button class="submit-btn" onclick="submitCreateContract()" data-page-node-id="7s643s1YsmBmPKlic5md0h">拟定合同</button>
         </div>
 
         <div class="light-bubble" id="tipBubble" data-page-node-id="nH9LjumZodV9nlth6XET2R"></div>
     </div>
 
     <script src="contract-store.js"></script>
+    <script src="js/flow-config-store.js"></script>
+    <script src="js/contract-tree-store.js"></script>
     <script>
         'use strict';
 
@@ -539,9 +551,15 @@
             { id: 'm-xiaolingong', name: '郑零工', role: '小零工' }
         ];
 
-        var currentGroup = '';
+        /* 合同归属：唯一为服务流程项；架构层级 / group 字段已删除 */
+        var currentFrom = '';
+        var fromFlow = false;
+        var currentFlowId = '';
+        var currentFlowName = '';
         var invitedList = [];   // 工人合同：被邀请的意向乙方（最多 3 人）
         var editId = '';        // 工人合同：编辑（撤回后重新提交）时的合约库 id
+        var currentParentId = '';   // 隶属合同 id：空 = 直属本流程项
+        var currentParentName = ''; // 隶属合同名称（只读展示）
 
         // 甲乙方选择状态（自定义可搜索选择框）
         var pickerState = {
@@ -551,25 +569,37 @@
 
         function initPage() {
             var params = new URLSearchParams(window.location.search);
-            currentGroup = params.get('group') || '';
-            if (currentGroup) {
-                document.getElementById('groupDisplay').textContent = currentGroup;
+            currentFrom = params.get('from') || '';
+            fromFlow = currentFrom === 'flow';
+            currentFlowId = params.get('item') || '';
+            if (currentFlowId) {
+                var fi = window.FlowCfgStore ? FlowCfgStore.find(currentFlowId) : null;
+                currentFlowName = (fi && fi.name) || currentFlowId;
             }
+            currentParentId = params.get('parent') || '';
+            renderFlowDisplay();
+            renderParentOptions();
             renderTypeOptions();
             initMemberPicker('partyA');
             initMemberPicker('partyB');
 
             // 工人合同：撤回后「重新提交邀约」回到本页预填
             editId = params.get('editId') || '';
-            if (editId && ContractStore.getContract(editId)) {
-                var c = ContractStore.getContract(editId);
+            /* 草稿双来源：合同列表用 ContractTreeStore（含动态新增），工人合约库回退 ContractStore */
+            var draft = (editId && window.ContractTreeStore) ? ContractTreeStore.byId(editId) : null;
+            if (!draft && editId && window.ContractStore) draft = ContractStore.getContract(editId);
+            if (draft) {
+                var c = draft;
                 document.getElementById('contractName').value = c.name || '';
                 document.getElementById('contractAmount').value = c.amount || '';
                 document.getElementById('contractType').value = c.type || '';
-                if (c.group) {
-                    currentGroup = c.group;
-                    document.getElementById('groupDisplay').textContent = c.group;
+                if (c.flowId || c.flowName) {
+                    currentFlowId = c.flowId || '';
+                    currentFlowName = c.flowName || '';
                 }
+                currentParentId = c.parent || '';
+                renderFlowDisplay();
+                renderParentOptions();
                 if (c.partyA) {
                     pickerState.partyA.value = c.partyA;
                     var pa = PROJECT_MEMBERS.filter(function (m) { return m.id === c.partyA; })[0];
@@ -587,6 +617,138 @@
                 return;
             }
             onContractTypeChange();
+        }
+
+        /* 隶属合同：默认不选 = 直属本流程项；选中 = 作为该合同的子级合同 */
+        function parentDepthOf(c, list) {
+            var d = 0, p = c.parent;
+            while (p && d < 10) {
+                var hit = list.filter(function (x) { return x.id === p; })[0];
+                if (!hit) break;
+                d++; p = hit.parent;
+            }
+            return d;
+        }
+        function renderParentOptions() {
+            var box = document.getElementById('parentContract');
+            if (!box) return;
+            var list = window.ContractTreeStore ? ContractTreeStore.listByFlow(currentFlowId) : [];
+            var html = '<option value="">不选择 · 直属本流程项</option>';
+            list.forEach(function (c) {
+                var d = parentDepthOf(c, list);
+                var pad = d > 0 ? new Array(d + 1).join('　') + '└ ' : '';
+                html += '<option value="' + escapeHtml(c.id) + '">' + pad + escapeHtml(c.name) + '</option>';
+            });
+            box.innerHTML = html;
+            if (currentParentId) {
+                var found = list.filter(function (c) { return c.id === currentParentId; })[0];
+                if (found) box.value = currentParentId;
+                else currentParentId = '';
+            }
+            onParentContractChange();
+        }
+        function onParentContractChange() {
+            var box = document.getElementById('parentContract');
+            var nav = document.querySelector('.nav-bar .title');
+            var btn = document.querySelector('.submit-btn');
+            currentParentId = box ? box.value : '';
+            var item = null;
+            if (currentParentId && window.ContractTreeStore) {
+                item = ContractTreeStore.listByFlow(currentFlowId).filter(function (c) { return c.id === currentParentId; })[0];
+            }
+            currentParentName = item ? item.name : '';
+            if (nav) nav.textContent = currentParentName ? '拟定子合同' : '拟定合同';
+            if (btn) btn.textContent = currentParentName ? '拟定子合同' : '拟定合同';
+        }
+        /* 新建合同写入合同树（与列表页共用同一 localStorage key） */
+        function writeTreeContract(data) {
+            if (!window.ContractTreeStore) return;
+            ContractTreeStore.add({
+                id: data.id,
+                name: data.name,
+                ct: data.ct,
+                typeName: data.typeName,
+                flowId: currentFlowId,
+                flowName: currentFlowName,
+                status: data.status,
+                amount: data.amount,
+                partyA: data.partyA,
+                partyB: data.partyB,
+                parent: data.parent || null
+            });
+        }
+        /* 外侧公共入口（合同列表底部浮窗 / 重新提交邀约）没有既定流程项：归属可在页内切换；
+           流程浮窗等已带归属的入口保持只读展示，零回归 */
+        function canPickFlow() {
+            return currentFrom === 'contract-list' || currentFrom === 'worker-detail';
+        }
+        function flowOptions() {
+            var list = window.FlowCfgStore ? FlowCfgStore.get() : [];
+            return list.filter(function (f) { return f.hasContract !== false; });
+        }
+        function renderFlowOptions() {
+            var sel = document.getElementById('flowSelect');
+            if (!sel) return;
+            var list = flowOptions();
+            var html = '';
+            if (!currentFlowId) html += '<option value="">请选择服务流程项</option>';
+            /* 草稿或自定义配置可能指向非「含合同」项：保留当前值，避免预填丢失 */
+            var exists = list.some(function (f) { return f.id === currentFlowId; });
+            if (currentFlowId && !exists) {
+                html += '<option value="' + escapeHtml(currentFlowId) + '">' + escapeHtml(currentFlowName || currentFlowId) + '</option>';
+            }
+            list.forEach(function (f) {
+                html += '<option value="' + escapeHtml(f.id) + '">' + escapeHtml(f.name) + '</option>';
+            });
+            if (!html) html = '<option value="">暂无可选流程项</option>';
+            sel.innerHTML = html;
+            sel.value = currentFlowId || '';
+        }
+        function onFlowChange() {
+            var sel = document.getElementById('flowSelect');
+            if (!sel) return;
+            currentFlowId = sel.value || '';
+            var f = currentFlowId && window.FlowCfgStore ? FlowCfgStore.find(currentFlowId) : null;
+            currentFlowName = f ? f.name : (currentFlowId ? currentFlowName : '');
+            /* 切换流程项后，原父合同不属于新流程项：清空并按新项重算候选 */
+            currentParentId = '';
+            currentParentName = '';
+            renderFlowDisplay();
+            renderParentOptions();
+            clearError('flowSelect');
+        }
+        /* 归属展示：统一为「所属服务流程项」；外侧入口下拉可选，其余只读 */
+        function renderFlowDisplay() {
+            var label = document.getElementById('flowLabel');
+            var box = document.getElementById('flowDisplay');
+            if (!box) return;
+            if (currentFlowName) {
+                if (label) label.textContent = '所属服务流程项';
+                box.textContent = currentFlowName;
+            } else {
+                if (label) label.textContent = '所属服务流程项';
+                box.textContent = '未指定流程项';
+            }
+            var pick = canPickFlow();
+            var sel = document.getElementById('flowSelect');
+            box.style.display = pick ? 'none' : '';
+            if (sel) {
+                sel.style.display = pick ? '' : 'none';
+                if (pick) renderFlowOptions();
+            }
+        }
+
+        /* 返回：由流程浮窗发起时回到项目主页并直接打开该流程项浮窗；其余入口保持原状 */
+        function goBack() {
+            if (fromFlow && currentFlowId) {
+                location.href = 'project-list.html?item=' + encodeURIComponent(currentFlowId);
+            } else if (currentFrom === 'worker-detail') {
+                location.href = 'worker-contract-detail.html?id=' + encodeURIComponent(editId) + '&viewer=sender';
+            } else if (currentFrom === 'contract-list') {
+                location.href = 'contract-list.html' + (currentParentId ? '?expand=' + encodeURIComponent(currentParentId) : '');
+            } else {
+                location.href = 'project-list.html';
+            }
         }
 
         function renderTypeOptions() {
@@ -826,7 +988,8 @@
                     existing.name = nameVal.trim();
                     existing.type = selectedType.value;
                     existing.typeName = selectedType.typeName;
-                    existing.group = currentGroup;
+                    existing.flowId = currentFlowId;
+                    existing.flowName = currentFlowName;
                     existing.partyA = partyA;
                     existing.partyAName = partyAName;
                     existing.amount = amountNormalized;
@@ -842,12 +1005,25 @@
                 name: nameVal.trim(),
                 type: selectedType.value,
                 typeName: selectedType.typeName,
-                group: currentGroup,
+                flowId: currentFlowId,
+                flowName: currentFlowName,
                 partyA: partyA,
                 partyAName: partyAName,
                 amount: amountNormalized,
                 invited: invitedList,
-                status: 'worker_draft'
+                status: 'worker_draft',
+                parent: currentParentId || null
+            });
+            writeTreeContract({
+                id: id,
+                name: nameVal.trim(),
+                ct: 'worker',
+                typeName: selectedType.typeName,
+                status: 'worker_draft',
+                amount: amountNormalized,
+                partyA: partyAName,
+                partyB: '',
+                parent: currentParentId || null
             });
             window.location.href = 'worker-contract-draft-initial-new.html?id=' + encodeURIComponent(id);
         }
@@ -913,9 +1089,15 @@
 
         function submitCreateContract() {
             // 清空旧错误
-            ['type', 'contractName', 'partyA', 'partyB', 'contractAmount'].forEach(clearError);
+            ['type', 'contractName', 'partyA', 'partyB', 'contractAmount', 'flowSelect'].forEach(clearError);
 
             var firstError = '';
+
+            // 0. 所有入口：合同必须有归属服务流程项，不允许生成无归属合同
+            if (!currentFlowId) {
+                if (canPickFlow()) { showError('flowSelect'); firstError = firstError || '请选择服务流程项'; }
+                else { showTip('缺少所属服务流程项，请从合同列表或服务流程浮窗重新发起'); return; }
+            }
 
             // 1. 合同类型（必选，下拉单选）
             var typeSelect = document.getElementById('contractType');
@@ -986,8 +1168,21 @@
             }
             var amountNormalized = amountVal.trim() ? amountVal.replace(/,/g, '') : '';
 
+            var newContractId = 'contract-new-' + Date.now();
+            writeTreeContract({
+                id: newContractId,
+                name: nameVal.trim(),
+                ct: 'service',
+                typeName: selectedType.typeName,
+                status: 'draft',
+                amount: amountNormalized,
+                partyA: partyAName,
+                partyB: partyBName,
+                parent: currentParentId || null
+            });
+
             var params = new URLSearchParams({
-                id: 'contract-new-' + Date.now(),
+                id: newContractId,
                 name: nameVal.trim(),
                 type: selectedType.value,
                 typeName: selectedType.typeName,
@@ -996,7 +1191,10 @@
                 partyB: partyB,
                 partyBName: partyBName,
                 amount: amountNormalized,
-                group: currentGroup,
+                flowId: currentFlowId,
+                flowName: currentFlowName,
+                from: currentFrom,
+                parent: currentParentId || '',
                 status: 'draft',
                 new: '1'
             });
@@ -1007,5 +1205,20 @@
         initPage();
     </script>
 <script src="../shared/doc-viewer/doc-viewer.js"></script>
+<!-- ===== 公共原型导航（右侧，可折叠，localStorage 记忆；样式沿用 common.css 的 .page-nav） ===== -->
+<div class="page-nav">
+  <div class="page-nav-title" title="收起 / 展开 原型导航">原型导航 <span class="toggle-btn" id="pageNavToggle">▼</span></div>
+  <a href="home.html">首页</a>
+  <a href="project-detail-initial-v2.html">项目详情（初始-新版）</a>
+  <a href="project-list.html">项目主页（进行中）</a>
+  <a href="project-detail-completed-v2.html">项目详情（已完成-新版）</a>
+  <a href="project-info.html">项目信息</a>
+  <a href="create-project.html">创建项目</a>
+  <a href="task-list.html">任务列表</a>
+  <a href="task-detail.html">任务详情</a>
+  <a href="contract-list.html">合同列表</a>
+  <a href="contract-detail.html">合同详情</a>
+</div>
+<script src="js/page-nav.js"></script>
 </body>
 </html>

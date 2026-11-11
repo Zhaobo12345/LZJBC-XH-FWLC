@@ -1,0 +1,1554 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-page-node-id="lkHc1xYSZWRJBpmVExd6AD">
+<head data-page-node-id="kPU5vLPDCnoWV8xOJ5vkd0">
+    <meta charset="UTF-8" data-page-node-id="7zEz5CdWx3QaxdaSNAHaC0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" data-page-node-id="mErGuxXYGEBXVTK8h7a0OS">
+    <title>家装平台PC端 - 合同文本模板管理</title>
+    <link rel="stylesheet" href="pc-common.css" data-page-node-id="ysc5j5CngU9MtjZErPI4Si">
+    <style>
+        .template-container {
+            display: flex;
+            gap: 24px;
+            height: calc(100vh - 130px);
+        }
+
+        .template-sidebar {
+            width: 240px;
+            background-color: var(--bg-primary);
+            border-radius: 8px;
+            padding: 16px;
+            flex-shrink: 0;
+            box-shadow: 0 1px 2px var(--shadow-color);
+        }
+
+        .template-sidebar-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 12px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid var(--border-light);
+        }
+
+        .category-tree {
+            padding: 0;
+        }
+
+        .category-tree-item {
+            padding: 10px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            margin-bottom: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+
+        .category-tree-item:hover {
+            background-color: var(--bg-secondary);
+        }
+
+        .category-tree-item.active {
+            background-color: var(--status-primary-bg);
+            color: var(--primary-color);
+        }
+
+        .category-tree-item .count {
+            font-size: 12px;
+            color: var(--text-tertiary);
+            background-color: var(--bg-secondary);
+            padding: 2px 6px;
+            border-radius: 10px;
+        }
+
+        .category-tree-item.active .count {
+            background-color: var(--primary-color);
+            color: #fff;
+        }
+
+        .template-main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .template-toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .template-search {
+            display: flex;
+            gap: 12px;
+        }
+
+        .template-search input {
+            width: 280px;
+            height: 36px;
+            padding: 0 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            font-size: 14px;
+        }
+
+        .template-search input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+
+        .template-list {
+            flex: 1;
+            background-color: var(--bg-primary);
+            border-radius: 8px;
+            overflow-y: auto;
+            box-shadow: 0 1px 2px var(--shadow-color);
+        }
+
+        .template-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .template-table th {
+            position: sticky;
+            top: 0;
+            background-color: var(--bg-secondary);
+            z-index: 1;
+        }
+
+        .template-table th,
+        .template-table td {
+            padding: 14px 16px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-light);
+        }
+
+        .template-table th {
+            font-weight: 600;
+            color: var(--text-secondary);
+            font-size: 13px;
+        }
+
+        .template-table td {
+            font-size: 14px;
+            color: var(--text-primary);
+        }
+
+        .template-table tbody tr:hover {
+            background-color: var(--bg-secondary);
+        }
+
+        .template-name {
+            font-weight: 500;
+            color: var(--text-primary);
+            cursor: pointer;
+        }
+
+        .template-name:hover {
+            color: var(--primary-color);
+        }
+
+        .template-category-tag {
+            display: inline-block;
+            padding: 2px 8px;
+            background-color: var(--bg-secondary);
+            border-radius: 4px;
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .template-version {
+            font-size: 12px;
+            color: var(--primary-color);
+            background-color: var(--status-primary-bg);
+            padding: 2px 8px;
+            border-radius: 4px;
+        }
+
+        .template-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 12px;
+            padding: 4px 10px;
+            border-radius: 12px;
+        }
+
+        .template-status.active {
+            color: #52C41A;
+            background-color: #F6FFED;
+        }
+
+        .template-status.inactive {
+            color: #8C8C8C;
+            background-color: #F5F5F5;
+        }
+
+        .template-status.draft {
+            color: #FA8C16;
+            background-color: #FFF7E6;
+        }
+
+        .pc-btn-toggle.publish {
+            color: #FA8C16;
+            border-color: #FFD591;
+            background-color: #FFF7E6;
+        }
+
+        .pc-btn-toggle.publish:hover {
+            color: #FFFFFF;
+            background-color: #FA8C16;
+            border-color: #FA8C16;
+        }
+
+        .template-status .dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background-color: currentColor;
+        }
+
+        .template-table tr.disabled {
+            opacity: 0.6;
+        }
+
+        .template-table tr.disabled .template-name {
+            color: var(--text-tertiary);
+        }
+
+        .pc-btn-toggle {
+            padding: 4px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            cursor: pointer;
+            border: none;
+            transition: all 0.2s;
+        }
+
+        .pc-btn-toggle.disable {
+            background-color: #FFF1F0;
+            color: #FF4D4F;
+            border: 1px solid #FFA39E;
+        }
+
+        .pc-btn-toggle.disable:hover {
+            background-color: #FF4D4F;
+            color: #FFFFFF;
+        }
+
+        .pc-btn-toggle.enable {
+            background-color: #F6FFED;
+            color: #52C41A;
+            border: 1px solid #B7EB8F;
+        }
+
+        .pc-btn-toggle.enable:hover {
+            background-color: #52C41A;
+            color: #FFFFFF;
+        }
+
+        .template-edit-modal .modal-body-content {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .template-edit-form {
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        .template-edit-form .form-section {
+            margin-bottom: 24px;
+        }
+
+        .template-edit-form .form-section-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 12px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid var(--border-light);
+        }
+
+        .preview-panel {
+            position: fixed;
+            top: 0;
+            right: -600px;
+            width: 600px;
+            height: 100vh;
+            background-color: var(--bg-primary);
+            box-shadow: -4px 0 12px var(--shadow-lg);
+            z-index: 1001;
+            transition: right 0.3s;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .preview-panel.show {
+            right: 0;
+        }
+
+        .preview-header {
+            padding: 16px 24px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .preview-title {
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .preview-close {
+            cursor: pointer;
+            font-size: 20px;
+            color: var(--text-tertiary);
+        }
+
+        .preview-body {
+            flex: 1;
+            padding: 24px;
+            overflow-y: auto;
+        }
+
+        .editor-toolbar {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            padding: 8px 12px;
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-bottom: none;
+            border-radius: 6px 6px 0 0;
+            flex-wrap: wrap;
+        }
+
+        .toolbar-btn {
+            padding: 6px 10px;
+            background-color: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.2s;
+            min-width: 32px;
+            text-align: center;
+        }
+
+        .toolbar-btn:hover {
+            background-color: var(--primary-color);
+            color: #fff;
+            border-color: var(--primary-color);
+        }
+
+        .toolbar-btn.active {
+            background-color: var(--primary-color);
+            color: #fff;
+            border-color: var(--primary-color);
+        }
+
+        .toolbar-divider {
+            width: 1px;
+            height: 20px;
+            background-color: var(--border-color);
+            margin: 0 8px;
+        }
+
+        .editor-content {
+            min-height: 400px;
+            padding: 16px;
+            border: 1px solid var(--border-color);
+            border-radius: 0 0 6px 6px;
+            font-size: 14px;
+            line-height: 1.8;
+            outline: none;
+            background-color: var(--bg-primary);
+        }
+
+        .editor-content:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.1);
+        }
+
+        .editor-content p {
+            margin: 0 0 12px 0;
+        }
+
+        .editor-content h4 {
+            margin: 16px 0 8px 0;
+            font-size: 15px;
+        }
+
+        .editor-content br {
+            display: block;
+            content: "";
+            margin-top: 8px;
+        }
+
+        /* 工人合同文本模板：拆分字段（违约责任 / 固定详细条款） */
+        .worker-field {
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 14px 16px 16px;
+            margin-bottom: 16px;
+            background-color: var(--bg-primary);
+        }
+        .worker-field-label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 10px;
+        }
+        .worker-field-label .pc-form-label {
+            margin-bottom: 0;
+            font-size: 14px;
+        }
+        .field-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 2px 10px;
+            border-radius: 10px;
+            font-size: 12px;
+            line-height: 18px;
+            white-space: nowrap;
+        }
+        .field-badge.editable {
+            background-color: #E6FFFB;
+            color: #13C2C2;
+            border: 1px solid #87E8DE;
+        }
+        .field-badge.fixed {
+            background-color: #FFF1F0;
+            color: #F5222D;
+            border: 1px solid #FFA39E;
+        }
+        .field-hint {
+            font-size: 12px;
+            color: var(--text-tertiary);
+            margin-top: 8px;
+            line-height: 1.6;
+        }
+        .worker-field textarea.pc-form-input {
+            width: 100%;
+            min-height: 120px;
+            resize: vertical;
+            line-height: 1.8;
+            font-family: inherit;
+        }
+        .worker-field .editor-content.worker-editor {
+            min-height: 160px;
+            border-radius: 0 0 6px 6px;
+        }
+
+        /* 模板预览：工人合同双分节 */
+        .pv-section {
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            margin-bottom: 14px;
+            overflow: hidden;
+        }
+        .pv-section-title {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 14px;
+            background-color: var(--bg-secondary);
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+        .pv-section-content {
+            padding: 12px 14px;
+            font-size: 13px;
+            line-height: 1.9;
+            color: var(--text-primary);
+            white-space: pre-wrap;
+        }
+
+        .version-history {
+            margin-top: 16px;
+        }
+
+        .version-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 12px 0;
+            border-bottom: 1px solid var(--border-light);
+        }
+
+        .version-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: var(--primary-color);
+            margin-top: 6px;
+        }
+
+        .version-info {
+            flex: 1;
+        }
+
+        .version-name {
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        .version-meta {
+            font-size: 12px;
+            color: var(--text-tertiary);
+            margin-top: 4px;
+        }
+
+        .version-actions {
+            display: flex;
+            gap: 8px;
+        }
+    </style>
+</head>
+<body data-page-node-id="o5vlrNpTmowIkosmYg82Aw">
+    <div class="pc-container" data-page-node-id="drI9xV1QZwa5GL9dxqgqsV">
+        <div class="pc-sidebar" data-page-node-id="1pviBFXAv5B6BGbDFRZNLr">
+            <div class="pc-sidebar-header" data-page-node-id="oKgKMZyS9Ncx2RRcRh1zSu">
+                <div class="pc-sidebar-logo" data-page-node-id="qrCMTP8IwXQxyGYqFoqekP">
+                    <span class="icon" data-page-node-id="RTs6HBQY5DdRcHpgyVBAHz">🏗️</span>
+                    <span data-page-node-id="E4yJNFHxu3Hj7IijtZi7w5">良造家平台</span>
+                </div>
+            </div>
+            <div class="pc-sidebar-menu" id="sidebarMenu" data-page-node-id="6DZLbyL3f86ewhVUdC8Ywx">
+                <a href="pc-contract-list.html" class="pc-menu-item main-nav" data-page-node-id="Xws40VyoifXUG3H5fE7G98">
+                    <span class="icon" data-page-node-id="7JbhRP3orfGtowQnyO7xVh">📋</span>
+                    <span class="label" data-page-node-id="TGiWFKFHU4ZHi8PJYve9jd">合同审核管理</span>
+                </a>
+                <div class="pc-menu-group" data-page-node-id="4YM7CWppT7vHukftdiE3fj">
+                    <div class="pc-menu-group-title" data-page-node-id="Edaw6XYDfRj5UMTsLA0RnK">模板管理</div>
+                    <a href="pc-contract-template.html" class="pc-menu-item active" data-page-node-id="6XBli2qOiSl2pgvHBsctTy">
+                        <span class="icon" data-page-node-id="7RKY4mABVH7HKbwBMqzpFS">📄</span>
+                        <span class="label" data-page-node-id="NwAaXC3oFujE4zgj9ATAkJ">合同文本模板</span>
+                    </a>
+                    <a href="pc-stage-template.html" class="pc-menu-item" data-page-node-id="5fll7TzRlGC1RCl3ptqxyf">
+                        <span class="icon" data-page-node-id="mdFqVp7sadBSRFLpVFCOnd">📝</span>
+                        <span class="label" data-page-node-id="a2SrlkZGDarJgqcqha4lPg">阶段任务模板</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="pc-main" id="pcMain" data-page-node-id="nmtynxLsr6dFz6KLvcGYjG">
+            <div class="pc-header" data-page-node-id="g1RWVknysoeWZcNGpq1VXm">
+                <div class="pc-header-left" data-page-node-id="OSpsM0gV7NcYdCnmZXKzG4">
+                    <div class="pc-breadcrumb" data-page-node-id="dmvOY5Db30nEads4cKmKV8">
+                        <span class="item" data-page-node-id="zxsFNdwyqIVkEOKQKSKXxd">模板管理</span>
+                        <span class="separator" data-page-node-id="ccNgomVS4UI0xFrCgNr7nS">/</span>
+                        <span class="item current" data-page-node-id="ejyf0CeCOnPVlpKpOBGQcM">合同文本模板</span>
+                    </div>
+                </div>
+                <div class="pc-header-right" data-page-node-id="JP9t76TjJhnTJL0nHy0REY">
+                    <div class="pc-user-dropdown" data-page-node-id="8vLc1eH8xUuYvOwRyRDds1">
+                        <div class="pc-user-info" onclick="toggleUserDropdown()" data-page-node-id="vHgbVi1gRahnxHwL8Y1mC7">
+                            <div class="pc-user-avatar" id="userAvatar" data-page-node-id="Iuq8Ei4z46XaMxbop4CBzj">运</div>
+                            <span class="pc-user-name" id="userName" data-page-node-id="XIn0xyz2REsqODpl3voF9U">运营人员</span>
+                            <span style="font-size: 12px; color: var(--text-tertiary);" data-page-node-id="4OCxNvb7MDoWZWoPkE272A">▼</span>
+                        </div>
+                        <div class="pc-user-dropdown-menu" id="userDropdownMenu" data-page-node-id="fai1t4p03jOfphJC4K4gwA">
+                            <div class="pc-dropdown-item danger" onclick="logout()" data-page-node-id="6XILMlx3aEZPMYqJfmgYQ7">
+                                <span class="pc-dropdown-icon" data-page-node-id="fV7bcI3ZLbZs0IVxrVSlFB">🚪</span>
+                                <span data-page-node-id="V7C4apPgAhKvfBNwjVTVkq">退出登录</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pc-content" data-page-node-id="N3OxrStWb6aHTC3JHGkXz8">
+                <div class="pc-content-header" data-page-node-id="v8ydw3G7DUYKnGlKlRsp2k">
+                    <div class="pc-page-title" data-page-node-id="CJ3abxu3lLTiHrwy8FKtcp">合同文本模板</div>
+                    <div class="pc-content-actions" data-page-node-id="gOhctNjcuQ4KTmvh5gCgIy">
+                        <button class="pc-btn pc-btn-primary" onclick="showCreateModal()" data-page-node-id="kt8ECkdjXy0xMpvecppnmJ">
+                            + 新建模板
+                        </button>
+                    </div>
+                </div>
+
+                <div class="template-container" data-page-node-id="ykIVOfDvYog92W5csQ129n">
+                    <div class="template-sidebar" data-page-node-id="H62MEw16icyLeUiMPZzCn3">
+                        <div class="template-sidebar-title" data-page-node-id="opGfNSDs6OYav2SZK5o3FQ">模板类型</div>
+                        <div class="category-tree" data-page-node-id="ntujEyHydqtUyTpaSx1dBx">
+                            <div class="category-tree-item active" data-page-node-id="3pBSY7YPspwYSAFsXLjZN2">
+                                <span data-page-node-id="shcdPbRl1GLnIso6vRAy4H">全部模板</span>
+                                <span class="count" data-page-node-id="8NA6NfKFVDENHMe6v0ysy9">24</span>
+                            </div>
+                            <div class="category-tree-item" data-page-node-id="JwOCU0HoeZYnfZ0uNsFi56">
+                                <span data-page-node-id="yGlxDYP6qA6lfCs1ao7eO5">基础施工服务合同</span>
+                                <span class="count" data-page-node-id="477AZml73awqhYY3DaIMMX">4</span>
+                            </div>
+                            <div class="category-tree-item" data-page-node-id="mAEfqVrsjLs55QoxMCpCHG">
+                                <span data-page-node-id="RZdE9KrXE5tUvXF1lLwKIm">设计服务合同</span>
+                                <span class="count" data-page-node-id="D8lpyMPpjQ2OunHkSGeAFg">3</span>
+                            </div>
+                            <div class="category-tree-item" data-page-node-id="TmnxPVimZvIBB4G0zVEOfi">
+                                <span data-page-node-id="JCP88SHyeCfboaXECvmaLk">拆除班组服务合同</span>
+                                <span class="count" data-page-node-id="bcy4fpYS8T1awA3dOpQGTJ">3</span>
+                            </div>
+                            <div class="category-tree-item" data-page-node-id="y9mn7oA639HGxwGiCxlpeB">
+                                <span data-page-node-id="J5HAFqEaBiTXdHP0AAejbN">水电班组服务合同</span>
+                                <span class="count" data-page-node-id="bZdiFImfaE9PdIzf3EcYSA">5</span>
+                            </div>
+                            <div class="category-tree-item" data-page-node-id="dWqyHboOkroVoal54yfPKF">
+                                <span data-page-node-id="pArM2aCJR8OT2qTHyXzx44">木作班组服务合同</span>
+                                <span class="count" data-page-node-id="tsbNmCWwd0pCFbxzPKN0v8">2</span>
+                            </div>
+                            <div class="category-tree-item" data-page-node-id="0evOiELwfY5cbvEgYT2K6p">
+                                <span data-page-node-id="PBkLC6ALwZ6miDOdZhD5pO">泥瓦工班组服务合同</span>
+                                <span class="count" data-page-node-id="3whc64qFLGA1ubDOa8cWgp">3</span>
+                            </div>
+                            <div class="category-tree-item" data-page-node-id="DZU363XoqO8e0kcthCi8cN">
+                                <span data-page-node-id="XTl1WNwPnvhLT14sKRwp3H">油漆工班组服务合同</span>
+                                <span class="count" data-page-node-id="IXkPv0qFzeOm28AcLCh8pf">2</span>
+                            </div>
+                            <div class="category-tree-item" data-page-node-id="KpdfO5OBmaPkKHDgyPuD2M">
+                                <span data-page-node-id="lljvstfi5MnsqLOZhuCQ1B">小零工服务合同</span>
+                                <span class="count" data-page-node-id="iNT9Yd3hKR8SWviWspJttU">2</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="template-main" data-page-node-id="mYnxo4D8lonbdlJN16MDAx">
+                        <div class="template-toolbar" data-page-node-id="gkx7mpvK4UGuuTEELLDzFJ">
+                            <div class="template-search" data-page-node-id="4lj9fFs7m94I9IJoBix8xz">
+                                <input type="text" id="searchName" placeholder="搜索模板名称..." data-page-node-id="RnAIlRDWmbyabT2QFamZRe">
+                                <select class="pc-form-select" id="filterCity" style="width: 120px;" data-page-node-id="D2SZLOXMSjuQ3ARvuDPzAs">
+<option value="" data-page-node-id="mbhK5y3fcpAJTJGxrNyMWR">全部城市</option>
+<option value="北京市" data-page-node-id="9FGLdV96PaRrWCjY0dgePX">北京市</option>
+<option value="南阳市" data-page-node-id="FtvSGR34CE8T5DPA0ZaEnG">南阳市</option>
+<option value="西安市" data-page-node-id="bJlZbtRxYMw7kBvWRmBg0N">西安市</option>
+</select>
+                                <select class="pc-form-select" id="filterStatus" style="width: 120px;" data-page-node-id="pw2jDFBwn0vNDDTpw81kOL">
+<option value="" data-page-node-id="q452Qne90pnBL1SGGPnLhD">全部状态</option>
+<option value="启用" data-page-node-id="BLNEsj1mjHHlBX7IpD2GXY">启用</option>
+<option value="停用" data-page-node-id="e6ilvHzqCSGSKMrS9aEOna">停用</option>
+</select>
+<button class="pc-btn pc-btn-primary" onclick="applyFilters()" data-page-node-id="GYkZesIAgxiiFajcBW9hCm">搜索</button>
+<button class="pc-btn pc-btn-default" onclick="resetFilters()" data-page-node-id="7YXykQvrdgeCyBcYVVGi1k">重置</button>
+                            </div>
+                        </div>
+
+                        <div class="template-list" data-page-node-id="AGCJ1vMdxP0XOK5iOxyG9W">
+                            <table class="template-table" data-page-node-id="GNLaoI2E6HGDHnDmtmfQQd">
+                                <thead data-page-node-id="EwXhNtzrgsREiPTIUGSv3Z">
+                                    <tr data-page-node-id="z22hjOgk6TGozCmMz3aqtf">
+                                        <th data-page-node-id="wR7DD40jRubKZDYeWQ0xxt">模板名称</th>
+                                        <th data-page-node-id="eYAHzOPHJzpAerhFbZkSBP">城市</th>
+                                        <th data-page-node-id="gyWz8QUfJuJDo9qtu0tXNu">模板类型</th>
+                                        <th data-page-node-id="OEeSD2UjUKaJTDgDc1dL6a">版本</th>
+                                        <th data-page-node-id="64ckUliwGsxVSQEbPqyFIW">状态</th>
+                                        <th data-page-node-id="5khkFPKQJeDjtfhzlqMQrN">更新时间</th>
+                                        <th data-page-node-id="E6BXbTOMRZXQ1NEUNhxV6u">操作</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="templateTableBody" data-page-node-id="ZDhyDPRwzzCDD9yaYWOWEB">
+                                    <tr data-id="1" data-status="active" data-page-node-id="uNyNZ1kuLLhWvaoK9lt4Jz">
+                                        <td data-page-node-id="wQc29FCXsb7bbyTEDXE61b">
+                                            <span class="template-name" onclick="previewTemplate(1)" data-page-node-id="Lvz1cRuig2YLPXR3Cx9imF">水电班组服务合同模板</span>
+                                        </td>
+                                        <td data-page-node-id="s4bQ1Q788id0685mWoqtg1">北京市</td>
+                                        <td data-page-node-id="35gwx082Nt8VKYNhosSHB0"><span class="template-category-tag" data-page-node-id="diy40n4TIe9ZpBfqMO4XZf">水电班组服务合同</span></td>
+                                        <td data-page-node-id="C0Twun7u7y6A9GpA0wWgMU"><span class="template-version" data-page-node-id="HuKkGphleTCNM8myvK53yw">v2.0</span></td>
+                                        <td data-page-node-id="iZi892TFokX6vXTUagAHS3">
+                                            <span class="template-status active" id="status1" data-page-node-id="efKzJsEcR4eoxBLWbre3ZL">
+                                                <span class="dot" data-page-node-id="3XlXLx4F9GsSVH2GrzRarV"></span>启用
+                                            </span>
+                                        </td>
+                                        <td data-page-node-id="SKjejtthWtiV18TaofbajP">2024-01-10 14:30</td>
+                                        <td data-page-node-id="qya4BNkVoYzcDoNODNlOSn">
+                                            <div class="pc-table-actions" data-page-node-id="lVUniYuaFdwa5EMiJFKz0I">
+                                                <button class="pc-btn pc-btn-text pc-btn-sm" onclick="editTemplate(1)" data-page-node-id="8VEiO9p4Ra5kjo5DTlkTC7">编辑</button>
+                                                <button class="pc-btn pc-btn-text pc-btn-sm" onclick="showVersionHistory(1)" data-page-node-id="TZqqCtRP3G44gcM7Bjl4lS">版本</button>
+                                                <button class="pc-btn-toggle disable" id="toggleBtn1" onclick="toggleStatus(1)" data-page-node-id="LLYouUEqFGOwl9KTSrT9c8">停用</button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr data-id="2" data-status="active" data-page-node-id="SG2RSLnkGCjABMeC7zZRrG">
+                                        <td data-page-node-id="DgHNLhEbGmNCz4aIbW3mEg">
+                                            <span class="template-name" onclick="previewTemplate(2)" data-page-node-id="hZjcI80zPGeg1Gc2u3C1kX">泥瓦工班组服务合同模板</span>
+                                        </td>
+                                        <td data-page-node-id="LDOWDVNcaTcrNiFDJCB4CB">南阳市</td>
+                                        <td data-page-node-id="6Fh9eGorH0XO6uyVMPPRTj"><span class="template-category-tag" data-page-node-id="0WMksOYPSWsC2Ze01XCffD">泥瓦工班组服务合同</span></td>
+                                        <td data-page-node-id="0tn91UbNrCiHDYDnKzNBFw"><span class="template-version" data-page-node-id="rFXfKop8oReAdxQoFuFImA">v1.5</span></td>
+                                        <td data-page-node-id="8mlQgI1FpsuHlM9N58xRYz">
+                                            <span class="template-status active" id="status2" data-page-node-id="3HhrEjGkY0Yg21aBRvsStt">
+                                                <span class="dot" data-page-node-id="mUSbBNpcm0EmQ2dGi7VRGt"></span>启用
+                                            </span>
+                                        </td>
+                                        <td data-page-node-id="oJrK65ZbcS4zUNC3Tf44c4">2024-01-08 10:20</td>
+                                        <td data-page-node-id="XgpDIwdkGPoRPyK03YScw4">
+                                            <div class="pc-table-actions" data-page-node-id="Sn4FGbrYaBjDENYrmMymYY">
+                                                <button class="pc-btn pc-btn-text pc-btn-sm" onclick="editTemplate(2)" data-page-node-id="7wU0ujYyzbISN1AHGasLuI">编辑</button>
+                                                <button class="pc-btn pc-btn-text pc-btn-sm" onclick="showVersionHistory(2)" data-page-node-id="UEZx6hsAn53g8t5p1QyNhJ">版本</button>
+                                                <button class="pc-btn-toggle disable" id="toggleBtn2" onclick="toggleStatus(2)" data-page-node-id="e7r6tD2EEJ3EYvqtfa7B8Y">停用</button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr data-id="3" data-status="active" data-page-node-id="PlfprdBVSRk4oNBpA5Ys2B">
+                                        <td data-page-node-id="mlxUB8NrQzqe2MkrzIbvHY">
+                                            <span class="template-name" onclick="previewTemplate(3)" data-page-node-id="Uzg93qNdzMYNcPR3x4dzZh">木作班组服务合同模板</span>
+                                        </td>
+                                        <td data-page-node-id="UkbZYBCXN83r50FvCZ5lGl">西安市</td>
+                                        <td data-page-node-id="3IZCoCg0EJTjbwjmBbRe44"><span class="template-category-tag" data-page-node-id="FHUUv24fBrAwR74HJbStAj">木作班组服务合同</span></td>
+                                        <td data-page-node-id="RPfRHxGLvxETcSz8kSuguQ"><span class="template-version" data-page-node-id="TsVCCExdly3oyG7TN2sSA0">v1.2</span></td>
+                                        <td data-page-node-id="Wzb9pu2yxzuMF7KKZu85Ts">
+                                            <span class="template-status active" id="status3" data-page-node-id="chGCyMhAvqRhtFT6PMflER">
+                                                <span class="dot" data-page-node-id="6ack2BJVS66bjdmCCOJSkk"></span>启用
+                                            </span>
+                                        </td>
+                                        <td data-page-node-id="f1cFgCDMPHDTwnK52vn1s7">2024-01-05 16:45</td>
+                                        <td data-page-node-id="UkEGOxXBtLYFCXMQ5SqSLF">
+                                            <div class="pc-table-actions" data-page-node-id="wyIahsH5tjDksJ8tgXrjND">
+                                                <button class="pc-btn pc-btn-text pc-btn-sm" onclick="editTemplate(3)" data-page-node-id="ESsYsHOWatmlP4JlY1897Z">编辑</button>
+                                                <button class="pc-btn pc-btn-text pc-btn-sm" onclick="showVersionHistory(3)" data-page-node-id="WNMDd05Kf9XcAksDhoNRaq">版本</button>
+                                                <button class="pc-btn-toggle disable" id="toggleBtn3" onclick="toggleStatus(3)" data-page-node-id="D47yERtNM2379fbGVoJwYy">停用</button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr data-id="4" data-status="active" data-page-node-id="hblGaPEkDuGy1apdEff80b">
+                                        <td data-page-node-id="MRGvOG6ALdxIhMYnBAh4Q8">
+                                            <span class="template-name" onclick="previewTemplate(4)" data-page-node-id="TEjTu8xG37IQsW6ahFGrz9">油漆工班组服务合同模板</span>
+                                        </td>
+                                        <td data-page-node-id="h7HUU7L4u9Ie7NHZSYCbtZ">北京市</td>
+                                        <td data-page-node-id="7IuhEdhE96wyB1GO22RD1j"><span class="template-category-tag" data-page-node-id="gPabwMEzOTEWZMJkxFTl5c">油漆工班组服务合同</span></td>
+                                        <td data-page-node-id="fadp8aiZFbeNYZrjL7PKlq"><span class="template-version" data-page-node-id="xWlm69JDKLbkv2uQagaP0G">v1.0</span></td>
+                                        <td data-page-node-id="7S1NLRm1O9T4XP59bMII3V">
+                                            <span class="template-status active" id="status4" data-page-node-id="jy4cAnxvHvYeF1J1IYKCkD">
+                                                <span class="dot" data-page-node-id="7WUSi4vQ6c2FL4C87kruW1"></span>启用
+                                            </span>
+                                        </td>
+                                        <td data-page-node-id="X6HxfOKyBk4MV75gwjlpKM">2024-01-03 09:15</td>
+                                        <td data-page-node-id="BFIWxeA9JYFAdGULHBUlCu">
+                                            <div class="pc-table-actions" data-page-node-id="cjkFSOGb3LSCwBtRRladtU">
+                                                <button class="pc-btn pc-btn-text pc-btn-sm" onclick="editTemplate(4)" data-page-node-id="RcVvAVxRapbcZ615pGsMYE">编辑</button>
+                                                <button class="pc-btn pc-btn-text pc-btn-sm" onclick="showVersionHistory(4)" data-page-node-id="C1cep33Nge2a6zH3PEvG6X">版本</button>
+                                                <button class="pc-btn-toggle disable" id="toggleBtn4" onclick="toggleStatus(4)" data-page-node-id="9VmnQBY3Do6eV6M8qh8zOF">停用</button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr data-id="5" data-status="active" data-page-node-id="ECdmdYM5bTHk7obs5iJD8p">
+                                        <td data-page-node-id="JasGAPG8zG4SbiJrSLG3lE">
+                                            <span class="template-name" onclick="previewTemplate(5)" data-page-node-id="u2lRKomBUZQ1I8uhycpunf">基础施工服务合同模板（标准版）</span>
+                                        </td>
+                                        <td data-page-node-id="74wWyQUZC86vqSAJ97fImU">南阳市</td>
+                                        <td data-page-node-id="IKZdikFrACNGGONBGsn3mP"><span class="template-category-tag" data-page-node-id="Wyn7yKSmcLM4USCoNL8dO1">基础施工服务合同</span></td>
+                                        <td data-page-node-id="7BbCwhb0elsvgCd1QZWxad"><span class="template-version" data-page-node-id="tXrchnJiHaDKAie5yETpFb">v3.0</span></td>
+                                        <td data-page-node-id="DIIwExFGclrKzlPNImPRI6">
+                                            <span class="template-status active" id="status5" data-page-node-id="ljjAUVEHRAUktWFHJTrmx2">
+                                                <span class="dot" data-page-node-id="LLeXE5sbIMPtxC99lnHx0A"></span>启用
+                                            </span>
+                                        </td>
+                                        <td data-page-node-id="iR841H8igLr6zhaCMaDziH">2024-01-01 08:00</td>
+                                        <td data-page-node-id="PNJp4WdbcshbH0IgWdKDJt">
+                                            <div class="pc-table-actions" data-page-node-id="Sp1x754YN2KendzVSqfRbt">
+                                                <button class="pc-btn pc-btn-text pc-btn-sm" onclick="editTemplate(5)" data-page-node-id="bMskxNsZvjvnwnsF4Yibxz">编辑</button>
+                                                <button class="pc-btn pc-btn-text pc-btn-sm" onclick="showVersionHistory(5)" data-page-node-id="352Djt0HaQHsafT0hxcg04">版本</button>
+                                                <button class="pc-btn-toggle disable" id="toggleBtn5" onclick="toggleStatus(5)" data-page-node-id="D6bs2kcrDCRQkUve7b6CTj">停用</button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr data-id="6" data-status="inactive" data-page-node-id="YjuhNm7lrJ1guI1izQetft">
+                                        <td data-page-node-id="Yja4vyTW42s861D6CJF8yZ">
+                                            <span class="template-name" onclick="previewTemplate(6)" data-page-node-id="iXJcFTvsk8NJsL6hPD2Q9b">旧版水电班组服务合同模板</span>
+                                        </td>
+                                        <td data-page-node-id="ACLoEZXXrDUShAPhz8u9Au">西安市</td>
+                                        <td data-page-node-id="uj5lglel2paXuDFXWHimON"><span class="template-category-tag" data-page-node-id="6vpjZDo7C8xgOMq7x1MtZ0">水电班组服务合同</span></td>
+                                        <td data-page-node-id="8ieQghoC5Hwq8Kx0OtHrTC"><span class="template-version" data-page-node-id="bFvQBsf2IPLcUieg8B8zIl">v1.0</span></td>
+                                        <td data-page-node-id="k58GBavi5Hr4wxKxttgjNa">
+                                            <span class="template-status inactive" data-page-node-id="HzFsQnBCQdYbnH67pUzjkq">
+                                                <span class="dot" data-page-node-id="RjfTmi56eFCsSQRsJz7nnY"></span>停用
+                                            </span>
+                                        </td>
+                                        <td data-page-node-id="QTPvhUnwpzP8GxDQ78wXjS">2023-12-15 11:30</td>
+                                        <td data-page-node-id="wmsyYEmMIdevWPQDTlud2h">
+                                            <div class="pc-table-actions" data-page-node-id="USUV1oEML3Gu7Lu15AmsWw">
+                                                <button class="pc-btn pc-btn-text pc-btn-sm" onclick="editTemplate(6)" data-page-node-id="1uT19hU0HGRIQIXZ53zcG8">编辑</button>
+                                                <button class="pc-btn pc-btn-text pc-btn-sm" onclick="showVersionHistory(6)" data-page-node-id="iThSPVvBfr5nb5dBBC8ye0">版本</button>
+                                                <button class="pc-btn pc-btn-text pc-btn-sm" onclick="toggleStatus(6)" data-page-node-id="q0ow3xDh9qj2MbtA3dZMuq">启用</button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div class="pc-pagination" data-page-node-id="CvFdK9wTHA0L1MWgCosE1X">
+                            <span id="resultCount" style="color: var(--text-tertiary); font-size: 13px;" data-page-node-id="jW0CBU34q2Mrn2ymm6jflW">共 24 条</span>
+                            <div class="pc-pagination-item disabled" data-page-node-id="JK8XwyxTKweJFXFG0Gj3bP">‹</div>
+                            <div class="pc-pagination-item active" data-page-node-id="kCFPP6rPoQPyMfUCN5v1km">1</div>
+                            <div class="pc-pagination-item" data-page-node-id="cY6YBvDzV17iE9UpjNSoqt">2</div>
+                            <div class="pc-pagination-item" data-page-node-id="nTBHAH4YpTSnCnT5tRJjj6">3</div>
+                            <div class="pc-pagination-item" data-page-node-id="h2TYJnXTQ0QKxpiafm3Y40">›</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="pc-page-nav-wrapper" id="pageNavWrapper" data-page-node-id="k8REH92WCVhkB8MxeHUNDD">
+        <div class="pc-page-nav-toggle" onclick="togglePageNav()" data-page-node-id="fJ4yCMdweHtgcI2g37cWbx">◀</div>
+        <div class="pc-page-nav" id="pageNav" data-page-node-id="BA4fVt7jpMFtiBzHoBpnFF">
+            <div class="pc-page-nav-title" data-page-node-id="sDMRRA7vzfJ5QECgq97obx">
+                PC端原型导航
+                <span class="badge" data-page-node-id="g0IDTiREQF4bgqJxZu8juq">PC</span>
+            </div>
+            
+            <div class="pc-page-nav-group" data-page-node-id="RBwIqgbgvmm4I1t735kp5J">
+                <div class="pc-page-nav-group-title" data-page-node-id="lZLLNzHkGOTwm4h0227UZI">模板管理</div>
+                <a href="pc-contract-template.html" class="pc-page-nav-item active" data-page-node-id="yf4fhhp9ikxnQMRjIeo7kP">合同文本模板</a>
+                <a href="pc-stage-template.html" class="pc-page-nav-item" data-page-node-id="gNCS17zz2FWdRp3HHuQQGn">阶段任务模板</a>
+            </div>
+            <div class="pc-page-nav-group" data-page-node-id="pZPGlxw2hn7NMoDDZzHQEY">
+                <div class="pc-page-nav-group-title" data-page-node-id="JlrrtkUP8jT3F1fNQ9AQom">合同管理</div>
+                <a href="pc-contract-list.html" class="pc-page-nav-item" data-page-node-id="s443Q5avAubSijnZNcr1Oy">合同审核管理</a>
+                <a href="pc-contract-detail.html" class="pc-page-nav-item" data-page-node-id="BVD30180r51TOyEluixFtm">合同详情</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="pc-modal-overlay" id="createModal" data-page-node-id="HkDEexoWMYqMuKKfVavLR2">
+        <div class="pc-modal pc-modal-xl" data-page-node-id="17TaqjeBKMFX50GjP48S6p">
+            <div class="pc-modal-header" data-page-node-id="C3V3oUtCpXFAM03VBg92DU">
+                <div class="pc-modal-title" id="modalTitle" data-page-node-id="LcaktFRdVIlCCxXZXKEgPZ">新建合同文本模板</div>
+                <div class="pc-modal-close" onclick="closeCreateModal()" data-page-node-id="lUykwfV8NWGyB5WFsGtYNg">×</div>
+            </div>
+            <div class="pc-modal-body" data-page-node-id="GfPbDxg1QCrDfh5FKbhDtx">
+                <div class="template-edit-form" data-page-node-id="GsgUeCy5lfyGqt11EUDB7C">
+                    <div class="form-section" data-page-node-id="uCE2SGaraBu8by65yA4yFY">
+                        <div class="form-section-title" data-page-node-id="Pmwac1szfuKfvYx2HfpJYV">基本信息</div>
+                        <div class="form-grid" data-page-node-id="1gDVvNG5HDeyw7zOEwAfoq">
+                            <div class="pc-form-group" data-page-node-id="lY388Y2qqsURw9i0ywMUct">
+                                <label class="pc-form-label" data-page-node-id="xtnKZxbKKBqiA7dygsJ8Bm">模板名称<span class="required" data-page-node-id="fl76VNTAmp6gqfirjidtb9">*</span></label>
+                                <input type="text" class="pc-form-input" id="templateName" placeholder="请输入模板名称" data-page-node-id="MDSAGoaYfoFZDlKbry8YDM">
+                            </div>
+                            <div class="pc-form-group" data-page-node-id="z1VHgbJHU2isItl7jPH7E4">
+                                <label class="pc-form-label" data-page-node-id="jQx36r7MbZg293FOF3W1qe">模板类型<span class="required" data-page-node-id="jZXe678ncT90YlwDB0DKbG">*</span></label>
+                                <select class="pc-form-select" id="templateCategory" data-page-node-id="PlNeLnDGT5xhvl0bY6GkyK">
+                                    <option value="" data-page-node-id="4qU43G68P6lrDOCvfhz2Pz">请选择模板类型</option>
+                                    <option value="基础施工服务合同" data-page-node-id="air1dTt2K5ijv7TAw17HEO">基础施工服务合同</option>
+                                    <option value="设计服务合同" data-page-node-id="CljPedYMV2BfH5IAQDBp7E">设计服务合同</option>
+                                    <option value="拆除班组服务合同" data-page-node-id="DUpE7BCMfFiSKLtJ4f3eUy">拆除班组服务合同</option>
+                                    <option value="水电班组服务合同" data-page-node-id="qjZOWoHebBu88GX6TWG7lP">水电班组服务合同</option>
+                                    <option value="木作班组服务合同" data-page-node-id="mfuSFUkFEHMGH1DpgbrbB6">木作班组服务合同</option>
+                                    <option value="泥瓦工班组服务合同" data-page-node-id="NXBEKZiZUbVJp7vRZCn8fb">泥瓦工班组服务合同</option>
+                                    <option value="油漆工班组服务合同" data-page-node-id="T41O818NT3EtSUZEGemP7Q">油漆工班组服务合同</option>
+                                    <option value="小零工服务合同" data-page-node-id="dA1A3JAdofo2y5EPEhdSMy">小零工服务合同</option>
+                                </select>
+                            </div>
+                            <div class="pc-form-group" data-page-node-id="AvRnD2lLHAhNvjWeohJcdD">
+                                <label class="pc-form-label" data-page-node-id="OVDxbppCbBtamFmqHWZWQp">适用城市<span class="required" data-page-node-id="baw0nDAQ3ljYYiFm8hlGpI">*</span></label>
+                                <select class="pc-form-select" id="templateCity" data-page-node-id="RFjCCLZdcD5bWlKqv0IW7q">
+                                    <option value="北京市" data-page-node-id="gWRkkAoGMdjAajMuv3MYBT">北京市</option>
+                                    <option value="南阳市" data-page-node-id="p88wb6hrgofD88GY44cuIq">南阳市</option>
+                                    <option value="西安市" data-page-node-id="Uv46THmuVgltKt2ViaQBhJ">西安市</option>
+                                </select>
+                            </div>
+                            <div class="pc-form-group" data-page-node-id="1tJkegoWScACFzJ71RKb7J">
+                                <label class="pc-form-label" data-page-node-id="Ds4xDF4OufRDxkePhnyPgE">模板描述</label>
+                                <input type="text" class="pc-form-input" id="templateDesc" placeholder="请输入模板描述" data-page-node-id="ls3RdjtbN6iyBxKWUgkben">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 基础施工 / 设计服务合同：单一合同正文富文本（原结构不变） -->
+                    <div class="form-section" id="genericTextSection" data-page-node-id="4CzNZei2MmknO1BYuev3hf">
+                        <div class="form-section-title" data-page-node-id="Z8oQZ81z5xVzqsg6Kirl0l">合同正文</div>
+                        <div class="editor-toolbar" data-page-node-id="ZRY9cMHPMxL1SCigxqEg5M">
+                            <button class="toolbar-btn" title="加粗" onclick="execFormat('bold')" data-page-node-id="jUnb9I7OHy1uDzIq3P8EQr"><b data-page-node-id="utl6rMMi1xR386knk58pOg">B</b></button>
+                            <button class="toolbar-btn" title="斜体" onclick="execFormat('italic')" data-page-node-id="1AgBxo73Sfu07C2oESB0Qc"><i data-page-node-id="AUBBXXfGDlA5hDcWSBbqQN">I</i></button>
+                            <button class="toolbar-btn" title="下划线" onclick="execFormat('underline')" data-page-node-id="CZ4Tw6mqoViyXa55O4HowO"><u data-page-node-id="KgxHFkdWADAhGAiG5gwVFY">U</u></button>
+                            <span class="toolbar-divider" data-page-node-id="vqymrecfAqt96QE99LRWyE"></span>
+                            <button class="toolbar-btn" title="左对齐" onclick="execFormat('justifyLeft')" data-page-node-id="a5W4UMSWif1ctg70yO0phE">≡</button>
+                            <button class="toolbar-btn" title="居中" onclick="execFormat('justifyCenter')" data-page-node-id="WwG1orJMe9nwor2BiGVkMU">☰</button>
+                            <button class="toolbar-btn" title="右对齐" onclick="execFormat('justifyRight')" data-page-node-id="Sf5Q1sSewEfeR6vtaltBLz">≡</button>
+                            <span class="toolbar-divider" data-page-node-id="k5sN7ihXgHhDkFfyeuJFDe"></span>
+                            <button class="toolbar-btn" title="有序列表" onclick="execFormat('insertOrderedList')" data-page-node-id="ySL1nnB1KIqitBoyzPeGdg">1.</button>
+                            <button class="toolbar-btn" title="无序列表" onclick="execFormat('insertUnorderedList')" data-page-node-id="uoyZGBvBeqWqQqcQDrjWmC">•</button>
+                            <span class="toolbar-divider" data-page-node-id="Bg5Ytf8eLOIKWOvMUw45M7"></span>
+                            <button class="toolbar-btn" title="插入表格" onclick="insertTable()" data-page-node-id="xHeQZ3njkzKZA9dCaCoOW4">▦ 表格</button>
+                            <button class="toolbar-btn" title="插入图片" onclick="insertImage()" data-page-node-id="5bPCVSU9YudrhZvzI7ZXs7">🖼 图片</button>
+                            <button class="toolbar-btn" title="插入链接" onclick="insertLink()" data-page-node-id="fls0PkTnikHFINNK1h8hcK">🔗 链接</button>
+                        </div>
+                        <div class="editor-content" id="templateContent" contenteditable="true" data-page-node-id="m4wmv9CPJmwf9Ggbs0u59O">
+                            <p data-page-node-id="wljA3FBdlaFa0ucWkYuQny">在此输入合同正文内容...</p>
+                        </div>
+                    </div>
+
+                    <!-- 工人合同（六类班组服务合同）：合同文本拆分为 违约责任 / 固定详细条款 两字段，与服务方小程序同步 -->
+                    <div class="form-section" id="workerTextSection" style="display:none;" data-page-node-id="qTXCi4vfHjhb0jX7tbJcCn">
+                        <div class="form-section-title" data-page-node-id="f15jcYKA9avWcRcwftXuEI">合同文本（工人合同）</div>
+                        <div class="worker-field" data-page-node-id="YRrIMiLu5hzeF33cL5q08X">
+                            <div class="worker-field-label" data-page-node-id="4N1rO8YOuWF6d35sMTPzXD">
+                                <label class="pc-form-label" data-page-node-id="NfRWc1MIecEDMZeDV3DLJV">违约责任<span class="required" data-page-node-id="aKHZtrLTTi8KYGR5eM47ND">*</span></label>
+                                <span class="field-badge editable" data-page-node-id="qOeVNoKm9kqYuBh5qU0jmR">引用后可编辑</span>
+                            </div>
+                            <textarea class="pc-form-input" id="workerBreach" placeholder="请输入违约责任条款内容"></textarea>
+                            <div class="field-hint" data-page-node-id="SCmrbOhjYAL2MBAKYDGBHS">工人合同引用模板后，发起方可在「拟定中」直接编辑违约责任条款。</div>
+                        </div>
+                        <div class="worker-field" data-page-node-id="TJZCAtiCd1nruZlEQVGQPq">
+                            <div class="worker-field-label" data-page-node-id="Dpn0EVcRfNvaZhzgHCvtOj">
+                                <label class="pc-form-label" data-page-node-id="Vo5ztKHDtv83IcDI3jXAQu">固定详细条款<span class="required" data-page-node-id="snr7Ddhgutd3Agrzh8pMxq">*</span></label>
+                                <span class="field-badge fixed" data-page-node-id="A0EwntvwXP1OfIkReg3Yyc">引用后不可编辑</span>
+                            </div>
+                            <div class="editor-toolbar">
+                                <button class="toolbar-btn" title="加粗" onclick="execFormat('bold')"><b>B</b></button>
+                                <button class="toolbar-btn" title="斜体" onclick="execFormat('italic')"><i>I</i></button>
+                                <button class="toolbar-btn" title="下划线" onclick="execFormat('underline')"><u>U</u></button>
+                                <span class="toolbar-divider"></span>
+                                <button class="toolbar-btn" title="左对齐" onclick="execFormat('justifyLeft')">≡</button>
+                                <button class="toolbar-btn" title="居中" onclick="execFormat('justifyCenter')">☰</button>
+                                <button class="toolbar-btn" title="右对齐" onclick="execFormat('justifyRight')">≡</button>
+                                <span class="toolbar-divider"></span>
+                                <button class="toolbar-btn" title="有序列表" onclick="execFormat('insertOrderedList')">1.</button>
+                                <button class="toolbar-btn" title="无序列表" onclick="execFormat('insertUnorderedList')">•</button>
+                                <span class="toolbar-divider"></span>
+                                <button class="toolbar-btn" title="插入表格" onclick="insertTable()">▦ 表格</button>
+                                <button class="toolbar-btn" title="插入图片" onclick="insertImage()">🖼 图片</button>
+                                <button class="toolbar-btn" title="插入链接" onclick="insertLink()">🔗 链接</button>
+                            </div>
+                            <div class="editor-content worker-editor" id="workerFixed" contenteditable="true">
+                                <p>请输入固定详细条款内容（标准条款）</p>
+                            </div>
+                            <div class="field-hint" data-page-node-id="DwFqJnvR2UDtBOZ4YXPsOr">工人合同引用模板后，固定详细条款只读展示、不可修改；仅可通过「更换模板」整体替换。甲乙方 / 合同金额 / 工期等基础信息由合同主信息填写，不在固定条款内。</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="pc-modal-footer" data-page-node-id="7mrg6nVPIvD8EfRF5zBCZA">
+                <button class="pc-btn pc-btn-default" onclick="closeCreateModal()" data-page-node-id="09mmEc93RcOiUEEIvTMFCE">取消</button>
+                <button class="pc-btn pc-btn-default" onclick="saveDraft()" data-page-node-id="5KU5fzEKVUZezMfjN75PTR">保存草稿</button>
+                <button class="pc-btn pc-btn-primary" onclick="saveTemplate()" data-page-node-id="dzHax4j2gsdbMpTIw2QKW7">保存并发布</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="preview-panel" id="previewPanel" data-page-node-id="2ol651HHXWJChTH8o03wYa">
+        <div class="preview-header" data-page-node-id="cQkGQFv2lXQSFXIofGLDsJ">
+            <div class="preview-title" id="previewTitle" data-page-node-id="60TS8Fr4wFqkricuvLoLOh">模板预览</div>
+            <div class="preview-close" onclick="closePreview()" data-page-node-id="RqAqQFApgteMYg5YQdfcbH">×</div>
+        </div>
+        <div class="preview-body" data-page-node-id="7kbhuRrqMv8Eg9aPEwyxfy">
+            <div id="previewContent" data-page-node-id="BeX1diSUIFUtwW6A2AW1gP"></div>
+
+            <div class="version-history" data-page-node-id="vSa0XJuQH2CKvjm0AsIgXz">
+                <h4 style="margin-bottom: 16px;" data-page-node-id="bD1WRLXVZZiYZydefZVc6G">版本历史</h4>
+                <div class="version-item" data-page-node-id="9kYUJOKafDx4qfBOa5oOXG">
+                    <div class="version-dot" data-page-node-id="HOxE5oD8TZ07q8vo83JhJ3"></div>
+                    <div class="version-info" data-page-node-id="RsKEMr7UfYVLyHs1bYoqAD">
+                        <div class="version-name" data-page-node-id="LENOFbAhxCt7Ir27OFycTX">v2.0 (当前版本)</div>
+                        <div class="version-meta" data-page-node-id="kzIwTzyq1iPeLOQFAN5oEt">2024-01-10 14:30 · 张三</div>
+                    </div>
+                    <div class="version-actions" data-page-node-id="7yuhLwZwKIXNpH0uz9aD0K">
+                        <button class="pc-btn pc-btn-text pc-btn-sm" data-page-node-id="ErkYXwjLMtkd6UC4zPx8Dz">查看</button>
+                    </div>
+                </div>
+                <div class="version-item" data-page-node-id="LtAznMjm3FiHDK5T3Rnx2R">
+                    <div class="version-dot" style="background-color: var(--text-tertiary);" data-page-node-id="gpvA8zpHDUv8P0fAsOMAzc"></div>
+                    <div class="version-info" data-page-node-id="SbBwYdaZFQwPY6BlE3dbzt">
+                        <div class="version-name" data-page-node-id="LT4t6sjY07WxKY9zB5cPIy">v1.0</div>
+                        <div class="version-meta" data-page-node-id="GIzutMueT2UykcXCCU8sxM">2023-12-15 11:30 · 张三</div>
+                    </div>
+                    <div class="version-actions" data-page-node-id="Kmzvf1lvAKn7K771HjuN3L">
+                        <button class="pc-btn pc-btn-text pc-btn-sm" data-page-node-id="MWAx3oKYBsWM55OcnK7SGJ">查看</button>
+                        <button class="pc-btn pc-btn-text pc-btn-sm" data-page-node-id="kFaxqtRX1dFvBn9H6myZSz">恢复</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function toggleUserDropdown() {
+            const menu = document.getElementById('userDropdownMenu');
+            menu.classList.toggle('show');
+        }
+
+        function logout() {
+            if (confirm('确定要退出登录吗？')) {
+                window.location.href = 'pc-contract-list.html';
+            }
+        }
+
+        document.addEventListener('click', function(e) {
+            const dropdown = document.querySelector('.pc-user-dropdown');
+            const menu = document.getElementById('userDropdownMenu');
+            if (dropdown && menu && !dropdown.contains(e.target)) {
+                menu.classList.remove('show');
+            }
+        });
+
+        function togglePageNav() {
+            const wrapper = document.getElementById('pageNavWrapper');
+            const nav = document.getElementById('pageNav');
+            const toggle = wrapper.querySelector('.pc-page-nav-toggle');
+            nav.classList.toggle('collapsed');
+            wrapper.classList.toggle('collapsed');
+            if (nav.classList.contains('collapsed')) {
+                toggle.textContent = '▶';
+            } else {
+                toggle.textContent = '◀';
+            }
+        }
+
+        const templateData = {
+            1: {
+                name: '水电班组服务合同模板',
+                category: '水电班组服务合同',
+                city: '北京市',
+                desc: '适用于水电工程班组服务业务的标准合同模板',
+                status: 'active',
+                content: `<p>根据《中华人民共和国合同法》及相关法律法规，甲乙双方本着平等、自愿、公平、诚实信用的原则，就水电工程服务事宜，经协商一致，签订本合同。</p>
+<br>
+<h4>第一条 工程概况</h4>
+<p>1.1 工程名称：{{project_name}}</p>
+<p>1.2 工程地点：{{project_location}}</p>
+<p>1.3 承包范围：强电、弱电、给排水等水电安装工程</p>
+<br>
+<h4>第二条 合同价款</h4>
+<p>2.1 本合同总价款为人民币{{amount}}元整</p>
+<p>2.2 合同价款为固定总价，不因市场价格波动而调整</p>
+<br>
+<h4>第三条 工期</h4>
+<p>3.1 工期总日历天数：{{duration}}天</p>
+<p>3.2 开工日期：以甲方书面通知为准</p>`,
+                breach: '任一方违约应承担相应责任并赔偿对方因此受到的损失。',
+                fixed: '一、双方权利义务\n甲方有权监督、指导乙方工作并给予奖励、处罚；乙方应按标准施工，服从现场管理规定与交底。\n\n二、质量标准\n应符合国家及行业现行施工验收标准，材料合格、工艺规范。\n\n三、验收标准\n阶段完工后由甲方组织验收，合格后方可进入下一阶段。\n\n四、争议解决\n本合同履行中发生争议，双方应友好协商解决；协商不成的，向工程所在地人民法院提起诉讼。'
+            },
+            2: {
+                name: '泥瓦工班组服务合同模板',
+                category: '泥瓦工班组服务合同',
+                city: '南阳市',
+                desc: '适用于泥瓦工程班组服务业务的标准合同模板',
+                status: 'active',
+                content: `<p>根据《中华人民共和国合同法》及相关法律法规，甲乙双方就泥瓦工程服务事宜签订本合同。</p>
+<br>
+<h4>第一条 工程概况</h4>
+<p>1.1 工程名称：{{project_name}}</p>
+<p>1.2 工程地点：{{project_location}}</p>`,
+                breach: '任一方违约应承担相应责任并赔偿对方因此受到的损失。',
+                fixed: '一、双方权利义务\n甲方有权监督、指导乙方工作并给予奖励、处罚；乙方应按标准施工，服从现场管理规定与交底。\n\n二、质量标准\n应符合国家及行业现行施工验收标准，材料合格、工艺规范。\n\n三、验收标准\n阶段完工后由甲方组织验收，合格后方可进入下一阶段。\n\n四、争议解决\n本合同履行中发生争议，双方应友好协商解决；协商不成的，向工程所在地人民法院提起诉讼。'
+            },
+            3: {
+                name: '木作班组服务合同模板',
+                category: '木作班组服务合同',
+                city: '西安市',
+                desc: '适用于木工工程班组服务业务的标准合同模板',
+                status: 'active',
+                content: `<p>木工工程服务合同正文...</p>`,
+                breach: '任一方违约应承担相应责任并赔偿对方因此受到的损失。',
+                fixed: '一、双方权利义务\n甲方有权监督、指导乙方工作并给予奖励、处罚；乙方应按标准施工，服从现场管理规定与交底。\n\n二、质量标准\n应符合国家及行业现行施工验收标准，材料合格、工艺规范。\n\n三、验收标准\n阶段完工后由甲方组织验收，合格后方可进入下一阶段。\n\n四、争议解决\n本合同履行中发生争议，双方应友好协商解决；协商不成的，向工程所在地人民法院提起诉讼。'
+            },
+            4: {
+                name: '油漆工班组服务合同模板',
+                category: '油漆工班组服务合同',
+                city: '北京市',
+                desc: '适用于油漆工程班组服务业务的标准合同模板',
+                status: 'active',
+                content: `<p>油漆工程服务合同正文...</p>`,
+                breach: '任一方违约应承担相应责任并赔偿对方因此受到的损失。',
+                fixed: '一、双方权利义务\n甲方有权监督、指导乙方工作并给予奖励、处罚；乙方应按标准施工，服从现场管理规定与交底。\n\n二、质量标准\n应符合国家及行业现行施工验收标准，材料合格、工艺规范。\n\n三、验收标准\n阶段完工后由甲方组织验收，合格后方可进入下一阶段。\n\n四、争议解决\n本合同履行中发生争议，双方应友好协商解决；协商不成的，向工程所在地人民法院提起诉讼。'
+            },
+            5: {
+                name: '基础施工服务合同模板（标准版）',
+                category: '基础施工服务合同',
+                city: '南阳市',
+                desc: '适用于装修工程基础施工的标准模板',
+                status: 'active',
+                content: `<p>装修工程基础施工服务合同正文...</p>`
+            },
+            6: {
+                name: '旧版水电班组服务合同模板',
+                category: '水电班组服务合同',
+                city: '西安市',
+                desc: '水电班组服务合同旧版本（已停用）',
+                status: 'inactive',
+                content: `<p>水电班组服务合同旧版正文...</p>`,
+                breach: '任一方违约应承担相应责任并赔偿对方因此受到的损失。',
+                fixed: '一、双方权利义务\n甲方有权监督、指导乙方工作并给予奖励、处罚；乙方应按标准施工，服从现场管理规定与交底。\n\n二、质量标准\n应符合国家及行业现行施工验收标准，材料合格、工艺规范。'
+            }
+        };
+
+        // 工人合同（六类班组服务合同）：合同文本拆分为「违约责任」（引用后可编辑）与「固定详细条款」（引用后不可编辑），
+        // 与服务方小程序工人合同口径同步；基础施工 / 设计服务合同仍使用单一「合同正文」富文本
+        const WORKER_CATEGORIES = ['拆除班组服务合同', '水电班组服务合同', '木作班组服务合同', '泥瓦工班组服务合同', '油漆工班组服务合同', '小零工服务合同'];
+        const DEFAULT_WORKER_BREACH = '任一方违约应承担相应责任并赔偿对方因此受到的损失。';
+        const DEFAULT_WORKER_FIXED = '一、双方权利义务\n甲方有权监督、指导乙方工作并给予奖励、处罚；乙方应按标准施工，服从现场管理规定与交底。\n\n二、质量标准\n应符合国家及行业现行施工验收标准，材料合格、工艺规范。\n\n三、验收标准\n阶段完工后由甲方组织验收，合格后方可进入下一阶段。\n\n四、争议解决\n本合同履行中发生争议，双方应友好协商解决；协商不成的，向工程所在地人民法院提起诉讼。';
+
+        function isWorkerCategory(cat) {
+            return WORKER_CATEGORIES.indexOf(cat) !== -1;
+        }
+
+        // 按模板类型切换合同文本区：工人合同 → 双字段；基础/设计 → 单一合同正文富文本
+        function syncTextFieldsByCategory() {
+            var cat = document.getElementById('templateCategory').value;
+            var isW = isWorkerCategory(cat);
+            document.getElementById('genericTextSection').style.display = isW ? 'none' : '';
+            document.getElementById('workerTextSection').style.display = isW ? '' : 'none';
+        }
+
+        document.getElementById('templateCategory').addEventListener('change', syncTextFieldsByCategory);
+
+        // 富文本编辑器焦点路由：页面存在两个编辑器（合同正文 / 固定详细条款），工具栏操作作用于当前聚焦的编辑器
+        var activeEditorId = 'templateContent';
+        (function bindEditorFocus() {
+            document.querySelectorAll('.editor-content[contenteditable="true"]').forEach(function (el) {
+                el.addEventListener('focus', function () { activeEditorId = el.id; });
+            });
+        })();
+        function getActiveEditor() {
+            var el = document.getElementById(activeEditorId);
+            return (el && el.getAttribute('contenteditable') === 'true') ? el : document.getElementById('templateContent');
+        }
+
+        let currentEditId = null;
+
+        function showCreateModal() {
+            currentEditId = null;
+            document.getElementById('modalTitle').textContent = '新建合同文本模板';
+            document.getElementById('templateName').value = '';
+            document.getElementById('templateCategory').value = '';
+            document.getElementById('templateCity').value = '北京市';
+            document.getElementById('templateDesc').value = '';
+            document.getElementById('templateContent').innerHTML = '<p>在此输入合同正文内容...</p>';
+            document.getElementById('workerBreach').value = '';
+            document.getElementById('workerFixed').innerHTML = '<p>请输入固定详细条款内容（标准条款）</p>';
+            syncTextFieldsByCategory();
+            document.getElementById('createModal').classList.add('show');
+        }
+
+        function closeCreateModal() {
+            document.getElementById('createModal').classList.remove('show');
+        }
+
+        function editTemplate(id) {
+            currentEditId = id;
+            const template = templateData[id];
+            if (!template) {
+                alert('模板数据不存在');
+                return;
+            }
+            
+            document.getElementById('modalTitle').textContent = '编辑合同文本模板';
+            document.getElementById('templateName').value = template.name;
+            document.getElementById('templateCategory').value = template.category;
+            document.getElementById('templateCity').value = template.city;
+            document.getElementById('templateDesc').value = template.desc;
+            if (isWorkerCategory(template.category)) {
+                document.getElementById('workerBreach').value = template.breach || '';
+                document.getElementById('workerFixed').innerHTML = toEditorHtml(template.fixed) || '<p>请输入固定详细条款内容（标准条款）</p>';
+            } else {
+                document.getElementById('templateContent').innerHTML = template.content;
+            }
+            syncTextFieldsByCategory();
+            document.getElementById('createModal').classList.add('show');
+        }
+
+        function execFormat(command) {
+            document.execCommand(command, false, null);
+            getActiveEditor().focus();
+        }
+
+        function insertTable() {
+            const rows = prompt('请输入表格行数:', '3');
+            const cols = prompt('请输入表格列数:', '3');
+            
+            if (rows && cols) {
+                let tableHtml = '<table style="width: 100%; border-collapse: collapse; margin: 12px 0;">';
+                for (let i = 0; i < parseInt(rows); i++) {
+                    tableHtml += '<tr>';
+                    for (let j = 0; j < parseInt(cols); j++) {
+                        if (i === 0) {
+                            tableHtml += '<th style="border: 1px solid #ddd; padding: 8px; background-color: #f5f5f5; text-align: left;">标题</th>';
+                        } else {
+                            tableHtml += '<td style="border: 1px solid #ddd; padding: 8px;">内容</td>';
+                        }
+                    }
+                    tableHtml += '</tr>';
+                }
+                tableHtml += '</table>';
+                document.execCommand('insertHTML', false, tableHtml);
+            }
+            getActiveEditor().focus();
+        }
+
+        function insertImage() {
+            const url = prompt('请输入图片URL地址:', '');
+            if (url) {
+                const alt = prompt('请输入图片描述（可选）:', '');
+                const imgHtml = `<img src="${url}" alt="${alt || ''}" style="max-width: 100%; height: auto; margin: 12px 0;">`;
+                document.execCommand('insertHTML', false, imgHtml);
+            }
+            getActiveEditor().focus();
+        }
+
+        function insertLink() {
+            const url = prompt('请输入链接地址:', 'https://');
+            if (url) {
+                const text = prompt('请输入链接文字:', '点击这里');
+                if (text) {
+                    const linkHtml = `<a href="${url}" target="_blank" style="color: #1890FF; text-decoration: underline;">${text}</a>`;
+                    document.execCommand('insertHTML', false, linkHtml);
+                }
+            }
+            getActiveEditor().focus();
+        }
+
+        function previewTemplate(id) {
+            var t = templateData[id];
+            var panel = document.getElementById('previewPanel');
+            var titleEl = document.getElementById('previewTitle');
+            var bodyEl = document.getElementById('previewContent');
+            if (!t) {
+                alert('模板数据不存在');
+                return;
+            }
+            if (titleEl) titleEl.textContent = '模板预览 - ' + t.name;
+            if (bodyEl) {
+                if (isWorkerCategory(t.category)) {
+                    // 工人合同：与服务方小程序模板预览同步，拆为「违约责任」+「固定详细条款」两个分节，并标识引用后可编辑性
+                    bodyEl.innerHTML =
+                        '<h3 style="text-align:center;margin:0 0 20px;">' + escapeHtml(t.name) + '</h3>' +
+                        '<div class="pv-section">' +
+                            '<div class="pv-section-title">违约责任 <span class="field-badge editable">引用后可编辑</span></div>' +
+                            '<div class="pv-section-content">' + escapeHtml(t.breach || DEFAULT_WORKER_BREACH) + '</div>' +
+                        '</div>' +
+                        '<div class="pv-section">' +
+                            '<div class="pv-section-title">固定详细条款 <span class="field-badge fixed">引用后不可编辑</span></div>' +
+                            '<div class="pv-section-content pv-rich">' + toEditorHtml(t.fixed || DEFAULT_WORKER_FIXED) + '</div>' +
+                        '</div>' +
+                        '<div style="font-size:12px;color:var(--text-tertiary);margin-top:8px;line-height:1.7;">甲乙方 / 合同金额 / 工期等基础信息由合同主信息填写，不在固定条款内。</div>';
+                } else {
+                    bodyEl.innerHTML =
+                        '<h3 style="text-align:center;margin:0 0 20px;">' + escapeHtml(t.name) + '</h3>' +
+                        (t.content || '');
+                }
+            }
+            panel.classList.add('show');
+        }
+
+        function closePreview() {
+            document.getElementById('previewPanel').classList.remove('show');
+        }
+
+        function showVersionHistory(id) {
+            document.getElementById('previewPanel').classList.add('show');
+        }
+
+        function toggleStatus(id) {
+            const row = document.querySelector(`tr[data-id="${id}"]`);
+            const currentStatus = row.dataset.status;
+            const toggleBtn = document.getElementById('toggleBtn' + id);
+            const statusSpan = document.getElementById('status' + id);
+            
+            if (currentStatus === 'active') {
+                if (!confirm('确定要停用此模板吗？停用后新建合同将无法选择此模板。')) {
+                    return;
+                }
+                row.dataset.status = 'inactive';
+                row.classList.add('disabled');
+                toggleBtn.textContent = '启用';
+                toggleBtn.className = 'pc-btn-toggle enable';
+                statusSpan.className = 'template-status inactive';
+                statusSpan.innerHTML = '<span class="dot"></span>停用';
+                alert('模板已停用，新建合同将无法选择此模板');
+            } else {
+                row.dataset.status = 'active';
+                row.classList.remove('disabled');
+                toggleBtn.textContent = '停用';
+                toggleBtn.className = 'pc-btn-toggle disable';
+                statusSpan.className = 'template-status active';
+                statusSpan.innerHTML = '<span class="dot"></span>启用';
+                alert('模板已启用，新建合同可选择此模板');
+            }
+            applyFilters();
+        }
+
+        function escapeHtml(s) {
+            return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
+                return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+            });
+        }
+
+        // 固定详细条款富文本兼容：旧演示数据为带换行的纯文本，新数据为编辑器 HTML；渲染 / 回显前统一转换
+        function looksLikeRichHtml(s) {
+            return /<(p|div|br|h[1-6]|table|ul|ol|img|span|strong|em|b|i|u)\b/i.test(String(s || ''));
+        }
+        function plainToEditorHtml(s) {
+            return String(s || '').split(/\n/).map(function (line) {
+                return line ? '<p>' + escapeHtml(line) + '</p>' : '<br>';
+            }).join('');
+        }
+        function toEditorHtml(s) {
+            if (!s) return '';
+            return looksLikeRichHtml(s) ? s : plainToEditorHtml(s);
+        }
+
+        function formatNow() {
+            var d = new Date();
+            function p(n) { return (n < 10 ? '0' : '') + n; }
+            return d.getFullYear() + '-' + p(d.getMonth() + 1) + '-' + p(d.getDate()) + ' ' + p(d.getHours()) + ':' + p(d.getMinutes());
+        }
+
+        function showToast(message) {
+            var toast = document.getElementById('pcToast');
+            if (!toast) {
+                toast = document.createElement('div');
+                toast.id = 'pcToast';
+                toast.style.cssText = 'position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(0,0,0,0.75);color:#fff;padding:10px 20px;border-radius:6px;font-size:14px;z-index:9999;opacity:0;transition:opacity .25s;pointer-events:none;';
+                document.body.appendChild(toast);
+            }
+            toast.textContent = message;
+            toast.style.opacity = '1';
+            clearTimeout(toast._t);
+            toast._t = setTimeout(function () { toast.style.opacity = '0'; }, 2000);
+        }
+
+        function getNextId() {
+            var max = 0;
+            document.querySelectorAll('#templateTableBody tr[data-id]').forEach(function (r) {
+                var id = parseInt(r.dataset.id, 10);
+                if (id > max) max = id;
+            });
+            Object.keys(templateData).forEach(function (k) {
+                var id = parseInt(k, 10);
+                if (id > max) max = id;
+            });
+            return max + 1;
+        }
+
+        function buildRowHTML(id, data, status) {
+            var map = {
+                active:   { cls: 'active',   text: '启用',   toggle: '<button class="pc-btn-toggle disable" id="toggleBtn' + id + '" onclick="toggleStatus(' + id + ')">停用</button>' },
+                inactive: { cls: 'inactive', text: '停用',   toggle: '<button class="pc-btn pc-btn-text pc-btn-sm" onclick="toggleStatus(' + id + ')">启用</button>' },
+                draft:    { cls: 'draft',    text: '草稿',   toggle: '<button class="pc-btn-toggle publish" id="publishBtn' + id + '" onclick="publishDraft(' + id + ')">发布</button>' }
+            };
+            var s = map[status];
+            return '<tr data-id="' + id + '" data-status="' + status + '">'
+                + '<td><span class="template-name" onclick="previewTemplate(' + id + ')">' + escapeHtml(data.name) + '</span></td>'
+                + '<td>' + escapeHtml(data.city) + '</td>'
+                + '<td><span class="template-category-tag">' + escapeHtml(data.category) + '</span></td>'
+                + '<td><span class="template-version">' + escapeHtml(data.version || 'v1.0') + '</span></td>'
+                + '<td><span class="template-status ' + s.cls + '" id="status' + id + '"><span class="dot"></span>' + s.text + '</span></td>'
+                + '<td>' + escapeHtml(data.updateTime) + '</td>'
+                + '<td><div class="pc-table-actions">'
+                + '<button class="pc-btn pc-btn-text pc-btn-sm" onclick="editTemplate(' + id + ')">编辑</button>'
+                + '<button class="pc-btn pc-btn-text pc-btn-sm" onclick="showVersionHistory(' + id + ')">版本</button>'
+                + s.toggle
+                + '</div></td></tr>';
+        }
+
+        function updateSidebarCounts() {
+            var rows = document.querySelectorAll('#templateTableBody tr');
+            var totals = {};
+            rows.forEach(function (r) {
+                var cat = r.querySelector('.template-category-tag').textContent;
+                totals[cat] = (totals[cat] || 0) + 1;
+            });
+            document.querySelectorAll('.category-tree-item').forEach(function (item) {
+                var name = item.querySelector('span').textContent;
+                var cnt = item.querySelector('.count');
+                if (name === '全部模板') {
+                    cnt.textContent = rows.length;
+                } else {
+                    cnt.textContent = totals[name] || 0;
+                }
+            });
+        }
+
+        function persistTemplate(status) {
+            var name = document.getElementById('templateName').value.trim();
+            var category = document.getElementById('templateCategory').value;
+            var city = document.getElementById('templateCity').value;
+            var desc = document.getElementById('templateDesc').value.trim();
+            var content = document.getElementById('templateContent').innerHTML.trim();
+            var breach = document.getElementById('workerBreach').value.trim();
+            var fixed = document.getElementById('workerFixed').innerHTML.trim();
+
+            var id, isNew;
+            if (currentEditId == null) {
+                id = getNextId();
+                isNew = true;
+            } else {
+                id = currentEditId;
+                isNew = false;
+            }
+
+            var existing = templateData[id];
+            var version = isNew ? 'v1.0' : (existing && existing.version ? existing.version : 'v1.0');
+            var data = { name: name, category: category, city: city, desc: desc, content: content, version: version, updateTime: formatNow(), status: status };
+            if (isWorkerCategory(category)) {
+                data.breach = breach;
+                data.fixed = fixed;
+            }
+            templateData[id] = data;
+
+            var rowHTML = buildRowHTML(id, data, status);
+            if (isNew) {
+                document.getElementById('templateTableBody').insertAdjacentHTML('afterbegin', rowHTML);
+            } else {
+                var row = document.querySelector('#templateTableBody tr[data-id="' + id + '"]');
+                if (row) row.outerHTML = rowHTML;
+            }
+            updateSidebarCounts();
+            applyFilters();
+            return id;
+        }
+
+        function saveTemplate() {
+            var nameEl = document.getElementById('templateName');
+            var catEl = document.getElementById('templateCategory');
+            var cityEl = document.getElementById('templateCity');
+            var contentEl = document.getElementById('templateContent');
+            var errs = [];
+            if (!nameEl.value.trim()) { errs.push('请输入模板名称'); nameEl.style.borderColor = '#FF4D4F'; } else { nameEl.style.borderColor = ''; }
+            if (!catEl.value) { errs.push('请选择模板类型'); catEl.style.borderColor = '#FF4D4F'; } else { catEl.style.borderColor = ''; }
+            if (!cityEl.value) { errs.push('请选择适用城市'); cityEl.style.borderColor = '#FF4D4F'; } else { cityEl.style.borderColor = ''; }
+            var contentText = contentEl.textContent.trim();
+            var breachEl = document.getElementById('workerBreach');
+            var fixedEl = document.getElementById('workerFixed');
+            if (isWorkerCategory(catEl.value)) {
+                // 工人合同：校验拆分后的两字段（违约责任 / 固定详细条款），不校验单一合同正文
+                if (!breachEl.value.trim()) { errs.push('请输入违约责任'); breachEl.style.borderColor = '#FF4D4F'; } else { breachEl.style.borderColor = ''; }
+                var fixedText = fixedEl.textContent.trim();
+                if (!fixedText || fixedText === '请输入固定详细条款内容（标准条款）') { errs.push('请输入固定详细条款'); fixedEl.style.borderColor = '#FF4D4F'; } else { fixedEl.style.borderColor = ''; }
+            } else {
+                if (!contentText || contentText === '在此输入合同正文内容...') { errs.push('请输入合同正文'); contentEl.style.borderColor = '#FF4D4F'; } else { contentEl.style.borderColor = ''; }
+            }
+            if (errs.length) {
+                alert('请完善以下信息：\n' + errs.join('\n'));
+                return;
+            }
+            var dupName = nameEl.value.trim();
+            var dupCity = cityEl.value;
+            if (isDuplicateActiveName(dupName, dupCity, currentEditId)) {
+                alert('该城市下已存在同名的启用中模板（' + dupName + ' / ' + dupCity + '），请勿重复创建');
+                nameEl.style.borderColor = '#FF4D4F';
+                return;
+            }
+            persistTemplate('active');
+            closeCreateModal();
+            showToast('模板已保存并发布');
+        }
+
+        function saveDraft() {
+            var nameEl = document.getElementById('templateName');
+            var name = nameEl.value.trim();
+            if (!name) {
+                alert('请输入模板名称');
+                nameEl.focus();
+                nameEl.style.borderColor = '#FF4D4F';
+                return;
+            }
+            nameEl.style.borderColor = '';
+            persistTemplate('draft');
+            closeCreateModal();
+            showToast('已保存草稿');
+        }
+
+        function publishDraft(id) {
+            var row = document.querySelector('#templateTableBody tr[data-id="' + id + '"]');
+            if (!row) return;
+            var t = templateData[id];
+            if (t && isDuplicateActiveName(t.name, t.city, id)) {
+                showToast('该城市下已存在同名的启用中模板，发布失败');
+                return;
+            }
+            row.dataset.status = 'active';
+            var statusSpan = document.getElementById('status' + id);
+            statusSpan.className = 'template-status active';
+            statusSpan.innerHTML = '<span class="dot"></span>启用';
+            var pubBtn = document.getElementById('publishBtn' + id);
+            if (pubBtn) {
+                pubBtn.outerHTML = '<button class="pc-btn-toggle disable" id="toggleBtn' + id + '" onclick="toggleStatus(' + id + ')">停用</button>';
+            }
+            if (templateData[id]) templateData[id].status = 'active';
+            showToast('模板已发布');
+        }
+
+        document.querySelectorAll('.category-tree-item').forEach(item => {
+            item.addEventListener('click', function() {
+                document.querySelectorAll('.category-tree-item').forEach(i => i.classList.remove('active'));
+                this.classList.add('active');
+                applyFilters();
+            });
+        });
+
+        function isDuplicateActiveName(name, city, excludeId) {
+            var lower = (name || '').trim().toLowerCase();
+            for (var k in templateData) {
+                var key = parseInt(k, 10);
+                if (key === excludeId) continue;
+                var t = templateData[k];
+                if (t && t.status === 'active' && (t.name || '').trim().toLowerCase() === lower && t.city === city) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        function applyFilters() {
+            var name = (document.getElementById('searchName').value || '').trim();
+            var city = document.getElementById('filterCity').value;
+            var status = document.getElementById('filterStatus').value;
+            var activeTree = document.querySelector('.category-tree-item.active');
+            var typeFilter = activeTree ? activeTree.querySelector('span').textContent : '全部模板';
+            var rows = document.querySelectorAll('#templateTableBody tr');
+            var shown = 0;
+            rows.forEach(function (r) {
+                var rName = r.querySelector('.template-name').textContent;
+                var rCity = r.children[1].textContent.trim();
+                var rType = r.querySelector('.template-category-tag').textContent.trim();
+                var rStatus = r.dataset.status;
+                var ok = true;
+                if (name && rName.indexOf(name) === -1) ok = false;
+                if (city && rCity !== city) ok = false;
+                if (status) {
+                    var want = (status === '启用') ? 'active' : 'inactive';
+                    if (rStatus !== want) ok = false;
+                }
+                if (typeFilter && typeFilter !== '全部模板' && rType !== typeFilter) ok = false;
+                r.style.display = ok ? '' : 'none';
+                if (ok) shown++;
+            });
+            var cnt = document.getElementById('resultCount');
+            if (cnt) cnt.textContent = '共 ' + shown + ' 条';
+        }
+
+        function resetFilters() {
+            document.getElementById('searchName').value = '';
+            document.getElementById('filterCity').value = '';
+            document.getElementById('filterStatus').value = '';
+            var all = document.querySelector('.category-tree-item');
+            document.querySelectorAll('.category-tree-item').forEach(function (i) { i.classList.remove('active'); });
+            if (all) all.classList.add('active');
+            applyFilters();
+        }
+
+        // 文档示例深链：通过 URL hash 直接打开新建 / 编辑弹窗（仅在带特定 hash 时触发，不改变默认打开行为）
+        (function () {
+            var h = location.hash;
+            if (h === '#modal-create') {
+                showCreateModal();
+            } else if (h === '#modal-edit') {
+                editTemplate(1);
+            }
+        })();
+
+        </script>
+<script src="../shared/doc-viewer/doc-viewer.js"></script>
+</body>
+</html>

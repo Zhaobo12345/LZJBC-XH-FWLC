@@ -460,13 +460,12 @@
     </div>
     
     <div class="page-nav" data-page-node-id="Ob44Kv0nnFEAtLDWMH42XJ">
-        <div class="page-nav-title" data-page-node-id="XRQsIr6aLhvPZU4hrnHEIj">原型导航</div>
+        <div class="page-nav-title" onclick="togglePageNav()" data-page-node-id="XRQsIr6aLhvPZU4hrnHEIj">原型导航 <span class="toggle-btn" id="pageNavToggle">▼</span></div>
         <a href="home.html" class="page-nav-item" data-page-node-id="MknmAZupqfXKB9cDOEyZYv">首页</a>
         <a href="project-detail-initial-v2.html" class="page-nav-item" data-page-node-id="ORouvOC5y2yH4iIClV3xVC">项目详情（初始-新版）</a>
         <a href="project-detail-ongoing-v2.html" class="page-nav-item active" data-page-node-id="xrnmNQhu10Z5EHd0LPneLr">项目详情（进行中-新版）</a>
         <a href="project-detail-completed-v2.html" class="page-nav-item" data-page-node-id="uDn67nBKHiX6i4147iSPtr">项目详情（已完成-新版）</a>
         <a href="project-info.html" class="page-nav-item" data-page-node-id="XghPFNB4vo6F2CTACpBDA1">项目信息</a>
-        <a href="architecture.html" class="page-nav-item" data-page-node-id="Eq22v3WL2HNGUzeHezruGt">项目架构</a>
         <a href="contract-detail.html" class="page-nav-item" data-page-node-id="4sQeviGYRlWJfeqe4B3ANb">合同详情</a>
         <a href="task-detail.html" class="page-nav-item" data-page-node-id="L6MiWxHwm0hH5fSEHHZCnu">任务详情</a>
     </div>
@@ -487,24 +486,25 @@
             }
         }
         
-        // 直接在页面中初始化原型导航折叠功能
-        function initPageNav() {
-            var pageNav = document.querySelector('.page-nav');
-            if (!pageNav) return;
-
-            var navTitle = pageNav.querySelector('.page-nav-title');
-            if (!navTitle) return;
-
-            var toggleBtn = document.createElement('span');
-            toggleBtn.className = 'toggle-btn';
-            toggleBtn.textContent = '▼';
-            navTitle.appendChild(toggleBtn);
-
-            navTitle.addEventListener('click', function() {
-                pageNav.classList.toggle('collapsed');
-                toggleBtn.classList.toggle('collapsed');
-            });
+        // 原型导航折叠/展开（规范范式：togglePageNav / restorePageNav + localStorage:pageNavCollapsed）
+        function togglePageNav() {
+            var nav = document.querySelector('.page-nav');
+            var btn = document.getElementById('pageNavToggle');
+            if (!nav) return;
+            var collapsed = nav.classList.toggle('collapsed');
+            if (btn) btn.classList.toggle('collapsed', collapsed);
+            try { localStorage.setItem('pageNavCollapsed', collapsed ? 'true' : 'false'); } catch (e) {}
         }
+        (function restorePageNav() {
+            try {
+                if (localStorage.getItem('pageNavCollapsed') === 'true') {
+                    var nav = document.querySelector('.page-nav');
+                    var btn = document.getElementById('pageNavToggle');
+                    if (nav) nav.classList.add('collapsed');
+                    if (btn) btn.classList.add('collapsed');
+                }
+            } catch (e) {}
+        })();
 
         // 新家已开工头部点击跳转
         document.addEventListener('click', function(e) {
@@ -515,11 +515,7 @@
             }
         });
 
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', initPageNav);
-        } else {
-            initPageNav();
-        }
+        // 原型导航折叠状态已在 restorePageNav() 中于脚本加载时恢复
     </script>
     <script src="js/project-detail.js"></script>
     <!-- 移除内联脚本，避免事件绑定冲突 -->

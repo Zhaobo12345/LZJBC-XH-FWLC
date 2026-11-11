@@ -1211,7 +1211,7 @@
                 toggleBtn.className = 'pc-btn-toggle enable';
                 statusSpan.className = 'template-status disabled';
                 statusSpan.innerHTML = '<span class="dot"></span>已禁用';
-                alert('模板已禁用，新建合同将无法选择此模板');
+                showToast('模板已禁用，新建合同将无法选择此模板');
             } else {
                 card.dataset.status = 'active';
                 card.classList.remove('disabled');
@@ -1219,7 +1219,7 @@
                 toggleBtn.className = 'pc-btn-toggle disable';
                 statusSpan.className = 'template-status active';
                 statusSpan.innerHTML = '<span class="dot"></span>启用中';
-                alert('模板已启用，新建合同可选择此模板');
+                showToast('模板已启用，新建合同可选择此模板');
             }
             applyFilters();
         }
@@ -1307,13 +1307,13 @@
             const confirmStandard = confirmInput.value.trim();
             const respStandard = respInput.value.trim();
 
-            if (!name) { alert('请输入任务名称'); nameInput.focus(); return; }
-            if (!execStandard) { alert('请输入执行标准'); execInput.focus(); return; }
-            if (!confirmStandard) { alert('请输入确认标准'); confirmInput.focus(); return; }
-            if (!respStandard) { alert('请输入担责标准'); respInput.focus(); return; }
+            if (!name) { showToast('请输入任务名称'); nameInput.focus(); return; }
+            if (!execStandard) { showToast('请输入执行标准'); execInput.focus(); return; }
+            if (!confirmStandard) { showToast('请输入确认标准'); confirmInput.focus(); return; }
+            if (!respStandard) { showToast('请输入担责标准'); respInput.focus(); return; }
 
             if (currentStageIndex < 0 || !currentStages[currentStageIndex]) {
-                alert('请先在左侧添加一个阶段，再为其添加任务');
+                showToast('请先在左侧添加一个阶段，再为其添加任务');
                 closeTaskEditModal();
                 return;
             }
@@ -1332,10 +1332,10 @@
             if (modal.dataset.editingTask === 'true') {
                 const ti = parseInt(modal.dataset.editingTaskIndex, 10);
                 if (!isNaN(ti) && stage.tasks[ti]) stage.tasks[ti] = task;
-                alert('任务已更新');
+                showToast('任务已更新');
             } else {
                 stage.tasks.push(task);
-                alert('任务已添加');
+                showToast('任务已添加');
             }
             renderTaskList(stage.tasks);
             renderModalStages();
@@ -1375,7 +1375,7 @@
             if (!toast) {
                 toast = document.createElement('div');
                 toast.id = 'pcToast';
-                toast.style.cssText = 'position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(0,0,0,0.75);color:#fff;padding:10px 20px;border-radius:6px;font-size:14px;z-index:9999;opacity:0;transition:opacity .25s;pointer-events:none;';
+                toast.style.cssText = 'position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(0,0,0,0.75);color:#fff;padding:10px 20px;border-radius:6px;font-size:14px;z-index:9999;opacity:0;transition:opacity .25s;pointer-events:none;white-space:pre-line;max-width:80vw;line-height:1.6;text-align:center;';
                 document.body.appendChild(toast);
             }
             toast.textContent = message;
@@ -1494,18 +1494,18 @@
             if (!typeEl.value) { errs.push('请选择模板类型'); typeEl.style.borderColor = '#FF4D4F'; } else { typeEl.style.borderColor = ''; }
             if (!cityEl.value) { errs.push('请选择适用城市'); cityEl.style.borderColor = '#FF4D4F'; } else { cityEl.style.borderColor = ''; }
             if (errs.length) {
-                alert('请完善以下信息：\n' + errs.join('\n'));
+                showToast('请完善以下信息：\n' + errs.join('\n'));
                 return;
             }
             ensureStageFromInput();
             if (currentStages.length === 0) {
-                alert('请至少添加一个阶段信息（阶段任务模板必须包含至少一个阶段）');
+                showToast('请至少添加一个阶段信息（阶段任务模板必须包含至少一个阶段）');
                 return;
             }
             var dupName = nameEl.value.trim();
             var dupCity = cityEl.value;
             if (isDuplicateActiveName(dupName, dupCity, currentEditId)) {
-                alert('该城市下已存在同名的启用中模板（' + dupName + ' / ' + dupCity + '），请勿重复创建');
+                showToast('该城市下已存在同名的启用中模板（' + dupName + ' / ' + dupCity + '），请勿重复创建');
                 nameEl.style.borderColor = '#FF4D4F';
                 return;
             }
@@ -1518,7 +1518,7 @@
             var nameEl = document.getElementById('templateName');
             var name = nameEl.value.trim();
             if (!name) {
-                alert('请输入模板名称');
+                showToast('请输入模板名称');
                 nameEl.focus();
                 nameEl.style.borderColor = '#FF4D4F';
                 return;
@@ -1526,7 +1526,7 @@
             nameEl.style.borderColor = '';
             ensureStageFromInput();
             if (currentStages.length === 0) {
-                alert('请至少添加一个阶段信息（阶段任务模板必须包含至少一个阶段）');
+                showToast('请至少添加一个阶段信息（阶段任务模板必须包含至少一个阶段）');
                 return;
             }
             persistStageTemplate('draft');

@@ -731,10 +731,8 @@
         <div class="page-nav-title">原型导航</div>
         <a href="home.html" class="page-nav-item">首页</a>
         <a href="project-list.html" class="page-nav-item">项目主页（进行中）</a>
-        <a href="project-list.html" class="page-nav-item">项目主页（进行中）</a>
         <a href="member.html" class="page-nav-item">项目成员</a>
         <a href="message.html" class="page-nav-item active">消息</a>
-        <a href="architecture.html" class="page-nav-item">项目架构</a>
         <a href="task-list.html" class="page-nav-item">任务列表</a>
     </div>
     
@@ -1056,10 +1054,6 @@
                     <div class="invite-detail-item">
                         <span class="label">合同类型</span>
                         <span class="value highlight">${msg.contractType || ''}</span>
-                    </div>
-                    <div class="invite-detail-item">
-                        <span class="label">关联架构</span>
-                        <span class="value">${msg.group || ''}</span>
                     </div>
                 </div>
             `;
@@ -1390,12 +1384,12 @@
                 'm-xiaolingong': '郑零工', 'm-xiaolingong-2': '张零杂', 'm-xiaolingong-3': '孔零活'
             };
             var DEMO_CONTRACTS = [
-                { id: 'demo-demolition-example', type: 'demolition', typeName: '拆除班组服务合同', group: '拆除工程', name: '客厅原墙拆除工程合同', amount: 4800, invited: ['m-demolition', 'm-demolition-2', 'm-demolition-3'] },
-                { id: 'demo-shuidian-example', type: 'shuidian', typeName: '水电班组服务合同', group: '水电工程', name: '全屋水电改造合同', amount: 12600, invited: ['m-shuidian', 'm-shuidian-2', 'm-shuidian-3'] },
-                { id: 'demo-muzuo-example', type: 'muzuo', typeName: '木作班组服务合同', group: '木作工程', name: '定制柜体木作合同', amount: 9800, invited: ['m-muzuo', 'm-muzuo-2', 'm-muzuo-3'] },
-                { id: 'demo-niwa-example', type: 'niwa', typeName: '泥瓦工班组服务合同', group: '泥瓦工程', name: '厨卫贴砖泥瓦合同', amount: 7600, invited: ['m-niwa', 'm-niwa-2', 'm-niwa-3'] },
-                { id: 'demo-youqi-example', type: 'youqi', typeName: '油漆工班组服务合同', group: '油漆工程', name: '墙面乳胶漆油漆合同', amount: 6400, invited: ['m-youqi', 'm-youqi-2', 'm-youqi-3'] },
-                { id: 'demo-xiaolingong-example', type: 'xiaolingong', typeName: '小零工服务合同', group: '零星工程', name: '后期安装小零工合同', amount: 2200, invited: ['m-xiaolingong', 'm-xiaolingong-2', 'm-xiaolingong-3'] }
+                { id: 'demo-demolition-example', type: 'demolition', typeName: '拆除班组服务合同', name: '客厅原墙拆除工程合同', amount: 4800, invited: ['m-demolition', 'm-demolition-2', 'm-demolition-3'] },
+                { id: 'demo-shuidian-example', type: 'shuidian', typeName: '水电班组服务合同', name: '全屋水电改造合同', amount: 12600, invited: ['m-shuidian', 'm-shuidian-2', 'm-shuidian-3'] },
+                { id: 'demo-muzuo-example', type: 'muzuo', typeName: '木作班组服务合同', name: '定制柜体木作合同', amount: 9800, invited: ['m-muzuo', 'm-muzuo-2', 'm-muzuo-3'] },
+                { id: 'demo-niwa-example', type: 'niwa', typeName: '泥瓦工班组服务合同', name: '厨卫贴砖泥瓦合同', amount: 7600, invited: ['m-niwa', 'm-niwa-2', 'm-niwa-3'] },
+                { id: 'demo-youqi-example', type: 'youqi', typeName: '油漆工班组服务合同', name: '墙面乳胶漆油漆合同', amount: 6400, invited: ['m-youqi', 'm-youqi-2', 'm-youqi-3'] },
+                { id: 'demo-xiaolingong-example', type: 'xiaolingong', typeName: '小零工服务合同', name: '后期安装小零工合同', amount: 2200, invited: ['m-xiaolingong', 'm-xiaolingong-2', 'm-xiaolingong-3'] }
             ];
 
             // 每条示例消息期望对应的「合同底层状态」与「被邀请人各自状态」，
@@ -1421,7 +1415,7 @@
                         return { userId: uid, name: CAND_NAME[uid] || uid, role: ROLE_BY_TYPE[d.type] };
                     });
                     ContractStore.createContract({
-                        id: d.id, name: d.name, type: d.type, typeName: d.typeName, group: d.group,
+                        id: d.id, name: d.name, type: d.type, typeName: d.typeName, flowId: 'sg', flowName: '基础施工服务',
                         partyA: 'm-owner', partyAName: '陈庄', inviterName: '陈庄', inviterRole: '工长',
                         amount: d.amount, invited: invited
                     });
@@ -1445,11 +1439,9 @@
                     var conf = (c.invitations || []).filter(function (i) { return i.userId === st.confirmedUser; })[0];
                     c.partyB = st.confirmedUser;
                     c.partyBName = conf ? conf.name : '';
-                    c.joinedArchitecture = d.group;
                 } else {
                     c.partyB = '';
                     c.partyBName = '';
-                    c.joinedArchitecture = '';
                 }
                 ContractStore.saveContract(c);
             });
@@ -1473,7 +1465,7 @@
                 ContractStore.addMessage({
                     id: s.id, type: 'contract_invite', contractId: s.contractId, toUserId: s.toUserId,
                     toUserName: CAND_NAME[s.toUserId] || s.toUserId, fromUserName: '陈庄', fromUserRole: '工长',
-                    contractName: d.name, contractType: d.typeName, group: d.group,
+                    contractName: d.name, contractType: d.typeName,
                     status: s.status, time: '09:30', date: '今天', unread: s.unread
                 });
             });

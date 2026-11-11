@@ -398,6 +398,7 @@
                     <li data-page-node-id="iP8qw820Z3VEvnGkxuap9H"><a href="#sub-6-10" data-page-node-id="F0w3C3V5GZiAgvjqK6WhPL">6.10 添加工作组功能规格</a></li>
                     <li data-page-node-id="obFVwexourqfCnhE553KWC"><a href="#sub-6-11" data-page-node-id="3PROD2CIPq9HTXVZE7i9cQ">6.11 添加施工组功能规格</a></li>
 <li data-page-node-id="OTRgZs5Usf5xM2OhVtnZlU"><a href="#sub-6-12" data-page-node-id="uRd1cz1gUABEIKBbVGxuIu">6.12 复制发起功能规格</a></li>
+<li><a href="#sub-6-13">6.13 服务流程（流程项）规格</a></li>
                 </ul>
             </li>
             <li class="nav-item collapsed" id="nav-page-member-service" data-page-node-id="FaJBe3bzxTXVrPGJD2kTP0">
@@ -1038,7 +1039,7 @@
                         <tr data-page-node-id="RkFam8eMQ5mvwYIy9SNMRL">
                             <td data-page-node-id="VBE3q5WFEsOiO8e9vFTIxU">架构</td>
                             <td data-page-node-id="9OtDHzlQpWP2AwOyDMcNJM">🏗️</td>
-                            <td data-page-node-id="BnwzttKBzI9WjyzAttDhkU">architecture.html</td>
+                            <td data-page-node-id="BnwzttKBzI9WjyzAttDhkU">member.html</td>
                             <td data-page-node-id="XPrTcy2yq65h9KcOnSTVci">查看项目架构树</td>
                         </tr>
                         <tr data-page-node-id="ZqOrtb4HFZhhUjHZ8KaMLQ">
@@ -1081,7 +1082,7 @@
                         <tr data-page-node-id="AZJLIm6TMCpCzigyoMF5zW">
                             <td data-page-node-id="5vuHDnFL4yOeMnNw5iKZTB">架构</td>
                             <td data-page-node-id="o5VM0t8hrEwPMYI8CUhfQO">🏗️</td>
-                            <td data-page-node-id="sgF6icGpxOo3mv3qFisXi4">architecture.html</td>
+                            <td data-page-node-id="sgF6icGpxOo3mv3qFisXi4">member.html</td>
                             <td data-page-node-id="zglsQ37fBWBTOar47THsxY">查看项目架构树</td>
                         </tr>
                         <tr data-page-node-id="8Y5FrLGg3Qzh7aKJy2X7mR">
@@ -2377,7 +2378,7 @@
                     </div>
                     <div class="info-item" data-page-node-id="fr4Dk1npRlQ48UGLYbqlzC">
                         <div class="info-label" data-page-node-id="raEJEmiFqjdaPT1wGDAow4">页面路径</div>
-                        <div class="info-value" data-page-node-id="8Yvz7IGTtWqGt700ENjCla"><a href="service-miniapp/architecture.html" target="_blank" data-page-node-id="TnDi99HvM3jzBsAoNEzou7">service-miniapp/architecture.html</a></div>
+                        <div class="info-value" data-page-node-id="8Yvz7IGTtWqGt700ENjCla"><a href="service-miniapp/member.html" target="_blank" data-page-node-id="TnDi99HvM3jzBsAoNEzou7">service-miniapp/member.html</a></div>
                     </div>
                     <div class="info-item" data-page-node-id="mqJAr6kjWyf6ldfp8u7p7c">
                         <div class="info-label" data-page-node-id="K9sDYcsPIcFDPW3jQUYzXM">适用角色</div>
@@ -2967,7 +2968,7 @@
                             <td data-page-node-id="7v6zYxREeVWWwvi2dKn8CC">合同列表弹窗</td>
                             <td data-page-node-id="J9fDuKRV8gbFgP2qT20DDI">每份合同行内"📋 复制发起"</td>
                             <td data-page-node-id="CZF4gEgwCAyVeJxU5GUegO">点击</td>
-                            <td data-page-node-id="KLbIlOhJwNJ1O0I5rBTCvr">校验<b data-page-node-id="1f9QjARFewXBrrqDaIrXCu">创建合同权限</b>→以该份合同为蓝本跳转<a href="service-miniapp/contract-copy-initiate.html" target="_blank" data-page-node-id="v7eibCHsg4TGsprFpqWGxG">复制发起页</a>（携带所属工作组与蓝本合同标识）</td>
+                            <td data-page-node-id="KLbIlOhJwNJ1O0I5rBTCvr">校验<b data-page-node-id="1f9QjARFewXBrrqDaIrXCu">创建合同权限</b>→以该份合同为蓝本跳转<a href="service-miniapp/contract-copy-initiate.html" target="_blank" data-page-node-id="v7eibCHsg4TGsprFpqWGxG">复制发起页</a>（按 <code>ct</code> 分流；携带 <code>item</code> / <code>parent</code> / <code>source</code>）</td>
                         </tr>
                         <tr data-page-node-id="8NxOVYgbVHmxFriFZU6oMK">
                             <td data-page-node-id="LXuRq10FN4A1s7UeOld7EI">工作组操作</td>
@@ -3231,11 +3232,11 @@
                         </tr>
                         <tr data-page-node-id="2ry36PMJyzsq45duwnkLKF">
                             <td data-page-node-id="DIvZB1BDGEYrAatgdgk4fB">数据模型</td>
-                            <td data-page-node-id="mP9wZw6ruJRf1ehYCQ2eyn">一个工作组可存在<strong data-page-node-id="KG3DcHalTXyKBDifixk83H">多份合同</strong>（工作组名称 → 合同数组）；新增合同不覆盖、不顶替既有合同</td>
+                            <td data-page-node-id="mP9wZw6ruJRf1ehYCQ2eyn">同一服务流程项下可存在<strong data-page-node-id="KG3DcHalTXyKBDifixk83H">多份合同</strong>（按 <code>flowId</code> 归属、<code>parent</code> 定层级，详见 6.13.1）；新增合同不覆盖、不顶替既有合同</td>
                         </tr>
                         <tr data-page-node-id="RY8kMCJD7W8hqoAApmr3SO">
                             <td data-page-node-id="dOFKVfauv0ewO1RnciMA6D">入口</td>
-                            <td data-page-node-id="QZUWG8B2fnWzeAn7bt6mYQ"><strong data-page-node-id="LtU8WHaIkptQHHLQb9aYyt">已存在合同的工作组，节点操作展示「查看合同」</strong>；点击后于弹窗内按份操作——<strong data-page-node-id="TGgnCp6etwsPR9XL9ieUar">每份合同行右侧的「📋 复制发起」按钮</strong>，蓝本即为用户所选的该份合同（见 6.7）</td>
+                            <td data-page-node-id="QZUWG8B2fnWzeAn7bt6mYQ"><strong data-page-node-id="LtU8WHaIkptQHHLQb9aYyt">合同列表每份合同行的「📋 复制发起」</strong>，以及非工人 / 工人合同详情「更多」菜单<strong data-page-node-id="TGgnCp6etwsPR9XL9ieUar">首位的「复制发起」</strong>；蓝本即当前所选的该份合同</td>
                         </tr>
                         <tr data-page-node-id="HeODgU24xA9d4C68LCH2jB">
                             <td data-page-node-id="7JulxIYpf5IP26sped56DB">无合同时</td>
@@ -3247,20 +3248,94 @@
                         </tr>
                         <tr data-page-node-id="gHATFpzjqBLfHKSBfxq0w3">
                             <td data-page-node-id="OQdPJKSjvMKLnA52UwEOhu">目标页面</td>
-                            <td data-page-node-id="TQgXI7T11a38r54CwNxAaY">独立页面（<a href="service-miniapp/contract-copy-initiate.html" target="_blank" data-page-node-id="IGchgNNfmpOExq81RDqBCz">contract-copy-initiate.html</a>），携带参数：所属工作组（<code data-page-node-id="xHItfrVVT2u71K2hKygmy9">group</code>）、蓝本合同标识（<code data-page-node-id="bWEFDwhPNckekgMIcoGRU7">source</code>）、来源标识（<code data-page-node-id="Hv5QcvfVbOAqEhmM95PYHd">from=architecture</code>）</td>
+                            <td data-page-node-id="TQgXI7T11a38r54CwNxAaY">独立复制发起页，按合同体系分流：<br>· 工人合同 → <a href="service-miniapp/contract-copy-initiate.html" target="_blank">contract-copy-initiate.html</a><br>· 非工人（服务类）合同 → <a href="service-miniapp/service-contract-copy-initiate.html" target="_blank">service-contract-copy-initiate.html</a><br>均携带归属标识（<code>item</code>=所属服务流程项、<code>parent</code>=上级合同）、蓝本合同标识（<code>source</code>）与来源标识（<code>from=contract-list|detail</code>）</td>
                         </tr>
                         <tr data-page-node-id="Gsm3phiHpLHAIP3oq1xDHn">
                             <td data-page-node-id="aiWdW8vOhbsVoLMivlqakl">发起页形态</td>
-                            <td data-page-node-id="bgJe60A6gED6lXBEfojsMb">沿用拟定中页（<a href="service-miniapp/worker-contract-draft-initial-new.html" target="_blank">worker-contract-draft-initial-new.html</a>）布局，各字段预填蓝本合同取值并标注「沿用 / 已调整」，全部可编辑；底部为「取消 / 仅保存 / 提交并邀请乙方」。发起页字段规格与隶属架构层级选择详见<a href="PRD-合同模块详细规格.html#sec-7-12" target="_blank">《PRD-合同模块详细规格》7.12.2 / 7.12.3</a></td>
+                            <td data-page-node-id="bgJe60A6gED6lXBEfojsMb"><b>工人复制页</b>沿用拟定中页（<a href="service-miniapp/worker-contract-draft-initial-new.html" target="_blank">worker-contract-draft-initial-new.html</a>）布局，各字段预填蓝本合同取值并标注「沿用 / 已调整」，全部可编辑；底部为「取消 / 仅保存 / 提交并邀请乙方」。<b>非工人（服务类）复制页</b>对齐 <code>contract-detail.html</code> 拟定中编辑态（5 步流程 / 三段式表单），<strong>不展示沿用 / 已调整徽标</strong>。两类页面的字段与层级规格详见<a href="PRD-合同模块详细规格.html#sec-7-12" target="_blank">《PRD-合同模块详细规格》7.12.2 / 7.12.3 / 7.12.4</a></td>
                         </tr>
                         <tr data-page-node-id="WbIs3OG0ABoJUXI7BW2uNN">
-                            <td data-page-node-id="YvxFxAnDgpXVAm54qBeki7">隶属架构层级</td>
-                            <td data-page-node-id="WHggdTpzTYmbOPTAqGUYKg">默认归入蓝本合同所属层级，可更换为同项目的其他层级（可选二级 / 三级，且仅限同工种或尚无合同的层级）</td>
+                            <td data-page-node-id="YvxFxAnDgpXVAm54qBeki7">隶属服务流程层级（含类型）</td>
+                            <td data-page-node-id="WHggdTpzTYmbOPTAqGUYKg">复制发起页顶部「🧭 隶属服务流程层级（含类型）」为唯一归属卡，默认直属蓝本合同所属流程项（<code>flowId</code>），可经抽屉更换为同流程项下的上级合同（<code>parent</code>）；提交 / 仅保存均落库合同树</td>
                         </tr>
                         <tr data-page-node-id="ihiSg86HDlZ64iJAMUXHWY">
                             <td data-page-node-id="cKpSi8THv1YlQjgKer6dAy">结果</td>
-                            <td data-page-node-id="7JNgUnEci4AMlpHTBrbqsC">提交并邀请乙方校验通过后，生成新的同类型合同（拟定中），气泡提示消失后进入该合同的「确认中（发起方）」；工作组合同份数与节点标签同步更新</td>
+                            <td data-page-node-id="7JNgUnEci4AMlpHTBrbqsC">「提交」校验通过后生成新的同类型合同（拟定中）并进入对应合同详情；「仅保存」存为草稿且不跳转；原合同不做任何写操作、不受影响</td>
                         </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="subsection" id="sub-6-13">
+                <div class="subsection-title">6.13 服务流程（流程项）规格</div>
+                <p>「服务流程」以项目下的 6 个<strong>流程项</strong>组织主线：量房 / 初步设计 / 设计服务 / 基础施工服务 / 主材安装 / 售后。本节为服务流程需求的总规格（SSOT），合同、任务、项目三端及两端小程序均以此为准。</p>
+
+                <h4 style="margin-top:16px;">6.13.1 流程项配置与数据模型</h4>
+                <table>
+                    <thead><tr><th>属性</th><th>规格</th></tr></thead>
+                    <tbody>
+                        <tr><td>配置 SSOT</td><td><code>js/flow-config-store.js</code>（<code>window.FlowCfgStore</code>，两端各一份字节一致副本），localStorage key <code>lzj_flow_cfg_v1</code>；配置页 <code>flow-config.html</code> 支持新增 / 改名 / 排序 / 删除 / 恢复默认 6 项 / 切换是否含合同</td></tr>
+                        <tr><td>流程项字段</td><td><code>id</code>、<code>name</code>、<code>hasContract</code>、<code>status</code>（已完成 / 进行中 / 未开始）、<code>tasks</code>、<code>contracts</code>、<code>stages</code>；其中 <code>tasks / contracts / stages</code> 为演示基线统计值，不参与真实合同与任务的写入拦截</td></tr>
+                        <tr><td>合同唯一归属</td><td>合同<strong>唯一归属服务流程项</strong>：<code>flowId</code> / <code>flowName</code> 为归属字段，<code>parent</code> 为唯一层级字段（上级合同 id）。<code>ContractStore.createContract</code> 与 <code>ContractTreeStore.add</code> 对空 <code>flowId</code> 返回 <code>null</code>，不生成无归属合同；所有创建 / 复制 / 草稿 / 邀约入口均须携带有效 <code>flowId</code></td></tr>
+                        <tr><td>合同类型（8 类）</td><td>基础施工服务 / 设计服务（<code>ct=service</code>，非工人 5 步流程）＋ 拆除 / 水电 / 木工 / 瓦工 / 油漆 / 小工（<code>ct=worker</code>，工人 3 步流程）；SSOT 见 <code>create-contract.html</code> 的 <code>CONTRACT_TYPES</code></td></tr>
+                        <tr><td>合同数据层</td><td>合同树 <code>js/contract-tree-store.js</code>（<code>window.ContractTreeStore</code>，key <code>lzj_contract_tree_v1</code>，两端同 key，API <code>all / listByFlow / byId / merge / add / clear</code>）；工人合约库 <code>contract-store.js</code>（<code>window.ContractStore</code>，key <code>lzj_worker_contracts_v1</code>）。两库各自独立，基线数据由页面注入后合并</td></tr>
+                        <tr><td>组织上下文参数</td><td><code>?level</code>（成员 / 工作组层级筛选深链）与 <code>?group</code>（加入工作组邀请）属<strong>组织上下文兼容参数</strong>，用于两端 <code>member.html</code> 架构树与邀请消息；<strong>不代表合同归属</strong>，合同归属一律以 <code>flowId</code> / <code>parent</code> 为准</td></tr>
+                    </tbody>
+                </table>
+
+                <h4 style="margin-top:16px;">6.13.2 状态机</h4>
+                <table>
+                    <thead><tr><th>显示文案</th><th>状态 key</th><th>所属对象</th><th>说明</th></tr></thead>
+                    <tbody>
+                        <tr><td>已完成 / 进行中 / 未开始</td><td>中文状态</td><td>流程项</td><td><code>FlowCfgStore</code> 与项目主页流程卡</td></tr>
+                        <tr><td>拟定中 → 平台审核 → 确认中 → 已确认 → 已签约</td><td><code>draft</code> … <code>signed</code></td><td>非工人合同</td><td>5 步；<code>contract-detail.html</code> 与 <code>service-contract-copy-initiate.html</code></td></tr>
+                        <tr><td>拟定中 → 确认中 → 已签约</td><td><code>worker_draft / worker_inviting / worker_signed</code></td><td>工人合同</td><td>3 步，无平台审核；<code>worker-contract-detail.html</code></td></tr>
+                        <tr><td>待开始 / 确认中 / 已完成</td><td><code>pending / confirming / completed</code></td><td>任务</td><td>已驳回为「确认中」的结果之一：任一确认人驳回则回退待开始并保留记录，非主状态</td></tr>
+                    </tbody>
+                </table>
+                <p style="font-size:13px;">各页面当前各自维护状态枚举（项目主页中文状态、<code>MyTasksStore</code> 英文 key、合同树 <code>signed / worker_*</code>、任务列表 <code>STATUS_MAP / MT_STATUS</code>）。取值以对应页面实现为准；是否抽取统一常量文件属待确定项。</p>
+
+                <h4 style="margin-top:16px;">6.13.3 角色视角与页面入口矩阵</h4>
+                <table>
+                    <thead><tr><th>角色 / 端</th><th>服务流程视图</th><th>关键入口</th><th>权限</th></tr></thead>
+                    <tbody>
+                        <tr><td>服务方·非工人（SSOT）</td><td>项目主页 <code>project-list.html</code>：流程卡 + 右侧浮窗（鱼眼 Tab / 竖排书签 / 明细吸底指派条）；项目详情初始态 / 已完成态 <code>project-detail-initial-v2.html</code> / <code>completed-v2.html</code> 均已回迁同款流程卡与浮窗</td><td>流程项 → <code>contractAction()</code> 拟定 / 查看合同；「+ 临时派遣」按指派权限三态显隐；<code>openFlowConfig()</code> 进配置页</td><td>认证 + 角色 + 配置权限 + 指派权限（<code>assignPermMode</code>）；<code>canAssign()</code> 对工人返回 false</td></tr>
+                        <tr><td>服务方·工人</td><td>项目主页 <code>#workerView</code>：待办 / 我的任务 / 我的服务流程 / 快捷入口；「我的服务流程」按签署合同驱动，「查看全部 ›」进流程浮窗</td><td>待办全部 → <code>todo-list.html</code>；合同待办 → <code>contract-detail.html?status=confirming_sender</code>；我的任务 → <code>task-list.html?role=exec</code></td><td>无指派权限；<code>canViewAllFlow</code> 由演示开关控制</td></tr>
+                        <tr><td>业主端</td><td><code>project-detail-ongoing-v2.html</code> 流程卡 + 浮窗；<code>contract-list.html</code> / <code>task-list.html</code> 按流程项分组；<code>member.html</code> 服务流程层级权限</td><td><code>openFlow()</code> 带 <code>?item=</code> 回跳项目详情浮窗；业主为受邀方，<strong>不提供复制发起</strong></td><td>只读：无拟定合同、无临时任务指派、无服务方「我的任务」执行 Tab</td></tr>
+                        <tr><td>PC 管理后台</td><td>合同列表 / 详情 / 审核 / 两类模板共 5 页，为平台审核视角；服务流程项视图不在当前版本范围内</td><td><code>LIST_USER_PERMISSION='all'</code>，全静态硬编码</td><td>平台审核状态机独立</td></tr>
+                    </tbody>
+                </table>
+
+                <h4 style="margin-top:16px;">6.13.4 合同与流程项的写入闭环</h4>
+                <table>
+                    <thead><tr><th>入口</th><th>携带参数</th><th>落库</th></tr></thead>
+                    <tbody>
+                        <tr><td>合同列表「复制发起」<code>actCopy</code></td><td><code>from=contract-list</code>、<code>item</code>、<code>parent</code>、<code>source</code>；按 <code>ct</code> 分流到两个复制页</td><td>提交 / 仅保存均写 <code>ContractTreeStore</code></td></tr>
+                        <tr><td>非工人合同详情「复制发起」</td><td><code>from=detail</code>、<code>source</code>、<code>item</code>（透传当前页归属或反查蓝本合同）、<code>parent</code></td><td>提交后跳 <code>contract-detail.html?status=draft</code></td></tr>
+                        <tr><td>工人合同详情「复制发起」</td><td><code>from=detail</code>、<code>source</code>、<code>item</code>、<code>parent</code></td><td>提交后进入工人确认中（发起方）</td></tr>
+                        <tr><td>新建合同 <code>create-contract.html</code></td><td><code>from=flow&item=&lt;flowId&gt;&parent=</code>；提交前校验 <code>currentFlowId</code> 非空</td><td>服务类写合同树；工人类双写合同树与合约库</td></tr>
+                        <tr><td>临时派遣（项目主页浮窗）</td><td>任务名称 / 执行人 / 确认人 / 三标准，挂在流程项 <code>externals</code></td><td>写入流程项明细，刷新后可恢复</td></tr>
+                    </tbody>
+                </table>
+                <p style="font-size:13px;">「提交」「仅保存」均以 <code>flowId</code> 非空为前置校验；缺失时提示「缺少所属服务流程项，请从合同列表重新发起」并不落库，避免出现无归属合同或假成功提示。</p>
+
+                <h4 style="margin-top:16px;">6.13.5 演示边界与关联资产</h4>
+                <ul style="font-size:13px;line-height:1.9;">
+                    <li><strong>演示数据边界</strong>：项目主页流程项明细（阶段 / 任务 / 统计）、工人「我的服务流程」合同清单为演示基线值；配置页修改流程项名称、顺序与是否含合同会驱动各端分组，统计数值不与真实合同 / 任务数联动。</li>
+                    <li><strong>演示开关</strong>：项目主页框外 <code>demo-panel</code> 提供角色、认证、状态、配置权限、指派权限、查看全部 6 组开关，仅改运行时状态变量，不写回数据层。</li>
+                    <li><strong>独立演示资产</strong>：<code>flow-letter-demo/</code>（量房服务告知书 7 页）与 <code>docs/superpowers/specs/</code> 均为独立演示稿，不引用既有数据层、不改变流程状态与权限，<strong>保留原样，不纳入产品链路</strong>。</li>
+                    <li><strong>公共原型导航</strong>：所有原型页手机框外右侧提供可折叠 <code>.page-nav</code>（<code>common.css</code> 公共样式，<code>localStorage:pageNavCollapsed</code> 记忆），为演示基础设施，不属于 App UI。</li>
+                </ul>
+
+                <h4 style="margin-top:16px;">6.13.6 待确定事项</h4>
+                <table>
+                    <thead><tr><th>议题</th><th>当前口径</th><th>待确认方向</th></tr></thead>
+                    <tbody>
+                        <tr><td>数据贯通深度</td><td>保持静态演示基线</td><td>是否让配置页驱动真实合同 / 任务计数</td></tr>
+                        <tr><td>双库形态</td><td>合同树与工人合约库各自独立、基线手工同步</td><td>是否合并或增加统一 id / 外键与写入适配器</td></tr>
+                        <tr><td>状态枚举</td><td>各页各自维护</td><td>是否抽取统一常量文件</td></tr>
+                        <tr><td>跨端覆盖</td><td>业主端初始 / 已完成两态、PC 5 页暂无服务流程视图</td><td>是否纳入后续版本及范围</td></tr>
+                        <tr><td>提交后下游消费</td><td>复制提交携带 <code>from=copy</code> / <code>new=1</code> / <code>status=draft</code></td><td>详情页是否按这些参数预填草稿态</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -6537,7 +6612,7 @@
                     </div>
                     <div class="info-item" data-page-node-id="GQbKN6dckOw8msB7UP1Bkc">
                         <div class="info-label" data-page-node-id="DqaBFHTh1CzLzBfJSkoKhK">页面路径</div>
-                        <div class="info-value" data-page-node-id="g9GmdwhHtFfEgRpjCPpBvd"><a href="owner-miniapp/architecture.html" target="_blank" data-page-node-id="qffYEWIONqnSACAuRUAGDf">owner-miniapp/architecture.html</a></div>
+                        <div class="info-value" data-page-node-id="g9GmdwhHtFfEgRpjCPpBvd"><a href="owner-miniapp/member.html" target="_blank" data-page-node-id="qffYEWIONqnSACAuRUAGDf">owner-miniapp/member.html</a></div>
                     </div>
                     <div class="info-item" data-page-node-id="FYO9lJVZpg1zc9E5EUL7z2">
                         <div class="info-label" data-page-node-id="rNxxHeA4QrevwP1DtIG2AJ">适用角色</div>

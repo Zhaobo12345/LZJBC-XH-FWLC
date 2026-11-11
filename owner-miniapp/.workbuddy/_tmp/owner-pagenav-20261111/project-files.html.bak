@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>家装平台小程序原型 - 项目资料</title>
+    <link rel="stylesheet" href="common.css">
+    <style>
+        .page-content {
+            height: calc(100% - 44px - 44px);
+            overflow-y: auto;
+            background-color: var(--bg-secondary);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .container {
+            padding: 12px 12px 20px;
+            flex: 1;
+        }
+
+        /* ===== 搜索 + 类型筛选 ===== */
+        .search-bar {
+            background-color: #ffffff;
+            border-radius: 16px;
+            padding: 8px 12px;
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+            border: 1px solid #f0f0f0;
+        }
+
+        .search-bar .icon {
+            color: var(--text-tertiary);
+            margin-right: 8px;
+            font-size: 14px;
+        }
+
+        .search-bar input {
+            flex: 1;
+            border: none;
+            background: transparent;
+            outline: none;
+            font-size: 13px;
+        }
+
+        .search-bar input::placeholder {
+            color: var(--text-tertiary);
+        }
+
+        .filter-bar {
+            background-color: #ffffff;
+            padding: 10px 12px 6px;
+            border-bottom: 1px solid #f0f0f0;
+            flex-shrink: 0;
+        }
+
+        .type-filter {
+            display: flex;
+            background-color: var(--bg-secondary);
+            border-radius: 6px;
+            padding: 3px;
+        }
+
+        .type-filter-item {
+            flex: 1;
+            padding: 6px 4px;
+            text-align: center;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .type-filter-item.active {
+            background-color: var(--primary-color);
+            color: white;
+            font-weight: 500;
+        }
+
+        .search-result-info {
+            font-size: 12px;
+            color: var(--text-tertiary);
+            padding: 6px 2px;
+            display: none;
+        }
+
+        .search-result-info.show {
+            display: block;
+        }
+
+        .search-result-info .count {
+            color: var(--primary-color);
+            font-weight: 500;
+        }
+
+        /* ===== 可折叠分组列表 ===== */
+        .file-group {
+            background-color: #ffffff;
+            border-radius: 12px;
+            margin-bottom: 12px;
+            overflow: hidden;
+        }
+
+        .file-group.collapsed .file-list {
+            display: none;
+        }
+
+        .group-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 14px;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .group-title {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .group-title .arrow {
+            color: #bbbbbb;
+            font-size: 12px;
+            display: inline-block;
+            transition: transform 0.2s;
+        }
+
+        .file-group.collapsed .group-title .arrow {
+            transform: rotate(-90deg);
+        }
+
+        .group-right {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .group-count {
+            font-size: 12px;
+            color: var(--text-tertiary);
+        }
+
+        .group-badge {
+            font-size: 11px;
+            padding: 1px 6px;
+            border-radius: 4px;
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .group-badge.locked {
+            background-color: var(--text-tertiary);
+        }
+
+        .file-group.locked {
+            background-color: #fafafa;
+        }
+
+        .file-list {
+            padding: 0 6px 8px;
+        }
+
+        .file-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 8px;
+            border-top: 1px solid #f4f4f4;
+        }
+
+        .file-row:first-child {
+            border-top: none;
+        }
+
+        .file-type-icon {
+            width: 38px;
+            height: 38px;
+            border-radius: 9px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            background-color: #f2f3f5;
+            flex-shrink: 0;
+        }
+
+        .file-type-icon.image { background-color: #e8f0ff; }
+        .file-type-icon.video { background-color: #eafaf0; }
+        .file-type-icon.audio { background-color: #f3ecff; }
+        .file-type-icon.doc   { background-color: #fff3e8; }
+
+        .file-main {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .file-name {
+            font-size: 13px;
+            color: var(--text-primary);
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .file-meta {
+            font-size: 11px;
+            color: var(--text-tertiary);
+            margin-top: 3px;
+        }
+
+        .file-row.locked {
+            opacity: 0.55;
+            cursor: not-allowed;
+        }
+
+        .file-row.locked .file-type-icon {
+            background-color: #eeeeee;
+        }
+
+        .file-row.locked .file-name {
+            color: var(--text-tertiary);
+        }
+
+        .no-result {
+            text-align: center;
+            padding: 50px 20px;
+            color: var(--text-tertiary);
+        }
+
+        .no-result .icon {
+            font-size: 46px;
+            margin-bottom: 10px;
+            opacity: 0.3;
+        }
+
+        .no-result .text {
+            font-size: 14px;
+        }
+
+        /* ===== 权限说明悬浮（原样保留） ===== */
+        .permission-tip {
+            position: absolute;
+            bottom: 16px;
+            right: 16px;
+            width: 36px;
+            height: 36px;
+            background-color: var(--warning-color);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+            z-index: 100;
+            font-size: 16px;
+            color: white;
+        }
+
+        .permission-tooltip {
+            position: absolute;
+            bottom: 60px;
+            right: 16px;
+            background-color: #ffffff;
+            border-radius: 8px;
+            padding: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            z-index: 100;
+            max-width: 200px;
+            display: none;
+        }
+
+        .permission-tooltip.show {
+            display: block;
+        }
+
+        .permission-tooltip .tip-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .permission-tooltip .tip-desc {
+            font-size: 12px;
+            color: var(--text-secondary);
+            line-height: 1.5;
+        }
+    </style>
+    <style>
+        /* 微信原生胶囊占位（样式参考真机效果，由微信客户端实际渲染） */
+        .nav-bar .native-capsule {
+            display: inline-flex;
+            align-items: center;
+            justify-content: space-between;
+            min-width: 56px;
+            height: 28px;
+            padding: 0 10px;
+            border: 1px solid rgba(0, 0, 0, 0.08);
+            border-radius: 14px;
+            background: rgba(255, 255, 255, 0.7);
+            color: rgba(0, 0, 0, 0.6);
+            font-size: 12px;
+            line-height: 1;
+            user-select: none;
+            box-sizing: border-box;
+        }
+        .nav-bar .native-capsule .nc-left,
+        .nav-bar .native-capsule .nc-right {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            flex: 1;
+            min-width: 16px;
+        }
+        .nav-bar .native-capsule .nc-right {
+            font-size: 10px;
+        }
+        .nav-bar .native-capsule .nc-divider {
+            width: 1px;
+            height: 14px;
+            background: rgba(0, 0, 0, 0.1);
+            margin: 0 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="phone-frame">
+        <div class="status-bar">
+            <div class="time">9:41</div>
+            <div class="icons">📶 🔋</div>
+        </div>
+
+        <div class="nav-bar">
+            <div class="back" onclick="history.back()">←</div>
+            <div class="title centered">项目资料</div>
+            <div class="actions"><div class="native-capsule" title="微信原生胶囊：由微信客户端渲染，开发者不可自定义其内容"><span class="nc-left">⋯</span><span class="nc-divider"></span><span class="nc-right">○</span></div></div>
+        </div>
+
+        <div class="page-content">
+            <div class="filter-bar">
+                <div class="search-bar">
+                    <span class="icon">🔍</span>
+                    <input type="text" id="searchInput" placeholder="搜索文件名称">
+                </div>
+                <div class="type-filter" id="typeFilterBar">
+                    <div class="type-filter-item active" data-type="all" onclick="switchFilter('all')">全部</div>
+                    <div class="type-filter-item" data-type="image" onclick="switchFilter('image')">图片</div>
+                    <div class="type-filter-item" data-type="video" onclick="switchFilter('video')">视频</div>
+                    <div class="type-filter-item" data-type="audio" onclick="switchFilter('audio')">音频</div>
+                    <div class="type-filter-item" data-type="doc" onclick="switchFilter('doc')">文档</div>
+                </div>
+            </div>
+
+            <div class="container">
+                <div class="search-result-info" id="searchResultInfo">
+                    找到 <span class="count" id="searchCount">0</span> 个文件
+                </div>
+
+                <div id="fileGroups">
+                    <!-- 项目信息 -->
+                    <div class="file-group" data-group="info">
+                        <div class="group-header" onclick="toggleGroup(this)">
+                            <div class="group-title"><span class="arrow">▾</span><span>项目信息</span></div>
+                            <div class="group-right"><span class="group-count">3 个文件</span></div>
+                        </div>
+                        <div class="file-list">
+                            <div class="file-row" data-type="image" data-name="户型图.jpg" onclick="onRowClick(this)">
+                                <div class="file-type-icon image">🖼️</div>
+                                <div class="file-main"><div class="file-name">户型图.jpg</div><div class="file-meta">项目信息 · 2024-01-15</div></div>
+                            </div>
+                            <div class="file-row" data-type="doc" data-name="设计说明书.pdf" onclick="onRowClick(this)">
+                                <div class="file-type-icon doc">📄</div>
+                                <div class="file-main"><div class="file-name">设计说明书.pdf</div><div class="file-meta">项目信息 · 2.5MB</div></div>
+                            </div>
+                            <div class="file-row" data-type="doc" data-name="装修合同.docx" onclick="onRowClick(this)">
+                                <div class="file-type-icon doc">📄</div>
+                                <div class="file-main"><div class="file-name">装修合同.docx</div><div class="file-meta">项目信息 · 1.2MB</div></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 水电合同 -->
+                    <div class="file-group" data-group="shuidian">
+                        <div class="group-header" onclick="toggleGroup(this)">
+                            <div class="group-title"><span class="arrow">▾</span><span>水电合同</span><span class="group-badge">执行中</span></div>
+                            <div class="group-right"><span class="group-count">5 个文件</span></div>
+                        </div>
+                        <div class="file-list">
+                            <div class="file-row" data-type="image" data-name="现场照片1.jpg" onclick="onRowClick(this)">
+                                <div class="file-type-icon image">🖼️</div>
+                                <div class="file-main"><div class="file-name">现场照片1.jpg</div><div class="file-meta">材料进场阶段</div></div>
+                            </div>
+                            <div class="file-row" data-type="video" data-name="施工过程.mp4" onclick="onRowClick(this)">
+                                <div class="file-type-icon video">🎬</div>
+                                <div class="file-main"><div class="file-name">施工过程.mp4</div><div class="file-meta">布管布线阶段 · 2:30</div></div>
+                            </div>
+                            <div class="file-row" data-type="audio" data-name="验收说明.mp3" onclick="onRowClick(this)">
+                                <div class="file-type-icon audio">🎵</div>
+                                <div class="file-main"><div class="file-name">验收说明.mp3</div><div class="file-meta">布管布线阶段 · 0:45</div></div>
+                            </div>
+                            <div class="file-row" data-type="image" data-name="验收照片.jpg" onclick="onRowClick(this)">
+                                <div class="file-type-icon image">🖼️</div>
+                                <div class="file-main"><div class="file-name">验收照片.jpg</div><div class="file-meta">布管布线阶段</div></div>
+                            </div>
+                            <div class="file-row" data-type="doc" data-name="材料清单.xlsx" onclick="onRowClick(this)">
+                                <div class="file-type-icon doc">📊</div>
+                                <div class="file-main"><div class="file-name">材料清单.xlsx</div><div class="file-meta">材料进场阶段 · 856KB</div></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 泥瓦合同 -->
+                    <div class="file-group" data-group="niwa">
+                        <div class="group-header" onclick="toggleGroup(this)">
+                            <div class="group-title"><span class="arrow">▾</span><span>泥瓦合同</span><span class="group-badge">执行中</span></div>
+                            <div class="group-right"><span class="group-count">2 个文件</span></div>
+                        </div>
+                        <div class="file-list">
+                            <div class="file-row" data-type="image" data-name="瓷砖铺贴.jpg" onclick="onRowClick(this)">
+                                <div class="file-type-icon image">🖼️</div>
+                                <div class="file-main"><div class="file-name">瓷砖铺贴.jpg</div><div class="file-meta">铺贴阶段</div></div>
+                            </div>
+                            <div class="file-row" data-type="video" data-name="施工记录.mp4" onclick="onRowClick(this)">
+                                <div class="file-type-icon video">🎬</div>
+                                <div class="file-main"><div class="file-name">施工记录.mp4</div><div class="file-meta">铺贴阶段 · 1:45</div></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 木工合同（无权限） -->
+                    <div class="file-group locked" data-group="mugong">
+                        <div class="group-header" onclick="toggleGroup(this)">
+                            <div class="group-title"><span class="arrow">▾</span><span>🔒 木工合同</span><span class="group-badge locked">无权限</span></div>
+                            <div class="group-right"><span class="group-count">3 个文件</span></div>
+                        </div>
+                        <div class="file-list">
+                            <div class="file-row locked" data-type="locked" data-name="文件已加密" onclick="onRowClick(this)">
+                                <div class="file-type-icon">🔒</div>
+                                <div class="file-main"><div class="file-name">文件已加密</div><div class="file-meta">无权限</div></div>
+                            </div>
+                            <div class="file-row locked" data-type="locked" data-name="文件已加密" onclick="onRowClick(this)">
+                                <div class="file-type-icon">🔒</div>
+                                <div class="file-main"><div class="file-name">文件已加密</div><div class="file-meta">无权限</div></div>
+                            </div>
+                            <div class="file-row locked" data-type="locked" data-name="文件已加密" onclick="onRowClick(this)">
+                                <div class="file-type-icon">🔒</div>
+                                <div class="file-main"><div class="file-name">文件已加密</div><div class="file-meta">无权限</div></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="noResult" class="no-result" style="display: none;">
+                    <div class="icon">🔍</div>
+                    <div class="text">未找到相关文件</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="permission-tip" onclick="togglePermissionTip()">⚠️</div>
+        <div class="permission-tooltip" id="permissionTooltip">
+            <div class="tip-title">⚠️ 权限说明</div>
+            <div class="tip-desc">部分合同资料因权限限制无法查看，请联系项目经理获取权限</div>
+        </div>
+    </div>
+
+    <script>
+        var currentFilter = 'all';
+        var keyword = '';
+
+        function switchFilter(type) {
+            currentFilter = type;
+            document.querySelectorAll('#typeFilterBar .type-filter-item').forEach(function (t) {
+                t.classList.toggle('active', t.getAttribute('data-type') === type);
+            });
+            // 切换筛选时展开全部分组，确保结果可见
+            document.querySelectorAll('#fileGroups .file-group').forEach(function (g) {
+                g.classList.remove('collapsed');
+            });
+            applyView();
+        }
+
+        function toggleGroup(header) {
+            header.closest('.file-group').classList.toggle('collapsed');
+        }
+
+        function onRowClick(row) {
+            var type = row.getAttribute('data-type');
+            if (type === 'locked') {
+                alert('无权限查看此合同资料');
+                return;
+            }
+            if (type === 'image') {
+                alert('预览图片');
+            } else if (type === 'video') {
+                alert('播放视频');
+            } else if (type === 'audio') {
+                alert('播放音频');
+            } else if (type === 'doc') {
+                alert('预览文档');
+            }
+        }
+
+        function applyView() {
+            var visibleTotal = 0;
+            document.querySelectorAll('#fileGroups .file-group').forEach(function (group) {
+                var groupVisible = 0;
+                group.querySelectorAll('.file-row').forEach(function (row) {
+                    var type = row.getAttribute('data-type');
+                    var name = (row.getAttribute('data-name') || '').toLowerCase();
+                    var matchType = (currentFilter === 'all') || (type === currentFilter);
+                    var matchKw = !keyword || name.indexOf(keyword) !== -1;
+                    var show = matchType && matchKw;
+                    row.style.display = show ? '' : 'none';
+                    if (show) {
+                        groupVisible++;
+                    }
+                });
+                group.style.display = groupVisible ? '' : 'none';
+                visibleTotal += groupVisible;
+            });
+
+            var info = document.getElementById('searchResultInfo');
+            var noResult = document.getElementById('noResult');
+            if (keyword) {
+                document.getElementById('searchCount').textContent = visibleTotal;
+                info.classList.add('show');
+            } else {
+                info.classList.remove('show');
+            }
+            noResult.style.display = visibleTotal ? 'none' : 'block';
+        }
+
+        function togglePermissionTip() {
+            document.getElementById('permissionTooltip').classList.toggle('show');
+        }
+
+        document.addEventListener('click', function (e) {
+            var tip = document.getElementById('permissionTooltip');
+            if (tip && tip.classList.contains('show')) {
+                if (!e.target.closest('.permission-tip') && !e.target.closest('.permission-tooltip')) {
+                    tip.classList.remove('show');
+                }
+            }
+        });
+
+        document.getElementById('searchInput').addEventListener('input', function (e) {
+            keyword = e.target.value.toLowerCase().trim();
+            // 搜索时展开全部分组，确保结果可见
+            document.querySelectorAll('#fileGroups .file-group').forEach(function (g) {
+                g.classList.remove('collapsed');
+            });
+            applyView();
+        });
+    </script>
+<script src="../shared/doc-viewer/doc-viewer.js"></script>
+</body>
+</html>

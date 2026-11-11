@@ -65,7 +65,7 @@
                 <div class="divider"></div>
                 <div class="section">
                     <div class="section-title">三、服务结果</div>
-                    <div class="result-placeholder" id="resultPlaceholder">量房完成后回填</div>
+                    <div class="result-placeholder" id="resultPlaceholder">量房成果待出具</div>
                     <div class="result-filled hidden" id="resultFilled">
                         <div class="info-row"><div class="info-label">建筑面积</div><div class="info-value">118.60 ㎡（实测）</div></div>
                         <div class="info-row"><div class="info-label">套内面积</div><div class="info-value">96.35 ㎡（实测）</div></div>
@@ -105,6 +105,17 @@
                         </div>
                     </div>
                 </div>
+                <div class="section hidden" id="depositSection">
+                    <div class="divider"></div>
+                    <div class="section-title">六、平台存证</div>
+                    <div class="deposit-box" id="depositBlock">
+                        <div class="info-row"><div class="info-label">存证编号</div><div class="info-value">CZ-2024-LH-001</div></div>
+                        <div class="info-row"><div class="info-label">确认时间</div><div class="info-value">2024年01月25日 10:12</div></div>
+                        <div class="info-row"><div class="info-label">备案方</div><div class="info-value">平台服务管理中心</div></div>
+                        <div class="info-row"><div class="info-label">存证内容</div><div class="info-value">告知书全文 · 业主确认记录 · 量房成果</div></div>
+                        <div class="deposit-seal">平台留存 · 可随时查阅</div>
+                    </div>
+                </div>
                 <div class="document-footer">
                     <div class="footer-text">生成时间：2024年01月25日 09:30 · 平台备案</div>
                     <div class="footer-text hidden" id="footerConfirmed">确认时间：2024年01月25日 10:12 · 文书已归档</div>
@@ -115,7 +126,7 @@
         <div class="report-actions" id="letterActions">
             <div class="report-btn primary is-disabled" id="btnConfirm">确认并同意</div>
             <div class="report-btn primary hidden" id="btnSave">保存告知书长图</div>
-            <div class="report-btn is-disabled hidden" id="btnReadonly">待结果回填</div>
+            <div class="report-btn is-disabled hidden" id="btnReadonly">成果待出具</div>
         </div>
     </div>
 
@@ -125,7 +136,7 @@
             <div class="dp-group" id="optState" data-role="state">
                 <div class="dp-lab">告知书状态</div>
                 <div class="dp-opts">
-                    <div class="dp-opt" data-v="notice_pending_result">结果未回填</div>
+                    <div class="dp-opt" data-v="notice_pending_result">成果未出具</div>
                     <div class="dp-opt" data-v="notice_wait_confirm">待确认</div>
                     <div class="dp-opt on" data-v="notice_confirmed">已确认</div>
                 </div>
@@ -146,13 +157,14 @@
             <thead><tr><th style="width:52px">类型</th><th>状态差异</th><th>既有口径 → 本页对应</th></tr></thead>
             <tbody>
                 <tr><td><span class="dm-tag same">沿用</span></td><td>绿章「已确认」</td><td><code>css/task-report.css:59-62</code> .stamp.passed(#52C41A)</td></tr>
-                <tr><td><span class="dm-tag new">新增</span></td><td>结果回填 + 标准逐条对照</td><td>沿用 <code>css/task-report.css:158-173</code> .info-row / .table-row → 实测数据、交付物、3/3 达标</td></tr>
+                <tr><td><span class="dm-tag new">新增</span></td><td>确认后自动呈现实测数据与标准逐条对照</td><td>沿用 <code>css/task-report.css:158-173</code> .info-row / .table-row → 实测数据、交付物、3/3 达标</td></tr>
                 <tr><td><span class="dm-tag same">沿用</span></td><td>甲乙方签署与备案时间</td><td><code>css/task-report.css:313-372</code> .signature-* / .document-footer</td></tr>
                 <tr><td><span class="dm-tag same">沿用</span></td><td>「✓ 已阅读并同意」徽标</td><td><code>worker-contract-fulfilled-receiver.html:144-149</code> → 单据「四、业主确认」章节</td></tr>
+                <tr><td><span class="dm-tag new">新增</span></td><td>「六、平台存证」区域</td><td>沿用 <code>css/task-report.css:157-185</code> .info-row → <code>#depositSection</code>：存证编号 / 确认时间 / 备案方 / 存证内容；仅已确认态显示</td></tr>
                 <tr><td><span class="dm-tag same">沿用</span></td><td>底栏「保存告知书长图」</td><td><code>task-report.html:408-412</code> .report-btn.primary → 两段轻提示，无真实下载</td></tr>
             </tbody>
         </table>
-        <div class="dm-foot">本页与 ② 的单据 DOM 完全一致，二期实现时只是一页多态，不需要两个页面文件。</div>
+        <div class="dm-foot">本页与 ② 的单据 DOM 完全一致（含平台存证区），二期实现时只是一页多态。结果由确认动作触发系统自动呈现，不单列回填步骤。</div>
     </div>
 </div>
 <div class="app-toast" id="appToast"></div>

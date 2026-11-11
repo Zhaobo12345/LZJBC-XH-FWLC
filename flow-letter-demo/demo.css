@@ -245,6 +245,13 @@ body {
 .fd-item .fd-badge { font-size: 11px; font-weight: 500; border-radius: 999px; padding: 2px 8px; flex-shrink: 0; white-space: nowrap; }
 .fd-item .fd-badge.ok { background: var(--success-bg); color: var(--success); }
 .fd-footer { flex-shrink: 0; padding: 10px 14px; font-size: 11px; color: var(--text-3); text-align: center; border-top: 1px solid var(--line-light); background: #f5f9ff; }
+/* ---------- 5b. ① 流程项级告知书入口（新增：#fdDetailBody 内「本项任务」上方） ----------
+   取值来源：.fd-item 的 44px 触控高、--primary-bg / --primary / --border、.fd-sec-h 字号。 */
+.fd-letter-row { display: flex; align-items: center; gap: 8px; min-height: 48px; margin-bottom: 12px; padding: 8px 10px; border: 1px solid rgba(22,119,255,.22); border-radius: 10px; background: linear-gradient(90deg, var(--primary-bg), #fff); cursor: pointer; }
+.fd-letter-row .fle-ic { font-size: 16px; line-height: 1; flex-shrink: 0; }
+.fd-letter-row .fle-t { flex: 1; min-width: 0; font-size: 13px; font-weight: 600; color: var(--text); }
+.fd-letter-row .fle-s { flex-shrink: 0; font-size: 11px; font-weight: 600; color: var(--primary); background: #fff; border: 1px solid rgba(22,119,255,.3); border-radius: 999px; padding: 4px 10px; white-space: nowrap; }
+.fd-letter-row[data-kind="confirmed"] .fle-s { color: var(--success); border-color: rgba(47,158,47,.35); }
 .fd-assignbar { position: sticky; bottom: 0; z-index: 4; margin: 4px 0 0; padding: 10px 0 2px; background: linear-gradient(180deg, rgba(255,255,255,0) 0%, #fff 42%); }
 .fd-ext-add { width: 100%; min-height: 44px; display: flex; align-items: center; justify-content: center; gap: 4px; border: none; border-radius: 10px; background: var(--grad-brand); color: #fff; font-size: 14px; font-weight: 500; font-family: inherit; cursor: pointer; box-shadow: 0 4px 12px rgba(22,119,255,.24); }
 .fd-rail { position: relative; display: flex; gap: 6px; overflow-x: auto; padding: 6px 0; }
@@ -407,4 +414,61 @@ body {
     .demo-panel, .letter-nav { width: 100%; }
     .diff-card { width: 100%; }
     .board { margin: 12px; padding: 16px; }
+}
+
+/* ---------- 10. ⑤⑥ 替代版：流转留痕轴 / 逐条确认 / 平台存证 ----------
+   全部沿用 :root 变量与 task-report.css 的纸质单据口径，不新增色板。
+   对应既有资产：contract-detail.html 时间轴、worker-contract-receive-inviting.html
+   :273-297 勾选点、task-report.css:157-185 .info-row / .info-value。 */
+.letter-timeline { display: flex; flex-direction: column; padding: 10px 12px; background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 8px; }
+.lt-node { display: flex; align-items: flex-start; gap: 10px; min-height: 34px; }
+.lt-dot { flex: 0 0 auto; width: 12px; height: 12px; margin-top: 5px; border-radius: 50%; border: 1.5px solid var(--text-tertiary); background: var(--bg-primary); position: relative; }
+.lt-node:not(:last-child) .lt-dot::after { content: ""; position: absolute; left: 50%; top: 14px; width: 1px; height: 20px; background: var(--border-color); transform: translateX(-50%); }
+.lt-node.done .lt-dot { border-color: var(--success-color); background: var(--success-color); }
+.lt-node.cur .lt-dot { border-color: var(--warning-color); background: var(--status-warning-bg); }
+.lt-body { flex: 1; padding-bottom: 6px; }
+.lt-t { font-size: 12px; font-weight: 600; color: #333; }
+.lt-m { font-size: 11px; color: var(--text-tertiary); line-height: 1.5; }
+.lt-node.done .lt-t { color: var(--success-color); }
+
+.clause-check { display: flex; align-items: flex-start; gap: 8px; cursor: pointer; }
+.clause-check .agree-dot { width: 18px; height: 18px; margin-top: 2px; }
+.clause-check .standard-text { flex: 1; font-size: 13px; color: #333; line-height: 1.6; }
+.clause-check.readonly { cursor: default; opacity: .78; }
+.clause-bar { display: flex; align-items: center; gap: 10px; margin-top: 10px; padding: 8px 10px; min-height: 44px; background: var(--status-primary-bg); border: 1px solid var(--border-color); border-radius: 8px; }
+.clause-bar.error { border-color: var(--error-color); background: var(--status-warning-bg); }
+.clause-progress { flex: 1; font-size: 13px; font-weight: 600; color: var(--primary-color); }
+.clause-all { flex: 0 0 auto; min-height: 40px; padding: 0 14px; display: inline-flex; align-items: center; border: 1px solid var(--primary-color); border-radius: 999px; background: var(--bg-primary); color: var(--primary-color); font-size: 12px; cursor: pointer; }
+.clause-all:active { opacity: .85; }
+
+.deposit-box { border: 1px solid var(--success-color); border-radius: 8px; background: var(--status-success-bg); padding: 10px 12px; }
+.deposit-box .info-row { border-bottom-style: solid; border-bottom-color: rgba(82, 196, 26, .22); }
+.deposit-seal { margin-top: 10px; padding: 8px; border: 1px dashed var(--success-color); border-radius: 6px; text-align: center; font-size: 12px; font-weight: 600; color: var(--success-color); letter-spacing: 2px; }
+
+/* ---------- 11. ⑦ 并排对比页（看板式，非小程序屏） ---------- */
+.board.compare-board { max-width: 1000px; }
+.cmp-tabs { display: flex; gap: 10px; margin-bottom: 16px; }
+.cmp-tab { flex: 1; min-height: 44px; display: inline-flex; align-items: center; justify-content: center; border: 1px solid var(--border-color); border-radius: 8px; background: var(--bg-primary); color: var(--text-secondary); font-size: 14px; font-weight: 600; cursor: pointer; }
+.cmp-tab.on { background: var(--primary-color); border-color: var(--primary-color); color: #FFFFFF; }
+.cmp-pane { display: none; }
+.cmp-pane.on { display: block; }
+.cmp-grid { display: flex; gap: 16px; flex-wrap: wrap; justify-content: center; margin-bottom: 16px; }
+.cmp-col { flex: 0 0 375px; max-width: 100%; }
+.cmp-label { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 8px; font-size: 13px; font-weight: 600; color: var(--text-primary); }
+.cmp-label a { font-size: 12px; font-weight: 400; color: var(--primary-color); text-decoration: none; }
+.cmp-frame { display: block; width: 375px; height: 812px; border: 0; outline: 1px solid var(--border-color); border-radius: 8px; background: var(--bg-primary); }
+.compare-board .diff-card { width: 100%; box-shadow: none; }
+.compare-board .letter-nav .ln-btn { flex: 0 0 200px; }
+
+/* iframe 内只保留手机屏：框外演示面板与对照表一并隐藏 */
+body.compare-mode { background: #FFFFFF; }
+body.compare-mode .demo-wrap { display: block; padding: 0; margin: 0; gap: 0; }
+body.compare-mode .side-col,
+body.compare-mode .diff-card,
+body.compare-mode .app-toast { display: none; }
+body.compare-mode .phone-frame { border: 0; border-radius: 0; box-shadow: none; width: 375px; height: 812px; }
+
+@media (max-width: 820px) {
+    .cmp-col { flex: 1 1 375px; }
+    .cmp-frame { width: 100%; }
 }

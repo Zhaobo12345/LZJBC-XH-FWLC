@@ -65,7 +65,7 @@
                 <div class="divider"></div>
                 <div class="section">
                     <div class="section-title">三、服务结果</div>
-                    <div class="result-placeholder" id="resultPlaceholder">量房完成后回填</div>
+                    <div class="result-placeholder" id="resultPlaceholder">量房成果待出具</div>
                     <div class="result-filled hidden" id="resultFilled">
                         <div class="info-row"><div class="info-label">建筑面积</div><div class="info-value">118.60 ㎡（实测）</div></div>
                         <div class="info-row"><div class="info-label">套内面积</div><div class="info-value">96.35 ㎡（实测）</div></div>
@@ -105,6 +105,17 @@
                         </div>
                     </div>
                 </div>
+                <div class="section hidden" id="depositSection">
+                    <div class="divider"></div>
+                    <div class="section-title">六、平台存证</div>
+                    <div class="deposit-box" id="depositBlock">
+                        <div class="info-row"><div class="info-label">存证编号</div><div class="info-value">CZ-2024-LH-001</div></div>
+                        <div class="info-row"><div class="info-label">确认时间</div><div class="info-value">2024年01月25日 10:12</div></div>
+                        <div class="info-row"><div class="info-label">备案方</div><div class="info-value">平台服务管理中心</div></div>
+                        <div class="info-row"><div class="info-label">存证内容</div><div class="info-value">告知书全文 · 业主确认记录 · 量房成果</div></div>
+                        <div class="deposit-seal">平台留存 · 可随时查阅</div>
+                    </div>
+                </div>
                 <div class="document-footer">
                     <div class="footer-text">生成时间：2024年01月25日 09:30 · 平台备案</div>
                     <div class="footer-text hidden" id="footerConfirmed">确认时间：2024年01月25日 10:12 · 文书已归档</div>
@@ -115,7 +126,7 @@
         <div class="report-actions" id="letterActions">
             <div class="report-btn primary is-disabled" id="btnConfirm">确认并同意</div>
             <div class="report-btn primary hidden" id="btnSave">保存告知书长图</div>
-            <div class="report-btn is-disabled hidden" id="btnReadonly">待结果回填</div>
+            <div class="report-btn is-disabled hidden" id="btnReadonly">成果待出具</div>
         </div>
     </div>
 
@@ -125,7 +136,7 @@
             <div class="dp-group" id="optState" data-role="state">
                 <div class="dp-lab">告知书状态</div>
                 <div class="dp-opts">
-                    <div class="dp-opt" data-v="notice_pending_result">结果未回填</div>
+                    <div class="dp-opt" data-v="notice_pending_result">成果未出具</div>
                     <div class="dp-opt on" data-v="notice_wait_confirm">待确认</div>
                     <div class="dp-opt" data-v="notice_confirmed">已确认</div>
                 </div>
@@ -148,12 +159,12 @@
                 <tr><td><span class="dm-tag new">新增</span></td><td>告知书单据（新页）</td><td>版式逐字沿用 <code>owner-miniapp/task-report.html:181-206, 403-406</code> + <code>css/task-report.css:4-129, 158-185, 313-372</code></td></tr>
                 <tr><td><span class="dm-tag new">新增</span></td><td>印章由橙转绿</td><td><code>css/task-report.css:59-72</code> .stamp.pending(#FA8C16) → .stamp.passed(#52C41A)</td></tr>
                 <tr><td><span class="dm-tag new">新增</span></td><td>「四、业主确认」章节</td><td>勾选沿用 <code>worker-contract-receive-inviting.html:412-419</code>；徽标沿用 <code>worker-contract-fulfilled-receiver.html:144-149</code></td></tr>
-                <tr><td><span class="dm-tag same">沿用</span></td><td>底栏 38px 主按钮</td><td><code>task-report.html:124-161, 408-412</code> .report-actions > .report-btn.primary → 确认并同意 / 保存告知书长图 / 待结果回填</td></tr>
+                <tr><td><span class="dm-tag same">沿用</span></td><td>底栏 38px 主按钮</td><td><code>task-report.html:124-161, 408-412</code> .report-actions > .report-btn.primary → 确认并同意 / 保存告知书长图 / 成果待出具</td></tr>
                 <tr><td><span class="dm-tag same">沿用</span></td><td>保存长图两段提示</td><td><code>task-report.html</code> downloadReport 时序（PRD-任务模块:3270-3285）→ 轻提示模拟，无真实下载</td></tr>
                 <tr><td><span class="dm-tag new">新增</span></td><td>本页入口</td><td>① <code>#fdContractAct</code> chip；可选触达见 <code>wechat-service-notice.html:147-178</code>（本轮未实现）</td></tr>
             </tbody>
         </table>
-        <div class="dm-foot">勾选「我已阅读并同意」后点底栏按钮，橙章转绿、结果区回填，并自动进入 ③。三态仅为当前页展示变量。</div>
+        <div class="dm-foot">勾选「我已阅读并同意」后点底栏按钮，橙章转绿；实测结果、甲乙签署与平台存证由系统随确认自动呈现，不设单独回填步骤，并自动进入 ③。三态仅为当前页展示变量。</div>
     </div>
 </div>
 <div class="app-toast" id="appToast"></div>

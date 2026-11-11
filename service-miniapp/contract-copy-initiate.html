@@ -334,7 +334,7 @@
         .copy-note p { margin: 0 0 8px; }
         .copy-note p:last-child { margin-bottom: 0; }
 
-        /* 隶属架构层级（复制特有：默认可改，默认=被复制合同所属架构层级） */
+        /* 隶属服务流程层级（含类型）：默认沿用蓝本的上级合同 */
         .arch-level-row {
             display: flex; align-items: center; justify-content: space-between;
             padding: 10px 12px; background: #fff; border: 1px solid var(--primary-light);
@@ -495,15 +495,15 @@
 
         <!-- 复制发起说明已移至手机框外右侧侧栏（.copy-note），不占用框内实际页面空间 -->
 
-        <!-- 隶属架构层级（复制特有：默认可改，默认=被复制合同所属架构层级） -->
+        <!-- 隶属服务流程层级（含类型）：唯一归属口径，架构层级不再展示 -->
         <div class="worker-invite-card" style="margin-top: 0;">
-            <div class="card-title" style="margin-bottom:6px;">🏗️ 隶属架构层级</div>
-            <div class="arch-level-row" id="archLevelRow" onclick="openArchLevelPicker()">
-                <span class="al-value"><span class="al-badge" id="archLevelBadge">二级</span><span id="archLevelValue">水电工作组</span><span class="al-tag" id="archLevelTag">默认</span><span class="al-scope" id="archLevelScope"></span></span>
+            <div class="card-title" style="margin-bottom:6px;">🧭 隶属服务流程层级（含类型）</div>
+            <div class="arch-level-hint" id="flowItemValue" style="margin-bottom:8px;">—</div>
+            <div class="arch-level-row" id="flowLevelRow" onclick="openFlowLevelPicker()">
+                <span class="al-value"><span class="al-badge" id="flowLevelBadge">直属</span><span id="flowLevelValue">直属本流程项</span><span class="al-tag" id="flowLevelTag">默认</span><span class="al-scope" id="flowLevelScope"></span></span>
                 <span class="al-change">更换 ›</span>
             </div>
-            <div class="arch-level-path" id="archLevelPath"></div>
-            <div class="arch-level-hint" id="archLevelHint"></div>
+            <div class="arch-level-hint" id="flowLevelHint"></div>
         </div>
 
         <!-- 合同甲方与意向乙方 -->
@@ -667,19 +667,19 @@
         </div>
     </div>
 
-    <!-- 隶属架构层级选择（复制特有） -->
-    <div class="wcd-modal-mask" id="archLevelModal" onclick="if(event.target===this)closeArchLevelPicker()" data-page-node-id="archLevelMask">
-        <div class="wcd-sheet" data-page-node-id="archLevelSheet">
-            <div class="wcd-sheet-head" data-page-node-id="archLevelHead"><div class="title" data-page-node-id="archLevelTitle">选择隶属架构层级</div><div class="close" onclick="closeArchLevelPicker()" data-page-node-id="archLevelClose">✕</div></div>
-            <div class="wcd-sheet-filter" data-page-node-id="archLevelFilter">仅可选同类型（被复制合同工种）与暂无合同的架构；异类型且已有合同者不可选</div>
-            <div class="wcd-sheet-body" data-page-node-id="archLevelBody">
+    <!-- 隶属服务流程层级选择（含合同类型与层级） -->
+    <div class="wcd-modal-mask" id="flowLevelModal" onclick="if(event.target===this)closeFlowLevelPicker()">
+        <div class="wcd-sheet">
+            <div class="wcd-sheet-head"><div class="title">选择隶属服务流程层级（含类型）</div><div class="close" onclick="closeFlowLevelPicker()">✕</div></div>
+            <div class="wcd-sheet-filter">仅列出同一服务流程项下的直属合同与各子级合同；括号内为合同类型与层级</div>
+            <div class="wcd-sheet-body">
                 <div class="al-search-wrap">
-                    <input id="archLevelSearch" class="al-search-input" type="text" placeholder="搜索架构名称 / 工种 / 路径…" oninput="filterArchLevelList()" />
+                    <input id="flowLevelSearch" class="al-search-input" type="text" placeholder="搜索合同名称 / 类型 / 层级…" oninput="filterFlowLevelList()" />
                 </div>
-                <div id="archLevelList" data-page-node-id="archLevelListInner"></div>
-                <div class="al-empty" id="archLevelEmpty" style="display:none;">未找到匹配的架构层级</div>
+                <div id="flowLevelList"></div>
+                <div class="al-empty" id="flowLevelEmpty" style="display:none;">未找到匹配的合同</div>
             </div>
-            <div class="wcd-sheet-foot" data-page-node-id="archLevelFoot"><div class="btn cancel" onclick="closeArchLevelPicker()" data-page-node-id="archLevelCancel">取消</div></div>
+            <div class="wcd-sheet-foot"><div class="btn cancel" onclick="closeFlowLevelPicker()">取消</div></div>
         </div>
     </div>
 
@@ -825,7 +825,7 @@
         <div class="cn-title">📋 复制发起说明</div>
         <p>本页基于「<b>全屋水电改造合同</b>」（水电班组服务合同）复制发起：原合同内容默认预填，可按新工人情况逐项调整后快速发起。</p>
         <p>字段右侧标注「沿用原值」表示沿用蓝本；修改后变为「已调整」。</p>
-        <p>「🏗️ 隶属架构层级」默认可改，点「更换 ›」可选同类型或暂无合同的架构（支持模糊搜索）。</p>
+        <p>「🧭 隶属服务流程层级（含类型）」默认沿用蓝本，点「更换 ›」可改上级合同（支持模糊搜索）。</p>
     </aside>
 </div><!-- /copy-demo-stage -->
 
@@ -903,6 +903,8 @@
     </div>
 </div>
 
+<script src="js/flow-config-store.js"></script>
+<script src="js/contract-tree-store.js"></script>
 <script>
     function $(id) { return document.getElementById(id); }
     function showToast(msg) {
@@ -1089,7 +1091,7 @@
     /* 复制发起：补充条款沿用原合同值（可修改）；文本模板 / 阶段任务默认沿用原合同（可经「更换模板」整体替换） */
     var C = {
         type: 'shuidian', typeName: '水电班组服务合同', name: '全屋水电改造合同', amount: 12600, duration: '30',
-        projectAddress: 'XX市XX区XX路XX号', group: '水电施工组',
+        projectAddress: 'XX市XX区XX路XX号', flowId: 'sg', flowName: '基础施工服务',
         contentIntro: STAGE_TEMPLATES.shuidian.contentIntro,
         stages: clone(STAGE_TEMPLATES.shuidian.stages),
         extraClauses: '1、施工期间乙方负责成品保护，损坏照价赔偿。\n2、水电改造完毕后由双方共同验收并签署隐蔽工程验收单。',
@@ -1108,141 +1110,113 @@
     var draftTab = 'contract-text';
     var tplKind = 'text', previewKind = null, previewId = null;
 
-    /* ===================== 隶属架构层级（复制特有：默认可改） ===================== */
+    /* ===================== 隶属服务流程层级（含类型） ===================== */
     function getQueryParam(name) {
         var m = new RegExp('[?&]' + name + '=([^&]*)').exec(window.location.search || '');
         return m ? decodeURIComponent(m[1].replace(/\+/g, ' ')) : '';
     }
-    // 一级根节点（项目总架构，不可选作归属终点）
-    var ARCH_ROOT = '陈庄施工队·西安锦业路项目';
-    // 源合同工种：决定可选的"同类型"范围（仅同类型架构 + 无合同的其它架构可选）
-    var SOURCE_TRADE = C.type;
-    var TRADE_NAMES = { shuidian: '水电', niwa: '泥瓦', mugong: '木工', youqi: '油漆' };
-    // 可选归属层级：二级工作组 + 三级子组；trade=归属工种，hasContracts=该层级是否已有合同
-    var ARCH_LEVEL_MAP = [
-        { name: '水电工作组', level: 2, parent: null, trade: 'shuidian', hasContracts: true },
-        { name: '水电二组',   level: 3, parent: '水电工作组', trade: 'shuidian', hasContracts: false },
-        { name: '水电三组',   level: 3, parent: '水电工作组', trade: 'shuidian', hasContracts: false },
-        { name: '强电施工组', level: 2, parent: null, trade: 'shuidian', hasContracts: false },
-        { name: '泥瓦工作组', level: 2, parent: null, trade: 'niwa', hasContracts: true },
-        { name: '木工工作组', level: 2, parent: null, trade: 'mugong', hasContracts: false },
-        { name: '油漆工作组', level: 2, parent: null, trade: 'youqi', hasContracts: false }
-    ];
-    // 默认归属 = 被复制合同所属层级（架构页带入 group；详情页用蓝本默认层级）
-    var defaultArchLevel = getQueryParam('group') || C.group;
-    // 默认项不在预置列表时，按源工种二级兜底（保证可追踪完整路径）
-    if (!ARCH_LEVEL_MAP.some(function (x) { return x.name === defaultArchLevel; })) {
-        ARCH_LEVEL_MAP.unshift({ name: defaultArchLevel, level: 2, parent: null, trade: SOURCE_TRADE, hasContracts: true });
+    /* 唯一归属口径：服务流程项 + 上级合同（parent）；架构层级字段已删除 */
+    var sourceFlowId = getQueryParam('item') || C.flowId || '';
+    var sourceFlowName = sourceFlowId
+        ? (((window.FlowCfgStore && FlowCfgStore.find(sourceFlowId)) || {}).name || sourceFlowId)
+        : '';
+    var sourceId = getQueryParam('source') || '';
+    var defaultParentId = getQueryParam('parent') || '';
+    var selectedParentId = defaultParentId;
+    var flowLevelAdjusted = false;
+
+    function flowContracts() {
+        if (!window.ContractTreeStore || !sourceFlowId) return [];
+        return ContractTreeStore.listByFlow(sourceFlowId).filter(function (c) { return c.id !== sourceId; });
     }
-    var selectedArchLevel = defaultArchLevel;
-    var archLevelAdjusted = false;
-    function archFind(name) {
-        for (var i = 0; i < ARCH_LEVEL_MAP.length; i++) if (ARCH_LEVEL_MAP[i].name === name) return ARCH_LEVEL_MAP[i];
-        return { name: name, level: 2, parent: null, trade: SOURCE_TRADE, hasContracts: true };
-    }
-    function archPath(opt) {
-        var parts = [ARCH_ROOT];
-        if (opt.parent) parts.push(opt.parent);
-        parts.push(opt.name);
-        return parts.join(' › ');
-    }
-    // 可选规则：同类型（源工种）架构 或 无合同的其它架构；异类型且有合同者不可选
-    function archAllowed(opt) { return opt.trade === SOURCE_TRADE || !opt.hasContracts; }
-    function archScope(opt) {
-        if (!archAllowed(opt)) return { cls: 'dis', text: '已有合同·不可选' };
-        if (opt.trade === SOURCE_TRADE) return { cls: 'same', text: '同类型' };
-        return { cls: 'empty', text: '无合同' };
-    }
-    function archLevelText(level) { return level === 3 ? '三级' : '二级'; }
-    function archLevelDesc(opt) {
-        if (opt.name === defaultArchLevel) return '被复制合同当前所属层级（默认）';
-        if (!archAllowed(opt)) return '异类型且已有合同，不可作为复制合同的归属层级';
-        if (opt.level === 3) return '挂在「' + opt.parent + '」下的子施工组，可拆分并行作业';
-        if (opt.trade === SOURCE_TRADE) return '同类型（' + escapeHtml(C.typeName) + '）架构，可并行归属';
-        return '暂无合同架构，可承接新合同';
-    }
-    function renderArchLevelValue() {
-        var opt = archFind(selectedArchLevel);
-        var valEl = $('archLevelValue'); if (valEl) valEl.textContent = opt.name;
-        var badgeEl = $('archLevelBadge');
-        if (badgeEl) { badgeEl.textContent = archLevelText(opt.level); badgeEl.className = 'al-badge' + (opt.level === 3 ? ' al-badge-l3' : ''); }
-        var tagEl = $('archLevelTag');
-        if (tagEl) {
-            if (archLevelAdjusted) { tagEl.textContent = '已调整'; tagEl.classList.add('adj'); }
-            else { tagEl.textContent = '默认'; tagEl.classList.remove('adj'); }
+    function depthOf(c, list) {
+        var d = 0, p = c.parent;
+        while (p && d < 10) {
+            var hit = list.filter(function (x) { return x.id === p; })[0];
+            if (!hit) break;
+            d++; p = hit.parent;
         }
-        var scopeEl = $('archLevelScope');
-        if (scopeEl) { var sc = archScope(opt); scopeEl.textContent = sc.text; scopeEl.className = 'al-scope ' + sc.cls; }
-        var pathEl = $('archLevelPath'); if (pathEl) pathEl.textContent = archPath(opt);
-        var hintEl = $('archLevelHint');
-        if (hintEl) {
-            hintEl.textContent = archLevelAdjusted
-                ? ('已更换为「' + opt.name + '」；新合同将归入该架构层级，原合同不受影响。')
-                : '';
-        }
+        return d;
     }
-    function appendArchItem(listEl, opt, isChild, selName) {
-        var allowed = archAllowed(opt);
-        var sel = opt.name === selName;
-        var sc = archScope(opt);
+    function levelName(depth) { return depth === 0 ? '直属' : (depth === 1 ? '子级' : depth + '级子合同'); }
+    function contractTypeText(c) { return c.ct === 'service' ? '服务合同' : '工人合同'; }
+    function findContract(id) {
+        return flowContracts().filter(function (c) { return c.id === id; })[0] || null;
+    }
+    function renderFlowLevelValue() {
+        var list = flowContracts();
+        var c = findContract(selectedParentId);
+        var badge = $('flowLevelBadge'), val = $('flowLevelValue'),
+            tag = $('flowLevelTag'), scope = $('flowLevelScope'), hint = $('flowLevelHint');
+        if (badge) badge.textContent = c ? levelName(depthOf(c, list)) : '直属';
+        if (val) val.textContent = c ? c.name : '直属本流程项';
+        if (tag) {
+            tag.textContent = flowLevelAdjusted ? '已调整' : '默认';
+            if (flowLevelAdjusted) tag.classList.add('adj'); else tag.classList.remove('adj');
+        }
+        if (scope) { scope.textContent = c ? contractTypeText(c) : '无上级合同'; scope.className = 'al-scope same'; }
+        if (hint) hint.textContent = flowLevelAdjusted
+            ? ('上级合同已改为「' + (c ? c.name : '直属本流程项') + '」，原合同不受影响。') : '';
+    }
+    function appendFlowLevelItem(listEl, c, list) {
+        var depth = depthOf(c, list);
         var item = document.createElement('div');
-        item.className = 'arch-level-item' + (isChild ? ' al-child' : '') + (allowed ? '' : ' al-disabled');
-        var tradeName = TRADE_NAMES[opt.trade] || opt.trade || '';
-        item.setAttribute('data-key', (opt.name + ' ' + (opt.parent || '') + ' ' + tradeName + ' ' + archPath(opt)).toLowerCase());
-        item.innerHTML = '<div class="al-icon">🏗️</div>' +
+        item.className = 'arch-level-item' + (depth > 0 ? ' al-child' : '');
+        item.setAttribute('data-key', (c.name + ' ' + contractTypeText(c) + ' ' + levelName(depth)).toLowerCase());
+        item.innerHTML = '<div class="al-icon">📄</div>' +
             '<div class="al-main"><div class="al-name">' +
-            '<span class="al-badge' + (opt.level === 3 ? ' al-badge-l3' : '') + '">' + archLevelText(opt.level) + '</span>' +
-            escapeHtml(opt.name) +
-            (opt.name === defaultArchLevel ? '<span class="al-default-tag">默认</span>' : '') +
-            '<span class="al-scope ' + sc.cls + '">' + sc.text + '</span></div>' +
-            '<div class="al-path">' + escapeHtml(archPath(opt)) + '</div>' +
-            '<div class="al-desc">' + escapeHtml(archLevelDesc(opt)) + '</div></div>' +
-            (sel ? '<div class="al-check">✓</div>' : '');
-        if (allowed) {
-            item.onclick = function () {
-                selectedArchLevel = opt.name;
-                archLevelAdjusted = (opt.name !== defaultArchLevel);
-                renderArchLevelValue();
-                closeArchLevelPicker();
-            };
-        }
+            '<span class="al-badge">' + escapeHtml(levelName(depth)) + '</span>' + escapeHtml(c.name) +
+            '</div><div class="al-path">' + escapeHtml(sourceFlowName + ' › ' + contractTypeText(c)) + '</div></div>' +
+            '<div class="al-scope same">' + escapeHtml(contractTypeText(c)) + '</div>';
+        item.onclick = function () {
+            selectedParentId = c.id;
+            flowLevelAdjusted = (selectedParentId !== defaultParentId);
+            renderFlowLevelValue();
+            closeFlowLevelPicker();
+        };
         listEl.appendChild(item);
     }
-    function openArchLevelPicker() {
-        var listEl = $('archLevelList'); if (!listEl) return;
+    function openFlowLevelPicker() {
+        var listEl = $('flowLevelList');
+        if (!listEl) return;
         listEl.innerHTML = '';
-        var searchEl = document.getElementById('archLevelSearch'); if (searchEl) searchEl.value = '';
-        // 可选范围说明见弹窗顶部 wcd-sheet-filter（与树形范围徽标、置灰一致，避免重复描述）
-        // 树形分组：二级为父节点，三级缩进为其子节点
-        var childrenOf = {};
-        ARCH_LEVEL_MAP.forEach(function (o) { if (o.parent) { (childrenOf[o.parent] = childrenOf[o.parent] || []).push(o); } });
-        ARCH_LEVEL_MAP.filter(function (o) { return !o.parent; }).forEach(function (opt) {
-            appendArchItem(listEl, opt, false, selectedArchLevel);
-            (childrenOf[opt.name] || []).forEach(function (child) {
-                appendArchItem(listEl, child, true, selectedArchLevel);
-            });
-        });
-        filterArchLevelList();
-        var mask = $('archLevelModal'); if (mask) mask.classList.add('show');
+        var list = flowContracts();
+        var direct = document.createElement('div');
+        direct.className = 'arch-level-item';
+        direct.setAttribute('data-key', '直属 本流程项 无上级合同');
+        direct.innerHTML = '<div class="al-icon">📄</div><div class="al-main"><div class="al-name">' +
+            '<span class="al-badge">直属</span>不选择 · 直属本流程项</div>' +
+            '<div class="al-path">' + escapeHtml(sourceFlowName) + ' › 无上级合同</div></div>';
+        direct.onclick = function () {
+            selectedParentId = '';
+            flowLevelAdjusted = ('' !== defaultParentId);
+            renderFlowLevelValue();
+            closeFlowLevelPicker();
+        };
+        listEl.appendChild(direct);
+        list.forEach(function (c) { appendFlowLevelItem(listEl, c, list); });
+        filterFlowLevelList();
+        var m = $('flowLevelModal'); if (m) m.classList.add('show');
     }
-    // 模糊搜索：按 名称 / 工种 / 所属路径 实时过滤树（保留范围徽标与不可选状态）
-    function filterArchLevelList() {
-        var inp = document.getElementById('archLevelSearch');
+    function filterFlowLevelList() {
+        var inp = $('flowLevelSearch');
         var q = (inp ? inp.value : '').trim().toLowerCase();
-        var items = document.querySelectorAll('#archLevelList .arch-level-item');
+        var listEl = $('flowLevelList');
+        var items = listEl ? listEl.children : [];
         var shown = 0;
-        items.forEach(function (it) {
-            var key = it.getAttribute('data-key') || '';
-            var hit = !q || key.indexOf(q) > -1;
-            it.style.display = hit ? '' : 'none';
+        for (var i = 0; i < items.length; i++) {
+            var hit = !q || (items[i].getAttribute('data-key') || '').indexOf(q) > -1;
+            items[i].style.display = hit ? '' : 'none';
             if (hit) shown++;
-        });
-        var emptyEl = document.getElementById('archLevelEmpty');
+        }
+        var emptyEl = $('flowLevelEmpty');
         if (emptyEl) emptyEl.style.display = (q && shown === 0) ? '' : 'none';
     }
-    function closeArchLevelPicker() { var m = $('archLevelModal'); if (m) m.classList.remove('show'); }
-    // 进入页面时按来源刷新默认层级展示
-    renderArchLevelValue();
+    function closeFlowLevelPicker() { var m = $('flowLevelModal'); if (m) m.classList.remove('show'); }
+
+    var flowEl = document.getElementById('flowItemValue');
+    if (flowEl) flowEl.textContent = sourceFlowName || '未指定服务流程项';
+    renderFlowLevelValue();
 
     /* ===================== 头像 / 电子名片 ===================== */
     function avatarColor(seed) {
@@ -1616,7 +1590,7 @@
             '<p>2.2 支付方式：合同签订后支付预付款，材料进场验收合格后支付进度款，完工验收后支付尾款。</p></div></div>' +
             '<div class="contract-article"><div class="article-title">第三条 双方权利义务</div><div class="article-content">' +
             '<p>3.1 甲方（' + escapeHtml(partyAName) + '）应按约定支付工程款，并提供施工所需条件。</p>' +
-            '<p>3.2 乙方应按标准施工，自确认加入后自动归入项目架构层级「' + escapeHtml(c.group || '—') + '」。</p></div></div>' +
+            '<p>3.2 乙方应按确认的服务标准与验收标准施工。</p></div></div>' +
             '<div class="contract-article"><div class="article-title">第四条 工程质量及验收</div><div class="article-content">' +
             '<p>4.1 乙方应严格按国家现行施工验收规范施工。</p>' +
             '<p>4.2 分阶段验收，隐蔽工程验收合格后方可进行下一道工序。</p></div></div>' +
@@ -1651,7 +1625,6 @@
             '<p><strong>工程地点：</strong>' + escapeHtml(c.projectAddress || '—') + '</p>' +
             '<p><strong>合同金额：</strong>人民币 ' + escapeHtml(c.amount || '—') + ' 元（含税）</p>' +
             '<p><strong>合同工期：</strong>' + duration + '</p>' +
-            '<p><strong>架构层级：</strong>' + escapeHtml(c.group || '—') + '</p>' +
             '<p><strong>甲方（发包方）：</strong>' + escapeHtml(partyAName) + '</p>' +
             '<p><strong>' + b.label + '：</strong>' + b.value + '</p></div></div>';
     }
@@ -2050,6 +2023,7 @@
 
     /* ===================== 提交 / 保存 / 取消（复制发起） ===================== */
     function doSubmit() {
+        if (!sourceFlowId) { showToast('缺少所属服务流程项，请从合同列表重新发起'); return; }
         var name = ($('editNameInput').value || '').trim();
         var amountRaw = ($('editAmountInput').value || '').trim();
         if (!name) { showToast('请填写合同名称'); return; }
@@ -2066,16 +2040,47 @@
             showToast('请至少选择 1 名意向乙方（最多 3 人）');
             return;
         }
-        showToast('已提交并邀请乙方（' + editInvited.length + ' 人）' + (archLevelAdjusted ? '\n归入层级：' + archPath(archFind(selectedArchLevel)) : ''));
+        var newId = 'copy-' + Date.now();
+        var parentCt = findContract(selectedParentId);
+        if (window.ContractTreeStore) {
+            ContractTreeStore.add({
+                id: newId,
+                name: name,
+                ct: 'worker',
+                typeName: C.typeName,
+                flowId: sourceFlowId,
+                flowName: sourceFlowName,
+                parent: selectedParentId || null,
+                status: 'worker_inviting',
+                amount: amount,
+                source: sourceId
+            });
+        }
+        showToast('已提交并邀请乙方（' + editInvited.length + ' 人）' +
+            (parentCt ? '\n上级合同：' + parentCt.name + '（' + contractTypeText(parentCt) + '）' : '\n直属本流程项'));
         // 校验通过：气泡消失后直接进入「确认中（发起方）」，不展示差异对比弹窗
         setTimeout(function () {
             window.location.href = 'worker-contract-confirming-initiator-new.html?invites=' +
-                encodeURIComponent(JSON.stringify(editInvited));
+                encodeURIComponent(JSON.stringify(editInvited)) + '&id=' + encodeURIComponent(newId);
         }, 2300);
     }
     function doSave() {
+        if (!sourceFlowId) { showToast('缺少所属服务流程项，请从合同列表重新发起'); return; }
         var breach = $('breachInput');
         if (breach) breach.classList.remove('required-error');
+        var draftName = ($('editNameInput') && $('editNameInput').value || '').trim() || C.name;
+        if (window.ContractTreeStore && sourceFlowId) {
+            ContractTreeStore.add({
+                id: 'copy-draft-' + Date.now(),
+                name: draftName,
+                ct: 'worker',
+                typeName: C.typeName,
+                flowId: sourceFlowId,
+                flowName: sourceFlowName,
+                parent: selectedParentId || null,
+                status: 'worker_draft'
+            });
+        }
         showToast('已保存草稿');
     }
     /* 复制发起特有：取消 = 放弃本次复制发起，返回原合同详情 */

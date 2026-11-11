@@ -1,52 +1,48 @@
-// 原型导航折叠/展开功能
-(function() {
-    // 确保DOM完全加载
+// 原型导航折叠/展开功能（规范范式 · 两端统一）
+// 说明：
+//  - 为 .page-nav 内的 .page-nav-title 注入可折叠开关。
+//  - 若 HTML 已含 id="pageNavToggle" 的开关元素（HTML 驱动型页面），则直接复用；
+//    否则在标题内动态创建 <span class="toggle-btn" id="pageNavToggle">▼</span>（JS 驱动型页面）。
+//  - 折叠状态持久化到 localStorage['pageNavCollapsed']（'true' / 'false'），
+//    与服务端/业主端详情页（内联 togglePageNav / restorePageNav）共用同一套状态与样式（common.css）。
+(function () {
     function initPageNav() {
-        // 延迟执行，确保所有DOM元素都已加载
-        setTimeout(function() {
-            var pageNav = document.querySelector('.page-nav');
-            if (!pageNav) {
-                console.log('未找到page-nav元素');
-                return;
-            }
+        var pageNav = document.querySelector('.page-nav');
+        if (!pageNav) return;
 
-            var navTitle = pageNav.querySelector('.page-nav-title');
-            if (!navTitle) {
-                console.log('未找到page-nav-title元素');
-                return;
-            }
+        var navTitle = pageNav.querySelector('.page-nav-title');
+        if (!navTitle) return;
 
-            // 添加切换按钮
-            var toggleBtn = document.createElement('span');
+        // 复用已存在的开关，否则动态创建
+        var toggleBtn = document.getElementById('pageNavToggle');
+        if (!toggleBtn) {
+            toggleBtn = document.createElement('span');
             toggleBtn.className = 'toggle-btn';
+            toggleBtn.id = 'pageNavToggle';
             toggleBtn.textContent = '▼';
             navTitle.appendChild(toggleBtn);
+        } else if (toggleBtn.className.indexOf('toggle-btn') === -1) {
+            toggleBtn.className += ' toggle-btn';
+        }
 
-            // 点击标题切换折叠/展开状态
-            navTitle.addEventListener('click', function(e) {
-                e.preventDefault();
-                e.stopPropagation();
-                pageNav.classList.toggle('collapsed');
-                toggleBtn.classList.toggle('collapsed');
-                
-                // 保存状态到localStorage
-                var isCollapsed = pageNav.classList.contains('collapsed');
-                localStorage.setItem('pageNavCollapsed', isCollapsed.toString());
-                console.log('导航状态切换为:', isCollapsed ? '折叠' : '展开');
-            });
+        // 点击标题切换折叠/展开
+        navTitle.addEventListener('click', function () {
+            var collapsed = pageNav.classList.toggle('collapsed');
+            toggleBtn.classList.toggle('collapsed', collapsed);
+            try {
+                localStorage.setItem('pageNavCollapsed', collapsed ? 'true' : 'false');
+            } catch (e) {}
+        });
 
-            // 从localStorage恢复状态
-            var savedState = localStorage.getItem('pageNavCollapsed');
-            if (savedState === 'true') {
+        // 从 localStorage 恢复折叠状态
+        try {
+            if (localStorage.getItem('pageNavCollapsed') === 'true') {
                 pageNav.classList.add('collapsed');
                 toggleBtn.classList.add('collapsed');
-                console.log('从localStorage恢复状态: 折叠');
             }
-            console.log('原型导航初始化完成');
-        }, 100); // 延迟100ms执行
+        } catch (e) {}
     }
 
-    // 页面加载完成后初始化
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', initPageNav);
     } else {

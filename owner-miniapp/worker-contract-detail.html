@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>家装平台小程序原型 - 工人合同详情（业主只读）</title>
+  <link rel="stylesheet" href="common.css">
+  <style>
+    .page-content {
+      height: calc(100% - 88px);
+      background-color: var(--bg-secondary);
+      overflow-y: auto;
+      padding: 12px 12px 24px;
+    }
+    /* 状态横幅（对齐工人合同详情页配色，只读） */
+    .wc-banner {
+      margin-bottom: 12px;
+      border-radius: 12px;
+      padding: 16px;
+      color: #fff;
+      line-height: 1.5;
+    }
+    .wc-banner .wc-b-title { font-size: 16px; font-weight: 700; }
+    .wc-banner .wc-b-sub { font-size: 12px; opacity: .92; margin-top: 4px; }
+    .wc-banner.wc-draft { background: linear-gradient(135deg, #8c8c8c 0%, #a6a6a6 100%); }
+    .wc-banner.wc-confirming { background: linear-gradient(135deg, #1890FF 0%, #40A9FF 100%); }
+    .wc-banner.wc-confirmed { background: linear-gradient(135deg, #52C41A 0%, #73D13D 100%); }
+    .wc-banner.wc-rejected { background: linear-gradient(135deg, #F5222D 0%, #FF4D4F 100%); }
+    .wc-banner.wc-neutral { background: linear-gradient(135deg, #bfbfbf 0%, #d9d9d9 100%); color:#595959; }
+    .wc-banner.wc-signed { background: linear-gradient(135deg, #722ED1 0%, #9254DE 100%); }
+    .wc-banner.wc-changing { background: linear-gradient(135deg, #FA8C16 0%, #FFA940 100%); }
+    .wc-banner.wc-change-confirming { background: linear-gradient(135deg, #FAAD14 0%, #FFC53D 100%); }
+
+    .wc-card {
+      background: #fff;
+      border-radius: 14px;
+      padding: 14px;
+      margin-bottom: 12px;
+      box-shadow: 0 1px 4px rgba(0,0,0,.04);
+    }
+    .wc-card-title {
+      font-size: 14px; font-weight: 600; color: var(--text);
+      margin-bottom: 10px; display: flex; align-items: center; gap: 6px;
+    }
+    .wc-card-title::before {
+      content: ''; width: 3px; height: 13px; border-radius: 2px; background: var(--primary-color);
+    }
+    .wc-row {
+      display: flex; justify-content: space-between; align-items: flex-start;
+      padding: 8px 0; border-top: 1px solid #f0f0f0; font-size: 13px;
+    }
+    .wc-row:first-of-type { border-top: none; }
+    .wc-k { color: var(--text-tertiary); flex-shrink: 0; margin-right: 12px; }
+    .wc-v { color: var(--text); text-align: right; line-height: 1.5; }
+    .wc-v.strong { font-weight: 600; }
+    .wc-amount { color: #cf1322; font-weight: 700; font-size: 15px; }
+
+    .wc-task { display: flex; align-items: center; gap: 10px; padding: 10px 0; border-top: 1px solid #f0f0f0; font-size: 13px; }
+    .wc-task:first-of-type { border-top: none; }
+    .wc-dot { width: 18px; height: 18px; border-radius: 50%; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 11px; color: #fff; }
+    .wc-dot.done { background: #52C41A; }
+    .wc-dot.pending { background: #d9d9d9; }
+    .wc-task-name { flex: 1; }
+    .wc-task-name.done { color: var(--text-tertiary); }
+    .wc-task-state { font-size: 12px; }
+    .wc-task-state.done { color: #52C41A; }
+    .wc-task-state.pending { color: var(--text-tertiary); }
+
+    .wc-note {
+      margin-top: 4px; padding: 10px 12px; border-radius: 10px;
+      background: #F0F5FF; border: 1px solid #D6E4FF; color: #2f54eb; font-size: 12px; line-height: 1.6;
+    }
+    .wc-readonly-tag {
+      display: inline-block; margin-left: 6px; padding: 1px 7px; border-radius: 10px;
+      background: #F0F5FF; color: #2f54eb; font-size: 11px; font-weight: 500; vertical-align: middle;
+    }
+  </style>
+</head>
+<body>
+<!-- ===== 公共原型导航（右侧，可折叠，localStorage 记忆） ===== -->
+<div class="page-nav">
+  <div class="page-nav-title" title="收起 / 展开 原型导航">原型导航 <span class="toggle-btn" id="pageNavToggle">▼</span></div>
+  <a href="home.html">首页</a>
+  <a href="project-detail-ongoing-v2.html">项目详情（进行中）</a>
+  <a href="project-detail-initial-v2.html">项目详情（初始）</a>
+  <a href="project-detail-completed-v2.html">项目详情（已完成）</a>
+  <a href="project-info.html">项目信息</a>
+  <a href="create-project.html">创建项目</a>
+  <a href="task-list.html">任务列表</a>
+  <a href="task-detail.html">任务详情</a>
+  <a href="contract-list.html">合同列表</a>
+  <a href="contract-detail.html">合同详情</a>
+  <a href="project-files.html">项目资料</a>
+  <a href="statement-list.html">账单列表</a>
+  <a href="activity-list.html">项目动态</a>
+  <a href="member.html">成员</a>
+  <a href="todo-list.html">待办</a>
+</div>
+
+<!-- ===== 手机框 ===== -->
+<div class="phone-frame">
+  <div class="status-bar">
+    <span class="time">9:41</span>
+    <div class="sb-ic">
+      <span class="sb-signal"><i></i><i></i><i></i><i></i></span>
+      <span class="sb-battery"><i></i></span>
+    </div>
+  </div>
+  <div class="nav-bar">
+    <a class="nb-back" href="contract-list.html" title="返回合同列表">‹</a>
+    <div class="title">工人合同详情<span class="wc-readonly-tag">业主只读</span></div>
+    <div class="nb-actions" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);display:flex;align-items:center;">
+      <div class="native-capsule" title="微信原生胶囊：由微信客户端渲染，开发者不可自定义其内容"><span class="nc-left">⋯</span><span class="nc-divider"></span><span class="nc-right">○</span></div>
+    </div>
+  </div>
+
+  <div class="page-content" id="pageContent">
+    <!-- 状态横幅（JS 注入） -->
+    <div id="wcBanner"></div>
+    <!-- 合同信息 -->
+    <div class="wc-card">
+      <div class="wc-card-title">合同信息</div>
+      <div id="wcInfo"></div>
+    </div>
+    <!-- 工程概况 -->
+    <div class="wc-card">
+      <div class="wc-card-title">工程概况（只读）</div>
+      <div class="wc-row"><span class="wc-k">承包范围</span><span class="wc-v" id="wcScope"></span></div>
+      <div class="wc-row"><span class="wc-k">质量标准</span><span class="wc-v">符合国家标准及合同约定，材料提供质量证明文件</span></div>
+      <div class="wc-row"><span class="wc-k">所属服务流程项</span><span class="wc-v strong" id="wcFlow"></span></div>
+      <div class="wc-row"><span class="wc-k">上级合同</span><span class="wc-v" id="wcParent"></span></div>
+    </div>
+    <!-- 阶段任务 -->
+    <div class="wc-card">
+      <div class="wc-card-title">阶段任务（<span id="wcTaskCount"></span>）</div>
+      <div id="wcTasks"></div>
+    </div>
+    <div class="wc-note">业主只读视图：合同内容由服务方维护，如需修改或补充请通过「项目动态 / 联系服务方」沟通，业主端不提供编辑入口。</div>
+  </div>
+</div>
+
+<script src="js/page-nav.js"></script>
+<script>
+/* 业主端工人合同只读数据（与 contract-list.html 的 CONTRACTS 工人条目一致，独立副本）
+   仅用于原型演示取数；真实数据应来自服务方合同库（批次二统一接入）。 */
+var WORKER_CONTRACTS = {
+  water: { name: '水电班组服务合同', typeName: '水电班组', flowName: '基础施工服务', status: 'worker_signed', version: 'V2', amount: 26000, partyA: '陈庄（工长）', partyB: '赵六（水电工长）', created: '2026-09-18', duration: 52, taskDone: 2, taskTotal: 5, parent: '基础施工服务合同' },
+  strong: { name: '强电服务合同', typeName: '强电', flowName: '基础施工服务', status: 'worker_inviting', version: 'V1', amount: 16000, partyA: '赵六（水电工长）', partyB: '孙八（强电）', created: '2026-10-08', duration: 30, taskDone: 0, taskTotal: 3, parent: '水电班组服务合同' },
+  weak: { name: '弱电服务合同', typeName: '弱电', flowName: '基础施工服务', status: 'worker_draft', version: 'V1', amount: 0, partyA: '赵六（水电工长）', partyB: '钱九（弱电）', created: '2026-10-09', duration: null, taskDone: 0, taskTotal: 2, parent: '水电班组服务合同' },
+  tile: { name: '泥瓦班组服务合同', typeName: '泥瓦班组', flowName: '基础施工服务', status: 'worker_inviting', version: 'V1', amount: 19800, partyA: '陈庄（工长）', partyB: '周十（泥瓦工长）', created: '2026-11-01', duration: 45, taskDone: 0, taskTotal: 4, parent: '基础施工服务合同' },
+  wood: { name: '木作班组服务合同', typeName: '木作班组', flowName: '基础施工服务', status: 'worker_draft', version: 'V1', amount: 0, partyA: '陈庄（工长）', partyB: '吴十一（木工）', created: '2026-11-02', duration: null, taskDone: 0, taskTotal: 3, parent: '基础施工服务合同' },
+  demo: { name: '拆除班组服务合同', typeName: '拆除班组', flowName: '基础施工服务', status: 'worker_signed', fulfilled: true, version: 'V1', amount: 8600, partyA: '陈庄（工长）', partyB: '郑十二（拆除）', created: '2026-08-20', duration: 12, taskDone: 3, taskTotal: 3, parent: '基础施工服务合同' }
+};
+
+var WC_STATUS = {
+  worker_draft: { text: '拟定中', sub: '合同正在编辑中，等待乙方完善', cls: 'wc-draft' },
+  worker_inviting: { text: '确认中', sub: '已邀请乙方，等待对方确认合同内容', cls: 'wc-confirming' },
+  worker_confirmed_receiver: { text: '已确认', sub: '乙方已确认合同内容', cls: 'wc-confirmed' },
+  worker_rejected_receiver: { text: '已拒绝', sub: '乙方已拒绝本次合同邀约', cls: 'wc-rejected' },
+  worker_lost_receiver: { text: '未中选', sub: '本次邀约未中选，合同终止', cls: 'wc-neutral' },
+  worker_signed: { text: '已签约', sub: '合同已正式生效', cls: 'wc-signed' },
+  changing: { text: '变更中', sub: '变更申请已发起，等待对方确认', cls: 'wc-changing' },
+  change_confirming: { text: '待确认变更', sub: '对方发起变更申请，待确认或驳回', cls: 'wc-change-confirming' },
+  change_rejected: { text: '变更已驳回', sub: '变更申请未通过', cls: 'wc-rejected' }
+};
+
+var WC_SCOPE = {
+  '水电班组': '强电、弱电、给排水等水电安装工程',
+  '强电': '配电箱安装、线缆敷设、灯具及开关插座接线',
+  '弱电': '网络、电话、电视、安防等弱电布线',
+  '泥瓦班组': '墙体拆改、砌筑、抹灰、地砖墙砖铺贴',
+  '木作班组': '吊顶、柜体、门窗套等木作工程',
+  '拆除班组': '非承重墙体拆除、旧装修面层铲除、垃圾清运'
+};
+
+function money(n) {
+  if (!n) return '¥0';
+  return '¥' + n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+}
+
+(function init() {
+  var q = new URLSearchParams(location.search);
+  var id = q.get('id') || 'water';
+  var c = WORKER_CONTRACTS[id] || WORKER_CONTRACTS['water'];
+
+  // 状态横幅
+  var st = WC_STATUS[c.status] || WC_STATUS['worker_draft'];
+  document.getElementById('wcBanner').innerHTML =
+    '<div class="wc-banner ' + st.cls + '">' +
+      '<div class="wc-b-title">' + c.name + '</div>' +
+      '<div class="wc-b-sub">' + st.text + ' · ' + st.sub + '</div>' +
+    '</div>';
+
+  // 合同信息
+  var durationText = c.duration ? (c.duration + ' 天（自签订之日起）') : '待约定';
+  var amountHtml = c.amount ? ('<span class="wc-amount">' + money(c.amount) + '</span>') : '<span style="color:var(--text-tertiary)">待填写</span>';
+  document.getElementById('wcInfo').innerHTML =
+    row('合同类型', '<span class="strong">' + c.typeName + '服务合同</span>') +
+    row('甲方', c.partyA) +
+    row('乙方', c.partyB) +
+    row('合同金额', amountHtml) +
+    row('工期', durationText) +
+    row('签订日期', c.created) +
+    row('合同版本', c.version);
+
+  // 工程概况
+  document.getElementById('wcScope').textContent = WC_SCOPE[c.typeName] || '按合同约定范围执行';
+  document.getElementById('wcFlow').textContent = c.flowName;
+  document.getElementById('wcParent').textContent = c.parent || '—（根合同）';
+
+  // 阶段任务
+  var total = c.taskTotal || 0, done = c.taskDone || 0;
+  document.getElementById('wcTaskCount').textContent = done + ' / ' + total + ' 已完成';
+  var tasksHtml = '';
+  for (var i = 1; i <= total; i++) {
+    var isDone = i <= done;
+    tasksHtml +=
+      '<div class="wc-task">' +
+        '<span class="wc-dot ' + (isDone ? 'done' : 'pending') + '">' + (isDone ? '✓' : i) + '</span>' +
+        '<span class="wc-task-name ' + (isDone ? 'done' : '') + '">阶段任务 ' + i + '</span>' +
+        '<span class="wc-task-state ' + (isDone ? 'done' : 'pending') + '">' + (isDone ? '已完成' : '待开始') + '</span>' +
+      '</div>';
+  }
+  document.getElementById('wcTasks').innerHTML = tasksHtml || '<div style="font-size:13px;color:var(--text-tertiary);padding:8px 0;">暂无阶段任务</div>';
+
+  function row(k, v) {
+    return '<div class="wc-row"><span class="wc-k">' + k + '</span><span class="wc-v">' + v + '</span></div>';
+  }
+})();
+</script>
+</body>
+</html>

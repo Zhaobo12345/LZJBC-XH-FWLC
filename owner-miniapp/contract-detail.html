@@ -336,11 +336,11 @@
                 </div>
                 <div class="info-row" data-page-node-id="x1z8MPxLy1z82SW6uGOFzO">
                     <div class="label" data-page-node-id="oFaS2uNbrMPcJImAhD4zms">合同类型</div>
-                    <div class="value" data-page-node-id="TAGnEh2BCnRkj9Wx891Htw"><span class="contract-category-tag" data-page-node-id="s7eMXfxH249EpYOQRrpeJW">基础施工服务合同</span></div>
+                    <div class="value" data-page-node-id="TAGnEh2BCnRkj9Wx891Htw"><span class="contract-category-tag" id="contractTypeValue" data-page-node-id="s7eMXfxH249EpYOQRrpeJW">基础施工服务合同</span></div>
                 </div>
                 <div class="info-row" data-page-node-id="6OPMMOH9MzWkDvPm4ldDH6">
                     <div class="label" data-page-node-id="DMTN44CNSUj655K5WrfCoL">合同编号</div>
-                    <div class="value" data-page-node-id="nK07kgPv10HGBbRxjn0K07">BJSDSWHT000001</div>
+                    <div class="value" id="contractNoValue" data-page-node-id="nK07kgPv10HGBbRxjn0K07">BJSDSWHT000001</div>
                 </div>
                 <div class="info-row" data-page-node-id="CDyVxZ5JV8kJn7dNnl5BUo">
                     <div class="label" data-page-node-id="rZ1Z3lo050R6UP2YS9aUPE">合同金额</div>
@@ -359,7 +359,7 @@
                 <div class="party-card" data-page-node-id="JGqOnMqQwHYnWq3Q1ObrWn">
                     <div class="avatar" data-page-node-id="qre8AVpH6HTJMhbucAhhuC">甲</div>
                     <div class="info" data-page-node-id="rOHY8AztBMGEBYSCtFlK9o">
-                        <div class="name" data-page-node-id="AL4a4pcPLgUDwIn9gnOJKP">张三</div>
+                        <div class="name" id="partyAName" data-page-node-id="AL4a4pcPLgUDwIn9gnOJKP">张三</div>
                         <div class="role" data-page-node-id="CYjGQW5VujhApRPDQ1x3cH">发包方（甲方）· 业主</div>
                     </div>
                     <div class="tag" id="partyATag" style="display: none;" data-page-node-id="ng34XmSlLlk6xcXV8ObTT6">拟定中</div>
@@ -367,7 +367,7 @@
                 <div class="party-card" data-page-node-id="1ieI7Iuecz1evMAc2P6ehB">
                     <div class="avatar party-b" data-page-node-id="jyDwk35P8n9OvLipzJcNgY">乙</div>
                     <div class="info" data-page-node-id="zFmOzsPVl6Eg1m86ucYswM">
-                        <div class="name" data-page-node-id="oGplBMB1YTwc7axnAFg9UE">李四</div>
+                        <div class="name" id="partyBName" data-page-node-id="oGplBMB1YTwc7axnAFg9UE">李四</div>
                         <div class="role" data-page-node-id="CuYQsQMCtQpzdxJycPfez3">承包方（乙方）· 施工方</div>
                     </div>
                     <div class="tag" id="partyBTag" style="display: none;" data-page-node-id="J3jAuWwYw1CH2AZfWmkon5">拟定中</div>
@@ -1615,7 +1615,7 @@
             </div>
             <div class="fulltext-content" data-page-node-id="nzRzVoVSmDu2DPAgeV3RPN">
                 <div class="contract-article" data-page-node-id="3BZuau5hENvHp6qJRabcLD">
-                    <div class="article-title" data-page-node-id="mEoTP0Bp55xFPz9r4VpIPS">合同编号：BJSDSWHT000001</div>
+                    <div class="article-title" id="clauseContractNo" data-page-node-id="mEoTP0Bp55xFPz9r4VpIPS">合同编号：BJSDSWHT000001</div>
                     <div class="article-content" data-page-node-id="3UiA3LPxQrkFg3F29F7o78">
                         <p data-page-node-id="IYpzuFgfGrPaN7tNqHNVSd"><strong data-page-node-id="jlACDjRDYHXN0LBr1m2DSp">合同名称：</strong>基础施工服务合同</p>
                         <p data-page-node-id="taAHf1ZkRsfYNcgdcf8MDk"><strong data-page-node-id="Mos1pVTM33EOV5ogfI5df5">签订日期：</strong>2024年01月10日</p>
@@ -2212,6 +2212,7 @@
         })();
     </script>
     <script src="js/craft-ref.js"></script>
+    <script src="js/contract-data.js"></script>
     <script src="js/contract-detail.js"></script>
     <script>
         // 页内「更多」面板控制（v2 示范页专用，不写入任何共享 JS 文件）

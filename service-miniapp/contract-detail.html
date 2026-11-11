@@ -338,6 +338,7 @@
                     <div class="op-item" onclick="showVersionModal(); closeMoreOps();" data-page-node-id="U9VJlucBm9WzCEmLsOheo6"><span class="op-icon" data-page-node-id="VKH3E3M4tQvPB7UULCz6gJ">📋</span><span data-page-node-id="MptFQOum8HZqXL8OEpytDz">版本记录</span></div>
                     <div class="op-item" onclick="showChangeRecordModal(); closeMoreOps();" data-page-node-id="YVhoyQv8Z0NjVCy78FDY9C"><span class="op-icon" data-page-node-id="4wNtLk6TVmCPc2PMG1BIEJ">📜</span><span data-page-node-id="ZbgsvsBiPocXFP203h22ag">变更记录</span></div>
                     <div class="op-item" id="exportContractBtn" style="display: none;" onclick="exportContract(); closeMoreOps();" data-page-node-id="cWtsFJvLHS9ZWC7hY80G8F"><span class="op-icon" data-page-node-id="MCtp40MVMDBxQxNa95F43t">📄</span><span data-page-node-id="2Cb0u6gkX7plkvuYer2ByP">导出合同文件</span></div>
+                    <div class="op-item" id="copyContractBtn" style="display: none;" onclick="ContractDetailPage.openCopyInitiate(); closeMoreOps();"><span class="op-icon">📑</span><span>复制发起</span></div>
                 </div>
 
             <div class="card status-banner draft" id="statusBanner" data-page-node-id="ib12VOpB75Ms2CDSuFlN36">
@@ -437,7 +438,6 @@
                 </div>
                 <div class="worker-contract-meta" id="workerContractMeta" data-page-node-id="2fyNvRTMqOAEcnSJK2nZpT"></div>
                 <div class="invite-list" id="inviteListBox" data-page-node-id="6ErGmRgcnFaDeqMyjfrc0a"></div>
-                <div class="arch-note" id="workerArchNote" style="display: none;" data-page-node-id="43MjHrobWPICfTzSbTx9pL"></div>
             </div>
 
 
@@ -857,6 +857,10 @@
                 <div class="info-row" data-page-node-id="i9hgN1Z2xbfkaENjJAN7cq">
                     <div class="label" data-page-node-id="JBQQ7rfYBXYRifMUVewVLv">合同编号</div>
                     <div class="value" data-page-node-id="cWzhGo4R4zubCOVmCKAH1j">BJSDSWHT000001</div>
+                </div>
+                <div class="info-row" id="newFlowRow" style="display: none;">
+                    <div class="label">所属服务流程项</div>
+                    <div class="value" id="newFlowValue">—</div>
                 </div>
                 <div class="info-row" data-page-node-id="PWBO2TXtEJVKG8kB9s5Ksu">
                     <div class="label" data-page-node-id="VwY8YuHPCPmdMO8DOYTyA6">合同金额</div>
@@ -2985,6 +2989,7 @@
 
 
     <script src="../common.js"></script>
+    <script src="js/flow-config-store.js"></script>
     <script src="contract-store.js"></script>
     <script src="js/contract-detail.js"></script>
     <script>

@@ -192,10 +192,6 @@
                             <div class="info-label" data-page-node-id="k90gz0pxwu9JFyLJBzTvyO">当前合同金额</div>
                             <div class="info-value" id="ctxAmount" data-page-node-id="HaQJF87rLiECAGEN29vkF2">¥0</div>
                         </div>
-                        <div class="change-info-item" data-page-node-id="EdhO8ZHj0a6clSRttYhcgF">
-                            <div class="info-label" data-page-node-id="AXKo7hv1bR3H8fkGukMOrx">所属架构层级</div>
-                            <div class="info-value" id="ctxGroup" data-page-node-id="AUGGUcAOjeS46ynrTBp78G">—</div>
-                        </div>
                     </div>
                 </div>
 
@@ -532,7 +528,6 @@
                 name: '水电班组服务合同',
                 type: 'shuidian',
                 typeName: '水电班组服务合同',
-                group: '水电工作组',
                 partyA: 'chenzhuang',
                 partyAName: '陈庄（工长）',
                 partyAPhone: '13800000001',
@@ -550,7 +545,6 @@
                 ],
                 partyB: 'zhang-shuidian',
                 partyBName: '张水电',
-                joinedArchitecture: '水电工作组',
                 signed: true,
                 createdAt: Date.now(),
                 changeLog: [],
@@ -748,7 +742,6 @@
             $('ctxPartyB').textContent = partyBName || '待确认';
             var baseAmt = Number(contract.amount) || 0;
             $('ctxAmount').textContent = '¥' + fmtMoney(baseAmt);
-            $('ctxGroup').textContent = contract.group || '—';
 
             // 金额变更预填
             $('changeAmountNew').value = baseAmt;
@@ -1397,8 +1390,12 @@
         function cancelChange() { goDetail('worker_signed'); }
 
         function goDetail(preview) {
-            global.location.href = 'worker-contract-detail.html?id=' + encodeURIComponent(workerId) +
-                '&viewer=sender&preview=' + encodeURIComponent(preview);
+            var viewer = getParam('viewer') || 'sender';
+            var url = 'worker-contract-detail.html?id=' + encodeURIComponent(workerId) +
+                '&viewer=' + encodeURIComponent(viewer) + '&preview=' + encodeURIComponent(preview);
+            var st = getParam('status');
+            if (st) url += '&status=' + encodeURIComponent(st);
+            global.location.href = url;
         }
 
         global.WCP = {
@@ -1453,5 +1450,20 @@
     })();
     </script>
 <script src="../shared/doc-viewer/doc-viewer.js"></script>
+<!-- ===== 公共原型导航（右侧，可折叠，localStorage 记忆；样式沿用 common.css 的 .page-nav） ===== -->
+<div class="page-nav">
+  <div class="page-nav-title" title="收起 / 展开 原型导航">原型导航 <span class="toggle-btn" id="pageNavToggle">▼</span></div>
+  <a href="home.html">首页</a>
+  <a href="project-detail-initial-v2.html">项目详情（初始-新版）</a>
+  <a href="project-list.html">项目主页（进行中）</a>
+  <a href="project-detail-completed-v2.html">项目详情（已完成-新版）</a>
+  <a href="project-info.html">项目信息</a>
+  <a href="create-project.html">创建项目</a>
+  <a href="task-list.html">任务列表</a>
+  <a href="task-detail.html">任务详情</a>
+  <a href="contract-list.html">合同列表</a>
+  <a href="contract-detail.html">合同详情</a>
+</div>
+<script src="js/page-nav.js"></script>
 </body>
 </html>

@@ -293,6 +293,7 @@
                 <li><a href="#overview">一、文档概述</a></li>
                 <li><a href="#product">二、产品概述</a></li>
                 <li><a href="#flow">三、关键交互流程</a></li>
+                <li><a href="#flow-service">服务流程（流程项）</a></li>
                 <li><a href="#state-machine">四、状态机定义</a></li>
                 <li><a href="#validation">五、字段校验规则</a></li>
             </div>
@@ -628,6 +629,21 @@
                     </tr>
                 </table>
             </div>
+        </div>
+
+        <!-- 服务流程（流程项） -->
+        <div class="section" id="flow-service">
+            <div class="section-title">服务流程（流程项）</div>
+            <p>项目以 6 个服务流程项组织主线：量房 / 初步设计 / 设计服务 / 基础施工服务 / 主材安装 / 售后。流程项配置、合同归属、状态机、角色视角与入口矩阵的完整规格见<a href="PRD-项目模块详细规格.html#sub-6-13" target="_blank">《PRD-项目模块详细规格》6.13 服务流程（流程项）规格</a>。</p>
+            <table>
+                <thead><tr><th>属性</th><th>口径</th></tr></thead>
+                <tbody>
+                    <tr><td>合同归属</td><td>唯一归属服务流程项：<code>flowId</code> / <code>flowName</code>；<code>parent</code> 为唯一层级字段；不生成无归属合同</td></tr>
+                    <tr><td>合同体系</td><td>非工人（基础施工服务 / 设计服务，5 步流程）与工人六工种（3 步流程）共 8 类，复制发起按体系分流到两个独立页</td></tr>
+                    <tr><td>端侧覆盖</td><td>服务方项目主页与初始 / 已完成两态详情页、业主端进行中详情页、PC 平台审核视角</td></tr>
+                    <tr><td>组织上下文参数</td><td><code>?level</code> / <code>?group</code> 仅用于成员层级筛选与加入工作组邀请，不代表合同归属</td></tr>
+                </tbody>
+            </table>
         </div>
 
         <!-- 状态机定义 -->

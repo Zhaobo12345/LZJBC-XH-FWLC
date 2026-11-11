@@ -4,6 +4,7 @@
     <meta charset="UTF-8" data-page-node-id="PBtq7JhrwZcoovGVJPWGjY">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" data-page-node-id="IJbWc2gm3F5SssgphrNRNS">
     <title>家装平台小程序原型 - 项目详情（初始-新版）</title>
+    <link rel="stylesheet" href="css/flow-drawer.css">
     <style>
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         /* 手机端小程序规范：隐藏所有滚动条（手机框内详情滚动、下拉面板、原型导航等） */
@@ -466,7 +467,6 @@
         <a href="project-detail-initial-v2.html" class="active" data-page-node-id="GF6IWruKAjOhC9l8tsUBRf">项目详情（初始-新版）</a>
         <a href="project-detail-completed-v2.html" data-page-node-id="cPPbeaCrV6TvmMiUEIBWLE">项目详情（已完成-新版）</a>
         <a href="project-info.html" data-page-node-id="KXgAaHiaXUvxNkOyAHbJjV">项目信息</a>
-        <a href="architecture.html" data-page-node-id="keo1IQWlYLidnQKHh9MSBP">项目架构</a>
         <a href="create-project.html" data-page-node-id="RJUmZXwcDBWAL8H7qRODRA">创建项目</a>
         <a href="contract-detail.html" data-page-node-id="OCAPIjBLD4bqBuCowR3BBF">合同详情</a>
         <a href="task-detail.html" data-page-node-id="5ASh0MNTcG3wQVGz0q2kZl">任务详情</a>
@@ -538,6 +538,33 @@
                 <div class="label" data-page-node-id="hA4kwn8g3yxqqNP8VNl3E9">我的</div>
             </div>
         </div>
+        <!-- 右侧「服务流程项」浮窗（自服务方端同步） -->
+        <div class="flow-trigger" id="flowTrigger" onclick="flowOpenFlowDrawer()">
+            <span class="ft-arrow">‹</span>
+            <span class="ft-text">服务流程</span>
+        </div>
+        <div class="flow-drawer-mask" id="flowDrawerMask" onclick="flowCloseFlowDrawer()"></div>
+        <div class="flow-drawer" id="flowDrawer">
+            <div class="fd-header">
+                <span class="fd-ic">ⓘ</span>
+                <span class="fd-title">服务流程项</span>
+                <span class="fd-tag">施工路线</span>
+                <span class="fd-right">
+                    <span class="fd-close" onclick="flowCloseFlowDrawer()">×</span>
+                </span>
+            </div>
+            <div class="fd-info">
+                <span class="fd-badge" id="fdMainCount">主线 0/0 环</span>
+                <span class="fd-act" id="fdContractAct" onclick="flowGoContract('drawer')" style="display:none"></span>
+                <span class="fd-locate" id="fdLocate" onclick="flowLocateCurrent()">📍 定位当前</span>
+            </div>
+            <div class="fd-content">
+                <div id="fdFlowList"></div>
+                <div id="fdDetailWrap"><div id="fdDetail"></div></div>
+            </div>
+            <div class="fd-footer">点击流程项可切换 · 点击任务查看详情</div>
+        </div>
+        <div class="flow-toast" id="flowToast"></div>
     </div>
 
 
@@ -654,7 +681,7 @@
                     '<span class="badge-wrap"><span class="badge">0</span></span>' +
                     '<span class="more" onclick="openPage(\'todo-list.html\')">查看全部 ></span></div>' +
                     '<div class="empty-tip"><span class="emoji">🗒️</span>项目刚创建，暂无待办<br>完善信息、搭建架构后将自动生成</div>' +
-                    '<button class="add-arch-btn" onclick="go(\'architecture.html\')">＋ 创建工作组 / 施工组</button>' +
+                    '<button class="add-arch-btn" onclick="go(\'member.html\')">＋ 创建工作组 / 施工组</button>' +
                 '</div>' +
                 // 我的任务（初始态：0/0）
                 '<div class="card my-task-card" onclick="openPage(\'task-list.html?role=exec\')"><div class="card-title"><span>📌 我的任务</span><span class="more">查看全部 ></span></div>' +
@@ -662,11 +689,28 @@
                         '<div class="my-task-stat"><div class="value">0</div><div class="label">已完成</div></div>' +
                         '<div class="my-task-divider"></div>' +
                         '<div class="my-task-stat"><div class="value">0</div><div class="label">我作为执行人的全部任务</div></div>' +
-                    '</div></div>' +
+                // 服务流程（自服务方端同步：主页流程卡 + 右侧浮窗）
+                '<div class="flow-card" id="flowCard">' +
+                    '<div class="flow-sticky" id="flowSticky">' +
+                        '<div class="flow-head">' +
+                            '<span class="fh-t">🧭 服务流程</span>' +
+                            '<span class="fh-n" id="mainLine">主线 0/0</span>' +
+                            '<span class="flow-head-go" onclick="flowOpenFlowDrawer()">全部流程 ›</span>' +
+                        '</div>' +
+                        '<div class="flow-stats">' +
+                            '<div class="fs-seg"><span class="fs-num" id="cNum">0/0</span><span class="fs-lab">合同 · <span id="cPct">0%</span></span></div>' +
+                            '<div class="fs-div"></div>' +
+                            '<div class="fs-seg"><span class="fs-num" id="tNum">0/0</span><span class="fs-lab">任务 · <span id="tPct">0%</span></span></div>' +
+                        '</div>' +
+                        '<div class="rail-wrap">' +
+                            '<div class="flow-rail" id="flowRail"></div>' +
+                            '<div class="rail-mask" id="railMask"></div>' +
+                        '</div>' +
+                    '</div>' +
+                '</div>' +
                 // 吸顶快捷入口 + 架构
                 '<div class="sticky-header" id="stickyHeader">' +
                     '<div class="quick-nav" id="quickNav">' +
-                        '<div class="quick-nav-item" onclick="go(\'architecture.html\')"><div class="icon structure">🏗️</div><div class="label">架构</div></div>' +
                         '<div class="quick-nav-item" onclick="go(\'member.html\')"><div class="icon member">👥</div><div class="label">成员</div></div>' +
                         '<div class="quick-nav-item" onclick="go(\'project-files.html\')"><div class="icon file">📁</div><div class="label">资料</div></div>' +
                         '<div class="quick-nav-item" onclick="go(\'statement-list.html\')"><div class="icon statement">💰</div><div class="label">对账单</div></div></div>' +
@@ -836,5 +880,7 @@
         renderDetail();
     </script>
 <script src="../shared/doc-viewer/doc-viewer.js"></script>
+<script src="js/flow-config-store.js"></script>
+<script src="js/flow-drawer.js"></script>
 </body>
 </html>

@@ -304,7 +304,7 @@ const ContractDetailPage = (function() {
         },
         worker_confirmed_sender: {
             text: '已确认',
-            desc: '乙方已确认，已自动加入项目架构层级。请等待乙方上传签约文件。',
+            desc: '乙方已确认。请等待乙方上传签约文件。',
             bannerClass: 'confirmed',
             isWorker: true,
             hideTabs: true,
@@ -314,7 +314,7 @@ const ContractDetailPage = (function() {
         },
         worker_confirmed_receiver: {
             text: '已确认',
-            desc: '您已成为本合同乙方，已自动加入项目架构层级。请上传签约文件，上传后合同正式生效。',
+            desc: '您已成为本合同乙方。请上传签约文件，上传后合同正式生效。',
             bannerClass: 'confirmed',
             isWorker: true,
             hideTabs: true,
@@ -342,7 +342,7 @@ const ContractDetailPage = (function() {
         },
         worker_signed: {
             text: '已签约',
-            desc: '合同已正式生效（乙方已上传签约文件并自动加入项目架构层级）。',
+            desc: '合同已正式生效（乙方已上传签约文件）。',
             bannerClass: 'signed',
             isWorker: true,
             hideTabs: true,
@@ -496,7 +496,9 @@ const ContractDetailPage = (function() {
                 partyBName: urlParams.get('partyBName') || '',
                 amount: urlParams.get('amount') || '',
                 duration: urlParams.get('duration') || '',
-                group: urlParams.get('group') || ''
+                flowId: urlParams.get('flowId') || '',
+                flowName: urlParams.get('flowName') || '',
+                from: urlParams.get('from') || ''
             };
             updateContractStatus('draft');
             updateNewContractDisplay();
@@ -504,6 +506,21 @@ const ContractDetailPage = (function() {
             const status = getUrlParam('status');
             if (status && contractStatus[status]) {
                 updateContractStatus(status);
+            }
+            /* 从服务流程浮窗进入：item = 流程项 id，仅回填「所属服务流程项」展示行，正文仍为当前演示合同 */
+            const flowItem = urlParams.get('item') || urlParams.get('flowId') || '';
+            if (flowItem && window.FlowCfgStore) {
+                var cfg = FlowCfgStore.find(flowItem);
+                var flowName = (cfg && cfg.name) || urlParams.get('flowName') || '';
+                if (flowName) {
+                    const flowRow = document.getElementById('newFlowRow');
+                    const flowValue = document.getElementById('newFlowValue');
+                    if (flowRow && flowValue) { flowRow.style.display = ''; flowValue.textContent = flowName; }
+                }
+            }
+            // 从合同列表「发起变更」进入（基础/设计合同）：自动打开发起变更弹窗
+            if (urlParams.get('openChange') === '1') {
+                showChangeModal();
             }
         }
     }
@@ -517,6 +534,13 @@ const ContractDetailPage = (function() {
             contractTitleEl.textContent = state.newContractData.name;
         }
         
+        const flowRow = document.getElementById('newFlowRow');
+        const flowValue = document.getElementById('newFlowValue');
+        if (flowRow && flowValue && state.newContractData.flowName) {
+            flowRow.style.display = '';
+            flowValue.textContent = state.newContractData.flowName;
+        }
+
         const infoRows = document.querySelectorAll('.info-row');
         infoRows.forEach(item => {
             const label = item.querySelector('.label');
@@ -527,8 +551,8 @@ const ContractDetailPage = (function() {
                     value.textContent = state.newContractData.typeName;
                 } else if (labelText.includes('合同金额') && state.newContractData.amount) {
                     value.textContent = state.newContractData.amount + ' 元';
-                } else if (labelText.includes('所属架构层级') && state.newContractData.group) {
-                    value.textContent = state.newContractData.group;
+                } else if (labelText.includes('所属服务流程项') && state.newContractData.flowName) {
+                    value.textContent = state.newContractData.flowName;
                 }
             }
         });
@@ -630,6 +654,13 @@ const ContractDetailPage = (function() {
         // 导出按钮
         const exportBtn = document.getElementById('exportContractBtn');
         if (exportBtn) exportBtn.style.display = 'flex';
+
+        // 复制发起入口（仅服务侧详情页存在该元素；业主端无此元素则跳过，保证业主端无入口）
+        const copyBtn = document.getElementById('copyContractBtn');
+        if (copyBtn) {
+            const copySignedStates = ['signed', 'changing', 'change_confirming', 'change_platform_reviewing', 'change_platform_rejected', 'change_confirming_sender', 'change_confirming_receiver', 'change_signing_wait', 'change_confirmed'];
+            copyBtn.style.display = copySignedStates.indexOf(status) > -1 ? 'flex' : 'none';
+        }
         
         // 状态流程图
         updateStatusFlowDiagram(status);
@@ -1202,7 +1233,7 @@ const ContractDetailPage = (function() {
             let html = '';
             html += workerMetaRow('合同名称', c.name);
             html += workerMetaRow('合同类型', c.typeName);
-            html += workerMetaRow('所属架构层级', c.group || '—');
+            html += workerMetaRow('所属服务流程项', c.flowName || '未设置');
             if (c.amount) html += workerMetaRow('合同金额', c.amount + ' 元');
             if (c.partyAName) html += workerMetaRow('甲方', c.partyAName);
             if (c.partyBName && (c.status === 'worker_confirmed' || c.status === 'worker_signed')) {
@@ -1214,15 +1245,6 @@ const ContractDetailPage = (function() {
         renderWorkerFlow(status);
         renderInviteListBox(c, status);
 
-        const arch = document.getElementById('workerArchNote');
-        if (arch) {
-            if (c.status === 'worker_confirmed' && c.joinedArchitecture) {
-                arch.style.display = 'block';
-                arch.innerHTML = '✅ 乙方「' + escapeHtml(c.partyBName) + '」已自动加入项目架构层级：' + escapeHtml(c.joinedArchitecture);
-            } else {
-                arch.style.display = 'none';
-            }
-        }
 
         // 接收方未中签：仅展示失败提示，禁用操作按钮
         if (state.viewer === 'receiver' && status === 'worker_lost_receiver') {
@@ -1699,7 +1721,7 @@ const ContractDetailPage = (function() {
             // 工人合同新流程（方案 B）
             worker_withdraw: { title: '撤回合同邀约', message: '确定要撤回确认吗？撤回后合同退回拟定中，需重新填写并邀请人员后提交邀约。' },
             worker_reject: { title: '拒绝邀请', message: '确定要拒绝此合同邀约吗？拒绝后您不会成为本合同乙方。' },
-            worker_confirm: { title: '确认加入合同', message: '确定要确认加入此合同吗？确认后您将成为本合同乙方，并自动加入项目架构层级。' },
+            worker_confirm: { title: '确认加入合同', message: '确定要确认加入此合同吗？确认后您将成为本合同乙方。' },
             worker_resubmit: { title: '重新提交邀约', message: '确定要重新提交邀约吗？将向所选意向乙方重新发送合同邀约。' }
         };
         
@@ -1885,15 +1907,17 @@ const ContractDetailPage = (function() {
                     renderWorkerFromStore();
                     return;
                 }
-                showCustomToast('确认成功！您已成为本合同乙方，已自动加入项目架构层级');
+                showCustomToast('确认成功！您已成为本合同乙方');
                 renderWorkerFromStore();
             },
             '重新提交邀约': () => {
                 closeModal();
                 const c = ContractStore.getContract(state.workerId);
+                const flowId = (c && c.flowId) || (state.newContractData && state.newContractData.flowId) || '';
                 const q = new URLSearchParams({
+                    from: 'worker-detail',
                     editId: state.workerId,
-                    group: c ? c.group : '',
+                    item: flowId,
                     type: c ? c.type : ''
                 });
                 location.href = 'create-contract.html?' + q.toString();
@@ -4579,6 +4603,26 @@ const ContractDetailPage = (function() {
         applyAmountMask();
     }
     
+    // ==================== 复制发起入口 ====================
+    /**
+     * 复制发起（非工人 / 服务类）：跳转服务类独立复制发起页，带入来源合同 id 预填
+     * 工人合同详情「更多」菜单仍走 contract-copy-initiate.html（工人侧），按合同类型分流
+     */
+    function openCopyInitiate() {
+        var qs = new URLSearchParams(window.location.search);
+        var src = state.currentContractId || '';
+        /* 归属服务流程项：优先透传当前页参数，其次取新建合同数据 / 合约库反查 */
+        var flowId = qs.get('item') || qs.get('flowId') || (state.newContractData && state.newContractData.flowId) || '';
+        if (!flowId && src && window.ContractStore) {
+            var c = ContractStore.getContract(src);
+            flowId = (c && c.flowId) || '';
+        }
+        var parent = qs.get('parent') || '';
+        var q = 'from=detail&source=' + encodeURIComponent(src) + '&item=' + encodeURIComponent(flowId);
+        if (parent) q += '&parent=' + encodeURIComponent(parent);
+        window.location.href = 'service-contract-copy-initiate.html?' + q;
+    }
+
     // ==================== 公开API ====================
     return {
         // 状态获取
@@ -4595,6 +4639,7 @@ const ContractDetailPage = (function() {
         
         // 状态更新
         updateContractStatus,
+        openCopyInitiate,
         demoFulfilled,
         demoSigned,
         updateFulfilledBadge,

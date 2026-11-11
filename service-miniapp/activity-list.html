@@ -172,17 +172,6 @@
             color: #FFFFFF;
         }
 
-        /* 架构层级筛选标签（来自项目详情跳转携带，可移除） */
-        .level-filter-row {
-            display: flex;
-            padding: 8px 16px 0;
-        }
-        .level-filter-row .level-remove {
-            margin-left: 6px;
-            cursor: pointer;
-            opacity: 0.7;
-            font-weight: 600;
-        }
 
         .activity-list {
             padding: 12px 16px;
@@ -611,10 +600,6 @@
                 </div>
             </div>
 
-            <!-- 架构层级筛选标签（来自项目详情跳转携带，无参数时不渲染） -->
-            <div class="level-filter-row" id="levelFilterRow" style="display: none;">
-                <div class="filter-tag active" id="levelFilterTag"></div>
-            </div>
 
             <div class="activity-list" id="activityList">
             </div>
@@ -640,7 +625,6 @@
     <div class="page-nav">
         <div class="page-nav-title">原型导航</div>
         <a href="home.html" class="page-nav-item">首页</a>
-        <a href="project-list.html" class="page-nav-item">项目主页（进行中）</a>
         <a href="project-list.html" class="page-nav-item">项目主页（进行中）</a>
         <a href="activity-list.html" class="page-nav-item active">项目动态</a>
         <a href="task-list.html" class="page-nav-item">任务列表</a>
@@ -669,7 +653,6 @@
                 typeLabel: '任务确认',
                 content: '确认了<span class="activity-stage-tag plumbing">水电</span>开槽布线',
                 source: '水电班组服务合同',
-                level: '水电工作组',
                 hasMedia: true,
                 mediaCount: 3,
                 hasPermission: true
@@ -688,7 +671,6 @@
                 typeLabel: '任务提交',
                 content: '完成了<span class="activity-stage-tag plumbing">水电</span>开槽布线 的施工',
                 source: '水电班组服务合同',
-                level: '水电工作组',
                 hasMedia: true,
                 mediaCount: 2,
                 hasPermission: true
@@ -707,7 +689,6 @@
                 typeLabel: '任务完成',
                 content: '水电改造 已完成',
                 source: '水电班组服务合同',
-                level: '水电工作组',
                 hasMedia: false,
                 mediaCount: 0,
                 hasPermission: true
@@ -726,7 +707,6 @@
                 typeLabel: '合同签约',
                 content: '设计服务合同签约完成',
                 source: '设计服务合同',
-                level: '项目部',
                 hasMedia: true,
                 mediaCount: 1,
                 hasPermission: true
@@ -745,7 +725,6 @@
                 typeLabel: '任务确认',
                 content: '确认了<span class="activity-stage-tag plumbing">水电</span>材料进场',
                 source: '水电班组服务合同',
-                level: '水电工作组',
                 hasMedia: false,
                 mediaCount: 0,
                 hasPermission: true
@@ -764,7 +743,6 @@
                 typeLabel: '合同签约',
                 content: '水电班组服务合同签约完成',
                 source: '水电班组服务合同',
-                level: '水电工作组',
                 hasMedia: true,
                 mediaCount: 1,
                 hasPermission: true
@@ -783,7 +761,6 @@
                 typeLabel: '合同签约',
                 content: '泥瓦工班组服务合同签约完成',
                 source: '泥瓦工班组服务合同',
-                level: '泥瓦工作组',
                 hasMedia: false,
                 mediaCount: 0,
                 hasPermission: false
@@ -802,7 +779,6 @@
                 typeLabel: '任务提交',
                 content: '完成了<span class="activity-stage-tag base">基础施工</span>阶段开工 的施工',
                 source: '基础施工服务合同',
-                level: '项目部',
                 hasMedia: false,
                 mediaCount: 0,
                 hasPermission: true
@@ -821,7 +797,6 @@
                 typeLabel: '任务驳回',
                 content: '驳回了<span class="activity-stage-tag carpentry">木作</span>柜体安装',
                 source: '木作班组服务合同',
-                level: '木工工作组',
                 hasMedia: false,
                 mediaCount: 0,
                 hasPermission: true
@@ -840,7 +815,6 @@
                 typeLabel: '合同签约',
                 content: '设计服务合同签约完成',
                 source: '设计服务合同',
-                level: '项目部',
                 hasMedia: true,
                 mediaCount: 1,
                 hasPermission: true
@@ -849,16 +823,12 @@
 
         let currentTypeFilter = 'all';
         let currentDateFilter = 'all';
-        let currentLevelFilter = null;
         let displayedCount = 10;
 
         function renderActivities() {
             const activityList = document.getElementById('activityList');
             let filteredActivities = activities;
 
-            if (currentLevelFilter) {
-                filteredActivities = filteredActivities.filter(a => a.level === currentLevelFilter);
-            }
 
             if (currentTypeFilter !== 'all') {
                 filteredActivities = filteredActivities.filter(a => a.type === currentTypeFilter);
@@ -1131,27 +1101,9 @@
         });
 
         function clearLevelFilter() {
-            currentLevelFilter = null;
-            const row = document.getElementById('levelFilterRow');
-            if (row) row.style.display = 'none';
             renderActivities();
         }
 
-        // 架构层级初始化（来自项目详情跳转携带；项目部=不带参数）
-        (function initLevelFilter() {
-            try {
-                const lv = new URLSearchParams(location.search).get('level');
-                if (lv && lv !== '项目部') {
-                    currentLevelFilter = lv;
-                    const row = document.getElementById('levelFilterRow');
-                    const tag = document.getElementById('levelFilterTag');
-                    if (row && tag) {
-                        tag.innerHTML = '架构层级：' + lv ;
-                        row.style.display = 'flex';
-                    }
-                }
-            } catch (e) {}
-        })();
 
         renderActivities();
     </script>

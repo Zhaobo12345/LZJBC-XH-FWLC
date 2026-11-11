@@ -80,14 +80,26 @@
                     <div class="filter-item">
                         <label>合同类型</label>
                         <select id="typeFilter" onchange="filterContracts()">
-                            <option value="">全部</option>
-                            <option value="base_construction">基础施工服务合同</option>
+                            <option value="">全部类型</option>
+                            <option value="base">基础施工服务合同</option>
                             <option value="design">设计服务合同</option>
                         </select>
                     </div>
                     <div class="filter-item">
+                        <label>所属服务流程项</label>
+                        <select id="flowFilter" onchange="filterContracts()">
+                            <option value="">全部流程项</option>
+                            <option value="lh">量房（不含合同）</option>
+                            <option value="cs">初步设计（不含合同）</option>
+                            <option value="ht">设计服务</option>
+                            <option value="sg">基础施工服务</option>
+                            <option value="cz">主材安装</option>
+                            <option value="sh">售后（不含合同）</option>
+                        </select>
+                    </div>
+                    <div class="filter-item">
                         <label>搜索</label>
-                        <input type="text" id="searchInput" placeholder="合同名称/项目名称" oninput="filterContracts()">
+                        <input type="text" id="searchInput" placeholder="合同名称/项目名称/流程项" oninput="filterContracts()">
                         <button class="pc-btn pc-btn-default" onclick="filterContracts()" style="margin-left:6px;">搜索</button>
                     </div>
                     <div class="filter-item">
@@ -102,6 +114,7 @@
                                 <th>合同名称</th>
                                 <th>关联项目</th>
                                 <th>合同类型</th>
+                                <th>所属服务流程项</th>
                                 <th>合同金额</th>
                                 <th>当前状态</th>
                                 <th>创建时间</th>
@@ -145,66 +158,9 @@
         </div>
     </div>
 
-    <div class="pc-modal-overlay" id="reviewModal">
-        <div class="pc-modal" style="width: 600px;">
-            <div class="pc-modal-header">
-                <div class="pc-modal-title" id="reviewModalTitle">审核合同</div>
-                <div class="pc-modal-close" onclick="closeReviewModal()">×</div>
-            </div>
-            <div class="pc-modal-body">
-                <div class="review-info">
-                    <div class="review-info-title">合同基本信息</div>
-                    <div class="review-info-row">
-                        <div class="review-info-label">合同名称</div>
-                        <div class="review-info-value" id="reviewContractName">水电分包合同-西湖区别墅</div>
-                    </div>
-                    <div class="review-info-row">
-                        <div class="review-info-label">关联项目</div>
-                        <div class="review-info-value" id="reviewProjectName">西湖区别墅</div>
-                    </div>
-                    <div class="review-info-row">
-                        <div class="review-info-label">合同类型</div>
-                        <div class="review-info-value" id="reviewContractType">水电工程</div>
-                    </div>
-                    <div class="review-info-row">
-                        <div class="review-info-label">合同金额</div>
-                        <div class="review-info-value" id="reviewContractAmount">￥50,000</div>
-                    </div>
-                    <div class="review-info-row">
-                        <div class="review-info-label">甲方</div>
-                        <div class="review-info-value">张三（项目经理）</div>
-                    </div>
-                    <div class="review-info-row">
-                        <div class="review-info-label">乙方</div>
-                        <div class="review-info-value">李四（电工组长）</div>
-                    </div>
-                </div>
-                <div id="rejectReasonSection" style="display: none;">
-                    <div style="font-size: 14px; font-weight: 500; margin-bottom: 8px;">驳回原因 <span style="color: var(--error-color);">*</span></div>
-                    <textarea class="reject-reason-input" id="rejectReason" placeholder="请输入驳回原因，将通知合同创建方进行修改"></textarea>
-                </div>
-            </div>
-            <div class="pc-modal-footer">
-                <button class="pc-btn pc-btn-default" onclick="closeReviewModal()">取消</button>
-                <button class="pc-btn pc-btn-primary" id="reviewConfirmBtn" onclick="confirmReview()">确认</button>
-            </div>
-        </div>
-    </div>
-
-    <div class="pc-modal-overlay" id="toastModal">
-        <div class="pc-modal" style="width: 360px;">
-            <div class="pc-modal-body" style="text-align: center; padding: 32px;">
-                <div style="font-size: 48px; margin-bottom: 16px;" id="toastIcon">✅</div>
-                <div style="font-size: 16px; font-weight: 500; margin-bottom: 8px;" id="toastTitle">操作成功</div>
-                <div style="font-size: 14px; color: var(--text-secondary);" id="toastMessage">合同审核已通过</div>
-            </div>
-            <div class="pc-modal-footer" style="justify-content: center;">
-                <button class="pc-btn pc-btn-primary" onclick="closeToastModal()">确定</button>
-            </div>
-        </div>
-    </div>
     <script src="pc-common.js"></script>
     <script src="../common.js"></script>
+    <script src="pc-contract-data.js"></script>
     <script src="pc-contract-list.js"></script>
 
 <script src="../shared/doc-viewer/doc-viewer.js"></script>

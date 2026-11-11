@@ -6,6 +6,7 @@
     <title>家装平台小程序原型 - 业主端 项目详情（已完成-新版）</title>
     <link rel="stylesheet" href="common.css">
     <link rel="stylesheet" href="css/project-detail.css">
+    <link rel="stylesheet" href="css/flow-drawer.css">
 <style>
         /* 项目基本信息头部（参考上传图片效果：左「项目已完工」、右「面积户型」） */
         .project-basic-header {
@@ -419,14 +420,30 @@
                 </div>
             </div>
 
+            <!-- 服务流程（自服务方端同步：主页流程卡 + 右侧浮窗） -->
+            <div class="flow-card" id="flowCard">
+                <div class="flow-sticky" id="flowSticky">
+                    <div class="flow-head">
+                        <span class="fh-t">🧭 服务流程</span>
+                        <span class="fh-n" id="mainLine">主线 0/0</span>
+                        <span class="flow-head-go" onclick="flowOpenFlowDrawer()">全部流程 ›</span>
+                    </div>
+                    <div class="flow-stats">
+                        <div class="fs-seg"><span class="fs-num" id="cNum">0/0</span><span class="fs-lab">合同 · <span id="cPct">0%</span></span></div>
+                        <div class="fs-div"></div>
+                        <div class="fs-seg"><span class="fs-num" id="tNum">0/0</span><span class="fs-lab">任务 · <span id="tPct">0%</span></span></div>
+                    </div>
+                    <div class="rail-wrap">
+                        <div class="flow-rail" id="flowRail"></div>
+                        <div class="rail-mask" id="railMask"></div>
+                    </div>
+                </div>
+            </div>
+
             <!-- 快捷入口：架构、成员、资料库、对账单（项目信息已由顶部基本信息区承载） -->
             <div class="sticky-header" id="stickyHeader">
                 <div class="quick-nav" id="quickNav">
                     <div class="pin-btn" id="pinBtn">📌 固定</div>
-                    <div class="quick-nav-item" data-href="architecture.html">
-                        <div class="icon structure">🏗️</div>
-                        <div class="label">架构</div>
-                    </div>
                     <div class="quick-nav-item" data-href="member.html">
                         <div class="icon member">👥</div>
                         <div class="label">成员</div>
@@ -551,7 +568,7 @@
                         <div class="contract-item" data-href="contract-detail.html?status=completed">
                             <div class="info">
                                 <div class="name">水电班组服务合同</div>
-                                <div class="meta">水电工作组 | 金额：8万</div>
+                                <div class="meta">金额：8万</div>
                             </div>
                             <div class="progress-wrap">
                                 <div class="percent">100%</div>
@@ -561,7 +578,7 @@
                         <div class="contract-item" data-href="contract-detail.html?status=completed">
                             <div class="info">
                                 <div class="name">泥瓦工班组服务合同</div>
-                                <div class="meta">泥瓦工作组 | 金额：12万</div>
+                                <div class="meta">金额：12万</div>
                             </div>
                             <div class="progress-wrap">
                                 <div class="percent">100%</div>
@@ -571,7 +588,7 @@
                         <div class="contract-item" data-href="contract-detail.html?status=completed">
                             <div class="info">
                                 <div class="name">木作班组服务合同</div>
-                                <div class="meta">木工工作组 | 金额：15万</div>
+                                <div class="meta">金额：15万</div>
                             </div>
                             <div class="progress-wrap">
                                 <div class="percent">100%</div>
@@ -581,7 +598,7 @@
                         <div class="contract-item" data-href="contract-detail.html?status=completed">
                             <div class="info">
                                 <div class="name">油漆工班组服务合同</div>
-                                <div class="meta">油漆工作组 | 金额：10万</div>
+                                <div class="meta">金额：10万</div>
                             </div>
                             <div class="progress-wrap">
                                 <div class="percent">100%</div>
@@ -591,7 +608,7 @@
                         <div class="contract-item" data-href="contract-detail.html?status=completed">
                             <div class="info">
                                 <div class="name">防水班组服务合同</div>
-                                <div class="meta">防水工作组 | 金额：6万</div>
+                                <div class="meta">金额：6万</div>
                             </div>
                             <div class="progress-wrap">
                                 <div class="percent">100%</div>
@@ -601,7 +618,7 @@
                         <div class="contract-item" data-href="contract-detail.html?status=completed">
                             <div class="info">
                                 <div class="name">吊顶班组服务合同</div>
-                                <div class="meta">吊顶工作组 | 金额：9万</div>
+                                <div class="meta">金额：9万</div>
                             </div>
                             <div class="progress-wrap">
                                 <div class="percent">100%</div>
@@ -611,7 +628,7 @@
                         <div class="contract-item" data-href="contract-detail.html?status=completed">
                             <div class="info">
                                 <div class="name">橱柜班组服务合同</div>
-                                <div class="meta">柜体工作组 | 金额：11万</div>
+                                <div class="meta">金额：11万</div>
                             </div>
                             <div class="progress-wrap">
                                 <div class="percent">100%</div>
@@ -621,7 +638,7 @@
                         <div class="contract-item" data-href="contract-detail.html?status=completed">
                             <div class="info">
                                 <div class="name">墙面班组服务合同</div>
-                                <div class="meta">墙面工作组 | 金额：7万</div>
+                                <div class="meta">金额：7万</div>
                             </div>
                             <div class="progress-wrap">
                                 <div class="percent">100%</div>
@@ -708,15 +725,41 @@
                 <div class="label">我的</div>
             </div>
         </div>
+        <!-- 右侧「服务流程项」浮窗（自服务方端同步） -->
+        <div class="flow-trigger" id="flowTrigger" onclick="flowOpenFlowDrawer()">
+            <span class="ft-arrow">‹</span>
+            <span class="ft-text">服务流程</span>
+        </div>
+        <div class="flow-drawer-mask" id="flowDrawerMask" onclick="flowCloseFlowDrawer()"></div>
+        <div class="flow-drawer" id="flowDrawer">
+            <div class="fd-header">
+                <span class="fd-ic">ⓘ</span>
+                <span class="fd-title">服务流程项</span>
+                <span class="fd-tag">施工路线</span>
+                <span class="fd-right">
+                    <span class="fd-close" onclick="flowCloseFlowDrawer()">×</span>
+                </span>
+            </div>
+            <div class="fd-info">
+                <span class="fd-badge" id="fdMainCount">主线 0/0 环</span>
+                <span class="fd-act" id="fdContractAct" onclick="flowGoContract('drawer')" style="display:none"></span>
+                <span class="fd-locate" id="fdLocate" onclick="flowLocateCurrent()">📍 定位当前</span>
+            </div>
+            <div class="fd-content">
+                <div id="fdFlowList"></div>
+                <div id="fdDetailWrap"><div id="fdDetail"></div></div>
+            </div>
+            <div class="fd-footer">点击流程项可切换 · 点击任务查看详情</div>
+        </div>
+        <div class="flow-toast" id="flowToast"></div>
     </div>
 
     <div class="page-nav">
-        <div class="page-nav-title">原型导航</div>
+        <div class="page-nav-title" onclick="togglePageNav()">原型导航 <span class="toggle-btn" id="pageNavToggle">▼</span></div>
         <a href="home.html" class="page-nav-item">首页</a>
         <a href="project-detail-ongoing-v2.html" class="page-nav-item">项目详情（进行中-新版）</a>
         <a href="project-detail-completed-v2.html" class="page-nav-item active">项目详情（已完成-新版）</a>
         <a href="project-info.html" class="page-nav-item">项目信息</a>
-        <a href="architecture.html" class="page-nav-item">项目架构</a>
         <a href="contract-detail.html" class="page-nav-item">合同详情</a>
         <a href="task-detail.html" class="page-nav-item">任务详情</a>
         <a href="todo-list.html" class="page-nav-item">全部待办</a>
@@ -928,6 +971,29 @@
             }
         })();
     </script>
+    <script>
+        /* ===================== 原型导航 收起/展开（规范范式） ===================== */
+        function togglePageNav() {
+            var nav = document.querySelector('.page-nav');
+            var btn = document.getElementById('pageNavToggle');
+            if (!nav) return;
+            var collapsed = nav.classList.toggle('collapsed');
+            if (btn) btn.classList.toggle('collapsed', collapsed);
+            try { localStorage.setItem('pageNavCollapsed', collapsed ? 'true' : 'false'); } catch (e) {}
+        }
+        (function restorePageNav() {
+            try {
+                if (localStorage.getItem('pageNavCollapsed') === 'true') {
+                    var nav = document.querySelector('.page-nav');
+                    var btn = document.getElementById('pageNavToggle');
+                    if (nav) nav.classList.add('collapsed');
+                    if (btn) btn.classList.add('collapsed');
+                }
+            } catch (e) {}
+        })();
+    </script>
 <script src="../shared/doc-viewer/doc-viewer.js"></script>
+<script src="js/flow-config-store.js"></script>
+<script src="js/flow-drawer.js"></script>
 </body>
 </html>

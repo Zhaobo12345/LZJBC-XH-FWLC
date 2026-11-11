@@ -1,0 +1,3761 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-page-node-id="7z40p2EfBFY8L8lCVVFBS5">
+<head data-page-node-id="1FVOitDt2MnjfwH3JbJ0ib">
+    <meta charset="UTF-8" data-page-node-id="u2dkvuk5xyYt8i4inRQunk">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" data-page-node-id="zbTpNrLy7qdpixO2XY0Rr2">
+    <title>家装平台小程序原型 - 项目成员</title>
+    <link rel="stylesheet" href="common.css" data-page-node-id="Z0h2aqQmR1jqHMgyP3Ohgl">
+    <style>
+        .page-content {
+            height: calc(100% - 88px); /* 状态栏 44 + 导航栏 44，避免底部被 phone-frame 裁切 */
+            background-color: var(--bg-secondary);
+            overflow-y: auto;
+        }
+
+        .member-header {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-light) 100%);
+            padding: 10px 16px;
+            color: #FFFFFF;
+        }
+
+        .member-header .project-name {
+            font-size: 15px;
+            font-weight: 600;
+            margin-bottom: 2px;
+        }
+
+        .member-header .member-count {
+            font-size: 12px;
+            opacity: 0.9;
+        }
+
+        .filter-bar {
+            display: flex;
+            align-items: center;
+            padding: 12px 16px;
+            background-color: var(--bg-primary);
+            border-bottom: 1px solid var(--border-color);
+            gap: 12px;
+        }
+
+        .filter-selector {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 12px;
+            background-color: var(--bg-secondary);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .filter-selector:hover {
+            background-color: #E6F7FF;
+        }
+
+        .filter-selector .selector-text {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .filter-selector .selector-text .icon {
+            font-size: 16px;
+        }
+
+        .filter-selector .selector-text .label {
+            font-size: 14px;
+            color: var(--text-primary);
+        }
+
+        .filter-selector .arrow {
+            font-size: 12px;
+            color: var(--text-tertiary);
+            transition: transform 0.2s;
+        }
+
+        .filter-selector.active .arrow {
+            transform: rotate(180deg);
+        }
+
+        .search-btn {
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: var(--bg-secondary);
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 18px;
+        }
+
+        .search-btn:hover {
+            background-color: #E6F7FF;
+        }
+
+        .filter-dropdown {
+            position: absolute;
+            top: 100%;
+            left: 16px;
+            right: 16px;
+            background-color: var(--bg-primary);
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            z-index: 100;
+            display: none;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .filter-dropdown.show {
+            display: block;
+        }
+
+        .filter-dropdown .dropdown-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 16px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .filter-dropdown .dropdown-item:hover {
+            background-color: #E6F7FF;
+        }
+
+        .filter-dropdown .dropdown-item:first-child {
+            border-radius: 8px 8px 0 0;
+        }
+
+        .filter-dropdown .dropdown-item:last-child {
+            border-radius: 0 0 8px 8px;
+        }
+
+        .filter-dropdown .dropdown-item .item-text {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .filter-dropdown .dropdown-item .item-icon {
+            font-size: 16px;
+        }
+
+        .filter-dropdown .dropdown-item .item-name {
+            font-size: 14px;
+            color: var(--text-primary);
+        }
+
+        .filter-dropdown .dropdown-item .item-count {
+            font-size: 12px;
+            color: var(--text-tertiary);
+            background-color: var(--bg-secondary);
+            padding: 2px 8px;
+            border-radius: 10px;
+        }
+
+        .filter-dropdown .dropdown-item.selected {
+            background-color: var(--status-primary-bg);
+        }
+
+        .filter-dropdown .dropdown-item.selected .item-name {
+            color: var(--primary-color);
+            font-weight: 500;
+        }
+
+        .filter-dropdown .dropdown-item .check-icon {
+            color: var(--primary-color);
+            font-size: 16px;
+        }
+
+        .member-list {
+            padding: 12px 16px 80px;
+        }
+
+        /* Demo control panel for permission management simulation */
+        .demo-control-panel {
+            position: fixed;
+            top: 160px;
+            left: calc(50% + 198px + 16px);
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 12px;
+            box-shadow: 0 6px 24px rgba(0,0,0,0.08);
+            z-index: 9999;
+            min-width: 220px;
+        }
+
+        .demo-control-panel .panel-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+        }
+
+        .demo-control-panel .control-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+
+        .toggle-switch {
+            position: relative;
+            width: 40px;
+            height: 22px;
+            background-color: #d9d9d9;
+            border-radius: 11px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            flex-shrink: 0;
+        }
+
+        .toggle-switch.active { background-color: var(--success-color); }
+
+        .toggle-switch::after {
+            content: '';
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 18px;
+            height: 18px;
+            background-color: #fff;
+            border-radius: 50%;
+            transition: transform 0.3s;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+        }
+
+        .toggle-switch.active::after { transform: translateX(18px); }
+
+        .demo-control-panel .control-label { font-size: 12px; color: var(--text-secondary); }
+        .demo-control-panel .status-text { font-size: 12px; margin-top: 6px; padding: 4px 8px; border-radius: 4px; text-align: center; }
+        .demo-control-panel .status-text.uncertified { background: #FFF7E6; color: #D48806; }
+        .demo-control-panel .status-text.certified { background: #E6F7FF; color: #0050B3; }
+        .demo-control-panel .status-text.partial { background: #F9F0FF; color: #722ED1; }
+        .demo-control-panel .segmented-control {
+            display: flex;
+            gap: 4px;
+            margin-bottom: 8px;
+            background: var(--bg-secondary);
+            border-radius: 8px;
+            padding: 3px;
+        }
+        .demo-control-panel .segment {
+            flex: 1;
+            text-align: center;
+            font-size: 12px;
+            color: var(--text-secondary);
+            padding: 6px 2px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+            user-select: none;
+            white-space: nowrap;
+        }
+        .demo-control-panel .segment.active {
+            background: var(--bg-primary);
+            color: var(--primary-color);
+            font-weight: 600;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.12);
+        }
+
+        /* ===== 项目架构卡（只读通讯录式，点击节点=筛选联动成员区） ===== */
+        .arch-card {
+            margin-bottom: 12px;
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 10px 14px 8px;
+        }
+        .arch-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 2px 0 6px;
+        }
+        .arch-head-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .arch-head-sub {
+            font-size: 12px;
+            color: var(--text-tertiary);
+        }
+        .arch-toggle {
+            font-size: 12px;
+            color: var(--primary-color);
+            padding: 6px 2px 6px 10px;
+            cursor: pointer;
+            user-select: none;
+        }
+        .arch-tree { padding-bottom: 4px; }
+        /* ===== 顶部头部：创建人 + 架构组统计（与成员数去重后合并至此） ===== */
+        .member-header .header-meta { margin-top: 3px; }
+        .hm-creator {
+            font-size: 12px;
+            opacity: 0.95;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .hm-creator em {
+            font-style: normal;
+            font-size: 11px;
+            color: #FFFFFF;
+            background: rgba(255,255,255,0.22);
+            padding: 1px 7px;
+            border-radius: 8px;
+        }
+        .hm-stats {
+            font-size: 11px;
+            opacity: 0.85;
+            margin-top: 2px;
+        }
+        .hm-stats b { font-weight: 600; opacity: 1; }
+        .tree-node-row {
+            display: flex;
+            align-items: center;
+            min-height: 38px;
+            border-radius: 8px;
+            padding: 0 6px;
+            cursor: pointer;
+            transition: background-color 0.15s;
+        }
+        .tree-node-row:active { background-color: var(--bg-secondary); }
+        .tree-node-row.active { background-color: var(--status-primary-bg); }
+        .tree-caret {
+            width: 22px;
+            height: 22px;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-tertiary);
+            font-size: 10px;
+            transition: transform 0.2s;
+        }
+        .tree-caret.leaf { visibility: hidden; }
+        .tree-caret.expanded { transform: rotate(90deg); }
+        .tree-icon { margin-right: 6px; font-size: 14px; }
+        .tree-name { font-size: 13px; color: var(--text-primary); font-weight: 500; }
+        .tree-node-row.l0 .tree-name { font-weight: 600; }
+        .tree-count {
+            margin-left: auto;
+            font-size: 11px;
+            color: var(--text-tertiary);
+            background: var(--bg-secondary);
+            padding: 2px 8px;
+            border-radius: 9px;
+            white-space: nowrap;
+        }
+        .tree-node-row.active .tree-count {
+            color: var(--primary-color);
+            background: rgba(24,144,255,0.14);
+            font-weight: 600;
+        }
+        .tree-children {
+            margin-left: 12px;
+            border-left: 1px dashed var(--border-color);
+            padding-left: 4px;
+        }
+        .tree-children.collapsed { display: none; }
+
+        /* 架构筛选条（方式二：筛选联动后显示，可关闭恢复全量） */
+        .arch-filter-chip {
+            display: none;
+            align-items: center;
+            gap: 6px;
+            margin-bottom: 10px;
+            padding: 7px 12px;
+            background: var(--status-primary-bg);
+            border-radius: 10px;
+            font-size: 13px;
+            color: var(--primary-color);
+        }
+        .arch-filter-chip.show { display: flex; }
+        .arch-filter-chip .chip-label { font-weight: 600; }
+        .arch-filter-chip .chip-close {
+            margin-left: auto;
+            width: 22px;
+            height: 22px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            background: rgba(24,144,255,0.18);
+            font-size: 11px;
+            color: var(--primary-color);
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+
+        /* ===== 节点操作（增删改/退出，参照架构页原功能） ===== */
+        .tree-ops {
+            margin-left: 8px;
+            width: 28px;
+            height: 28px;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 6px;
+            color: var(--text-tertiary);
+            font-size: 14px;
+            cursor: pointer;
+        }
+        .tree-ops:active { background: var(--bg-secondary); }
+        .tree-node-row.has-ops .tree-count { margin-left: 0; }
+        .tree-actions {
+            display: none;
+            flex-wrap: wrap;
+            gap: 6px;
+            padding: 2px 6px 8px 30px;
+        }
+        .tree-actions.show { display: flex; }
+        .tree-action {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 12px;
+            padding: 7px 11px;
+            border-radius: 8px;
+            background: var(--bg-secondary);
+            color: var(--text-secondary);
+            cursor: pointer;
+            border: 1px solid var(--border-color);
+            white-space: nowrap;
+        }
+        .tree-action.primary { color: var(--primary-color); background: var(--status-primary-bg); border-color: transparent; }
+        .tree-action.danger { color: #F5222D; background: rgba(245,34,45,0.08); border-color: transparent; }
+
+        /* ===== 架构/人员合并视图：人员区显隐 ===== */
+        .page-content.mem-hidden .filter-bar,
+        .page-content.mem-hidden .search-bar,
+        .page-content.mem-hidden .search-result-info,
+        .page-content.mem-hidden .arch-filter-chip,
+        .page-content.mem-hidden .member-list,
+        .page-content.mem-hidden .invite-fab { display: none !important; }
+        /* ===== 树内成员嵌套（紧凑行，复用 member-card） ===== */
+        .node-members { margin: 2px 0 6px 12px; }
+        .node-members.members-collapsed { display: none; }
+        /* 树内成员卡紧凑化：深层级缩进叠加下防止姓名/标签竖排折行 */
+        .node-members .member-card { padding: 10px 12px; }
+        .node-members .member-card .avatar {
+            width: 36px; height: 36px; font-size: 14px; margin-right: 10px;
+        }
+        .node-members .member-card .name-row { flex-wrap: wrap; gap: 6px; }
+        .node-members .member-card .name { font-size: 14px; white-space: nowrap; }
+        .node-members .member-card .role-tag { white-space: nowrap; padding: 2px 6px; }
+        .node-members .member-card .info .name-row:last-child { margin-bottom: 0; }
+        .node-members .member-card .permission-badge { flex-shrink: 0; }
+        .node-members .member-card .permission-tag { white-space: nowrap; }
+        .tree-mem-toggle {
+            font-size: 11px; color: var(--primary-color); background: var(--status-primary-bg);
+            border-radius: 10px; padding: 2px 8px; cursor: pointer; flex-shrink: 0; white-space: nowrap;
+        }
+
+        /* ===== 层级操作底部动作面板（小程序标准 ActionSheet） ===== */
+        .as-mask { position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 1200; display: none; }
+        .as-mask.show { display: block; animation: asFadeIn 0.18s; }
+        @keyframes asFadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .as-sheet { position: fixed; left: 8px; right: 8px; bottom: 10px; z-index: 1201; display: none; }
+        .as-sheet.show { display: block; animation: asSlideUp 0.2s; }
+        @keyframes asSlideUp { from { transform: translateY(30px); opacity: 0.4; } to { transform: translateY(0); opacity: 1; } }
+        .as-group { border-radius: 12px; overflow: hidden; box-shadow: 0 -2px 14px rgba(0,0,0,0.08); }
+        .as-title { background: #F7F7F7; text-align: center; font-size: 12px; color: var(--text-tertiary); padding: 11px 0; }
+        .as-item { background: #fff; text-align: center; font-size: 16px; padding: 16px 0; border-top: 1px solid var(--border-color); cursor: pointer; }
+        .as-item:active { background: var(--bg-secondary); }
+        .as-item.danger { color: #F5222D; }
+        .as-cancel { background: #fff; border-radius: 12px; margin-top: 8px; text-align: center; font-size: 16px; font-weight: 600; padding: 16px 0; cursor: pointer; }
+        .as-cancel:active { background: var(--bg-secondary); }
+
+        .arch-empty {
+            text-align: center;
+            color: var(--text-tertiary);
+            font-size: 12px;
+            padding: 12px 0;
+        }
+        .tree-form-display {
+            padding: 10px 12px;
+            background: var(--bg-secondary);
+            border-radius: 8px;
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+        .tree-form-err {
+            display: none;
+            color: #F5222D;
+            font-size: 12px;
+            margin-top: 6px;
+        }
+
+        /* When demo toggled off, hide arrows and disable permission controls (avatar/name still clickable) */
+        .member-list.no-manage .arrow { display: none; }
+        .member-list.no-manage .permission-badge { pointer-events: none; opacity: 0.7; }
+        .member-list.no-manage .member-card { cursor: default; }
+
+        .member-group {
+            margin-bottom: 16px;
+        }
+
+        .member-group .group-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px 0;
+            margin-bottom: 8px;
+        }
+
+        .member-group .group-name {
+            font-size: 13px;
+            color: var(--text-tertiary);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .member-group .group-name .icon {
+            font-size: 14px;
+        }
+
+        .member-group .group-count {
+            font-size: 12px;
+            color: var(--text-tertiary);
+            background-color: var(--bg-secondary);
+            padding: 2px 8px;
+            border-radius: 10px;
+        }
+
+        /* 架构层级标识徽标（L0/L1/L2），不改变整体布局，仅作标识 */
+        .level-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 3px;
+            margin-left: 6px;
+            padding: 1px 7px;
+            border-radius: 9px;
+            font-size: 11px;
+            font-weight: 600;
+            line-height: 1.5;
+            white-space: nowrap;
+        }
+        .level-badge::before {
+            content: '';
+            width: 5px;
+            height: 5px;
+            border-radius: 50%;
+            background-color: currentColor;
+        }
+        .level-badge.lv0 { color: #1890FF; background-color: rgba(24,144,255,0.12); }
+        .level-badge.lv1 { color: #52C41A; background-color: rgba(82,196,26,0.12); }
+        .level-badge.lv2 { color: #722ED1; background-color: rgba(114,46,209,0.12); }
+
+        .member-level-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            margin-left: 6px;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 11px;
+            font-weight: 600;
+            line-height: 1.5;
+            width: fit-content;
+            vertical-align: middle;
+        }
+        .member-level-tag.lv2 { color: #722ED1; background-color: rgba(114,46,209,0.12); }
+        .member-level-tag.lv1 { color: #1890FF; background-color: rgba(24,144,255,0.12); }
+
+        .member-card {
+            display: flex;
+            align-items: center;
+            padding: 12px;
+            background-color: var(--bg-primary);
+            border-radius: 8px;
+            margin-bottom: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .member-card:hover {
+            background-color: #E6F7FF;
+        }
+
+        .member-card:last-child {
+            margin-bottom: 0;
+        }
+
+        .member-card .avatar {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-light) 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #FFFFFF;
+            font-size: 16px;
+            margin-right: 12px;
+            flex-shrink: 0;
+        }
+        
+        .member-card .avatar.clickable,
+        .member-card .name.clickable {
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+        
+        .member-card .avatar.clickable:hover,
+        .member-card .name.clickable:hover {
+            opacity: 0.8;
+        }
+        
+        .member-card .avatar.clickable:active,
+        .member-card .name.clickable:active {
+            opacity: 0.6;
+        }
+
+        .member-card .info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .member-card .name-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 4px;
+        }
+
+        .member-card .name {
+            font-size: 15px;
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        .member-card .role-tag {
+            display: inline-flex;
+            align-items: center;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 500;
+        }
+
+        .member-card .role-tag.designer {
+            background-color: #E6F7FF;
+            color: #1890FF;
+        }
+
+        .member-card .role-tag.foreman {
+            background-color: #F6FFED;
+            color: #52C41A;
+        }
+
+        .member-card .role-tag.owner {
+            background-color: #FFF7E6;
+            color: #FA8C16;
+        }
+
+        .member-card .role-tag.creator {
+            color: #D48806;
+            background: #FFF7E6;
+        }
+        .member-card .role-tag.manager {
+            background-color: #F9F0FF;
+            color: #722ED1;
+        }
+
+        .member-card .role-tag.worker {
+            background-color: #FFF0F0;
+            color: #F5222D;
+        }
+
+        .member-card .meta {
+            font-size: 12px;
+            color: var(--text-tertiary);
+        }
+
+        .member-card .permission-badge {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 4px;
+        }
+
+        .member-card .permission-tag {
+            font-size: 10px;
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+
+        .member-card .permission-tag.data {
+            background-color: var(--status-primary-bg);
+            color: var(--primary-color);
+        }
+
+        .member-card .permission-tag.manage {
+            background-color: var(--status-success-bg);
+            color: var(--success-color);
+        }
+
+        .member-card .permission-tag.none {
+            background-color: var(--bg-secondary);
+            color: var(--text-tertiary);
+        }
+
+        .member-card .arrow {
+            color: var(--text-tertiary);
+            margin-left: 8px;
+        }
+
+        .empty-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 60px 20px;
+            color: var(--text-tertiary);
+        }
+
+        .empty-state .empty-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+        }
+
+        .empty-state .empty-text {
+            font-size: 14px;
+        }
+
+        .permission-modal {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-color: rgba(0,0,0,0.5);
+            z-index: 200;
+            display: none;
+            align-items: flex-end;
+            justify-content: center;
+        }
+
+        .permission-modal.show {
+            display: flex;
+        }
+
+        .permission-modal .modal-content {
+            width: 100%;
+            background-color: var(--bg-primary);
+            border-radius: 16px 16px 0 0;
+            padding: 16px;
+            max-height: 80%;
+            overflow-y: auto;
+        }
+
+        .permission-modal .modal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+        }
+
+        .permission-modal .modal-title {
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .permission-modal .modal-close {
+            font-size: 20px;
+            color: var(--text-tertiary);
+            cursor: pointer;
+        }
+
+        .permission-modal .member-info-card {
+            display: flex;
+            align-items: center;
+            padding: 12px;
+            background-color: var(--bg-secondary);
+            border-radius: 8px;
+            margin-bottom: 16px;
+        }
+
+        .permission-modal .member-info-card .avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-light) 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #FFFFFF;
+            font-size: 18px;
+            margin-right: 12px;
+        }
+
+        .permission-modal .member-info-card .info {
+            flex: 1;
+        }
+
+        .permission-modal .member-info-card .name {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 4px;
+        }
+
+        .permission-modal .member-info-card .role {
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+
+        .permission-section {
+            margin-bottom: 20px;
+        }
+
+        .permission-section .section-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .permission-section .section-title .icon {
+            font-size: 16px;
+        }
+
+        .permission-section .section-desc {
+            font-size: 12px;
+            color: var(--text-tertiary);
+            margin-bottom: 12px;
+            line-height: 1.5;
+        }
+
+        .permission-option {
+            display: flex;
+            align-items: center;
+            padding: 12px;
+            background-color: var(--bg-secondary);
+            border-radius: 8px;
+            margin-bottom: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 2px solid transparent;
+        }
+
+        .permission-option:hover {
+            background-color: #E6F7FF;
+        }
+
+        .permission-option.selected {
+            border-color: var(--primary-color);
+            background-color: var(--status-primary-bg);
+        }
+
+        .permission-option .radio {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            border: 2px solid var(--border-color);
+            margin-right: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .permission-option.selected .radio {
+            border-color: var(--primary-color);
+        }
+
+        .permission-option.selected .radio::after {
+            content: '';
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background-color: var(--primary-color);
+        }
+
+        .permission-option .option-content {
+            flex: 1;
+        }
+
+        .permission-option .option-title {
+            font-size: 14px;
+            color: var(--text-primary);
+            margin-bottom: 2px;
+        }
+
+        .permission-option .option-desc {
+            font-size: 12px;
+            color: var(--text-tertiary);
+        }
+
+        .permission-checkbox-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .permission-checkbox {
+            display: flex;
+            align-items: center;
+            padding: 12px;
+            background-color: var(--bg-secondary);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .permission-checkbox:hover {
+            background-color: #E6F7FF;
+        }
+
+        .permission-checkbox .checkbox {
+            width: 20px;
+            height: 20px;
+            border-radius: 4px;
+            border: 2px solid var(--border-color);
+            margin-right: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            font-size: 12px;
+            color: #FFFFFF;
+        }
+
+        .permission-checkbox.checked .checkbox {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+
+        .permission-checkbox .option-content {
+            flex: 1;
+        }
+
+        .permission-checkbox .option-title {
+            font-size: 14px;
+            color: var(--text-primary);
+            margin-bottom: 2px;
+        }
+
+        .permission-checkbox .option-desc {
+            font-size: 12px;
+            color: var(--text-tertiary);
+        }
+
+        /* 指派任务范围面板：勾选「指派任务」后在弹窗内就地展开 */
+        .assign-scope-panel {
+            margin: 4px 0 6px 30px;
+            padding: 10px 12px;
+            background: #F7F7FE;
+            border: 1px solid #E4E2F8;
+            border-radius: 10px;
+        }
+        .assign-scope-panel .as-scope-title {
+            font-size: 12px;
+            font-weight: 500;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+        }
+        .assign-scope-panel .permission-option {
+            padding: 7px 9px;
+            margin-bottom: 6px;
+        }
+        .assign-scope-panel .permission-option:last-of-type {
+            margin-bottom: 0;
+        }
+        .assign-scope-panel .option-title {
+            font-size: 12px;
+        }
+        .assign-scope-panel .option-desc {
+            font-size: 11px;
+        }
+        .assign-scope-panel .permission-option.disabled {
+            opacity: 0.45;
+            pointer-events: none;
+        }
+        .assign-scope-panel .as-scope-note {
+            font-size: 11px;
+            color: var(--text-tertiary);
+            line-height: 1.5;
+            margin-top: 8px;
+            padding-top: 7px;
+            border-top: 1px solid #E4E2F8;
+        }
+        .section-footnote {
+            font-size: 11px;
+            color: var(--text-tertiary);
+            line-height: 1.5;
+            margin-top: 8px;
+        }
+
+        .permission-warning {
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+            padding: 12px;
+            background-color: #FFF7E6;
+            border-radius: 8px;
+            margin-bottom: 16px;
+        }
+
+        .permission-warning .warning-icon {
+            font-size: 16px;
+            flex-shrink: 0;
+        }
+
+        .permission-warning .warning-text {
+            font-size: 12px;
+            color: #FA8C16;
+            line-height: 1.5;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 20px;
+        }
+
+        .modal-btn {
+            flex: 1;
+            height: 44px;
+            border-radius: 8px;
+            font-size: 15px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: none;
+            font-family: inherit;
+        }
+
+        .modal-btn.cancel {
+            background-color: var(--bg-secondary);
+            color: var(--text-secondary);
+        }
+
+        .modal-btn.confirm {
+            background-color: var(--primary-color);
+            color: #FFFFFF;
+        }
+
+        .modal-btn.danger {
+            background-color: var(--error-color);
+            color: #FFFFFF;
+        }
+
+        .remove-member-section {
+            margin-top: 20px;
+            padding-top: 16px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .remove-btn {
+            width: 100%;
+            height: 44px;
+            border-radius: 8px;
+            font-size: 14px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid var(--error-color);
+            background-color: transparent;
+            color: var(--error-color);
+            font-family: inherit;
+        }
+
+        .remove-btn:hover {
+            background-color: var(--status-error-bg);
+        }
+
+        .remove-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .app-toast {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: rgba(0,0,0,0.7);
+            color: #FFFFFF;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-size: 14px;
+            z-index: 300;
+            display: none;
+            text-align: center;
+            max-width: 200px;
+        }
+
+        .app-toast.show {
+            display: block;
+        }
+
+        .app-modal {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-color: rgba(0,0,0,0.5);
+            z-index: 250;
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .app-modal.show {
+            display: flex;
+        }
+
+        .app-modal .modal-box {
+            width: 85%;
+            max-width: 300px;
+            background-color: var(--bg-primary);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .app-modal .modal-title {
+            font-size: 16px;
+            font-weight: 600;
+            text-align: center;
+            padding: 20px 16px 12px;
+        }
+
+        .app-modal .modal-content {
+            font-size: 14px;
+            color: var(--text-secondary);
+            text-align: center;
+            padding: 0 16px 20px;
+            line-height: 1.5;
+        }
+
+        .app-modal .modal-actions {
+            display: flex;
+            border-top: 1px solid var(--border-color);
+            margin-top: 0;
+        }
+
+        .app-modal .modal-btn {
+            flex: 1;
+            height: 48px;
+            border-radius: 0;
+            font-size: 16px;
+            background: none;
+            border: none;
+        }
+
+        .app-modal .modal-btn:first-child {
+            border-right: 1px solid var(--border-color);
+        }
+
+        .app-modal .modal-btn.cancel {
+            color: var(--text-secondary);
+        }
+
+        .app-modal .modal-btn.confirm {
+            color: var(--primary-color);
+            font-weight: 600;
+        }
+
+        .app-modal .modal-btn.danger {
+            color: var(--error-color);
+            font-weight: 600;
+        }
+
+        .filter-wrapper {
+            position: relative;
+        }
+
+        .search-bar {
+            display: none;
+            align-items: center;
+            padding: 8px 16px;
+            background-color: var(--bg-primary);
+            border-bottom: 1px solid var(--border-color);
+            gap: 12px;
+        }
+
+        .search-bar.show {
+            display: flex;
+        }
+
+        .search-bar .search-input-wrap {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            background-color: var(--bg-secondary);
+            border-radius: 8px;
+            padding: 0 12px;
+        }
+
+        .search-bar .search-input-wrap .search-icon {
+            font-size: 16px;
+            color: var(--text-tertiary);
+            margin-right: 8px;
+        }
+
+        .search-bar .search-input-wrap .search-input {
+            flex: 1;
+            height: 34px;
+            border: none;
+            background: none;
+            font-size: 14px;
+            color: var(--text-primary);
+            outline: none;
+        }
+
+        .search-bar .search-input-wrap .search-input::placeholder {
+            color: var(--text-tertiary);
+        }
+
+        .search-bar .search-input-wrap .clear-btn {
+            font-size: 16px;
+            color: var(--text-tertiary);
+            cursor: pointer;
+            padding: 4px;
+        }
+
+        .search-bar .cancel-btn {
+            font-size: 14px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            white-space: nowrap;
+        }
+
+        .search-result-info {
+            display: none;
+            padding: 8px 16px;
+            background-color: var(--status-primary-bg);
+            font-size: 12px;
+            color: var(--primary-color);
+        }
+
+        .search-result-info.show {
+            display: block;
+        }
+
+        .invite-fab {
+            position: absolute;
+            bottom: 80px;
+            right: 16px;
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-light) 100%);
+            color: #FFFFFF;
+            font-size: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 12px rgba(24, 144, 255, 0.4);
+            cursor: pointer;
+            z-index: 50;
+            transition: all 0.2s;
+        }
+
+        .invite-fab:hover {
+            transform: scale(1.1);
+        }
+
+        .invite-fab:active {
+            transform: scale(0.95);
+        }
+
+        .invite-modal {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-color: rgba(0,0,0,0.5);
+            z-index: 200;
+            display: none;
+            align-items: flex-end;
+            justify-content: center;
+        }
+
+        .invite-modal.show {
+            display: flex;
+        }
+
+        .invite-modal .modal-content {
+            width: 100%;
+            background-color: var(--bg-primary);
+            border-radius: 16px 16px 0 0;
+            padding: 16px;
+            max-height: 80%;
+            overflow-y: auto;
+        }
+
+        .invite-modal .modal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+        }
+
+        .invite-modal .modal-title {
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .invite-modal .modal-close {
+            font-size: 20px;
+            color: var(--text-tertiary);
+            cursor: pointer;
+        }
+
+        .invite-modal .modal-body {
+            margin-bottom: 16px;
+        }
+
+        .invite-target-info {
+            display: flex;
+            align-items: center;
+            padding: 12px;
+            background-color: var(--status-primary-bg);
+            border-radius: 8px;
+            margin-bottom: 16px;
+        }
+
+        .invite-target-info .label {
+            font-size: 13px;
+            color: var(--text-tertiary);
+        }
+
+        .invite-target-info .value {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+
+        .invite-methods {
+            display: flex;
+            gap: 12px;
+        }
+
+        .invite-method {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 16px 8px;
+            background-color: var(--bg-secondary);
+            border-radius: 8px;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: all 0.2s;
+        }
+
+        .invite-method:hover {
+            background-color: #E6F7FF;
+        }
+
+        .invite-method.active {
+            border-color: var(--primary-color);
+            background-color: var(--status-primary-bg);
+        }
+
+        .invite-method .method-icon {
+            font-size: 24px;
+            margin-bottom: 8px;
+        }
+
+        .invite-method .method-name {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .invite-method.active .method-name {
+            color: var(--primary-color);
+            font-weight: 500;
+        }
+
+        .link-expire, .qrcode-expire {
+            font-size: 12px;
+            color: var(--text-tertiary);
+            margin-top: 8px;
+            text-align: center;
+        }
+
+        .qrcode-preview {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 24px;
+            background-color: var(--bg-secondary);
+            border-radius: 8px;
+        }
+
+        .qrcode-placeholder {
+            width: 120px;
+            height: 120px;
+            background-color: var(--bg-tertiary);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            color: var(--text-tertiary);
+            margin-bottom: 12px;
+        }
+
+        .qrcode-text {
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+
+        .wechat-invite-preview {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px 16px;
+            background-color: var(--bg-secondary);
+            border-radius: 8px;
+        }
+
+        .wechat-share-card {
+            width: 100%;
+            background-color: #FFFFFF;
+            border-radius: 8px;
+            padding: 12px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+            margin-bottom: 16px;
+        }
+
+        .wechat-share-card .card-thumb {
+            width: 48px;
+            height: 48px;
+            border-radius: 8px;
+            background: linear-gradient(135deg, #07C160 0%, #06AD56 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            color: #FFFFFF;
+            flex-shrink: 0;
+        }
+
+        .wechat-share-card .card-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .wechat-share-card .card-title {
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-primary);
+            margin-bottom: 4px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .wechat-share-card .card-desc {
+            font-size: 12px;
+            color: var(--text-tertiary);
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .wechat-share-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            width: 100%;
+            height: 44px;
+            background-color: #07C160;
+            color: #FFFFFF;
+            border: none;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .wechat-share-btn:hover {
+            background-color: #06AD56;
+        }
+
+        .wechat-share-btn:active {
+            background-color: #06AD56;
+        }
+
+        .wechat-share-btn .btn-icon {
+            font-size: 18px;
+        }
+
+        .wechat-invite-tip {
+            font-size: 12px;
+            color: var(--text-tertiary);
+            margin-top: 10px;
+            text-align: center;
+        }
+
+        /* 邀请身份分段：服务人员 / 业主及家人 */
+        .invite-category {
+            display: flex;
+            gap: 4px;
+            background: var(--bg-secondary);
+            border-radius: 8px;
+            padding: 3px;
+            margin-bottom: 16px;
+        }
+        .invite-category .cat-seg {
+            flex: 1;
+            text-align: center;
+            font-size: 13px;
+            color: var(--text-secondary);
+            padding: 8px 2px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+            user-select: none;
+            white-space: nowrap;
+        }
+        .invite-category .cat-seg.active {
+            background: var(--bg-primary);
+            color: var(--primary-color);
+            font-weight: 600;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.12);
+        }
+
+        /* 平台内选择用户 */
+        .platform-user-search { margin-bottom: 8px; }
+        .platform-user-list {
+            max-height: 190px;
+            overflow-y: auto;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            background-color: var(--bg-primary);
+        }
+        .platform-user-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 12px;
+            cursor: pointer;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .platform-user-item:last-child { border-bottom: none; }
+        .platform-user-item:hover { background-color: var(--bg-secondary); }
+        .platform-user-item.selected { background-color: var(--status-primary-bg); }
+        .pu-avatar {
+            width: 32px; height: 32px; border-radius: 50%;
+            background-color: var(--primary-color); color: #fff;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 13px; flex-shrink: 0;
+        }
+        .pu-name { flex: 1; font-size: 14px; color: var(--text-primary); }
+        .pu-role { font-size: 12px; color: var(--text-secondary); margin-right: 4px; }
+        .pu-check { color: var(--primary-color); font-weight: 600; display: none; }
+        .platform-user-item.selected .pu-check { display: inline; }
+        .empty-result { padding: 16px; text-align: center; font-size: 13px; color: var(--text-secondary); }
+        .platform-user-item.disabled { cursor: not-allowed; opacity: 0.55; background-color: var(--bg-secondary); }
+        .platform-user-item.disabled:hover { background-color: var(--bg-secondary); }
+        .pu-badge { font-size: 11px; color: #D48806; background-color: #FFF7E6; padding: 1px 6px; border-radius: 4px; margin-right: 4px; }
+
+        /* 落地端提示 */
+        .invite-target-app {
+            display: flex;
+            align-items: flex-start;
+            gap: 6px;
+            margin-top: 4px;
+            padding: 8px 12px;
+            background-color: var(--status-primary-bg);
+            border-radius: 8px;
+            font-size: 12px;
+            color: var(--primary-color);
+        }
+        .invite-target-app .app-icon { font-size: 14px; line-height: 1.4; }
+        .invite-target-app .app-text { display: flex; flex-direction: column; gap: 2px; }
+        .invite-target-app .app-line { font-weight: 500; }
+        .invite-target-app .app-perm { font-size: 11px; opacity: 0.85; }
+        .invite-target-app b { font-weight: 600; }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-label {
+            display: flex;
+            align-items: center;
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+        }
+
+        .form-label .required {
+            color: var(--error-color);
+            margin-right: 4px;
+        }
+
+        .form-input {
+            width: 100%;
+            height: 44px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 0 12px;
+            font-size: 14px;
+            color: var(--text-primary);
+            outline: none;
+            box-sizing: border-box;
+        }
+
+        .form-input:focus {
+            border-color: var(--primary-color);
+        }
+
+        .form-select {
+            width: 100%;
+            height: 44px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 0 12px;
+            font-size: 14px;
+            color: var(--text-primary);
+            outline: none;
+            background-color: var(--bg-primary);
+            cursor: pointer;
+            box-sizing: border-box;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23999' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+        }
+
+        .form-select:focus {
+            border-color: var(--primary-color);
+        }
+
+        .searchable-select {
+            position: relative;
+        }
+
+        .searchable-select .select-trigger {
+            width: 100%;
+            height: 44px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 0 12px;
+            font-size: 14px;
+            color: var(--text-primary);
+            background-color: var(--bg-primary);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-sizing: border-box;
+        }
+
+        .searchable-select .select-trigger:focus {
+            border-color: var(--primary-color);
+            outline: none;
+        }
+
+        .searchable-select .select-trigger .selected-text {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .searchable-select .select-trigger .arrow {
+            font-size: 12px;
+            color: var(--text-tertiary);
+            transition: transform 0.2s;
+        }
+
+        .searchable-select.open .select-trigger .arrow {
+            transform: rotate(180deg);
+        }
+
+        .searchable-select .select-dropdown {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background-color: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            margin-top: 4px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            z-index: 10;
+            display: none;
+            max-height: 240px;
+            overflow: hidden;
+        }
+
+        .searchable-select.open .select-dropdown {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .searchable-select .dropdown-search {
+            padding: 8px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .searchable-select .dropdown-search input {
+            width: 100%;
+            height: 36px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 0 10px;
+            font-size: 13px;
+            outline: none;
+            box-sizing: border-box;
+        }
+
+        .searchable-select .dropdown-search input:focus {
+            border-color: var(--primary-color);
+        }
+
+        .searchable-select .dropdown-list {
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        .searchable-select .dropdown-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .searchable-select .dropdown-item:hover {
+            background-color: #E6F7FF;
+        }
+
+        .searchable-select .dropdown-item.selected {
+            background-color: var(--status-primary-bg);
+            color: var(--primary-color);
+        }
+
+        .searchable-select .dropdown-item .item-icon {
+            font-size: 16px;
+        }
+
+        .searchable-select .dropdown-item .item-name {
+            font-size: 14px;
+        }
+
+        .searchable-select .dropdown-item .check-icon {
+            margin-left: auto;
+            color: var(--primary-color);
+        }
+
+        .searchable-select .empty-result {
+            padding: 20px;
+            text-align: center;
+            color: var(--text-tertiary);
+            font-size: 13px;
+        }
+
+        .group-selector {
+            margin-bottom: 16px;
+        }
+
+        .group-selector .selector-label {
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+        }
+
+        .group-options {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .group-option {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 12px;
+            background-color: var(--bg-secondary);
+            border-radius: 8px;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: all 0.2s;
+            font-size: 13px;
+        }
+
+        .group-option:hover {
+            background-color: #E6F7FF;
+        }
+
+        .group-option.selected {
+            border-color: var(--primary-color);
+            background-color: var(--status-primary-bg);
+            color: var(--primary-color);
+        }
+
+        .group-option .option-icon {
+            font-size: 14px;
+        }
+
+        .member-header-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .exit-btn-header {
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid rgba(255,255,255,0.5);
+            background-color: transparent;
+            color: #FFFFFF;
+            font-family: inherit;
+            transition: all 0.2s;
+        }
+
+        .exit-btn-header:hover {
+            background-color: rgba(255,255,255,0.1);
+            border-color: rgba(255,255,255,0.8);
+        }
+
+        .exit-btn-header:active {
+            transform: scale(0.95);
+        }
+    </style>
+<style>
+/* 微信原生胶囊占位（样式参考真机效果，由微信客户端实际渲染） */
+.nav-bar .native-capsule {
+    display: inline-flex;
+    align-items: center;
+    justify-content: space-between;
+    min-width: 56px;
+    height: 28px;
+    padding: 0 10px;
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    border-radius: 14px;
+    background: rgba(255, 255, 255, 0.7);
+    color: rgba(0, 0, 0, 0.6);
+    font-size: 12px;
+    line-height: 1;
+    user-select: none;
+    box-sizing: border-box;
+}
+.nav-bar .native-capsule .nc-left,
+.nav-bar .native-capsule .nc-right {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: 1;
+    min-width: 16px;
+}
+.nav-bar .native-capsule .nc-right {
+    font-size: 10px;
+}
+.nav-bar .native-capsule .nc-divider {
+    width: 1px;
+    height: 14px;
+    background: rgba(0, 0, 0, 0.1);
+    margin: 0 4px;
+}
+    .nav-bar .native-capsule .nc-left,
+    .nav-bar .native-capsule .nc-right {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex: 1;
+        min-width: 16px;
+    }
+    .nav-bar .native-capsule .nc-right {
+        font-size: 10px;
+    }
+    .nav-bar .native-capsule .nc-divider {
+        width: 1px;
+        height: 14px;
+        background: rgba(0, 0, 0, 0.1);
+        margin: 0 4px;
+    }
+</style>
+</head>
+<body data-page-node-id="MQLSSaW2FefBLUFyevyFrj">
+    <div class="phone-frame" data-page-node-id="cDYGFjxZa7QJPKF4nQDCjJ">
+        <div class="status-bar" data-page-node-id="NobzUD3y1FyHSMFYJGZwvb">
+            <div class="time" data-page-node-id="RDgpkXgwmk5x6W5npsHv7C">9:41</div>
+            <div class="icons" data-page-node-id="VGkoF5v46KLKfB6RC49KfO">📶 🔋</div>
+        </div>
+        
+        <div class="nav-bar" data-page-node-id="d5yaSprqcuSWoruCzsL9Nk">
+            <div class="back" onclick="history.back()" data-page-node-id="1w0ZK9mce0TIB6nDpJVVTo">← 返回</div>
+            <div class="title centered" data-page-node-id="TcWjZ04qWHEpHAF9Nxs6ma">项目成员</div>
+            
+            
+        
+            <div class="actions" data-page-node-id="lxosbEs9FAAG5rYtNJ51qf"><div class="native-capsule" title="微信原生胶囊：由微信客户端渲染，开发者不可自定义其内容" data-page-node-id="OJhEx81CnME2IJHsA54Z2N"><span class="nc-left" data-page-node-id="7gOBbezsuzB9VPvjXVdKaB">⋯</span><span class="nc-divider" data-page-node-id="SDqdQwhoICqaVA2ZAPHuBP"></span><span class="nc-right" data-page-node-id="WmxsJhgIfS74d7bfCOd1TT">○</span></div></div>
+        </div>
+            
+
+        
+        <div class="page-content" data-page-node-id="86DJdrfIVBKSMHYpVJDpQN">
+            <div class="member-header" data-page-node-id="uWzxT6U8b0GQ1EDJX3exNx">
+                <div class="project-name" data-page-node-id="skIItT0anVteATmp6VlgPI">XX小区整体装修</div>
+                <div class="member-header-row" data-page-node-id="webDMFPEisrwyX13j6Y30H">
+                    <div class="header-meta" id="headerMeta">
+                        <div class="hm-creator">创建人：张三 <em>项目总</em> <em>工长</em></div>
+                        <div class="hm-stats" id="archMetaStats"></div>
+                    </div>
+                    <button class="exit-btn-header" onclick="showSelfExitConfirm()" data-page-node-id="DOQKt91UZJ9Ig17HHzb0NU">退出项目</button>
+                </div>
+            </div>
+
+            <div class="search-bar show" id="searchBar" data-page-node-id="JeWOQgcNzp3irMnWsYHKZ8">
+                <div class="search-input-wrap" data-page-node-id="OKUTr2cWUsnWmqzNGAdr98">
+                    <span class="search-icon" data-page-node-id="WQVwtgMCplSppIsqGX1AP9">🔍</span>
+                    <input type="text" class="search-input" id="searchInput" placeholder="搜索架构层级 / 成员姓名、角色..." oninput="handleSearch(this.value)" data-page-node-id="YIqDSiIF42gSohDnhxsWNK">
+                    <span class="clear-btn" onclick="clearSearch()" data-page-node-id="ButpzZAjMMZ6dXPyq8Hcm0">✕</span>
+                </div>
+                <span class="cancel-btn" onclick="clearSearch()" data-page-node-id="jQeaUNDIdMOq7aEDx1u86T">取消</span>
+            </div>
+            
+            <div class="arch-card" id="archCard">
+                <div class="arch-head">
+                    <div class="arch-head-title">🗂️ 项目架构</div>
+                    <div style="display:flex;align-items:center;">
+                        <span class="arch-head-sub" id="archHeadSub"></span>
+                        <span class="arch-toggle" id="memAllToggle" onclick="toggleAllMem()">展示全部人员</span>
+                    </div>
+                </div>
+                <div class="arch-tree" id="archTree"></div>
+            </div>
+
+        </div>
+        
+        <div class="as-mask" id="archSheetMask" onclick="closeArchSheet()"></div>
+        <div class="as-sheet" id="archSheet">
+            <div class="as-group">
+                <div class="as-title" id="archSheetTitle"></div>
+                <div id="archSheetItems"></div>
+            </div>
+            <div class="as-cancel" onclick="closeArchSheet()">取消</div>
+        </div>
+
+        <div class="invite-modal" id="inviteModal" data-page-node-id="IUY3eNMCKRWE1r0uRpjG0B">
+            <div class="modal-content" data-page-node-id="1VQspBaiFU3dadb9rwOFE7">
+                <div class="modal-header" data-page-node-id="GuaQtYBRcURHqwr3cf02Rp">
+                    <div class="modal-title" data-page-node-id="DJwza6sDDYfWgFprBMolPB">邀请成员</div>
+                    <div class="modal-close" onclick="closeInviteModal()" data-page-node-id="GSOBmJPUCk2Jro6tfDjjQ2">✕</div>
+                </div>
+                <div class="modal-body" data-page-node-id="YX2TvAElFRPBStF2fDIriC">
+                    <div class="invite-category" id="inviteCategory" data-page-node-id="6EB4wXYTW4tBIAhvE6kvrH">
+                        <div class="cat-seg active" data-cat="service" onclick="selectInviteCategory(this, 'service')" data-page-node-id="qJ7A1SiL8wWpAt0irsReIx">服务人员</div>
+                        <div class="cat-seg" data-cat="owner" onclick="selectInviteCategory(this, 'owner')" data-page-node-id="31XyqLpCfzSDf2phyXgt93">业主/业主家人</div>
+                    </div>
+
+                    <div id="serviceInviteFields" data-page-node-id="IVnz7IsyCVz5k9J08DcBRa">
+                    <div class="form-group" data-page-node-id="25YVDROWd5OBo50z0DFTAo">
+                        <label class="form-label" data-page-node-id="9sRDK0gR0CwwJWAqYz3lAf">
+                            <span class="required" data-page-node-id="1LqbmXQkTymULQOdcfQAQM">*</span>
+                            <span data-page-node-id="wgaLurnBVlBA2Ga3EMC2xf">邀请到架构层</span>
+                        </label>
+                        <div class="searchable-select" id="groupSelect" data-page-node-id="xKNijyXmEkqg5CRDLnVygI">
+                            <div class="select-trigger" onclick="toggleGroupSelect()" data-page-node-id="1TKnpAHCrvGKpd5NKPjLZw">
+                                <div class="selected-text" data-page-node-id="HloyiMpI44GHHfigSvWHaK">
+                                    <span class="item-icon" data-page-node-id="iahopyEY9QeDSseLKbDfXx">🏢</span>
+                                    <span class="item-name" id="selectedGroupName" data-page-node-id="F1CfH2DzynJdNLPsS4hipk">项目部</span>
+                                </div>
+                                <span class="arrow" data-page-node-id="EFENw4iGwEQtD3FJ8u71LI">▼</span>
+                            </div>
+                            <div class="select-dropdown" id="groupDropdown" data-page-node-id="Kax4BcizN5hosVowlHI0uC">
+                                <div class="dropdown-search" data-page-node-id="vGRO0Xl7VOYFn12RmYZK1a">
+                                    <input type="text" placeholder="搜索架构层..." oninput="filterGroups(this.value)" data-page-node-id="5LYKZMKpOo3XKI3UTIJZV7">
+                                </div>
+                                <div class="dropdown-list" id="groupDropdownList" data-page-node-id="htjxXlvTtH7cf6fBnppOv8">
+                                    <div class="dropdown-item selected" data-value="project" data-icon="🏢" data-name="项目部" onclick="selectGroup(this)" data-page-node-id="OEmuxbuhRyGx1AFrUWwDXr">
+                                        <span class="item-icon" data-page-node-id="IdUcziOTjyr0gpqLmMFn5j">🏢</span>
+                                        <span class="item-name" data-page-node-id="8GLJWwmZrFKWC3Ar2SQp6u">项目部</span>
+                                        <span class="check-icon" data-page-node-id="3CgbnzRF7m8qJ2YTKSkv92">✓</span>
+                                    </div>
+                                    <div class="dropdown-item" data-value="water" data-icon="👷" data-name="水电工作组" onclick="selectGroup(this)" data-page-node-id="OwKwxcb1ka83iepzI0DwrV">
+                                        <span class="item-icon" data-page-node-id="TC2ne12ddiEuFiEuxC0ll0">👷</span>
+                                        <span class="item-name" data-page-node-id="cP1Zett1RveM8ktuFA7G6U">水电工作组</span>
+                                        <span class="check-icon" style="display: none;" data-page-node-id="BM5qjsiYnKX7Ej3315F1g9">✓</span>
+                                    </div>
+                                    <div class="dropdown-item" data-value="tile" data-icon="🧱" data-name="泥瓦工作组" onclick="selectGroup(this)" data-page-node-id="ycHrtfwjnHDd3307FVudyk">
+                                        <span class="item-icon" data-page-node-id="pAeRzKILYlZeDjNiu5qoXG">🧱</span>
+                                        <span class="item-name" data-page-node-id="5UdBMqYjxooT3VjDxSazcI">泥瓦工作组</span>
+                                        <span class="check-icon" style="display: none;" data-page-node-id="v3GZsLtcBFLl79NTRHAsME">✓</span>
+                                    </div>
+                                    <div class="dropdown-item" data-value="wood" data-icon="🪵" data-name="木工工作组" onclick="selectGroup(this)" data-page-node-id="6fQqpv0BjMELko2V6RA9kt">
+                                        <span class="item-icon" data-page-node-id="l84pcj7pQ8fZPwCwxJFmh9">🪵</span>
+                                        <span class="item-name" data-page-node-id="9a8KS4fGBqj1EVD9xNWThs">木工工作组</span>
+                                        <span class="check-icon" style="display: none;" data-page-node-id="Vv8nT37Xxf464sVzG9nQOC">✓</span>
+                                    </div>
+                                    <div class="dropdown-item" data-value="paint" data-icon="🎨" data-name="油漆工作组" onclick="selectGroup(this)" data-page-node-id="O00lSAbOmmFSGXwRizo2XP">
+                                        <span class="item-icon" data-page-node-id="1WOHFOH8fzpIjbfHdrizT5">🎨</span>
+                                        <span class="item-name" data-page-node-id="xDbxK4bztlLUZUtPjWDB6u">油漆工作组</span>
+                                        <span class="check-icon" style="display: none;" data-page-node-id="6ywqoHlSSlaNEVhUW3ZsmC">✓</span>
+                                    </div>
+                                    <div class="dropdown-item" data-value="base" data-icon="🏗️" data-name="基础施工组" onclick="selectGroup(this)">
+                                        <span class="item-icon">🏗️</span>
+                                        <span class="item-name">基础施工组</span>
+                                        <span class="check-icon" style="display: none;">✓</span>
+                                    </div>
+                                    <div class="dropdown-item" data-value="design" data-icon="📐" data-name="设计工作组" onclick="selectGroup(this)">
+                                        <span class="item-icon">📐</span>
+                                        <span class="item-name">设计工作组</span>
+                                        <span class="check-icon" style="display: none;">✓</span>
+                                    </div>
+                                    <div class="dropdown-item" data-value="hvac" data-icon="❄️" data-name="暖通工作组" onclick="selectGroup(this)" data-page-node-id="MHraeBhy6HntPkmKhOBINK">
+                                        <span class="item-icon" data-page-node-id="jBIqy1ZpqMk5bn88AB4zDl">❄️</span>
+                                        <span class="item-name" data-page-node-id="quHgIgl0L7C2ehUagDhBTT">暖通工作组</span>
+                                        <span class="check-icon" style="display: none;" data-page-node-id="ZrAgkJBzmE2GdHNUGLjwUz">✓</span>
+                                    </div>
+                                    <div class="dropdown-item" data-value="ceiling" data-icon="🏠" data-name="吊顶工作组" onclick="selectGroup(this)" data-page-node-id="4goeFi0cm1yjdfxFCjgzUo">
+                                        <span class="item-icon" data-page-node-id="aPxWBOEU7kOjxu94KRsQ2d">🏠</span>
+                                        <span class="item-name" data-page-node-id="d1ebG67ogFIa4TNv0dnEEq">吊顶工作组</span>
+                                        <span class="check-icon" style="display: none;" data-page-node-id="HzU0U7Yr8zcwmP0P8vMR9c">✓</span>
+                                    </div>
+                                    <div class="dropdown-item" data-value="floor" data-icon="🪵" data-name="地板工作组" onclick="selectGroup(this)" data-page-node-id="Fmkkgy246EEB77PccoV7Hq">
+                                        <span class="item-icon" data-page-node-id="1B4uhzfDhenagpahg7lZgw">🪵</span>
+                                        <span class="item-name" data-page-node-id="0s2foFfYFdCvFX8DyBlKo9">地板工作组</span>
+                                        <span class="check-icon" style="display: none;" data-page-node-id="8axteNAVb9S8NEOCzeLoEi">✓</span>
+                                    </div>
+                                    <div class="dropdown-item" data-value="door" data-icon="🚪" data-name="门窗工作组" onclick="selectGroup(this)" data-page-node-id="O2FMBcm9390l9K59hkGgDE">
+                                        <span class="item-icon" data-page-node-id="1TRLS59Ju8ItyKiA1ops4g">🚪</span>
+                                        <span class="item-name" data-page-node-id="Oy3ctgf4P0qe54S1T5BIVw">门窗工作组</span>
+                                        <span class="check-icon" style="display: none;" data-page-node-id="9SOmaqdHnYmxnxgNe7fwDE">✓</span>
+                                    </div>
+                                    <div class="dropdown-item" data-value="cabinet" data-icon="🗄️" data-name="橱柜工作组" onclick="selectGroup(this)" data-page-node-id="W8mwlfBYmrjA8qMUDK53C3">
+                                        <span class="item-icon" data-page-node-id="0jEPtlHuFTAeFvuLLpvBCL">🗄️</span>
+                                        <span class="item-name" data-page-node-id="GsdjYUz90FqM9hoGpGJRH1">橱柜工作组</span>
+                                        <span class="check-icon" style="display: none;" data-page-node-id="sdbg4hGKkAAaxAb2s8JZED">✓</span>
+                                    </div>
+                                    <div class="dropdown-item" data-value="sanitary" data-icon="🚿" data-name="卫浴工作组" onclick="selectGroup(this)" data-page-node-id="oBvTnhhe7EFzvgh7XUEvTv">
+                                        <span class="item-icon" data-page-node-id="5GENI9eLIq1XApcK3Ttd3g">🚿</span>
+                                        <span class="item-name" data-page-node-id="WnAEHZCI6GbnXxE0NuzyN7">卫浴工作组</span>
+                                        <span class="check-icon" style="display: none;" data-page-node-id="dDuBxpAiEh8ZCyhKqroPcl">✓</span>
+                                    </div>
+                                    <div class="dropdown-item" data-value="electric" data-icon="💡" data-name="电工工作组" onclick="selectGroup(this)" data-page-node-id="T9AFAEHIduCMRtO5GCmEhJ">
+                                        <span class="item-icon" data-page-node-id="UkpYrypcncIo2QxXGBaRLA">💡</span>
+                                        <span class="item-name" data-page-node-id="YpmoaPyDEJB0l0b0tvcoGy">电工工作组</span>
+                                        <span class="check-icon" style="display: none;" data-page-node-id="52ZOA6Y1GBPr7l0hybQHKr">✓</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    </div><!-- /serviceInviteFields -->
+                    
+
+                    <div class="invite-target-app" id="inviteTargetApp" data-page-node-id="sWevRBP6rE4WH7aDAes3Wz">
+                        <span class="app-icon" data-page-node-id="evxl2FAbUGZfdLwFTqCD1W">🛠️</span>
+                        <div class="app-text" data-page-node-id="v6HhbadXUAHkAJtCEpER7p">
+                            <div class="app-line" data-page-node-id="6Wel9u1NSZEB0w426AQmVN">被邀请人将进入 <b data-page-node-id="AG3508kkFvByqKb5TB20Nr">服务端小程序</b></div>
+                            <div class="app-perm" data-page-node-id="4OlVQE0gF3EicsDrR6oEs8">默认权限：仅公开数据，无治理权限</div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group" data-page-node-id="cQnHCEt9QsElVqi2rf8IoY">
+                        <label class="form-label" data-page-node-id="lkirW0x9Rq96Qv5u4dl0Z0">
+                            <span class="required" data-page-node-id="q4tmHrE85jlBjfdJDr7IQs">*</span>
+                            <span data-page-node-id="jb1TAV6EfwUjIFMiVJ1vig">邀请方式</span>
+                        </label>
+                        <div class="invite-methods" data-page-node-id="PaB80upl8no8Zdj2sDPWvk">
+                            <div class="invite-method active" onclick="selectInviteMethod(this, 'platform')" data-page-node-id="ZV5U8Ni7eE3x2RziKO5H0b">
+                                <div class="method-icon" data-page-node-id="dBwMjzaOz1RRXuXug3mAPJ">👥</div>
+                                <div class="method-name" data-page-node-id="HeiG8X8DFpoxZQdxiWLtDG">平台内选择</div>
+                            </div>
+                            <div class="invite-method" onclick="selectInviteMethod(this, 'qrcode')" data-page-node-id="EIGukBH79zsAFHHT9uBGAt">
+                                <div class="method-icon" data-page-node-id="yWPx8HZsB3ybXO9yOOdbkU">📷</div>
+                                <div class="method-name" data-page-node-id="mkCCrI8gzqBQWEg4mK6Okz">二维码邀请</div>
+                            </div>
+                            <div class="invite-method" onclick="selectInviteMethod(this, 'wechat')" data-page-node-id="HUMC6SHzMsCwGp14RVlrcT">
+                                <div class="method-icon" data-page-node-id="An6KcJbxywx518DPL8dtNE">💚</div>
+                                <div class="method-name" data-page-node-id="wgVc3y2qc8O2TiBbzwHzuv">微信好友</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div id="platformInviteForm" data-page-node-id="x1GVPYzaT7qFRyqEifJjAa">
+                        <div class="form-group" data-page-node-id="ldC4uoYwMO1pfFVv6jMX0l">
+                            <label class="form-label" data-page-node-id="NaNUaJV8w9cyioc5wapLi7">
+                                <span class="required" data-page-node-id="fbqdShiIbMxvJ0zbajGzRX">*</span>
+                                <span data-page-node-id="WvJVvcr6iexKdBmkimc6Pp">选择平台用户</span>
+                            </label>
+                            <div class="platform-user-search" data-page-node-id="gKaou9YPFQizeZOTZnZYPJ">
+                                <input type="text" class="form-input" id="platformUserSearch" placeholder="搜索平台内的服务人员 / 业主..." oninput="filterPlatformUsers(this.value)" data-page-node-id="gTdNNbFYmkn2GaUaZBv0RR">
+                            </div>
+                            <div class="platform-user-list" id="platformUserList" data-page-node-id="QyApq3gDMgLrAOFHLnBmQq"></div>
+                        </div>
+                    </div>
+                    
+                    <div id="qrcodeInviteForm" style="display: none;" data-page-node-id="SmBwgM4YU5FjErK4Vbjbzr">
+                        <div class="qrcode-preview" data-page-node-id="OkoeLGZy3qIq3iAO5oQw2x">
+                            <div class="qrcode-placeholder" data-page-node-id="1iM6vkvreXU2lEe0GsLmIh">二维码</div>
+                            <div class="qrcode-text" data-page-node-id="wdgy8VzjLQruRA7x0yJg1Z">扫码加入工作组</div>
+                        </div>
+                        <div class="qrcode-expire" data-page-node-id="zVJX71PX12OPRo1VV4nCOS">二维码有效期：7天</div>
+                    </div>
+
+                    <div id="wechatInviteForm" style="display: none;" data-page-node-id="jUGX0ikYP4WB2ZAcOrGISQ">
+                        <div class="wechat-invite-preview" data-page-node-id="yesccuillWABm8dvStXR22">
+                            <div class="wechat-share-card" data-page-node-id="hwWSY6vYtV8kPHBErEHmeI">
+                                <div class="card-thumb" data-page-node-id="fGKGNJIo9grVarTIjuaVAZ">🏠</div>
+                                <div class="card-info" data-page-node-id="Mo2MoXOMQYaqdScmzhrvOQ">
+                                    <div class="card-title" id="wechatCardTitle" data-page-node-id="FWbYTbDf7W6cHAp6PJ1BC6">家装项目协作邀请</div>
+                                    <div class="card-desc" id="wechatCardDesc" data-page-node-id="Hr0AtcHL08GKAFSfh3a8tf">点击加入项目，开始协作</div>
+                                </div>
+                            </div>
+                            <button class="wechat-share-btn" onclick="shareToWechat()" data-page-node-id="4xPly9bE7exe9IAFGYdEJQ">
+                                <span class="btn-icon" data-page-node-id="VEo5x6zUziRSl0t0IC232E">💬</span>
+                                <span data-page-node-id="soinmaTw1iblZMgNTzLxBK">发送给微信好友</span>
+                            </button>
+                            <div class="wechat-invite-tip" data-page-node-id="72FzWDh8d5GDWVUZWpD5X6">点击后将调起微信分享面板，选择好友发送邀请卡片</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-actions" data-page-node-id="M64Hyg4v5sGMM0BDCYlUlg">
+                    <button class="modal-btn cancel" onclick="closeInviteModal()" data-page-node-id="HbR6bGaaVCSiruADTAlzcJ">取消</button>
+                    <button class="modal-btn confirm" onclick="sendInvite()" data-page-node-id="vQJ6qR1KVH2pYbaeUnDXKx">发送邀请</button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="permission-modal" id="permissionModal" data-page-node-id="6HUlLVR5c1dnJSIA11wGue">
+            <div class="modal-content" data-page-node-id="lGbMDxadnobGxikQ4StkWf">
+                <div class="modal-header" data-page-node-id="44uDvDV41SXpnIXguuVHJB">
+                    <div class="modal-title" data-page-node-id="1UO6BT5ByeQpD3uF2dCDMz">权限设置</div>
+                    <div class="modal-close" onclick="closePermissionModal()" data-page-node-id="10J56NNxtlpMuQ9OpwDb0I">✕</div>
+                </div>
+                
+                <div class="member-info-card" data-page-node-id="8h1SrPDrb80CnQPHHFDGUw">
+                    <div class="avatar" id="modalAvatar" data-page-node-id="FFrR27sK1GAL6CVs3bC0YT">张</div>
+                    <div class="info" data-page-node-id="Y60I52wbcNDAZy4Ok5tomN">
+                        <div class="name" id="modalName" data-page-node-id="B1BeqMz0XJ0yGdRU1he3EA">张三</div>
+                        <div class="role" id="modalRole" data-page-node-id="cwMaCpF5zDjlfcDovP1IhH">项目部 · 项目经理</div>
+                    </div>
+                </div>
+                
+                <div class="permission-warning" id="permissionWarning" style="display: none;" data-page-node-id="ixWxbZpsiHU55JV4Nor2at">
+                    <div class="warning-icon" data-page-node-id="WfVe2bYyadrzUpVQ9kjhDT">⚠️</div>
+                    <div class="warning-text" data-page-node-id="aHoSSYwyo3l9O87NxD6hZx">该成员是项目中唯一拥有全部权限的管理者，修改权限后可能导致项目无人管理。</div>
+                </div>
+                
+                <div class="permission-section" data-page-node-id="UtTgA5bjzDCCtXvYmpuHYd">
+                    <div class="section-title" data-page-node-id="uctGQAmJJYGercwr6Z5i1G"><span class="icon" data-page-node-id="6sT61xNTR88uaL7hx5KazR">📊</span> 数据权限</div>
+                    <div class="section-desc" data-page-node-id="XDGv5F7GFlD7MJBPihV8gj">设置成员可查看的数据范围，不选择则默认可查看全部公开数据</div>
+                    
+                    <div class="permission-option" onclick="selectDataPermission(this, 'all')" data-page-node-id="b7oNXbILyaypRutItfpAC8">
+                        <div class="radio" data-page-node-id="gK3pXAN2d2ZGIL4SReGxzR"></div>
+                        <div class="option-content" data-page-node-id="5jB5gm6XCDyBPvWP3XOZbS">
+                            <div class="option-title" data-page-node-id="T5tHueVLVaasJFjRqOUyE9">全部数据</div>
+                            <div class="option-desc" data-page-node-id="GNnyeCH6q3UTA7TLTnG6Rj">可查看项目内所有层级的数据</div>
+                        </div>
+                    </div>
+                    <div class="permission-option" onclick="selectDataPermission(this, 'level')" data-page-node-id="Ijhx2bBsjWoCQNVnciEFia">
+                        <div class="radio" data-page-node-id="18BSs1TmPofYKUVdpXrPcC"></div>
+                        <div class="option-content" data-page-node-id="tb1Ax9ImbCSl6pOIw8UU8F">
+                            <div class="option-title" data-page-node-id="Rhfyu1pyvLrmYTmBSsw8EO">所在服务流程层级（含子级）</div>
+                            <div class="option-desc" data-page-node-id="VwHJdonop2ZdKVjqVvykqC">仅可查看所属流程项及下级的数据，不含合同与任务明细</div>
+                        </div>
+                    </div>
+                    <div class="permission-option" onclick="selectDataPermission(this, 'level_with_contract')" data-page-node-id="Q4MyMJ0h7osolAFobgL7Ia">
+                        <div class="radio" data-page-node-id="hgbKdcX4GVu7bKsMFpbImQ"></div>
+                        <div class="option-content" data-page-node-id="CgH9cm3CRgh9lNS4n1nlXh">
+                            <div class="option-title" data-page-node-id="O6uiogBsCHsBcATxhDrs1d">所在服务流程层级（当前层级，含合同与任务）</div>
+                            <div class="option-desc" data-page-node-id="ZdUFNDyMDs7JCiejl5dYIC">可查看所属流程项当前层级的数据，含流程项内合同（主/子）与任务</div>
+                        </div>
+                    </div>
+                    <div class="permission-option" onclick="selectDataPermission(this, 'none')" data-page-node-id="WWWv7GiTs0vzvG5N842Wbs">
+                        <div class="radio" data-page-node-id="2ivGMUElclHy4KypFDYBIe"></div>
+                        <div class="option-content" data-page-node-id="AC4ECSvi9cS8anF3p7Zq7e">
+                            <div class="option-title" data-page-node-id="XRMBqu1YdtnRMBMAKfTQ1a">仅公开 + 本流程项 + 参与（签署/执行）数据</div>
+                            <div class="option-desc" data-page-node-id="N8eS7ZSluu4TwzMW0u9EGm">仅可查看基础公开数据、本人所属流程项数据及参与签署/执行任务的数据</div>
+                        </div>
+                    </div>
+                    <div class="section-footnote">架构作为团队花名册，组织信息默认项目成员可见（不含合同），不再单列权限维度。</div>
+                </div>
+                
+                <div class="permission-section" data-page-node-id="EtI8g0jDPFsAHX0IABP79v">
+                    <div class="section-title" data-page-node-id="DBq9hjPKdalsFZxhBg9Qtv"><span class="icon" data-page-node-id="FPCGFbi0yJpNgkzXxHNDAm">⚙️</span> 治理权限</div>
+                    <div class="section-desc" data-page-node-id="28F5Pzp0lifXDzuLKM8xfJ">设置成员可执行的操作权限，不选择则无治理权限</div>
+                    
+                    <div class="permission-checkbox-group" data-page-node-id="WSboPVOCrgr4psv92z55ev">
+                        <div class="permission-checkbox" onclick="toggleManagePermission(this, 'all')" data-page-node-id="f0gomgYV2lAdjUBN8DikH5">
+                            <div class="checkbox" data-page-node-id="fQwuE5f02TSmUuDnbh4RrW">✓</div>
+                            <div class="option-content" data-page-node-id="5jPr9cekTEQtlZQBGGRVaj">
+                                <div class="option-title" data-page-node-id="0XdHoVku29LBhsxGyJ3KzR">全部权限</div>
+                                <div class="option-desc" data-page-node-id="FFWqGP3TEMM5xA3XFFEvbV">拥有项目的全部管理权限-含权限配置</div>
+                            </div>
+                        </div>
+                        <div class="permission-checkbox" onclick="toggleManagePermission(this, 'edit')" data-page-node-id="aMWeQJYxwJ9lDWyXGOwCVm">
+                            <div class="checkbox" data-page-node-id="2GUOTqtMQqPH1JADQMS6SN"></div>
+                            <div class="option-content" data-page-node-id="XqoNaaJTJHM4seHet1TDbo">
+                                <div class="option-title" data-page-node-id="pWZGfQ4R6MIRHCCejqDXXB">编辑项目</div>
+                                <div class="option-desc" data-page-node-id="tVKcHg9aSylJpILmBV1ytb">可编辑项目信息、创建架构和合同</div>
+                            </div>
+                        </div>
+                        <div class="permission-checkbox" onclick="toggleManagePermission(this, 'assign')">
+                            <div class="checkbox"></div>
+                            <div class="option-content">
+                                <div class="option-title">指派任务</div>
+                                <div class="option-desc">在授权范围内，向成员派遣流程项内临时任务</div>
+                            </div>
+                        </div>
+                        <div class="assign-scope-panel" id="assignScopePanel" style="display: none;">
+                            <div class="as-scope-title">指派任务范围（单选，独立于数据权限）</div>
+                            <div class="permission-option scope-opt" data-scope="scope_all" onclick="selectAssignScope(this, 'scope_all')">
+                                <div class="radio"></div>
+                                <div class="option-content">
+                                    <div class="option-title">全部流程项</div>
+                                    <div class="option-desc">可在项目内所有服务流程项中指派任务</div>
+                                </div>
+                            </div>
+                            <div class="permission-option scope-opt" data-scope="scope_level_children" onclick="selectAssignScope(this, 'scope_level_children')">
+                                <div class="radio"></div>
+                                <div class="option-content">
+                                    <div class="option-title">所在服务流程层级（含子级）</div>
+                                    <div class="option-desc">可在所属流程项及其下级内指派任务</div>
+                                </div>
+                            </div>
+                            <div class="permission-option scope-opt" data-scope="scope_level_current" onclick="selectAssignScope(this, 'scope_level_current')">
+                                <div class="radio"></div>
+                                <div class="option-content">
+                                    <div class="option-title">所在服务流程层级（当前层级，含合同与任务）</div>
+                                    <div class="option-desc">仅在所属流程项本层内指派任务（最小范围，默认）</div>
+                                </div>
+                            </div>
+                            <div class="as-scope-note" id="assignScopeNote">范围随成员隶属层级自动适配，流程项增删改时无需重新授权。</div>
+                        </div>
+                        <div class="permission-checkbox" onclick="toggleManagePermission(this, 'remove')" data-page-node-id="BEyjs1dxHtyTELqgfiWare">
+                            <div class="checkbox" data-page-node-id="0dUVRDWOSBtkCvqQvZR2ZV"></div>
+                            <div class="option-content" data-page-node-id="IKERPO5jSavpFfHEsBeuqF">
+                                <div class="option-title" data-page-node-id="jZhXmPWsYDldOrS1CvjHgf">移出人员</div>
+                                <div class="option-desc" data-page-node-id="MqCBawOYEHh576Ou8rHvuz">可将成员从项目中移出</div>
+                            </div>
+                        </div>
+                        <div class="permission-checkbox" onclick="toggleManagePermission(this, 'add_group')" data-page-node-id="90A63TJnSOa8c9ehM9j4UG">
+                            <div class="checkbox" data-page-node-id="FWwRBFKJJOfLFHkX9f5mll"></div>
+                            <div class="option-content" data-page-node-id="ADKzU0n5Z7GpBij7SzSkjx">
+                                <div class="option-title" data-page-node-id="OyPsCO4FEaojml6luHxdGO">添加工作组</div>
+                                <div class="option-desc" data-page-node-id="jb88MDlrcQGjhvFlr6Bvi2">可在项目中创建新的工作组</div>
+                            </div>
+                        </div>
+                        <div class="permission-checkbox" onclick="toggleManagePermission(this, 'manage_flow')">
+                            <div class="checkbox"></div>
+                            <div class="option-content">
+                                <div class="option-title">管理服务流程项</div>
+                                <div class="option-desc">增删 / 调序 / 编辑本项目的服务流程项</div>
+                            </div>
+                        </div>
+                        <div class="permission-checkbox" onclick="toggleManagePermission(this, 'close_noncontract')">
+                            <div class="checkbox"></div>
+                            <div class="option-content">
+                                <div class="option-title">关闭非合同任务</div>
+                                <div class="option-desc">终止非合同类流程项下的任务</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="remove-member-section" id="removeMemberSection" data-page-node-id="Necct3oSzGW5VS0Tw2Ib7C">
+                    <button class="remove-btn" id="removeBtn" onclick="showRemoveConfirm()" data-page-node-id="DrTS0a9OBGA8bU8Mjlo8Ql">移出项目</button>
+                </div>
+                
+                <div class="modal-actions" data-page-node-id="xZkjrbHBM8u7LRiEAOPmXG">
+                    <button class="modal-btn cancel" onclick="closePermissionModal()" data-page-node-id="ye4nRWH5UqTuXlKZgGuAyD">取消</button>
+                    <button class="modal-btn confirm" onclick="savePermission()" data-page-node-id="nXBmOXT6jIvbSyGtCMffLt">保存</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 人员操作模态框：当前登录用户仅有“移出人员”权限时弹出，仅含“移出项目”操作，无权限配置项 -->
+        <div class="permission-modal" id="memberActionModal" data-page-node-id="Y60ODU89pyZukp5DfR6PvG">
+            <div class="modal-content" data-page-node-id="l1NbBLg7VmmBSTixtwvnE8">
+                <div class="modal-header" data-page-node-id="gRUCxwEdDoWOR5mEg6DuG1">
+                    <div class="modal-title" data-page-node-id="HNLrwwyHUMTXJ1vzvmGAGB">人员操作</div>
+                    <div class="modal-close" onclick="closeMemberActionModal()" data-page-node-id="m2OJZcRjVCDqpuxIGPL9fK">✕</div>
+                </div>
+                <div class="member-info-card" data-page-node-id="YjdGF6onHkWWmuHMllBlhV">
+                    <div class="avatar" id="actionModalAvatar" data-page-node-id="O0DDfjeszX3FrVJy7xvfdv">张</div>
+                    <div class="info" data-page-node-id="Pam3mQ3Etb3WqF9Cef4VIw">
+                        <div class="name" id="actionModalName" data-page-node-id="rBTcmiqJ0kBjFu4l6p0WVC">张三</div>
+                        <div class="role" id="actionModalRole" data-page-node-id="d9edKjEdfI1kFxUWEHIgEw">项目部 · 项目经理</div>
+                    </div>
+                </div>
+                <div class="permission-warning" id="actionWarning" style="display: none;" data-page-node-id="d4nX7fzHuXSpBX3McxAag6">
+                    <div class="warning-icon" data-page-node-id="c5zWtp496KNTa4nlios8sr">⚠️</div>
+                    <div class="warning-text" data-page-node-id="uk48JSrByFUHbpX4I2BOCx">该成员是项目中唯一拥有全部权限的管理者，无法移出。</div>
+                </div>
+                <div class="remove-member-section" id="actionRemoveSection" data-page-node-id="YLdDCaQUd8nTymSicSLfIw">
+                    <button class="remove-btn" id="actionRemoveBtn" onclick="showRemoveConfirm()" data-page-node-id="e0qIN1NvfTv8uEfW9Exd1H">移出项目</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="app-modal" id="createNodeModal">
+            <div class="modal-box">
+                <div class="modal-title" id="createNodeTitle">创建工作组</div>
+                <div class="modal-content" style="text-align:left;">
+                    <div class="form-group">
+                        <label class="form-label"><span class="required">*</span><span id="createNodeNameLabel">工作组名称</span></label>
+                        <input type="text" class="form-input" id="createNodeName" placeholder="请输入名称">
+                        <div class="tree-form-err" id="createNodeErr"></div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">隶属</label>
+                        <div class="tree-form-display" id="createNodeParent">项目部</div>
+                    </div>
+                </div>
+                <div class="modal-actions">
+                    <button class="modal-btn cancel" onclick="closeCreateNodeModal()">取消</button>
+                    <button class="modal-btn confirm" onclick="confirmCreateNode()">确认创建</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="app-modal" id="renameNodeModal">
+            <div class="modal-box">
+                <div class="modal-title" id="renameNodeTitle">重命名</div>
+                <div class="modal-content" style="text-align:left;">
+                    <div class="form-group">
+                        <label class="form-label"><span class="required">*</span><span>名称</span></label>
+                        <input type="text" class="form-input" id="renameNodeInput" placeholder="请输入名称">
+                        <div class="tree-form-err" id="renameNodeErr"></div>
+                    </div>
+                </div>
+                <div class="modal-actions">
+                    <button class="modal-btn cancel" onclick="closeRenameNodeModal()">取消</button>
+                    <button class="modal-btn confirm" onclick="confirmRenameNode()">保存</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="app-modal" id="confirmModal" data-page-node-id="c1BguwOCRL6yZQh04oUPCE">
+            <div class="modal-box" data-page-node-id="ndBgHisTwSBBt9F2jJq7Dw">
+                <div class="modal-title" id="confirmTitle" data-page-node-id="wWmVadXzeRCL7lcZizSEZp">确认移出</div>
+                <div class="modal-content" id="confirmContent" data-page-node-id="6aoQbMwHJTsGeeBix5G7sq">确定要将该成员移出项目吗？移出后该成员将无法访问项目数据。</div>
+                <div class="modal-actions" data-page-node-id="olRVnr4Hjr53lwCQiTnIr0">
+                    <button class="modal-btn cancel" onclick="closeConfirmModal()" data-page-node-id="vZeE9vmZI36KaljRG4HIYl">取消</button>
+                    <button class="modal-btn danger" id="confirmBtn" onclick="handleConfirm()" data-page-node-id="XXwGApNIddOuDsst7MvH2a">确认移出</button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="app-modal" id="alertModal" data-page-node-id="JLdz0QGCjobfzn2CSVwFrv">
+            <div class="modal-box" data-page-node-id="NknNiyHxagXDzLnmDpKRh2">
+                <div class="modal-title" id="alertTitle" data-page-node-id="JMLbIZkATAtUcYBHidOJd0">提示</div>
+                <div class="modal-content" id="alertContent" data-page-node-id="3gZo4bpjRj8RaCJH8tQes1"></div>
+                <div class="modal-actions" data-page-node-id="GnGk495I06RtEbP37mUyuV">
+                    <button class="modal-btn confirm" onclick="closeAlertModal()" style="flex: 1;" data-page-node-id="vu3XZCUoK9bWWVec6KVymI">确定</button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="app-toast" id="appToast" data-page-node-id="e7CGCK3DPKdaIqkNwXESzM"></div>
+    </div>
+    
+    <div class="demo-control-panel" id="permissionControlPanel" data-page-node-id="VFrvjyNVX2o6DtQjGVhCve">
+        <div class="panel-title" data-page-node-id="1WPaAvkfZKPrkCoiMFwjwu">当前用户权限演示</div>
+        <div class="segmented-control" id="permissionSegment" data-page-node-id="tCWyFeradisGl5rlAU5kdu">
+            <div class="segment active" data-perm="none" onclick="setDemoPermission('none')" data-page-node-id="DLwtBGVZLtrnCKvwD6Odqb">无权限</div>
+            <div class="segment" data-perm="remove" onclick="setDemoPermission('remove')" data-page-node-id="mkhEHFm3f42Nb1bARAXiVf">仅移出人员</div>
+            <div class="segment" data-perm="all" onclick="setDemoPermission('all')" data-page-node-id="XmPcHY8RlAft8HwH7r0p5j">全部权限</div>
+        </div>
+        <div class="status-text uncertified" id="permissionStatusText" data-page-node-id="xBuVBfrKwiCmZx3USaV1Xo">无权限：区域不可点击</div>
+    </div>
+    
+    <div class="page-nav" data-page-node-id="HLZX5aEzwL7qDNuDYHmYVl">
+        <div class="page-nav-title" data-page-node-id="E9nqsfhek5Jx9pvajc0Ee0">原型导航</div>
+        <a href="home.html" class="page-nav-item" data-page-node-id="UdYKkJZLoJW7q9E0RkhPyG">首页</a>
+        <a href="project-list.html" class="page-nav-item" data-page-node-id="VkziLxbBjz6Unb3SIgrHvx">项目主页（进行中）</a>
+        <a href="project-list.html" class="page-nav-item" data-page-node-id="CNj1WQHIVVH4u5dT6yYOJF">项目主页（进行中）</a>
+        <a href="member.html" class="page-nav-item active" data-page-node-id="lptAENsCHe8uYeDpYoGk9W">项目成员</a>
+        <a href="task-list.html" class="page-nav-item" data-page-node-id="IPiHdixHrdOvJ70ImhLudg">任务列表</a>
+        <a href="contract-detail.html" class="page-nav-item" data-page-node-id="eg79TpR7HDyCbnmaWzareU">合同详情</a>
+    </div>
+    
+    <script>
+        const members = {
+            'zhangsan': {
+                name: '张三',
+                avatar: '张',
+                role: '项目部',
+                roleTag: 'manager',
+                group: 'project',
+                groupName: '项目部',
+                groupIcon: '🏢',
+                dataPermission: 'all',
+                managePermissions: ['all'],
+                isOnlyAdmin: true,
+                flowLevel: null,
+            },
+            'lisi': {
+                name: '李四',
+                avatar: '李',
+                role: '设计师',
+                roleTag: 'designer',
+                group: 'design',
+                groupName: '设计工作组',
+                groupIcon: '📐',
+                dataPermission: 'all',
+                managePermissions: ['edit'],
+                isOnlyAdmin: false,
+                flowLevel: '设计服务',
+            },
+            'wangwu': {
+                name: '王五',
+                avatar: '王',
+                role: '项目部',
+                roleTag: 'owner',
+                group: 'project',
+                groupName: '项目部',
+                groupIcon: '🏢',
+                dataPermission: 'none',
+                managePermissions: [],
+                isOnlyAdmin: false,
+                flowLevel: null,
+            },
+            'zhaoliu': {
+                name: '赵六',
+                avatar: '赵',
+                role: '水电工作组',
+                roleTag: 'foreman',
+                group: 'water',
+                groupName: '水电工作组',
+                groupIcon: '👷',
+                dataPermission: 'level',
+                managePermissions: ['edit'],
+                isOnlyAdmin: false,
+                flowLevel: '基础施工服务',
+            },
+            'sunba': {
+                name: '孙八',
+                avatar: '孙',
+                role: '强电施工组',
+                roleTag: 'worker',
+                group: 'water',
+                groupName: '水电工作组',
+                groupIcon: '👷',
+                dataPermission: 'level',
+                managePermissions: [],
+                isOnlyAdmin: false,
+                flowLevel: '基础施工服务',
+            },
+            'qianjiu': {
+                name: '钱九',
+                avatar: '钱',
+                role: '弱电施工组',
+                roleTag: 'worker',
+                group: 'water',
+                groupName: '水电工作组',
+                groupIcon: '👷',
+                dataPermission: 'level',
+                managePermissions: [],
+                isOnlyAdmin: false,
+                flowLevel: '基础施工服务',
+            },
+            'zhoushi': {
+                name: '周十',
+                avatar: '周',
+                role: '泥瓦工作组',
+                roleTag: 'foreman',
+                group: 'tile',
+                groupName: '泥瓦工作组',
+                groupIcon: '🧱',
+                dataPermission: 'level',
+                managePermissions: ['edit', 'assign'],
+                assignScope: 'scope_level_current',
+                isOnlyAdmin: false,
+                flowLevel: '基础施工服务',
+            },
+            'wushi': {
+                name: '吴十',
+                avatar: '吴',
+                role: '木工工作组',
+                roleTag: 'foreman',
+                group: 'wood',
+                groupName: '木工工作组',
+                groupIcon: '🪵',
+                dataPermission: 'level',
+                managePermissions: [],
+                isOnlyAdmin: false,
+                flowLevel: '基础施工服务',
+            },
+            'zhangsanBase': {
+                name: '张三',
+                avatar: '张',
+                role: '工长',
+                roleTag: 'foreman',
+                group: 'base',
+                groupName: '基础施工组',
+                groupIcon: '🏗️',
+                dataPermission: 'level',
+                managePermissions: ['edit'],
+                isOnlyAdmin: false,
+                flowLevel: '基础施工服务',
+            },
+            'zhengshiyi': {
+                name: '郑十一',
+                avatar: '郑',
+                role: '油漆工作组',
+                roleTag: 'foreman',
+                group: 'paint',
+                groupName: '油漆工作组',
+                groupIcon: '🎨',
+                dataPermission: 'level',
+                managePermissions: [],
+                isOnlyAdmin: false,
+                flowLevel: '基础施工服务',
+            }
+        };
+
+        const groupOrder = ['project', 'base', 'design', 'water', 'tile', 'wood', 'paint'];
+        const groupNames = {
+            'project': { name: '项目部', icon: '🏢', level: 0 },
+            'water': { name: '水电工作组', icon: '👷', level: 1 },
+            'tile': { name: '泥瓦工作组', icon: '🧱', level: 1 },
+            'wood': { name: '木工工作组', icon: '🪵', level: 1 },
+            'paint': { name: '油漆工作组', icon: '🎨', level: 1 },
+            'base': { name: '基础施工组', icon: '🏗️', level: 1 },
+            'design': { name: '设计工作组', icon: '📐', level: 1 }
+        };
+
+        // 架构层级标识：L0 项目总架构 / L1 工作组 / L2 子施工组（复用架构页配色）
+        const LEVEL_META = {
+            0: { label: 'L0', name: '项目总架构', color: '#1890FF', bg: 'rgba(24,144,255,0.12)' },
+            1: { label: 'L1', name: '工作组', color: '#52C41A', bg: 'rgba(82,196,26,0.12)' },
+            2: { label: 'L2', name: '子施工组', color: '#722ED1', bg: 'rgba(114,46,209,0.12)' }
+        };
+
+        // 由成员数据推导其所属架构层级（L2 子施工组仅强电/弱电施工人员）
+        function memberLevel(m) {
+            if (m.group === 'project') return 0;
+            if (m.role.indexOf('强电施工组') > -1 || m.role.indexOf('弱电施工组') > -1) return 2;
+            return 1;
+        }
+
+        let currentSearchKw = ''; // 统一搜索关键词（架构+人员）
+        let memShown = {}; // 各节点「成员」独立开关
+        let allMemOn = false; // 全局人员开关：false=收起人员（默认）；true=展示全部人员；null=回退到节点跟随展开
+        let currentMemberId = '';
+        let currentDataPermission = 'all';
+        let currentAssignScope = 'scope_level_current';
+        let currentManagePermissions = [];
+        let currentUserPermission = 'none'; // 当前登录用户权限：none（无）/ remove（仅移出人员）/ all（全部权限）
+
+        // 节点直属成员：归属本节点但不归属任何子节点（最具体层级唯一落位，保证每人只出现一次）
+        function nodeDirectMembers(node) {
+            const out = [];
+            Object.keys(members).forEach(id => {
+                const m = members[id];
+                if (!archMemberMatch(m, node.key)) return;
+                const deeper = (node.children || []).some(c => archMemberMatch(m, c.key));
+                if (!deeper) out.push({ id, ...m });
+            });
+            return out;
+        }
+
+        function renderMemberCard(member, creatorId) {
+            let dataPermTag = '';
+            if (member.dataPermission === 'all') {
+                dataPermTag = '<span class="permission-tag data">数据: 全部</span>';
+            } else if (member.dataPermission === 'level') {
+                dataPermTag = '<span class="permission-tag data">数据: 所在层级</span>';
+            } else if (member.dataPermission === 'level_with_contract') {
+                dataPermTag = '<span class="permission-tag data">数据: 层级含合同</span>';
+            } else {
+                dataPermTag = '<span class="permission-tag none">数据: 公开</span>';
+            }
+
+            let managePermTag = '';
+            if (member.managePermissions.includes('all')) {
+                managePermTag = '<span class="permission-tag manage">治理: 全部</span>';
+            } else if (member.managePermissions.length > 0) {
+                managePermTag = '<span class="permission-tag manage">治理: 部分</span>';
+            } else {
+                managePermTag = '<span class="permission-tag none">治理: 无</span>';
+            }
+
+            /* 层级标识：L1 工作组 / L2 子施工组，随身份标签同行展示（项目部 L0 为根层级不展示） */
+            const lv = memberLevel(member);
+            const lvTag = lv === 2 ? '<span class="member-level-tag lv2" title="L2 · 子施工组">L2</span>'
+                        : lv === 1 ? '<span class="member-level-tag lv1" title="L1 · 工作组">L1</span>' : '';
+
+            return `
+                <div class="member-card">
+                    <div class="avatar clickable" onclick="event.stopPropagation(); goToProfile('${member.id}', '${member.name}', '${member.role}')">${member.avatar}</div>
+                    <div class="info">
+                        <div class="name-row">
+                            <span class="name clickable" onclick="event.stopPropagation(); goToProfile('${member.id}', '${member.name}', '${member.role}')">${member.name}</span>
+                            <span class="role-tag ${member.roleTag}">${getRoleTagName(member.roleTag)}</span>
+                            ${member.id === creatorId ? '<span class="role-tag creator">创建人</span>' : ''}
+                            ${lvTag}
+                        </div>
+                    </div>
+                    <div class="permission-badge" onclick="event.stopPropagation(); showPermissionModalIfAllowed('${member.id}')">
+                        ${dataPermTag}
+                        ${managePermTag}
+                    </div>
+                    <div class="arrow" onclick="event.stopPropagation(); showPermissionModalIfAllowed('${member.id}')">›</div>
+                </div>
+            `;
+        }
+
+        function getRoleTagName(tag) {
+            const names = {
+                'manager': '项目总',
+                'foreman': '工长',
+                'owner': '业主',
+                'designer': '设计师',
+                'worker': '施工'
+            };
+            return names[tag] || tag;
+        }
+
+        /* ===== 项目架构卡（只读通讯录式）：树渲染 + 点击节点筛选联动 ===== */
+        const ARCH_TREE = {
+            key: 'project', name: '项目部', icon: '🏢', level: 0, creator: 'zhangsan',
+            children: [
+                { key: 'base', name: '基础施工组', icon: '🏗️', level: 1, creator: 'zhangsanBase', children: [] },
+                { key: 'design', name: '设计工作组', icon: '📐', level: 1, creator: 'lisi', children: [] },
+                { key: 'water', name: '水电工作组', icon: '👷', level: 1, creator: 'zhaoliu', children: [
+                    { key: 'strong', name: '强电施工组', icon: '⚡', level: 2, creator: 'sunba', children: [] },
+                    { key: 'weak', name: '弱电施工组', icon: '🔌', level: 2, creator: 'qianjiu', children: [] }
+                ] },
+                { key: 'tile', name: '泥瓦工作组', icon: '🧱', level: 1, creator: 'zhoushi', children: [] },
+                { key: 'wood', name: '木工工作组', icon: '🪵', level: 1, creator: 'wushi', children: [] },
+                { key: 'paint', name: '油漆工作组', icon: '🎨', level: 1, creator: 'zhengshiyi', children: [] }
+            ]
+        };
+        const ARCH_LABELS = {
+            all: '全部成员', project: '项目部', water: '水电工作组',
+            tile: '泥瓦工作组', wood: '木工工作组', paint: '油漆工作组',
+            strong: '强电施工组', weak: '弱电施工组', base: '基础施工组', design: '设计工作组'
+        };
+        let archExpanded = { project: true, water: true, tile: false, wood: false, paint: false };
+
+        // 节点成员归属：项目部=直属；工作组=L1 group 匹配；L2 = 上级工作组内按 role 名匹配（兼容动态新建节点）
+        function archMemberMatch(m, key) {
+            if (key === 'all' || !key) return true;
+            const node = findArchNode(key);
+            if (!node) return m.group === key;
+            if (node.level === 0) return m.group === 'project';
+            if (node.level === 1) return m.group === key;
+            // level 2：归属到其上级工作组，并按 role 名匹配
+            const parent = findArchParent(key);
+            const parentKey = parent ? parent.key : null;
+            return m.group === parentKey && m.role === node.name;
+        }
+
+        function archCount(key) {
+            let n = 0;
+            Object.keys(members).forEach(id => {
+                if (archMemberMatch(members[id], key)) n++;
+            });
+            return n;
+        }
+
+        function archTotalCount() {
+            return Object.keys(members).length;
+        }
+
+        // 统一搜索：命中架构层级数（按名称包含）
+        function archSearchMatchCount() {
+            const kw = currentSearchKw.trim().toLowerCase();
+            if (!kw) return 0;
+            let n = 0;
+            (function walk(node) {
+                if (node.name.toLowerCase().indexOf(kw) > -1) n++;
+                (node.children || []).forEach(walk);
+            })(ARCH_TREE);
+            return n;
+        }
+
+        function archEsc(s) {
+            return String(s).replace(/[&<>"']/g, function(c) {
+                return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+            });
+        }
+
+        // 成员块显隐优先级：节点记忆 > 全局开关 > 跟随节点展开
+        function memOnFor(node, nodeExpanded) {
+            if (node.key in memShown) return memShown[node.key];
+            if (allMemOn === true) return true;
+            if (allMemOn === false) return false;
+            return !!nodeExpanded;
+        }
+
+        // 搜索命中：成员姓名/角色/角色标签
+        function memberMatchesKw(m, kw) {
+            return m.name.toLowerCase().indexOf(kw) > -1 ||
+                m.role.toLowerCase().indexOf(kw) > -1 ||
+                getRoleTagName(m.roleTag).toLowerCase().indexOf(kw) > -1;
+        }
+
+        // 渲染单树：成员嵌套在各层级下方（紧凑行）；搜索态仅显示命中层级/成员
+        function renderArchTree() {
+            const wrap = document.getElementById('archTree');
+            if (!wrap) return;
+            const kw = currentSearchKw.trim().toLowerCase();
+            let matchedLevels = 0;
+            let matchedMembers = 0;
+
+
+            function build(node) {
+                const direct = nodeDirectMembers(node);
+                const directHits = kw ? direct.filter(m => memberMatchesKw(m, kw)) : [];
+                const parts = (node.children || []).map(build);
+                const countAgg = direct.length + parts.reduce((a, pt) => a + (pt.count || 0), 0);
+                const selfHit = !!kw && node.name.toLowerCase().indexOf(kw) > -1;
+                const childHit = parts.some(pt => pt.matched);
+                const memHit = directHits.length > 0;
+                if (kw && !selfHit && !childHit && !memHit) return { html: '', matched: false, count: countAgg };
+                if (kw) {
+                    matchedLevels++;
+                    matchedMembers += directHits.length;
+                }
+                const expanded = kw ? true : !!archExpanded[node.key];
+                const memOn = memOnFor(node, expanded);
+                const shown = kw ? directHits : direct;
+                let html = '<div class="tree-node-row l' + node.level + '" onclick="toggleArchNode(\'' + node.key + '\')">';
+                html += '<span class="tree-caret' + ((node.children && node.children.length) ? (expanded ? ' expanded' : '') : ' leaf') + '" onclick="event.stopPropagation(); toggleArchNode(\'' + node.key + '\')">▶</span>';
+                html += '<span class="tree-icon">' + node.icon + '</span>';
+                html += '<span class="tree-name">' + archEsc(node.name) + '</span>';
+                html += '<span class="tree-count">' + countAgg + '人</span>';
+                html += '<span class="tree-mem-toggle" onclick="event.stopPropagation(); toggleNodeMem(\'' + node.key + '\')">成员 ' + (memOn ? '▾' : '▸') + '</span>';
+                html += '<span class="tree-ops" title="层级操作" onclick="event.stopPropagation(); openArchSheet(\'' + node.key + '\')">⋯</span>';
+                html += '</div>';
+                if (shown.length) {
+                    html += '<div class="node-members' + (memOn ? '' : ' members-collapsed') + '">';
+                    shown.forEach(m => { html += renderMemberCard(m, node.creator); });
+                    html += '</div>';
+                }
+                if (node.children && node.children.length) {
+                    html += '<div class="tree-children' + (expanded ? '' : ' collapsed') + '">';
+                    parts.forEach(pt => { html += pt.html; });
+                    html += '</div>';
+                }
+                return { html: '<div class="tnode">' + html + '</div>', matched: true, count: countAgg };
+            }
+
+            const res = build(ARCH_TREE);
+            let html = res.html;
+            if (kw && matchedLevels === 0 && matchedMembers === 0) {
+                html = '<div class="arch-empty">未找到匹配"' + archEsc(currentSearchKw.trim()) + '"的架构层级或成员</div>';
+            }
+            wrap.innerHTML = html;
+            const sub = document.getElementById('archHeadSub');
+            if (sub) sub.textContent = kw
+                ? '命中 ' + matchedLevels + ' 个层级 · ' + matchedMembers + ' 位成员'
+                : '';
+            renderArchStats();
+        }
+
+        // 架构组统计：工作组数（L1）+ 施工组数（L2，含动态新建）+ 成员数
+        function renderArchStats() {
+            const el = document.getElementById('archMetaStats');
+            if (!el) return;
+            let wg = 0, sg = 0;
+            (function countLevel1(nodes) {
+                nodes.forEach(n => {
+                    if (n.level === 1) {
+                        wg++;
+                        (function countLevel2(children) {
+                            children.forEach(c => {
+                                if (c.level === 2) sg++;
+                                countLevel2(c.children || []);
+                            });
+                        })(n.children || []);
+                    }
+                    countLevel1(n.children || []);
+                });
+            })(ARCH_TREE.children || []);
+            el.innerHTML = '<b>' + wg + '</b> 个工作组 · <b>' + sg + '</b> 个施工组 · <b>' + archTotalCount() + '</b> 位成员';
+        }
+
+        /* ===== 全局人员开关：展示全部人员 / 收起人员 ===== */
+        function toggleAllMem() {
+            allMemOn = (allMemOn === true) ? false : true;
+            memShown = {}; // 全局态接管，清除节点级记忆
+            syncAllMemToggleText();
+            if (allMemOn) {
+                (function walk(node) {
+                    archExpanded[node.key] = true;
+                    (node.children || []).forEach(walk);
+                })(ARCH_TREE);
+            }
+            renderArchTree();
+        }
+
+        function syncAllMemToggleText() {
+            const btn = document.getElementById('memAllToggle');
+            if (btn) btn.textContent = allMemOn === true ? '收起人员' : '展示全部人员';
+        }
+
+        // 节点级「成员」独立开关：物化当前全局/默认状态到全部节点，仅翻转目标节点
+        function toggleNodeMem(key) {
+            if (currentSearchKw.trim()) return;
+            if (allMemOn !== null || !Object.keys(memShown).length) {
+                (function walk(node) {
+                    memShown[node.key] = memOnFor(node, !!archExpanded[node.key]);
+                    (node.children || []).forEach(walk);
+                })(ARCH_TREE);
+            }
+            memShown[key] = !memShown[key];
+            allMemOn = null;
+            syncAllMemToggleText();
+            renderArchTree();
+        }
+
+        function toggleArchNode(key) {
+            archExpanded[key] = !archExpanded[key];
+            renderArchTree();
+        }
+
+        /* ===== 层级操作：底部动作面板（小程序标准 ActionSheet） ===== */
+        let archSheetKey = '';
+        let archSheetItems = [];
+
+        function openArchSheet(key) {
+            const node = findArchNode(key);
+            if (!node) return;
+            archSheetKey = key;
+            const items = [];
+            if (node.level === 0) {
+                items.push({ t: '＋ 添加工作组', fn: 'openCreateNodeModal', args: ['level1'] });
+                items.push({ t: '👥 邀请成员', fn: 'inviteToNode', args: ['project'] });
+            } else {
+                items.push({ t: '👥 邀请成员', fn: 'inviteToNode', args: [node.key] });
+                if (node.level === 1) items.push({ t: '＋ 添加施工组', fn: 'openCreateNodeModal', args: ['level2', node.key] });
+                items.push({ t: '✏️ 重命名', fn: 'openRenameNodeModal', args: [node.key] });
+                if (archNodeJoined(node)) {
+                    items.push({ t: '🚪 ' + (node.level === 1 ? '退出工作组' : '退出施工组'), fn: 'showExitArchNodeModal', args: [node.key], danger: true });
+                } else {
+                    items.push({ t: '🗑 删除', fn: 'showDeleteNodeModal', args: [node.key], danger: true });
+                }
+            }
+            archSheetItems = items;
+            document.getElementById('archSheetTitle').textContent = node.icon + ' ' + node.name;
+            document.getElementById('archSheetItems').innerHTML = items.map((it, i) =>
+                '<div class="as-item' + (it.danger ? ' danger' : '') + '" onclick="archSheetRun(' + i + ')">' + it.t + '</div>'
+            ).join('');
+            document.getElementById('archSheetMask').classList.add('show');
+            document.getElementById('archSheet').classList.add('show');
+        }
+
+        function archSheetRun(i) {
+            const it = archSheetItems[i];
+            closeArchSheet();
+            if (it && window[it.fn]) window[it.fn].apply(null, it.args || []);
+        }
+
+        function closeArchSheet() {
+            document.getElementById('archSheetMask').classList.remove('show');
+            document.getElementById('archSheet').classList.remove('show');
+        }
+
+        /* ===== 架构节点增删改/退出（沿用原架构页功能） ===== */
+        const currentUserInfo = { name: '张三', role: '项目经理' };
+        let joinedGroups = ['水电工作组', '强电施工组'];
+        const userTaskRoles = {
+            executor: ['水电工作组-开槽布线', '强电施工组-布管'],
+            confirmer: ['水电工作组-水电验收']
+        };
+        let archSeq = 0;
+        let createNodeType = 'level1';
+        let createNodeParentKey = '';
+        let renameTargetKey = '';
+        let deleteNodeKey = '';
+        let exitNodeKey = '';
+
+        function findArchNode(key, node) {
+            node = node || ARCH_TREE;
+            if (node.key === key) return node;
+            const children = node.children || [];
+            for (let i = 0; i < children.length; i++) {
+                const f = findArchNode(key, children[i]);
+                if (f) return f;
+            }
+            return null;
+        }
+
+        function findArchParent(key, node) {
+            node = node || ARCH_TREE;
+            const children = node.children || [];
+            for (let i = 0; i < children.length; i++) {
+                if (children[i].key === key) return node;
+                const f = findArchParent(key, children[i]);
+                if (f) return f;
+            }
+            return null;
+        }
+
+        function archNameExists(name, excludeKey) {
+            let found = false;
+            (function walk(node) {
+                if (node.key !== excludeKey && node.name === name) found = true;
+                (node.children || []).forEach(walk);
+            })(ARCH_TREE);
+            return found;
+        }
+
+        function archNodeJoined(node) {
+            return joinedGroups.indexOf(node.name) > -1;
+        }
+
+        // 退出校验：沿用架构页任务角色口径（合同校验保留在架构页，成员页无合同数据）
+        function checkCanExitArchGroup(name) {
+            const allTaskRoles = [...userTaskRoles.executor, ...userTaskRoles.confirmer];
+            const isTaskRole = allTaskRoles.some(task => task.indexOf(name) === 0);
+            if (isTaskRole) {
+                return { canExit: false, reason: '您是该层级任务的执行人或确认人，无法退出' };
+            }
+            return { canExit: true, reason: '' };
+        }
+
+        // ---- 创建（工作组 / 施工组）----
+        function openCreateNodeModal(type, parentKey) {
+            createNodeType = type;
+            const parent = type === 'level2' ? findArchNode(parentKey) : ARCH_TREE;
+            if (type === 'level2' && !parent) return;
+            createNodeParentKey = type === 'level2' ? parentKey : '';
+            document.getElementById('createNodeTitle').textContent = type === 'level1' ? '创建工作组' : '创建施工组';
+            document.getElementById('createNodeNameLabel').textContent = type === 'level1' ? '工作组名称' : '施工组名称';
+            document.getElementById('createNodeParent').textContent = type === 'level1' ? '项目部' : parent.name;
+            document.getElementById('createNodeName').value = '';
+            document.getElementById('createNodeErr').style.display = 'none';
+            document.getElementById('createNodeModal').classList.add('show');
+        }
+
+        function closeCreateNodeModal() {
+            document.getElementById('createNodeModal').classList.remove('show');
+        }
+
+        function confirmCreateNode() {
+            const input = document.getElementById('createNodeName');
+            const err = document.getElementById('createNodeErr');
+            const name = input.value.trim();
+            if (!name) {
+                err.textContent = '请填写名称';
+                err.style.display = 'block';
+                return;
+            }
+            if (archNameExists(name)) {
+                err.textContent = '该名称已存在，请更换';
+                err.style.display = 'block';
+                return;
+            }
+            closeCreateNodeModal();
+            const node = {
+                key: (createNodeType === 'level1' ? 'wg' : 'sg') + (++archSeq) + '_' + Date.now(),
+                name: name,
+                icon: createNodeType === 'level1' ? '🏗️' : '🔧',
+                level: createNodeType === 'level1' ? 1 : 2,
+                children: []
+            };
+            const parent = createNodeType === 'level2' ? findArchNode(createNodeParentKey) : ARCH_TREE;
+            parent.children.push(node);
+            archExpanded[node.key] = true;
+            archExpanded[parent.key] = true;
+            if (createNodeType === 'level1') {
+                groupOrder.push(node.key);
+                groupNames[node.key] = { name: name, icon: node.icon, level: 1 };
+                addInviteGroupOption(node.key, name, node.icon);
+            }
+            renderArchTree();
+            showToast('创建成功！创建人：' + currentUserInfo.name);
+        }
+
+        // ---- 重命名 ----
+        function openRenameNodeModal(key) {
+            const node = findArchNode(key);
+            if (!node) return;
+            renameTargetKey = key;
+            document.getElementById('renameNodeTitle').textContent = node.level === 0 ? '重命名项目部' : (node.level === 1 ? '重命名工作组' : '重命名施工组');
+            document.getElementById('renameNodeInput').value = node.name;
+            document.getElementById('renameNodeErr').style.display = 'none';
+            document.getElementById('renameNodeModal').classList.add('show');
+        }
+
+        function closeRenameNodeModal() {
+            document.getElementById('renameNodeModal').classList.remove('show');
+        }
+
+        function confirmRenameNode() {
+            const input = document.getElementById('renameNodeInput');
+            const err = document.getElementById('renameNodeErr');
+            const name = input.value.trim();
+            const node = findArchNode(renameTargetKey);
+            if (!node) { closeRenameNodeModal(); return; }
+            if (!name) {
+                err.textContent = '请填写名称';
+                err.style.display = 'block';
+                return;
+            }
+            if (name !== node.name && archNameExists(name, node.key)) {
+                err.textContent = '该名称已存在，请更换';
+                err.style.display = 'block';
+                return;
+            }
+            const oldName = node.name;
+            closeRenameNodeModal();
+            node.name = name;
+            if (node.level === 1) {
+                if (groupNames[node.key]) groupNames[node.key].name = name;
+                Object.keys(members).forEach(id => {
+                    if (members[id].group === node.key) members[id].groupName = name;
+                });
+                syncInviteGroupOption(node.key, name);
+            } else if (node.level === 2) {
+                Object.keys(members).forEach(id => {
+                    if (members[id].role === oldName) members[id].role = name;
+                });
+            }
+            const ji = joinedGroups.indexOf(oldName);
+            if (ji > -1) joinedGroups[ji] = name;
+            Object.keys(userTaskRoles).forEach(roleKey => {
+                userTaskRoles[roleKey] = userTaskRoles[roleKey].map(task => task.indexOf(oldName) === 0 ? name + task.slice(oldName.length) : task);
+            });
+            renderArchTree();
+            showToast('已重命名为"' + name + '"');
+        }
+
+        // ---- 删除 ----
+        function showDeleteNodeModal(key) {
+            const node = findArchNode(key);
+            if (!node) return;
+            deleteNodeKey = key;
+            currentAction = 'deleteNode';
+            const cnt = archCount(key);
+            const hasChildren = node.children && node.children.length > 0;
+            document.getElementById('confirmTitle').textContent = '删除确认';
+            document.getElementById('confirmContent').textContent = '确定要删除"' + node.name + '"吗？' + (hasChildren ? '其下级层级将一并删除。' : '') + (cnt ? '组内 ' + cnt + ' 位成员将一并移出项目成员名单。' : '') + '此操作无法恢复。';
+            document.getElementById('confirmBtn').textContent = '删除';
+            document.getElementById('confirmModal').classList.add('show');
+        }
+
+        function confirmDeleteNode() {
+            const node = findArchNode(deleteNodeKey);
+            closeConfirmModal();
+            if (!node) return;
+            Object.keys(members).forEach(id => {
+                if (archMemberMatch(members[id], deleteNodeKey)) delete members[id];
+            });
+            const parent = findArchParent(deleteNodeKey);
+            if (parent) parent.children = parent.children.filter(c => c.key !== deleteNodeKey);
+            if (node.level === 1) {
+                const gi = groupOrder.indexOf(deleteNodeKey);
+                if (gi > -1) groupOrder.splice(gi, 1);
+                delete groupNames[deleteNodeKey];
+                removeInviteGroupOption(deleteNodeKey);
+            }
+            if (memShown[deleteNodeKey]) delete memShown[deleteNodeKey];
+            renderArchTree();
+            showToast('"' + node.name + '" 已删除');
+        }
+
+        // ---- 退出工作组/施工组 ----
+        function showExitArchNodeModal(key) {
+            const node = findArchNode(key);
+            if (!node) return;
+            const check = checkCanExitArchGroup(node.name);
+            if (!check.canExit) {
+                showAlert('无法退出', check.reason);
+                return;
+            }
+            exitNodeKey = key;
+            currentAction = 'exitNode';
+            document.getElementById('confirmTitle').textContent = node.level === 1 ? '退出工作组' : '退出施工组';
+            document.getElementById('confirmContent').textContent = '确定要退出"' + node.name + '"吗？退出后将无法查看该层级的相关信息。';
+            document.getElementById('confirmBtn').textContent = '退出';
+            document.getElementById('confirmModal').classList.add('show');
+        }
+
+        function confirmExitNode() {
+            const node = findArchNode(exitNodeKey);
+            closeConfirmModal();
+            if (!node) return;
+            const i = joinedGroups.indexOf(node.name);
+            if (i > -1) joinedGroups.splice(i, 1);
+            renderArchTree();
+            showToast('已退出"' + node.name + '"');
+        }
+
+        // ---- 节点级「邀请成员」：打开邀请弹窗并预选该层级 ----
+        function inviteToNode(key) {
+            showInviteModal();
+            const item = document.querySelector('#groupDropdownList .dropdown-item[data-value="' + key + '"]');
+            if (item) selectGroup(item);
+        }
+
+        function addInviteGroupOption(value, name, icon) {
+            const list = document.getElementById('groupDropdownList');
+            if (!list || list.querySelector('.dropdown-item[data-value="' + value + '"]')) return;
+            const div = document.createElement('div');
+            div.className = 'dropdown-item';
+            div.setAttribute('data-value', value);
+            div.setAttribute('data-icon', icon);
+            div.setAttribute('data-name', name);
+            div.onclick = function() { selectGroup(div); };
+            div.innerHTML = '<span class="item-icon">' + icon + '</span><span class="item-name">' + archEsc(name) + '</span><span class="check-icon" style="display:none;">✓</span>';
+            list.appendChild(div);
+        }
+
+        function syncInviteGroupOption(value, name) {
+            const item = document.querySelector('#groupDropdownList .dropdown-item[data-value="' + value + '"]');
+            if (item) {
+                item.setAttribute('data-name', name);
+                const nameEl = item.querySelector('.item-name');
+                if (nameEl) nameEl.textContent = name;
+            }
+        }
+
+        function removeInviteGroupOption(value) {
+            const item = document.querySelector('#groupDropdownList .dropdown-item[data-value="' + value + '"]');
+            if (item) item.remove();
+        }
+
+        function showPermissionModal(memberId) {
+            currentMemberId = memberId;
+            const member = members[memberId];
+            
+            document.getElementById('modalAvatar').textContent = member.avatar;
+            document.getElementById('modalName').textContent = member.name;
+            document.getElementById('modalRole').textContent = member.role;
+            
+            currentDataPermission = member.dataPermission;
+            currentManagePermissions = [...member.managePermissions];
+            currentAssignScope = member.assignScope || 'scope_level_current';
+            
+            document.querySelectorAll('.permission-option').forEach(opt => {
+                opt.classList.remove('selected');
+            });
+            
+            const dataPermOption = document.querySelector(`.permission-option[onclick*="'${currentDataPermission}'"]`);
+            if (dataPermOption) {
+                dataPermOption.classList.add('selected');
+            }
+            
+            document.querySelectorAll('.permission-checkbox').forEach(cb => {
+                cb.classList.remove('checked');
+                cb.querySelector('.checkbox').textContent = '';
+            });
+            
+            currentManagePermissions.forEach(perm => {
+                const cb = document.querySelector(`.permission-checkbox[onclick*="'${perm}'"]`);
+                if (cb) {
+                    cb.classList.add('checked');
+                    cb.querySelector('.checkbox').textContent = '✓';
+                }
+            });
+
+            updateAssignPanel();
+            
+            const warning = document.getElementById('permissionWarning');
+            const removeBtn = document.getElementById('removeBtn');
+            
+            if (member.isOnlyAdmin) {
+                warning.style.display = 'flex';
+                removeBtn.disabled = true;
+            } else {
+                warning.style.display = 'none';
+                removeBtn.disabled = false;
+            }
+            
+            document.getElementById('permissionModal').classList.add('show');
+        }
+
+        function showPermissionModalIfAllowed(memberId) {
+            if (currentUserPermission === 'none') return; // 无权限：箭头已隐藏、区域不可点击
+            if (currentUserPermission === 'remove') {
+                openMemberActionModal(memberId);
+                return;
+            }
+            showPermissionModal(memberId); // 全部权限：完整权限设置模态框
+        }
+
+        function openMemberActionModal(memberId) {
+            currentMemberId = memberId;
+            const member = members[memberId];
+            document.getElementById('actionModalAvatar').textContent = member.avatar;
+            document.getElementById('actionModalName').textContent = member.name;
+            document.getElementById('actionModalRole').textContent = member.role;
+
+            const warning = document.getElementById('actionWarning');
+            const removeBtn = document.getElementById('actionRemoveBtn');
+            if (member.isOnlyAdmin) {
+                warning.style.display = 'flex';
+                removeBtn.disabled = true;
+            } else {
+                warning.style.display = 'none';
+                removeBtn.disabled = false;
+            }
+            document.getElementById('memberActionModal').classList.add('show');
+        }
+
+        function closeMemberActionModal() {
+            document.getElementById('memberActionModal').classList.remove('show');
+        }
+
+        function setDemoPermission(level) {
+            currentUserPermission = level;
+            document.querySelectorAll('#permissionSegment .segment').forEach(seg => {
+                seg.classList.toggle('active', seg.dataset.perm === level);
+            });
+            const statusText = document.getElementById('permissionStatusText');
+            const memberList = document.getElementById('memberList');
+            if (level === 'none') {
+                statusText.textContent = '无权限：区域不可点击';
+                statusText.className = 'status-text uncertified';
+                memberList.classList.add('no-manage');
+            } else if (level === 'remove') {
+                statusText.textContent = '仅移出人员：仅可移出，无权限配置入口';
+                statusText.className = 'status-text partial';
+                memberList.classList.remove('no-manage');
+            } else {
+                statusText.textContent = '全部权限：可查看与配置权限';
+                statusText.className = 'status-text certified';
+                memberList.classList.remove('no-manage');
+            }
+        }
+
+        function closePermissionModal() {
+            document.getElementById('permissionModal').classList.remove('show');
+        }
+
+        function selectDataPermission(element, value) {
+            document.querySelectorAll('.permission-option').forEach(opt => {
+                opt.classList.remove('selected');
+            });
+            element.classList.add('selected');
+            currentDataPermission = value;
+        }
+
+        function toggleManagePermission(element, value) {
+            const isChecked = element.classList.contains('checked');
+            
+            if (value === 'all') {
+                if (isChecked) {
+                    element.classList.remove('checked');
+                    element.querySelector('.checkbox').textContent = '';
+                    currentManagePermissions = currentManagePermissions.filter(p => p !== 'all');
+                } else {
+                    document.querySelectorAll('.permission-checkbox').forEach(cb => {
+                        cb.classList.add('checked');
+                        cb.querySelector('.checkbox').textContent = '✓';
+                    });
+                    currentManagePermissions = ['all'];
+                }
+            } else {
+                const allCheckbox = document.querySelector('.permission-checkbox[onclick*="\'all\'"]');
+                if (isChecked) {
+                    element.classList.remove('checked');
+                    element.querySelector('.checkbox').textContent = '';
+                    currentManagePermissions = currentManagePermissions.filter(p => p !== value);
+                } else {
+                    element.classList.add('checked');
+                    element.querySelector('.checkbox').textContent = '✓';
+                    if (!currentManagePermissions.includes(value)) {
+                        currentManagePermissions.push(value);
+                    }
+                    currentManagePermissions = currentManagePermissions.filter(p => p !== 'all');
+                    allCheckbox.classList.remove('checked');
+                    allCheckbox.querySelector('.checkbox').textContent = '';
+                }
+            }
+
+            updateAssignPanel();
+        }
+
+        /* 指派任务范围面板：仅当勾选「指派任务」且未勾选「全部权限」时展开；
+           成员未隶属流程层级时，两个层级范围不可用（自动降级为全部流程项） */
+        function updateAssignPanel() {
+            const panel = document.getElementById('assignScopePanel');
+            if (!panel) return;
+            const show = currentManagePermissions.includes('assign') && !currentManagePermissions.includes('all');
+            panel.style.display = show ? 'block' : 'none';
+            if (!show) return;
+            const member = members[currentMemberId];
+            const hasLevel = !!(member && member.flowLevel);
+            panel.querySelectorAll('.scope-opt').forEach(opt => {
+                const scope = opt.getAttribute('data-scope');
+                const disabled = scope !== 'scope_all' && !hasLevel;
+                opt.classList.toggle('disabled', disabled);
+                if (disabled && currentAssignScope === scope) {
+                    currentAssignScope = 'scope_all';
+                }
+            });
+            panel.querySelectorAll('.scope-opt').forEach(opt => {
+                opt.classList.toggle('selected', opt.getAttribute('data-scope') === currentAssignScope);
+            });
+            document.getElementById('assignScopeNote').textContent = hasLevel
+                ? '范围随成员隶属层级自动适配，流程项增删改时无需重新授权；当前解析为：' + member.flowLevel
+                : '该成员未隶属任何流程层级，层级范围不可用；如需授权请选择「全部流程项」';
+        }
+
+        function selectAssignScope(element, value) {
+            if (element.classList.contains('disabled')) return;
+            currentAssignScope = value;
+            document.querySelectorAll('#assignScopePanel .scope-opt').forEach(opt => {
+                opt.classList.toggle('selected', opt === element);
+            });
+        }
+
+        function savePermission() {
+            const member = members[currentMemberId];
+            
+            if (member.isOnlyAdmin && !currentManagePermissions.includes('all')) {
+                showAlert('无法修改', '该成员是项目中唯一拥有全部权限的管理者，请先为其他成员设置全部权限后再修改。');
+                return;
+            }
+            
+            member.dataPermission = currentDataPermission;
+            member.managePermissions = [...currentManagePermissions];
+            if (member.managePermissions.includes('all')) {
+                member.assignScope = 'scope_all';   // 全部权限隐含指派任务全部流程项
+            } else if (member.managePermissions.includes('assign')) {
+                member.assignScope = currentAssignScope;
+            } else {
+                delete member.assignScope;
+            }
+            
+            showToast('权限设置已保存');
+            closePermissionModal();
+            renderArchTree();
+        }
+
+        function showRemoveConfirm() {
+            currentAction = 'remove';
+            const member = members[currentMemberId];
+            document.getElementById('confirmTitle').textContent = '确认移出';
+            document.getElementById('confirmContent').textContent = `确定要将"${member.name}"移出项目吗？移出后该成员将无法访问项目数据。`;
+            document.getElementById('confirmBtn').textContent = '确认移出';
+            document.getElementById('confirmModal').classList.add('show');
+        }
+
+        function closeConfirmModal() {
+            document.getElementById('confirmModal').classList.remove('show');
+        }
+
+        function handleConfirm() {
+            if (currentAction === 'remove') {
+                confirmRemove();
+            } else if (currentAction === 'selfExit') {
+                confirmSelfExit();
+            } else if (currentAction === 'deleteNode') {
+                confirmDeleteNode();
+            } else if (currentAction === 'exitNode') {
+                confirmExitNode();
+            }
+        }
+
+        function confirmRemove() {
+            closeConfirmModal();
+            closePermissionModal();
+            closeMemberActionModal();
+            showToast('成员已移出项目');
+        }
+
+        function showAlert(title, content) {
+            document.getElementById('alertTitle').textContent = title;
+            document.getElementById('alertContent').textContent = content;
+            document.getElementById('alertModal').classList.add('show');
+        }
+
+        function closeAlertModal() {
+            document.getElementById('alertModal').classList.remove('show');
+        }
+
+        function showToast(message) {
+            const toast = document.getElementById('appToast');
+            toast.textContent = message;
+            toast.classList.add('show');
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 2000);
+        }
+
+        function showSearchModal() {
+            showToast('搜索功能开发中');
+        }
+
+        function clearSearch() {
+            document.getElementById('searchInput').value = '';
+            currentSearchKw = '';
+            allMemOn = false; // 清除搜索恢复默认收起人员
+            syncAllMemToggleText();
+            renderArchTree();
+        }
+
+        function handleSearch(keyword) {
+            currentSearchKw = keyword.trim();
+            if (!currentSearchKw) {
+                allMemOn = false;
+                syncAllMemToggleText();
+                renderArchTree();
+                return;
+            }
+            // 搜索时自动展示全部人员（含命中成员所在层级）
+            if (allMemOn !== true) {
+                allMemOn = true;
+                syncAllMemToggleText();
+            }
+            renderArchTree();
+        }
+
+        function showMoreActions() {
+            alert('更多操作：\n• 分享\n• 刷新\n• 设置');
+        }
+
+        
+
+        document.getElementById('permissionModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closePermissionModal();
+            }
+        });
+
+        document.getElementById('memberActionModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeMemberActionModal();
+            }
+        });
+
+        let currentInviteGroup = 'project';
+        let currentInviteMethod = 'platform'; // platform（平台内选择）/ qrcode / wechat
+        let currentInviteCategory = 'service'; // service（服务人员） / owner（业主及家人）
+        let currentPlatformUser = null; // 当前选中的平台用户 {id, name, role}
+
+        function toggleGroupSelect() {
+            const select = document.getElementById('groupSelect');
+            select.classList.toggle('open');
+            if (select.classList.contains('open')) {
+                select.querySelector('.dropdown-search input').focus();
+            }
+        }
+
+        function filterGroups(keyword) {
+            const items = document.querySelectorAll('#groupDropdownList .dropdown-item');
+            const lowerKeyword = keyword.toLowerCase().trim();
+            let hasResult = false;
+
+            items.forEach(item => {
+                const name = item.getAttribute('data-name').toLowerCase();
+                if (name.includes(lowerKeyword)) {
+                    item.style.display = 'flex';
+                    hasResult = true;
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+
+            let emptyResult = document.querySelector('#groupDropdownList .empty-result');
+            if (!hasResult) {
+                if (!emptyResult) {
+                    emptyResult = document.createElement('div');
+                    emptyResult.className = 'empty-result';
+                    emptyResult.textContent = '未找到匹配的工作组';
+                    document.getElementById('groupDropdownList').appendChild(emptyResult);
+                }
+                emptyResult.style.display = 'block';
+            } else if (emptyResult) {
+                emptyResult.style.display = 'none';
+            }
+        }
+
+        function selectGroup(element) {
+            const value = element.getAttribute('data-value');
+            const icon = element.getAttribute('data-icon');
+            const name = element.getAttribute('data-name');
+
+            currentInviteGroup = value;
+
+            document.getElementById('selectedGroupName').textContent = name;
+            document.querySelector('#groupSelect .selected-text .item-icon').textContent = icon;
+
+            document.querySelectorAll('#groupDropdownList .dropdown-item').forEach(item => {
+                item.classList.remove('selected');
+                item.querySelector('.check-icon').style.display = 'none';
+            });
+            element.classList.add('selected');
+            element.querySelector('.check-icon').style.display = 'inline';
+
+            document.getElementById('groupSelect').classList.remove('open');
+        }
+
+        document.addEventListener('click', function(e) {
+            const groupSelect = document.getElementById('groupSelect');
+            if (groupSelect && !groupSelect.contains(e.target)) {
+                groupSelect.classList.remove('open');
+            }
+        });
+
+        function showInviteModal() {
+            currentInviteGroup = 'project';
+            currentInviteMethod = 'platform';
+            currentPlatformUser = null;
+
+            document.querySelectorAll('#groupDropdownList .dropdown-item').forEach(item => {
+                item.classList.remove('selected');
+                item.querySelector('.check-icon').style.display = 'none';
+            });
+            const defaultItem = document.querySelector('#groupDropdownList .dropdown-item[data-value="project"]');
+            if (defaultItem) {
+                defaultItem.classList.add('selected');
+                defaultItem.querySelector('.check-icon').style.display = 'inline';
+            }
+            document.getElementById('selectedGroupName').textContent = '项目部';
+            document.querySelector('#groupSelect .selected-text .item-icon').textContent = '🏢';
+
+            const searchInput = document.querySelector('#groupSelect .dropdown-search input');
+            if (searchInput) {
+                searchInput.value = '';
+                filterGroups('');
+            }
+
+            document.querySelectorAll('.invite-method').forEach(m => m.classList.remove('active'));
+            document.querySelector('.invite-method[onclick*="platform"]').classList.add('active');
+            document.getElementById('platformInviteForm').style.display = 'block';
+            document.getElementById('qrcodeInviteForm').style.display = 'none';
+            document.getElementById('wechatInviteForm').style.display = 'none';
+
+            const confirmBtn = document.querySelector('.modal-actions .modal-btn.confirm');
+            if (confirmBtn) {
+                confirmBtn.style.display = 'inline-block';
+                confirmBtn.textContent = '发送邀请';
+            }
+
+            currentInviteCategory = 'service';
+            document.querySelectorAll('#inviteCategory .cat-seg').forEach(s => s.classList.toggle('active', s.dataset.cat === 'service'));
+            document.getElementById('serviceInviteFields').style.display = 'block';
+            renderPlatformUsers();
+            updateInviteTargetApp();
+
+            const qrText = document.querySelector('#qrcodeInviteForm .qrcode-text');
+            if (qrText) qrText.textContent = '扫码加入工作组';
+
+            document.getElementById('inviteModal').classList.add('show');
+        }
+
+        function closeInviteModal() {
+            document.getElementById('inviteModal').classList.remove('show');
+        }
+
+        function selectInviteMethod(element, method) {
+            currentInviteMethod = method;
+            document.querySelectorAll('.invite-method').forEach(m => m.classList.remove('active'));
+            element.classList.add('active');
+
+            document.getElementById('platformInviteForm').style.display = method === 'platform' ? 'block' : 'none';
+            document.getElementById('qrcodeInviteForm').style.display = method === 'qrcode' ? 'block' : 'none';
+            document.getElementById('wechatInviteForm').style.display = method === 'wechat' ? 'block' : 'none';
+
+            const confirmBtn = document.querySelector('.modal-actions .modal-btn.confirm');
+            if (confirmBtn) {
+                confirmBtn.style.display = method === 'wechat' ? 'none' : 'inline-block';
+                if (method === 'qrcode') {
+                    confirmBtn.textContent = '下载二维码';
+                } else {
+                    confirmBtn.textContent = '发送邀请';
+                }
+            }
+        }
+
+        function selectInviteCategory(element, category) {
+            currentInviteCategory = category;
+            document.querySelectorAll('#inviteCategory .cat-seg').forEach(s => s.classList.remove('active'));
+            element.classList.add('active');
+
+            const isService = category === 'service';
+            document.getElementById('serviceInviteFields').style.display = isService ? 'block' : 'none';
+            updateInviteTargetApp();
+            currentPlatformUser = null;
+            renderPlatformUsers();
+
+            const qrText = document.querySelector('#qrcodeInviteForm .qrcode-text');
+            if (qrText) qrText.textContent = isService ? '扫码加入工作组' : '扫码进入业主端小程序';
+        }
+
+        function updateInviteTargetApp() {
+            const appHint = document.getElementById('inviteTargetApp');
+            if (!appHint) return;
+            const isService = currentInviteCategory === 'service';
+            appHint.querySelector('.app-icon').textContent = isService ? '🛠️' : '🏠';
+            appHint.querySelector('.app-line').innerHTML = isService
+                ? '被邀请人将进入 <b>服务端小程序</b>'
+                : '被邀请人将进入 <b>业主端小程序</b>（仅查看/确认，不进入施工组）';
+            appHint.querySelector('.app-perm').textContent = isService
+                ? '默认权限：仅公开数据，无治理权限'
+                : '默认权限：全部权限';
+        }
+
+        const platformUsers = [
+            { id: 'pu1', name: '张水电', type: 'service', role: '水电工', avatar: '张', verifiedRoles: 2 },
+            { id: 'pu2', name: '李监理', type: 'service', role: '监理', avatar: '李', verifiedRoles: 1 },
+            { id: 'pu3', name: '王设计', type: 'service', role: '设计师', avatar: '王', verifiedRoles: 0 },
+            { id: 'pu4', name: '陈业主', type: 'owner', role: '业主', avatar: '陈', verifiedRoles: null },
+            { id: 'pu5', name: '赵家人', type: 'owner', role: '业主家人', avatar: '赵', verifiedRoles: null }
+        ];
+
+        function renderPlatformUsers() {
+            const list = document.getElementById('platformUserList');
+            if (!list) return;
+            const kw = (document.getElementById('platformUserSearch').value || '').toLowerCase().trim();
+            const isService = currentInviteCategory === 'service';
+            // 方案A：默认不展示人员，需输入关键词搜索匹配（未认证角色的服务方人员不进入候选）
+            if (!kw) {
+                list.innerHTML = '<div class="empty-result">输入关键词搜索平台内的服务人员 / 业主</div>';
+                return;
+            }
+            const filtered = platformUsers.filter(u => {
+                if (u.type !== currentInviteCategory) return false;
+                if (kw && !(u.name.toLowerCase().includes(kw) || u.role.toLowerCase().includes(kw))) return false;
+                // 服务方人员须已认证至少一个角色，方可被匹配选择；未认证者不进入候选列表
+                if (isService && !(u.verifiedRoles >= 1)) return false;
+                return true;
+            });
+            if (!filtered.length) {
+                list.innerHTML = '<div class="empty-result">未找到可匹配的用户</div>';
+                return;
+            }
+                        list.innerHTML = filtered.map(u => `
+                <div class="platform-user-item${currentPlatformUser && currentPlatformUser.id === u.id ? ' selected' : ''}" onclick="selectPlatformUser('${u.id}')">
+                    <span class="pu-avatar">${u.avatar}</span>
+                    <span class="pu-name">${u.name}</span>
+                    <span class="pu-role">${u.role}</span>
+                    <span class="pu-check">✓</span>
+                </div>`).join('');
+        }
+
+        function filterPlatformUsers(keyword) {
+            renderPlatformUsers();
+        }
+
+        function selectPlatformUser(id) {
+            const u = platformUsers.find(x => x.id === id);
+            if (!u) return;
+            // 服务方人员未认证角色，不可选
+            if (currentInviteCategory === 'service' && !(u.verifiedRoles >= 1)) return;
+            currentPlatformUser = u;
+            renderPlatformUsers();
+        }
+
+        function sendInvite() {
+            if (currentInviteMethod === 'platform') {
+                if (!currentPlatformUser) {
+                    showAlert('提示', '请选择要邀请的平台用户');
+                    return;
+                }
+                if (currentInviteCategory === 'service') {
+                    const groupName = document.getElementById('selectedGroupName').textContent;
+                    showAlert('邀请成功', `已向 ${currentPlatformUser.name} 发送加入"${groupName}"（服务端小程序）的邀请，对方将在消息中心收到通知`);
+                } else {
+                    showAlert('邀请成功', `已向 ${currentPlatformUser.name} 发送（业主端小程序）的邀请，对方将在业主端小程序收到通知`);
+                }
+                closeInviteModal();
+            } else if (currentInviteMethod === 'qrcode') {
+                showToast('二维码已生成');
+                closeInviteModal();
+            }
+        }
+
+        function shareToWechat() {
+            const cardTitle = document.getElementById('wechatCardTitle');
+            const cardDesc = document.getElementById('wechatCardDesc');
+            let title, desc, toastMsg;
+            if (currentInviteCategory === 'service') {
+                const groupName = document.getElementById('selectedGroupName').textContent;
+                title = `邀请你加入"${groupName}"`;
+                desc = '点击卡片进入服务端小程序，开始团队协作';
+                toastMsg = `已调起微信分享，选择好友发送邀请卡片即可邀请其加入"${groupName}"`;
+            } else {
+                title = '邀请你加入我的家装项目';
+                desc = '点击卡片进入业主端小程序，查看项目进度';
+                toastMsg = '已调起微信分享，选择好友发送邀请卡片即可邀请其进入业主端查看项目';
+            }
+            if (cardTitle) cardTitle.textContent = title;
+            if (cardDesc) cardDesc.textContent = desc;
+
+            if (typeof wx !== 'undefined' && wx.miniProgram && wx.miniProgram.shareAppMessage) {
+                wx.miniProgram.shareAppMessage({
+                    title: title,
+                    path: '/pages/project-detail/index?invite=1'
+                });
+            } else {
+                showToast('正在调起微信分享面板...');
+                setTimeout(function() {
+                    showAlert('分享成功', toastMsg);
+                    closeInviteModal();
+                }, 1500);
+            }
+        }
+
+        document.getElementById('inviteModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeInviteModal();
+            }
+        });
+
+        let currentAction = '';
+
+        function showSelfExitConfirm() {
+            currentAction = 'selfExit';
+            document.getElementById('confirmTitle').textContent = '退出项目';
+            document.getElementById('confirmContent').textContent = '确定要退出当前项目吗？退出后将无法访问项目数据。';
+            document.getElementById('confirmBtn').textContent = '确认退出';
+            document.getElementById('confirmModal').classList.add('show');
+        }
+
+        function confirmSelfExit() {
+            closeConfirmModal();
+            showToast('已成功退出项目');
+            setTimeout(() => {
+                window.location.href = 'project-list.html';
+            }, 1500);
+        }
+
+        document.getElementById('confirmModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeConfirmModal();
+            }
+        });
+
+        syncAllMemToggleText();
+        renderArchTree();
+        
+        
+        
+        function closeActionMenu() {
+            const actionMenu = document.getElementById('actionMenu');
+            if (actionMenu) {
+                actionMenu.classList.remove('show');
+            }
+        }
+        
+        
+        
+        function goToProfile(id, name, role) {
+            location.href = 'member-profile.html?id=' + encodeURIComponent(id) + '&name=' + encodeURIComponent(name) + '&role=' + encodeURIComponent(role);
+        }
+    </script>
+<script src="../shared/doc-viewer/doc-viewer.js"></script>
+</body>
+</html>

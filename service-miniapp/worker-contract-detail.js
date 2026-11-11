@@ -74,7 +74,7 @@
         },
         worker_confirmed_receiver: {
             text: '已确认', bannerClass: 'confirmed',
-            desc: '您已成为本合同乙方，已自动加入项目架构层级。',
+            desc: '您已成为本合同乙方。',
             actions: []
         },
         worker_lost_receiver: {
@@ -137,7 +137,7 @@
     var ACTION_TEXT = {
         worker_withdraw: { title: '撤回合同邀约', message: '确定要撤回确认吗？撤回后合同退回拟定中，可就地修改意向乙方后重新提交邀约。' },
         worker_reject: { title: '拒绝邀请', message: '确定要拒绝此合同邀约吗？拒绝后您不会成为本合同乙方。' },
-        worker_confirm: { title: '确认加入合同', message: '确定要确认加入此合同吗？确认后您将成为本合同乙方，并自动加入项目架构层级。' },
+        worker_confirm: { title: '确认加入合同', message: '确定要确认加入此合同吗？确认后您将成为本合同乙方。' },
         worker_resubmit: { title: '提交并邀请乙方', message: '确定要提交当前合同信息与意向乙方名单吗？将向所选意向乙方（仅各工种）发送合同邀约。' },
         // 变更阶段动作（工人合同：无平台审核，对方确认后即进入签约）
         withdraw_change: { title: '撤回变更', message: '确定要撤回变更申请吗？撤回后合同恢复已签约状态，阶段任务恢复流转。' },
@@ -166,12 +166,12 @@
 
     // 演示用合同模板（原型「更多 → 切换合同类型」入口）
     var DEMO_TYPES = [
-        { type: 'demolition',  typeName: '拆除班组服务合同',   group: '拆除工程', name: '客厅原墙拆除工程合同', amount: 4800,  invited: ['m-demolition', 'm-demolition-2', 'm-demolition-3'] },
-        { type: 'shuidian',    typeName: '水电班组服务合同',   group: '水电工程', name: '全屋水电改造合同',     amount: 12600, invited: ['m-shuidian', 'm-shuidian-2', 'm-shuidian-3'] },
-        { type: 'muzuo',       typeName: '木作班组服务合同',   group: '木作工程', name: '定制柜体木作合同',     amount: 9800,  invited: ['m-muzuo', 'm-muzuo-2', 'm-muzuo-3'] },
-        { type: 'niwa',        typeName: '泥瓦工班组服务合同', group: '泥瓦工程', name: '厨卫贴砖泥瓦合同',     amount: 7600,  invited: ['m-niwa', 'm-niwa-2', 'm-niwa-3'] },
-        { type: 'youqi',       typeName: '油漆工班组服务合同', group: '油漆工程', name: '墙面乳胶漆油漆合同',   amount: 6400,  invited: ['m-youqi', 'm-youqi-2', 'm-youqi-3'] },
-        { type: 'xiaolingong', typeName: '小零工服务合同',     group: '零星工程', name: '后期安装小零工合同',   amount: 2200,  invited: ['m-xiaolingong', 'm-xiaolingong-2', 'm-xiaolingong-3'] }
+        { type: 'demolition',  typeName: '拆除班组服务合同',   name: '客厅原墙拆除工程合同', amount: 4800,  invited: ['m-demolition', 'm-demolition-2', 'm-demolition-3'] },
+        { type: 'shuidian',    typeName: '水电班组服务合同',   name: '全屋水电改造合同',     amount: 12600, invited: ['m-shuidian', 'm-shuidian-2', 'm-shuidian-3'] },
+        { type: 'muzuo',       typeName: '木作班组服务合同',   name: '定制柜体木作合同',     amount: 9800,  invited: ['m-muzuo', 'm-muzuo-2', 'm-muzuo-3'] },
+        { type: 'niwa',        typeName: '泥瓦工班组服务合同', name: '厨卫贴砖泥瓦合同',     amount: 7600,  invited: ['m-niwa', 'm-niwa-2', 'm-niwa-3'] },
+        { type: 'youqi',       typeName: '油漆工班组服务合同', name: '墙面乳胶漆油漆合同',   amount: 6400,  invited: ['m-youqi', 'm-youqi-2', 'm-youqi-3'] },
+        { type: 'xiaolingong', typeName: '小零工服务合同',     name: '后期安装小零工合同',   amount: 2200,  invited: ['m-xiaolingong', 'm-xiaolingong-2', 'm-xiaolingong-3'] }
     ];
 
     // 默认示例合同（无 id 进入时直接展示）
@@ -418,7 +418,7 @@
                         id: 'cmsg-' + existing.id + '-' + inv.userId,
                         type: 'contract_invite', contractId: existing.id, toUserId: inv.userId, toUserName: inv.name,
                         fromUserName: existing.inviterName || '陈庄', fromUserRole: existing.inviterRole || '工长',
-                        contractName: existing.name, contractType: existing.typeName, group: existing.group,
+                        contractName: existing.name, contractType: existing.typeName,
                         status: 'pending', time: nowLabel(), date: '今天', unread: true
                     });
                 });
@@ -445,7 +445,7 @@
         });
         global.ContractStore.createContract({
             id: id, name: d.name, type: d.type, typeName: d.typeName,
-            group: d.group, partyA: 'm-owner', partyAName: '陈庄', partyAPhone: '13800138000', projectAddress: DEMO_PROJECT_ADDRESS, inviterName: '陈庄', inviterRole: '工长',
+            flowId: 'sg', flowName: '基础施工服务', partyA: 'm-owner', partyAName: '陈庄', partyAPhone: '13800138000', projectAddress: DEMO_PROJECT_ADDRESS, inviterName: '陈庄', inviterRole: '工长',
             amount: d.amount, invited: invited
         });
         // 演示：预置一名「已拒绝」并附原因的受邀人，便于发起方视图展示拒绝原因
@@ -495,7 +495,7 @@
         });
         global.ContractStore.createContract({
             id: id, name: d.name, type: d.type, typeName: d.typeName,
-            group: d.group, partyA: 'm-owner', partyAName: '陈庄', partyAPhone: '13800138000', projectAddress: DEMO_PROJECT_ADDRESS, inviterName: '陈庄', inviterRole: '工长',
+            flowId: 'sg', flowName: '基础施工服务', partyA: 'm-owner', partyAName: '陈庄', partyAPhone: '13800138000', projectAddress: DEMO_PROJECT_ADDRESS, inviterName: '陈庄', inviterRole: '工长',
             amount: d.amount, invited: invited
         });
         global.location.href = 'worker-contract-detail.html?id=' + encodeURIComponent(id) + '&viewer=sender';
@@ -789,7 +789,6 @@
             applyReselectBanner();
         }
 
-        renderArchNote();
         renderActions(cfg);
         renderChangeHighlight();   // 变更阶段：在已签约内容基础上高亮标记变更点
 
@@ -870,10 +869,9 @@
         }
 
         if (!isDraft) html += metaRow('合同名称', c.name);
-        // 受邀方视角：取消「合同类型」「所属架构层级」，改为补充「项目地址」（见下方）
+        // 受邀方视角：取消「合同类型」字段，改为补充「项目地址」（见下方）
         if (!isReceiver && !isDraft) {
             html += metaRow('合同类型', c.typeName);
-            html += metaRow('所属架构层级', c.group || '—');
         }
         if (!isDraft && c.amount) {
             // 变更阶段：合同金额以「旧值 → 新值」高亮标记变更点（仍为已签约内容框架）
@@ -1016,12 +1014,6 @@
         });
     }
 
-    function renderArchNote() {
-        // 已确认 / 已签约态：架构层级加入说明已在上方 banner（「已自动加入项目架构层级」）展示，
-        // 下方不再重复该行，故提示框始终隐藏。
-        var arch = $('workerArchNote');
-        if (arch) arch.style.display = 'none';
-    }
 
     // 受邀方终态（抢单失败 / 已拒绝）：轻量「邀约已结束」视图
     function renderReceiverEndedView(status, cfg) {
@@ -1329,7 +1321,7 @@
                 var r = global.ContractStore.confirmInvitation(state.workerId, state.asUserId);
                 state.contract = global.ContractStore.getContract(state.workerId);
                 if (r.ok) {
-                    showToast('确认成功！您已成为本合同乙方，已自动加入项目架构层级');
+                    showToast('确认成功！您已成为本合同乙方');
                 } else if (r.reason === 'taken' || r.reason === 'not_inviting') {
                     showToast('已被他人确认（抢单失败）');
                 } else if (r.reason === 'already') {
@@ -3117,8 +3109,11 @@
         closeMoreOps: closeMoreOps,
         // 复制发起：跳转独立复制发起页（contract-copy-initiate.html），带入来源标识与合同 id 便于后续预填
         openCopyInitiate: function () {
+            var c = (global.ContractStore && state.workerId) ? global.ContractStore.getContract(state.workerId) : null;
             var params = 'from=detail';
             if (state.workerId) params += '&source=' + encodeURIComponent(state.workerId);
+            if (c && c.flowId) params += '&item=' + encodeURIComponent(c.flowId);
+            if (c && c.parent) params += '&parent=' + encodeURIComponent(c.parent);
             global.location.href = 'contract-copy-initiate.html?' + params;
         },
         showVersionModal: showVersionModal,

@@ -368,6 +368,8 @@
             <li data-page-node-id="mkDX1JzCNpSfwyyqZ3AAME"><a href="#sec-7-10" data-page-node-id="elBcolobfvCUUEQXRV3z2f">7.10 更多菜单渲染规则（按状态）</a></li>
             <li data-page-node-id="daDqjTR1IacOHiqPGc7HGo"><a href="#sec-7-11" data-page-node-id="1yoID2v7ScirDzBAYjcWYy">7.11 阶段任务区任务项展示与点击交互（按状态）</a></li>
 <li><a href="#sec-7-12">7.12 复制发起入口规格（工人合同详情页·发起方）</a></li>
+            <li><a href="#sec-7-12-4">7.12.4 非工人（服务类）复制发起页</a></li>
+            <li><a href="PRD-项目模块详细规格.html#sub-6-13" target="_blank">相关规格：服务流程（流程项）6.13</a></li>
         </ul>
     </li>
     <li class="toc-chapter collapsed" data-page-node-id="2mRDcp1FtcVvVnr3EDAVUQ">
@@ -594,7 +596,8 @@
 
             <div class="subsection" id="sec-1-5" data-page-node-id="a37BZGAtAFDF5ANU6HKAp4">
                 <div class="subsection-title" data-page-node-id="QBz9qJnVG8QNO2Gfe9ISHN">1.5 操作按钮矩阵</div>
-                <div class="note" style="margin:12px 0;" data-page-node-id="FNoELKAJNNW8Ha5LeecW1Z"><div class="note-title" data-page-node-id="hSzues4fxL3hcGEUk5sG3p">PC 列表展示需平台审核的六种状态并保留撤回态</div><p data-page-node-id="EAdwLd8yoiRDlouVteNlLU">通过 renderContractList 过滤为 pending_review / changing / reviewed_pass / reviewed_reject / change_reviewed_pass / change_reviewed_reject；其余状态不在 PC 运营列表出现。撤回的合同（提交平台审核后撤回 / 变更发起后撤回）保留为「合同已撤回 / 变更已撤回」灰标签行，无审核操作，仅供审计留痕；列表以合同为维度，同一合同无论发起多少次变更均只占一行，多次变更历史在详情页「变更记录」选项卡 枚举（见 <a href="#sec-5-11" data-page-node-id="BA8DtrDCdJMQO53awt5M1G">§5.11</a>）。列表自带审核弹窗（#reviewModal），可直达审核流程。</p></div><table data-page-node-id="k4PeMfdLNW3nERnHAOp1j9"><thead data-page-node-id="97NnlBD5sTWKLtdH7TmlwV"><tr data-page-node-id="WQ8IAla1S2732gHV2ZkGsQ"><th data-page-node-id="sP5EYRdTRASeLnSHeoH4Hh">状态 status</th><th data-page-node-id="5pFAzwQERHobSfgrMSP2Hc">statusName</th><th data-page-node-id="CNLBTRSiFPM0Vu3STbw24z">样式类</th><th data-page-node-id="7DObCEXs4UlrrwApx5H20L">操作区</th><th data-page-node-id="BsYdMZvzdjbgrbu0C9SdLv">行为说明</th></tr></thead><tbody data-page-node-id="9AZqg7O7gvdZbn0MhRVsaL"><tr data-page-node-id="ycERqTZSL7weDS13905XdZ"><td data-page-node-id="fntZXcAGEPwdYuyIF1LtKC">pending_review</td><td data-page-node-id="1rM2ZmWJEjTjyjROe9Hx3i">合同待审核</td><td data-page-node-id="sX4RDrVaBvOuG35mXDVa9k">pending-review</td><td data-page-node-id="Zrw07a4OZg834SEkemyFKF">action-btn primary: 去审核</td><td data-page-node-id="5puHnjHtTtHs9tvuSjcGG3">跳转 pc-contract-detail.html?id={id}&amp;status=platform_reviewing</td></tr><tr data-page-node-id="kTqFCwkDQJmi6XiZgqVdIO"><td data-page-node-id="LBDP0CIvJ9brHCeFuapFFV">changing</td><td data-page-node-id="F9bfhvp2CikkLpft64Esrp">变更待审核</td><td data-page-node-id="BTV00JduTEpm04vFMrnKxU">changing</td><td data-page-node-id="oI2855Yc2SAlLKdXbOyG89">action-btn primary: 去审核</td><td data-page-node-id="RYQGEXaQBAys3IQ7pPvqig">跳转 pc-contract-detail.html?id={id}&amp;status=change_reviewing</td></tr><tr data-page-node-id="HAdSkdqALclDZigAvIMqEr"><td data-page-node-id="fhOvCI5yLiOW96vXKyQEZK">reviewed_pass</td><td data-page-node-id="1yypWDVdtpJrRJsND9hmT6">已通过</td><td data-page-node-id="IsdzxncyT06jAbqLhM7FgB">confirmed</td><td data-page-node-id="bFyR15ELDiUG5q4knvTQYK">✓ 已通过</td><td data-page-node-id="Fgf9i8D1P6t8HylM86xSBU">—</td></tr><tr data-page-node-id="1oTanVopdGXhG7sF5sbEY9"><td data-page-node-id="GsoZEP3rLrb2Z9YRcRHGYW">reviewed_reject</td><td data-page-node-id="Y5PD2tSfEraLtoLFKNuieb">已驳回</td><td data-page-node-id="yct1varW5UqYDvzwzVpsIL">review-rejected</td><td data-page-node-id="AWUUScTXTZbIHOoCED1SC2">✗ 已驳回 + 驳回原因(≤20字截断)</td><td data-page-node-id="90CAdyTCAQQlCGnnUGvC9o">—</td></tr><tr data-page-node-id="1TaFfVOahtyIhAhnIw9AeE"><td data-page-node-id="leaeze3aaAJGCIxMvbDwak">change_reviewed_pass</td><td data-page-node-id="7cc9wGmXkUWE3B8pwZNboz">变更已通过</td><td data-page-node-id="6SF8qB6gm7bL3OmIxpZpaO">confirmed</td><td data-page-node-id="GTGUN9nCihGUEynZxIIOQ3">✓ 变更已通过</td><td data-page-node-id="ZlN2dyvZfDHFDPlYrWW3vq">—</td></tr><tr data-page-node-id="WsNPljymUUI74FT3fxn0cp"><td data-page-node-id="rSXaLQnOXIkU4FnfeIgOl4">change_reviewed_reject</td><td data-page-node-id="rVPLoCAhaKIEL0D1b5jMRi">变更已驳回</td><td data-page-node-id="Tvx9t6wbsW1K7jbU6D2L5V">review-rejected</td><td data-page-node-id="sYDRFOZI5JVI05ODi2S8qy">✗ 变更已驳回 + 驳回原因</td><td data-page-node-id="TpZMSgvbMbmaCbznTEo5AN">—</td></tr><tr data-page-node-id="J8IEGSXJgyzfisddfQemYk"><td data-page-node-id="6Gjjoz9SDfsyp8nzKNNiNu">contract_withdrawn</td><td data-page-node-id="yuZ1hVFLTjSwQJmqQ6AB1S">合同已撤回</td><td data-page-node-id="jbwy3V6PNxEaoNdi2UJJqV">withdrawn</td><td data-page-node-id="Ba6BXILGLMXa4LTIXrGauP">查看（只读）</td><td data-page-node-id="0jDkKMSP9ubOJFHQWoKaE2">发起方在平台审核前撤回提交，平台不再审核，保留仅供审计留痕</td></tr><tr data-page-node-id="iCgZpGKAg7XtqGR553jvQt"><td data-page-node-id="tYsGKNeWIugH5uozlpUm5E">change_withdrawn</td><td data-page-node-id="PAxsxcjby4HVIVUJjMFA7O">变更已撤回</td><td data-page-node-id="iibAhFO6guGxJx4pp26lu1">withdrawn</td><td data-page-node-id="FB7dK3afAb5E4w5fW0L4vf">查看（只读）</td><td data-page-node-id="izE6SFPjY8JskRaYpifna1">发起方在平台审核前撤回变更申请，变更取消、合同恢复已签约，保留仅供审计留痕</td></tr></tbody></table><p style="margin-top:12px;color:var(--text-secondary);font-size:13px;" data-page-node-id="7LbOqnlRvCL8tAnaxI7s8r"><strong data-page-node-id="kYZFzzrwMTl8GraIYfEX5G">合同名称点击</strong>：所有行合同名称可点击（viewContract），pending_review/changing 映射到对应详情 status 参数；已驳回态携带 ?rejectReason= 参数。<strong data-page-node-id="4ATLneEvKjaYez6ZXxRG3n">列表审核弹窗</strong>（#reviewModal）：展示合同基本信息（名称/项目/类型/金额/甲方/乙方），驳回时展开驳回原因 textarea（必填，空提交 alert 提示）。确认通过/驳回均轻提示反馈。</p>
+                <div class="note" style="margin:12px 0;" data-page-node-id="FNoELKAJNNW8Ha5LeecW1Z"><div class="note-title" data-page-node-id="hSzues4fxL3hcGEUk5sG3p">PC 列表展示需平台审核的六种状态并保留撤回态</div><p data-page-node-id="EAdwLd8yoiRDlouVteNlLU">通过 renderContractList 过滤为 pending_review / changing / reviewed_pass / reviewed_reject / change_reviewed_pass / change_reviewed_reject；其余状态不在 PC 运营列表出现。撤回的合同（提交平台审核后撤回 / 变更发起后撤回）保留为「合同已撤回 / 变更已撤回」灰标签行，无审核操作，仅供审计留痕；列表以合同为维度，同一合同无论发起多少次变更均只占一行，多次变更历史在详情页「变更记录」选项卡 枚举（见 <a href="#sec-5-11" data-page-node-id="BA8DtrDCdJMQO53awt5M1G">§5.11</a>）。</p></div><table data-page-node-id="k4PeMfdLNW3nERnHAOp1j9"><thead data-page-node-id="97NnlBD5sTWKLtdH7TmlwV"><tr data-page-node-id="WQ8IAla1S2732gHV2ZkGsQ"><th data-page-node-id="sP5EYRdTRASeLnSHeoH4Hh">状态 status</th><th data-page-node-id="5pFAzwQERHobSfgrMSP2Hc">statusName</th><th data-page-node-id="CNLBTRSiFPM0Vu3STbw24z">样式类</th><th data-page-node-id="7DObCEXs4UlrrwApx5H20L">操作区</th><th data-page-node-id="BsYdMZvzdjbgrbu0C9SdLv">行为说明</th></tr></thead><tbody data-page-node-id="9AZqg7O7gvdZbn0MhRVsaL"><tr data-page-node-id="ycERqTZSL7weDS13905XdZ"><td data-page-node-id="fntZXcAGEPwdYuyIF1LtKC">pending_review</td><td data-page-node-id="1rM2ZmWJEjTjyjROe9Hx3i">合同待审核</td><td data-page-node-id="sX4RDrVaBvOuG35mXDVa9k">pending-review</td><td data-page-node-id="Zrw07a4OZg834SEkemyFKF">action-btn primary: 去审核</td><td data-page-node-id="5puHnjHtTtHs9tvuSjcGG3">跳转 pc-contract-detail.html?id={id}&amp;status=platform_reviewing</td></tr><tr data-page-node-id="kTqFCwkDQJmi6XiZgqVdIO"><td data-page-node-id="LBDP0CIvJ9brHCeFuapFFV">changing</td><td data-page-node-id="F9bfhvp2CikkLpft64Esrp">变更待审核</td><td data-page-node-id="BTV00JduTEpm04vFMrnKxU">changing</td><td data-page-node-id="oI2855Yc2SAlLKdXbOyG89">action-btn primary: 去审核</td><td data-page-node-id="RYQGEXaQBAys3IQ7pPvqig">跳转 pc-contract-detail.html?id={id}&amp;status=change_reviewing</td></tr><tr data-page-node-id="HAdSkdqALclDZigAvIMqEr"><td data-page-node-id="fhOvCI5yLiOW96vXKyQEZK">reviewed_pass</td><td data-page-node-id="1yypWDVdtpJrRJsND9hmT6">已通过</td><td data-page-node-id="IsdzxncyT06jAbqLhM7FgB">confirmed</td><td data-page-node-id="bFyR15ELDiUG5q4knvTQYK">✓ 已通过</td><td data-page-node-id="Fgf9i8D1P6t8HylM86xSBU">—</td></tr><tr data-page-node-id="1oTanVopdGXhG7sF5sbEY9"><td data-page-node-id="GsoZEP3rLrb2Z9YRcRHGYW">reviewed_reject</td><td data-page-node-id="Y5PD2tSfEraLtoLFKNuieb">已驳回</td><td data-page-node-id="yct1varW5UqYDvzwzVpsIL">review-rejected</td><td data-page-node-id="AWUUScTXTZbIHOoCED1SC2">✗ 已驳回 + 驳回原因(≤20字截断)</td><td data-page-node-id="90CAdyTCAQQlCGnnUGvC9o">—</td></tr><tr data-page-node-id="1TaFfVOahtyIhAhnIw9AeE"><td data-page-node-id="leaeze3aaAJGCIxMvbDwak">change_reviewed_pass</td><td data-page-node-id="7cc9wGmXkUWE3B8pwZNboz">变更已通过</td><td data-page-node-id="6SF8qB6gm7bL3OmIxpZpaO">confirmed</td><td data-page-node-id="GTGUN9nCihGUEynZxIIOQ3">✓ 变更已通过</td><td data-page-node-id="ZlN2dyvZfDHFDPlYrWW3vq">—</td></tr><tr data-page-node-id="WsNPljymUUI74FT3fxn0cp"><td data-page-node-id="rSXaLQnOXIkU4FnfeIgOl4">change_reviewed_reject</td><td data-page-node-id="rVPLoCAhaKIEL0D1b5jMRi">变更已驳回</td><td data-page-node-id="Tvx9t6wbsW1K7jbU6D2L5V">review-rejected</td><td data-page-node-id="sYDRFOZI5JVI05ODi2S8qy">✗ 变更已驳回 + 驳回原因</td><td data-page-node-id="TpZMSgvbMbmaCbznTEo5AN">—</td></tr><tr data-page-node-id="J8IEGSXJgyzfisddfQemYk"><td data-page-node-id="6Gjjoz9SDfsyp8nzKNNiNu">contract_withdrawn</td><td data-page-node-id="yuZ1hVFLTjSwQJmqQ6AB1S">合同已撤回</td><td data-page-node-id="jbwy3V6PNxEaoNdi2UJJqV">withdrawn</td><td data-page-node-id="Ba6BXILGLMXa4LTIXrGauP">查看（只读）</td><td data-page-node-id="0jDkKMSP9ubOJFHQWoKaE2">发起方在平台审核前撤回提交，平台不再审核，保留仅供审计留痕</td></tr><tr data-page-node-id="iCgZpGKAg7XtqGR553jvQt"><td data-page-node-id="tYsGKNeWIugH5uozlpUm5E">change_withdrawn</td><td data-page-node-id="PAxsxcjby4HVIVUJjMFA7O">变更已撤回</td><td data-page-node-id="iibAhFO6guGxJx4pp26lu1">withdrawn</td><td data-page-node-id="FB7dK3afAb5E4w5fW0L4vf">查看（只读）</td><td data-page-node-id="izE6SFPjY8JskRaYpifna1">发起方在平台审核前撤回变更申请，变更取消、合同恢复已签约，保留仅供审计留痕</td></tr></tbody></table><p style="margin-top:12px;color:var(--text-secondary);font-size:13px;" data-page-node-id="7LbOqnlRvCL8tAnaxI7s8r"><strong data-page-node-id="kYZFzzrwMTl8GraIYfEX5G">合同名称点击</strong>：所有行合同名称可点击（viewContract），pending_review/changing 映射到对应详情 status 参数；已驳回态携带 ?rejectReason= 参数。</p>
+                <div class="note" style="margin:12px 0;"><div class="note-title">变更待审核演示数据与审核结果回写</div><p>PC 合同审核管理列表与详情共用静态演示数据 <code>pc/pc-contract-data.js</code>（<code>window.PC_CONTRACTS</code>），无后端、无本地存储。列表「变更待审核」演示合同为 <code>id=15</code> 基础施工服务合同-长安区公寓（<code>changing</code>），归属服务流程项 <code>flowId=sg</code>；工人合同六类不进入平台审核。详情页按 <code>?id</code> 绑定合同名称、编号、类型、所属服务流程项、关联项目、金额、提交人与变更前后金额；未携带 <code>?id</code> 时沿用页面内置示例。审核通过 / 驳回结果经 <code>reviewResult</code> / <code>reviewId</code> / <code>reviewReason</code> 回传列表，列表对匹配行覆盖显示「变更已通过 / 变更已驳回 + 驳回原因」并支持状态筛选命中，静态数据基线不改写、刷新可复现。</p></div>
             </div>
 
             <div class="subsection" id="sec-1-6" data-page-node-id="5qDUxk2KkHOTQEqqkaMmbo">
@@ -2337,7 +2340,7 @@
                     <tbody data-page-node-id="XgzRcgbdICCVBjArIG8rns">
                         <tr data-page-node-id="wAYuTb5DxY75igh83zSEnv">
                             <td data-page-node-id="AfvgcPy8j0vFxMWhhpvWrF">入口位置</td>
-                            <td data-page-node-id="bmdc6c2WnXhGHqaTSa4ejg">合同详情页状态卡片底部操作按钮区</td>
+                            <td data-page-node-id="bmdc6c2WnXhGHqaTSa4ejg">服务方小程序合同详情页状态卡片底部操作按钮区（基础/设计合同）；服务方小程序合同列表页每行操作区（按合同类型分流跳转，见下方「路由规则」）</td>
                         </tr>
                         <tr data-page-node-id="2AWu9X6hBFJzeV1wsxZCQi">
                             <td data-page-node-id="UeqS7m8FP4QxuBMwDDgpGK">按钮文案</td>
@@ -2353,7 +2356,18 @@
                         </tr>
                         <tr data-page-node-id="8G710RHeeJsIEU7znlQHL4">
                             <td data-page-node-id="uaOmZY1tYKXHg0JhXZCFrY">点击行为</td>
-                            <td data-page-node-id="CwU3a0ZmHKt0wdVD1elOPQ">打开发起变更弹窗（全屏模态框）</td>
+                            <td data-page-node-id="CwU3a0ZmHKt0wdVD1elOPQ">按合同类型 <code>ct</code> 分流路由（见下方「路由规则」）：工人合同跳转独立变更编辑整页；非工人（基础/设计）合同打开本合同详情页内发起变更弹窗。</td>
+                        </tr>
+                        <tr data-page-node-id="r5-route-rule">
+                            <td data-page-node-id="r5-route-rule-td"><strong>路由规则（按合同类型分流）</strong></td>
+                            <td data-page-node-id="r5-route-rule-td2">
+                                <p style="margin:0 0 6px;">「发起变更」入口同时存在于<strong>合同列表页</strong>每行操作区与<strong>合同详情页</strong>底部操作按钮区；点击后统一按合同类型 <code>ct</code> 分流：</p>
+                                <ul style="margin:0;padding-left:18px;">
+                                    <li><strong>工人合同（ct=worker）</strong>：跳转独立变更编辑整页 <code>worker-contract-change.html?id=&lt;合同id&gt;</code>（变更提案编辑详见 <a href="#worker-contract-change" data-page-node-id="r5-wcc">第九章</a>）。</li>
+                                    <li><strong>基础/设计合同（ct=base / ct=design）</strong>：跳转 <code>contract-detail.html?id=&lt;合同id&gt;</code> 并打开页内发起变更弹窗；若由合同列表页进入，额外携带 <code>openChange=1</code> 参数，进入即自动打开发起变更弹窗（弹窗界面详见 <a href="#sec-5-2" data-page-node-id="r5-52">5.2</a>）。</li>
+                                </ul>
+                                <p style="margin:6px 0 0;color:var(--text-secondary);font-size:12px;">权限校验：需具备合同编辑治理权限 <code>canManage('edit')</code>，否则提示「您没有发起变更的治理权限」且不跳转。业主小程序不提供「发起变更」入口（见第四章）。</p>
+                            </td>
                         </tr>
                     </tbody>
                 </table>
@@ -4383,6 +4397,7 @@
             <div class="subsection" id="sec-7-12">
                 <div class="subsection-title">7.12 复制发起入口规格（工人合同详情页·发起方）</div>
                 <p>工人合同详情页<strong>发起方视角</strong>的顶部「合同操作 更多」菜单首位为「📑 复制发起」，用于以<strong>当前合同</strong>为蓝本快速发起一份同类型的新合同（适用于同一工种需再签一份同类合同的场景）。受邀方视角<strong>不提供</strong>该入口。</p>
+                <p>复制发起按<strong>合同体系</strong>分流到两个独立页面：<strong>工人六工种合同</strong>（拆除 / 水电 / 木工 / 瓦工 / 油漆 / 小工）走 <code><a class="proto-link" href="service-miniapp/contract-copy-initiate.html">contract-copy-initiate.html</a></code>；<strong>非工人（服务类）合同</strong>（基础施工服务 / 设计服务）走新建的 <code><a class="proto-link" href="service-miniapp/service-contract-copy-initiate.html">service-contract-copy-initiate.html</a></code>。仅合同列表入口（<code>actCopy</code>）按合同 <code>ct</code> 字段<strong>动态分流</strong>；服务侧详情与工人侧详情按各自页面职责<strong>定向</strong>到对应复制页，确保非工人合同不会误跳工人复制页。</p>
                 <table>
                     <thead><tr><th>属性</th><th>规格</th></tr></thead>
                     <tbody>
@@ -4390,7 +4405,7 @@
                         <tr><td>适用视角</td><td>仅<strong>发起方视角</strong>（拟定中 / 确认中 / 已签约及发起方变更各态）；受邀方视角（含确认中·受邀方与受邀方终态）不提供</td></tr>
                         <tr><td>权限规则</td><td><strong>与「创建合同」权限规则完全一致</strong>：由同一创建合同权限位控制，无该权限时不发起并提示“您没有创建合同的权限”</td></tr>
                         <tr><td>蓝本合同</td><td>当前正在查看的这份合同；沿用其合同类型、文本模板、阶段任务、金额、工期、条款与附件，均可在发起页修改</td></tr>
-                        <tr><td>目标页面</td><td>复制发起独立页（<code><a class="proto-link" href="service-miniapp/contract-copy-initiate.html">contract-copy-initiate.html</a></code>），携带来源标识（<code>from=detail</code>）与蓝本合同标识（<code>source</code>）</td></tr>
+                        <tr><td>目标页面</td><td>复制发起独立页，按合同体系分流：<br>· 工人合同 → <code><a class="proto-link" href="service-miniapp/contract-copy-initiate.html">contract-copy-initiate.html</a></code><br>· 非工人（服务类）合同 → <code><a class="proto-link" href="service-miniapp/service-contract-copy-initiate.html">service-contract-copy-initiate.html</a></code><br>两类页面均携带来源标识（<code>from=detail|contract-list</code>）、蓝本合同标识（<code>source</code>）与归属标识（<code>item</code>=所属服务流程项、<code>parent</code>=上级合同）</td></tr>
                         <tr><td>持久化方式</td><td><strong>非 localStorage 写入</strong>：仅通过页面跳转参数传递蓝本来源，不在原详情页做任何数据回写</td></tr>
                         <tr><td>与原合同关系</td><td>只读引用，<strong>原合同状态、条款与任务均不受影响</strong>，新合同独立流转</td></tr>
                     </tbody>
@@ -4486,55 +4501,30 @@
                     <li><strong>待选择徽标（橙）</strong>：复制发起特有，用于标识该字段无默认值、必须主动选择（当前仅意向乙方）。</li>
                 </ul>
 
-<h4 style="margin-top:16px;">7.12.3 隶属架构层级选择规格</h4>
-                <p style="font-size:13px;">复制发起页顶部「🏗️ 隶属架构层级」卡片用于确定<b>新合同归入的架构层级</b>；该卡片为复制发起特有，拟定中页无此区域。</p>
+<h4 style="margin-top:16px;">7.12.3 隶属服务流程层级选择规格</h4>
+                <p style="font-size:13px;">复制发起页顶部「🧭 隶属服务流程层级（含类型）」卡片用于确定<strong>新合同归属的服务流程项与上级合同</strong>；该卡片为复制发起特有，拟定中页无此区域。合同唯一归属服务流程项（<code>flowId</code> / <code>flowName</code>），<code>parent</code> 为唯一层级字段；总规格见<a href="PRD-项目模块详细规格.html#sub-6-13" target="_blank">《PRD-项目模块详细规格》6.13</a>。</p>
                 <table>
-                    <thead>
-                        <tr><th>属性</th><th>规格</th></tr>
-                    </thead>
+                    <thead><tr><th>属性</th><th>规格</th></tr></thead>
                     <tbody>
-                        <tr>
-                            <td>卡片构成</td>
-                            <td>第一行：级别徽标（二级 / 三级）＋ 层级名称 ＋ 状态标签（默认 / 已调整）＋ 范围徽标（同类型 / 无合同）；第二行：完整路径面包屑（一级项目 › 二级工作组 › 三级子组）；第三行：仅更换后显示「已更换为「X」；新合同将归入该架构层级，原合同不受影响。」</td>
-                        </tr>
-                        <tr>
-                            <td>默认值</td>
-                            <td>被复制合同当前所属层级——由架构页进入时取 <code>group</code> 参数，由合同详情进入时取蓝本合同默认层级；默认值不在预置层级列表时，按源工种二级层级兜底，保证可追踪完整路径</td>
-                        </tr>
-                        <tr>
-                            <td>触发方式</td>
-                            <td>点击卡片整行或右侧「更换 ›」→ 打开底部抽屉「选择隶属架构层级」</td>
-                        </tr>
-                        <tr>
-                            <td>抽屉顶部</td>
-                            <td>标题「选择隶属架构层级」＋ 关闭按钮；过滤规则说明「仅可选同类型（被复制合同工种）与暂无合同的架构；异类型且已有合同者不可选」</td>
-                        </tr>
-                        <tr>
-                            <td>搜索</td>
-                            <td>顶部搜索框（placeholder「搜索架构名称 / 工种 / 路径…」），实时模糊匹配<b>层级名称、父级名称、工种中文名与完整路径</b>；无匹配时显示「未找到匹配的架构层级」</td>
-                        </tr>
-                        <tr>
-                            <td>列表形态</td>
-                            <td><b>树形分组</b>：二级工作组为父节点，三级子组缩进列于其下；每项显示级别徽标 ＋ 层级名称 ＋「默认」标签（默认项专属）＋ 范围徽标 ＋ 完整路径 ＋ 说明文案；当前选中项右侧显示 ✓</td>
-                        </tr>
-                        <tr>
-                            <td>可选规则</td>
-                            <td>与蓝本合同<b>同类型</b>（工种一致）或<b>暂无合同</b>的层级可选；<b>异类型且已有合同者置灰且不可点击</b>；一级根节点（项目总架构）不可作为归属终点，仅作为路径起点展示</td>
-                        </tr>
-                        <tr>
-                            <td>选择后</td>
-                            <td>卡片同步更新（级别徽标 / 层级名称 / 状态标签变「已调整」/ 完整路径 / 提示行），抽屉自动关闭</td>
-                        </tr>
-                        <tr>
-                            <td>生效范围</td>
-                            <td>仅决定新合同的归属层级；蓝本合同与原合同均不做任何写操作、不受影响</td>
-                        </tr>
-                        <tr>
-                            <td>提交时</td>
-                            <td>仅当更换过层级时，提交气泡追加「归入层级：完整路径」</td>
-                        </tr>
+                        <tr><td>卡片构成</td><td>第一行：🧭 标题「隶属服务流程层级（含类型）」＋ 当前流程项名称 ＋ 合同类型；第二行：状态标签（默认 / 已更换）；第三行：仅更换后提示「新合同将归入该层级，原合同不受影响」</td></tr>
+                        <tr><td>默认值</td><td>直属蓝本合同所属服务流程项，取入口参数 <code>item</code>（<code>flowId</code>）与 <code>parent</code>；来源合同命中数据层时以其 <code>flowId</code> / <code>parent</code> 为准</td></tr>
+                        <tr><td>触发方式</td><td>点击「更换 ›」→ 打开底部抽屉「更换隶属服务流程层级」</td></tr>
+                        <tr><td>候选范围</td><td>来自 <code>ContractTreeStore.listByFlow(flowId)</code>，展示合同名 ＋ 合同类型 ＋ 层级；排除蓝本合同自身</td></tr>
+                        <tr><td>选择后</td><td>卡片同步更新上级合同与状态标签，抽屉自动关闭</td></tr>
+                        <tr><td>生效范围</td><td>仅决定新合同的归属；蓝本合同与原合同均不做任何写操作、不受影响</td></tr>
+                        <tr><td>提交 / 仅保存</td><td>两者均校验 <code>flowId</code> 非空后写入 <code>ContractTreeStore</code>；缺失时提示「缺少所属服务流程项，请从合同列表重新发起」且不落库</td></tr>
                     </tbody>
                 </table>
+
+<h4 style="margin-top:16px;" id="sec-7-12-4">7.12.4 非工人（服务类）复制发起页（service-contract-copy-initiate.html）</h4>
+                <p style="font-size:13px;">非工人（基础施工服务 / 设计服务）合同的复制发起走独立的 <code><a class="proto-link" href="service-miniapp/service-contract-copy-initiate.html">service-contract-copy-initiate.html</a></code>。该页<strong>不是工人复制页（contract-copy-initiate.html）的翻版</strong>，而是<strong>对齐非工人合同详情页「拟定中」编辑态</strong>的结构与流程，确保非工人复制发起的视觉与交互与详情页拟定中完全一致：</p>
+                <ul style="font-size:13px;line-height:1.9;">
+                    <li><strong>状态流程</strong>：顶部状态流程图展示非工人合同完整链路 <b>拟定中 → 平台审核 → 确认中 → 已确认 → 已签约</b>（5 步，当前高亮「拟定中」），区别于工人合同的 3 步流程。</li>
+                    <li><strong>状态横幅</strong>：沿用详情页 <code>.status-banner.draft</code>「拟定中 · 合同正在编辑中，完善合同内容后可提交确认」。</li>
+                    <li><strong>编辑表单三段式</strong>（卡片）：① 合同基本信息（合同类型只读「不可编辑」、合同编号只读展示系统已生成的编号信息并在右侧显示「系统生成」灰色标签、不可编辑、不向用户暴露填写入口，合同名称、合同金额可编辑）；② 签约双方（甲方发包方 / 乙方承包方，均为下拉选择，默认预填蓝本）；③ 合同内容（正文 / 阶段任务 / 附件 三 Tab，阶段任务以 <code>.stage-card</code> / <code>.task-edit-item</code> / <code>.switch</code> 呈现，可增删阶段与任务、编辑任务详情、更换模板）。</li>
+                    <li><strong>复制发起专属元素保留</strong>：顶部「🧭 隶属服务流程层级（含类型）」唯一归属卡（默认直属本流程项，可经抽屉更换为同流程项下的上级合同）、右侧「复制发起说明」侧栏、底部「取消 / 仅保存 / 提交确认」（取消＝退出返回原合同）。页面字段默认预填蓝本内容，<strong>不展示「沿用蓝本 / 沿用原值 / 已调整」等徽标</strong>，与详情页「拟定中」编辑态保持一致。</li>
+                    <li><strong>提交结果</strong>：校验通过（合同名称、金额 &gt; 0、甲方、乙方、至少一个阶段及任务）后生成新合同 <code>ct:'service'</code> 落入合同树，并跳转 <code>contract-detail.html</code> 进入「拟定中」详情；跳转参数：<code>id / name / typeName / partyA / partyAName / partyB / partyBName / amount / flowId / flowName / from=copy / parent / status=draft / new=1</code>；「仅保存」＝存为草稿且不跳转，原合同不受影响。</li>
+                </ul>
             </div>
         </div>
 

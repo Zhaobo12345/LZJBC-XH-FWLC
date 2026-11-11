@@ -1051,7 +1051,7 @@
 
     var C = {
         type: 'shuidian', typeName: '水电班组服务合同', name: '全屋水电改造合同', amount: 12600, duration: '30',
-        projectAddress: 'XX市XX区XX路XX号', group: '水电施工组',
+        projectAddress: 'XX市XX区XX路XX号', flowId: 'sg', flowName: '基础施工服务',
         contentIntro: STAGE_TEMPLATES.shuidian.contentIntro,
         stages: clone(STAGE_TEMPLATES.shuidian.stages),
         extraClauses: '1、本合同约定工期为固定工期，因乙方原因延误的，按合同总价每日千分之二支付违约金。\n2、隐蔽工程须经验收合格后方可覆盖，甲方不参与施工的，乙方对施工质量负全责。\n3、本合同未尽事宜，双方可另行签订补充协议，补充协议与本合同具有同等效力。',
@@ -1420,7 +1420,7 @@
             '<p>2.2 支付方式：合同签订后支付预付款，材料进场验收合格后支付进度款，完工验收后支付尾款。</p></div></div>' +
             '<div class="contract-article"><div class="article-title">第三条 双方权利义务</div><div class="article-content">' +
             '<p>3.1 甲方（' + escapeHtml(partyAName) + '）应按约定支付工程款，并提供施工所需条件。</p>' +
-            '<p>3.2 乙方应按标准施工，自确认加入后自动归入项目架构层级「' + escapeHtml(c.group || '—') + '」。</p></div></div>' +
+            '<p>3.2 乙方应按确认的服务标准与验收标准施工。</p></div></div>' +
             '<div class="contract-article"><div class="article-title">第四条 工程质量及验收</div><div class="article-content">' +
             '<p>4.1 乙方应严格按国家现行施工验收规范施工。</p>' +
             '<p>4.2 分阶段验收，隐蔽工程验收合格后方可进行下一道工序。</p></div></div>' +
@@ -1455,7 +1455,6 @@
             '<p><strong>工程地点：</strong>' + escapeHtml(c.projectAddress || '—') + '</p>' +
             '<p><strong>合同金额：</strong>人民币 ' + escapeHtml(c.amount || '—') + ' 元（含税）</p>' +
             '<p><strong>合同工期：</strong>' + duration + '</p>' +
-            '<p><strong>架构层级：</strong>' + escapeHtml(c.group || '—') + '</p>' +
             '<p><strong>甲方（发包方）：</strong>' + escapeHtml(partyAName) + '</p>' +
             '<p><strong>' + b.label + '：</strong>' + b.value + '</p></div></div>';
     }
@@ -1884,7 +1883,7 @@
             syncContractFromInputs();
             window.ContractStore.patchContract(currentContractId, {
                 name: C.name, amount: C.amount, duration: C.duration,
-                breach: C.breach, extraClauses: C.extraClauses,
+                breach: C.breach, extraClauses: C.extraClauses, flowId: C.flowId || 'sg', flowName: C.flowName || '基础施工服务',
                 contentIntro: C.contentIntro, stages: C.stages, attachments: C.attachments
             });
             window.ContractStore.submitInvite(currentContractId, editInvited);
@@ -1903,7 +1902,7 @@
             syncContractFromInputs();
             window.ContractStore.patchContract(currentContractId, {
                 name: C.name, amount: C.amount, duration: C.duration,
-                breach: C.breach, extraClauses: C.extraClauses,
+                breach: C.breach, extraClauses: C.extraClauses, flowId: C.flowId || 'sg', flowName: C.flowName || '基础施工服务',
                 contentIntro: C.contentIntro, stages: C.stages, attachments: C.attachments
             });
         }
@@ -1997,7 +1996,6 @@
         C.typeName = c.typeName || C.typeName;
         C.name = c.name || C.name;
         C.amount = c.amount || C.amount;
-        C.group = c.group || C.group;
         C.duration = c.duration || C.duration || '30';
         C.projectAddress = c.projectAddress || 'XX市XX区XX路XX号';
         C.extraClauses = (c.extraClauses != null) ? c.extraClauses : C.extraClauses;
@@ -2028,6 +2026,17 @@
 
     /* 工艺参考示例：复用本页 toast（共享模块 js/craft-ref.js，不注入时模块用自身兜底 toast） */
     if (window.CraftRef) { CraftRef.setToastHandler(function (msg) { showToast(msg); }); }
+
+    /* 复制发起：演示态无真实来源合同，透传 URL 中的归属参数，由复制页回退内置蓝本 */
+    function openCopyInitiate() {
+        var qs = new URLSearchParams(window.location.search);
+        var params = 'from=detail';
+        var src = qs.get('id') || '';
+        if (src) params += '&source=' + encodeURIComponent(src);
+        var item = qs.get('item') || qs.get('flowId') || '';
+        if (item) params += '&item=' + encodeURIComponent(item);
+        window.location.href = 'contract-copy-initiate.html?' + params;
+    }
 </script>
 <script src="../shared/doc-viewer/doc-viewer.js"></script>
 </body>

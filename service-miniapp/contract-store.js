@@ -14,7 +14,7 @@
  *
  * 新流程（方案 B）：
  *   创建时邀请 1~3 人（意向乙方）→ 状态「确认中」→ 被邀请人确认/抢单
- *   → 第一位确认者成为乙方，自动加入「合同关联架构层级」→ 状态「已确认」
+ *   → 第一位确认者成为乙方 → 状态「已确认」
  *   → 仍需「上传签约文件」→ 状态「已签约」
  *   平台审核、超时、重新邀请均不存在；如需更改通过「撤回确认」退回拟定中重新提交。
  *
@@ -53,6 +53,15 @@
 
     function saveContract(c) {
         if (!c || !c.id) return;
+        /* 归属硬口径：新建合同必须经 createContract 显式携带 flowId；
+           此处仅允许为「库中已存在且原记录已有归属」的历史数据补齐，其余一律拒绝写入，
+           避免隐式硬编码归属或生成无归属合同。 */
+        if (!c.flowId) {
+            var legacy = readContracts()[c.id];
+            if (!legacy || !legacy.flowId) return;
+            c.flowId = legacy.flowId;
+            c.flowName = c.flowName || legacy.flowName || '';
+        }
         var all = readContracts();
         all[c.id] = c;
         writeContracts(all);
@@ -73,9 +82,11 @@
 
     /**
      * 创建工人合同（写入合约库）
-     * @param {Object} data { id, name, type, typeName, group, partyA, partyAName, amount, invited:[{userId,name,role}] }
+     * @param {Object} data { id, name, type, typeName, flowId, flowName, parent, partyA, partyAName, amount, invited:[{userId,name,role}] }
      */
     function createContract(data) {
+        // 合同必须有归属服务流程项；缺省时拒绝写入，避免生成无归属合同
+        if (!data.flowId) return null;
         var invitations = (data.invited || []).map(function (m) {
             return { userId: m.userId, name: m.name, role: m.role, status: 'pending' };
         });
@@ -86,7 +97,9 @@
             name: data.name || '',
             type: data.type || '',
             typeName: data.typeName || '',
-            group: data.group || '',
+            flowId: data.flowId || '',
+            flowName: data.flowName || '',
+            parent: data.parent || null,
             partyA: data.partyA || '',
             partyAName: data.partyAName || '',
             partyAPhone: data.partyAPhone || '',
@@ -97,7 +110,6 @@
             invitations: invitations,
             partyB: '',
             partyBName: '',
-            joinedArchitecture: '',
             signed: false,
             createdAt: Date.now(),
             changeLog: [],
@@ -118,7 +130,6 @@
                 fromUserRole: data.inviterRole || '工长',
                 contractName: contract.name,
                 contractType: contract.typeName,
-                group: contract.group,
                 status: 'pending',
                 time: nowLabel(),
                 date: '今天',
@@ -161,7 +172,6 @@
         c.partyB = inv.userId;
         c.partyBName = inv.name;
         c.status = 'worker_confirmed';
-        c.joinedArchitecture = c.group || '';
         saveContract(c);
 
         updateMessage('cmsg-' + id + '-' + userId, { status: 'accepted', unread: false });
@@ -190,7 +200,6 @@
         c.status = 'worker_draft';
         c.partyB = '';
         c.partyBName = '';
-        c.joinedArchitecture = '';
         c.invitations = [];
         saveContract(c);
         c.invitations.forEach(function () {});
@@ -226,7 +235,6 @@
                 fromUserRole: c.inviterRole || '工长',
                 contractName: c.name,
                 contractType: c.typeName,
-                group: c.group,
                 status: 'pending',
                 time: nowLabel(),
                 date: '今天',
@@ -272,7 +280,6 @@
         c.status = 'worker_draft';
         c.partyB = '';
         c.partyBName = '';
-        c.joinedArchitecture = '';
         saveContract(c);
         // 通知原乙方：本次合作未达成
         replaced.forEach(function (i) {
@@ -286,7 +293,6 @@
                 fromUserRole: c.inviterRole || '工长',
                 contractName: c.name,
                 contractType: c.typeName,
-                group: c.group,
                 status: 'replaced',
                 time: nowLabel(),
                 date: '今天',
@@ -306,7 +312,6 @@
         c.status = 'worker_confirmed';
         c.partyB = prev.userId;
         c.partyBName = prev.name;
-        c.joinedArchitecture = c.group || '';
         c.replacedPartyB = '';
         saveContract(c);
         return { ok: true, contract: c };

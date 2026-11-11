@@ -1625,13 +1625,24 @@
     </div>
 
     <div class="page-nav">
-        <div class="page-nav-title">原型导航</div>
-        <a href="home.html" class="page-nav-item">首页</a>
-        <a href="task-list.html" class="page-nav-item active">任务列表</a>
-        <a href="contract-detail.html" class="page-nav-item">合同详情</a>
-        <a href="task-detail.html" class="page-nav-item">任务详情</a>
+      <div class="page-nav-title" title="收起 / 展开 原型导航">原型导航 <span class="toggle-btn" id="pageNavToggle">▼</span></div>
+      <a href="home.html">首页</a>
+      <a href="project-detail-ongoing-v2.html">项目详情（进行中）</a>
+      <a href="project-detail-initial-v2.html">项目详情（初始）</a>
+      <a href="project-detail-completed-v2.html">项目详情（已完成）</a>
+      <a href="project-info.html">项目信息</a>
+      <a href="create-project.html">创建项目</a>
+      <a href="task-list.html" class="active">任务列表</a>
+      <a href="task-detail.html">任务详情</a>
+      <a href="contract-list.html">合同列表</a>
+      <a href="contract-detail.html">合同详情</a>
+      <a href="project-files.html">项目资料</a>
+      <a href="statement-list.html">账单列表</a>
+      <a href="activity-list.html">项目动态</a>
+      <a href="member.html">成员</a>
+      <a href="todo-list.html">待办</a>
     </div>
-
+    <script src="js/page-nav.js"></script>
     <script src="js/flow-config-store.js"></script>
     <script>
     /* =========================================================================
@@ -1949,7 +1960,7 @@
                 var signed = !!s.hasRealContract;
                 var badge = signed ? '' :
                     '<span class="contract-status-badge pending">拟创建 · 尚未签署</span>';
-                return '<div class="contract-section" data-contract="' + esc(c.id) + '" data-level="' + esc(c.name) + '">' +
+                return '<div class="contract-section" data-contract="' + esc(c.id) + '">' +
                     '<div class="contract-header" onclick="toggleContract(this)">' +
                     '<div class="contract-icon">📄</div><div class="contract-main">' +
                     '<div class="contract-name">' + esc(c.name + '合同') + (signed ? '' : '（拟创建）') + badge + '</div>' +
@@ -2508,8 +2519,8 @@
         window.showToast = showToast;
         window.reloadFlowTasks = buildAll;
 
-        /* 既有入口参数兼容：?role=exec|confirm|mine / ?mine=1 / ?level= / ?item=|?flow= */
-        /* 新分组维度为服务流程项，不再有架构层级轴；带 ?level= 时默认展示全部流程项 */
+        /* 既有入口参数兼容：?role=exec|confirm|mine / ?mine=1 / ?item=|?flow= */
+        /* 新分组维度为服务流程项，不再有架构层级轴 */
         function applyUrlParams() {
             var q;
             try { q = new URLSearchParams(location.search); } catch (e) { return; }
@@ -2517,7 +2528,6 @@
             if (role === 'exec' || role === 'confirm' || role === 'mine') filters.role = role;
             var mine = q.get('mine');
             if ((mine === '1' || mine === 'true') && filters.role === 'all') filters.role = 'mine';
-            if (q.get('level')) activeFlow = 'all';
             var item = q.get('item') || q.get('flow');
             if (item) activeFlow = item;
             var dim = q.get('dim');

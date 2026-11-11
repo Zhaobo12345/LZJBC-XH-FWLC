@@ -1,3 +1,18 @@
+/* ============================================================
+   PC 审核状态 key ↔ 小程序合同状态 key 映射表（P1-6，2026-11-10）
+   两端存在同名不同义，联调与 PRD 描述一律按此表换算，禁止按 key 相等判断：
+   | PC 列表 key            | PC 显示文案     | 小程序对应状态 / 含义                          |
+   | pending_review         | 合同待审核      | platform_reviewing 平台审核中（拟定中→平台审核）|
+   | changing               | 变更待平台审核  | 小程序 changing = 已签约后「变更中/发起变更」   |
+   | reviewed_pass          | 审核已通过      | 进入确认中（非工人 5 步 / 工人 3 步）           |
+   | reviewed_reject        | 审核已驳回      | 退回拟定中，由创建方修改后重新提交             |
+   | change_reviewed_pass   | 变更已通过      | change_confirming → V2 已签约                  |
+   | change_reviewed_reject | 变更已驳回      | 变更终止，回退原已签约版本                    |
+   | contract_withdrawn     | 合同已撤回      | 平台审核前主动撤回                            |
+   | change_withdrawn       | 变更已撤回      | 平台审核前撤回本次变更                        |
+   SSOT：service-miniapp/js/contract-detail.js、worker-contract-detail.js
+   ============================================================ */
+
 function toggleUserDropdown() {
             const menu = document.getElementById('userDropdownMenu');
             menu.classList.toggle('show');
@@ -30,8 +45,34 @@ function toggleUserDropdown() {
             }
         }
 
-        let currentReviewId = null;
-        let currentReviewType = null;
+        // P1-2 父子合同：默认展开；点父行的折叠箭头或带 ?expand=<父id> 进入时切换
+        const collapsedParents = {};
+        function toggleContractTree(parentId) {
+            collapsedParents[parentId] = !collapsedParents[parentId];
+            renderContractList();
+        }
+        // 与服务端 contract-list.html 的 ?item= 上下文对齐：进入列表时预置流程项筛选
+        function applyUrlContext() {
+            const q = new URLSearchParams(location.search);
+            const item = q.get('item');
+            const flowSel = document.getElementById('flowFilter');
+            if (item && flowSel && FLOW_OPTIONS.some(function (f) { return f.id === item; })) {
+                flowSel.value = item;
+            }
+            // 审核结果回写：reviewResult=pass|reject & reviewId & reviewReason（URL 回传，可刷新复现）
+            const rr = q.get('reviewResult');
+            const rid = q.get('reviewId');
+            if (rr && rid && (rr === 'pass' || rr === 'reject')) {
+                REVIEW_RESULT = { id: rid, result: rr, reason: q.get('reviewReason') || '' };
+            }
+            const expand = q.get('expand');
+            if (expand) {
+                Object.keys(collapsedParents).forEach(function (k) { delete collapsedParents[k]; });
+                allContracts.forEach(function (c) {
+                    if (c.parentId && String(c.parentId) !== expand) collapsedParents[c.parentId] = true;
+                });
+            }
+        }
 
         // PC端 = 运营人员，默认全部权限
         var LIST_USER_PERMISSION = 'all';
@@ -42,48 +83,67 @@ function toggleUserDropdown() {
             return window.ContractAmountMask.format(c.amount, c, LIST_USER_PERMISSION, LIST_USER_ID);
         }
 
-        const allContracts = [
-            { id: 13, name: '基础施工服务合同-雁塔区撤回示例', project: '雁塔区别墅', type: 'base_construction', typeName: '基础施工服务合同', amount: '￥60,000', status: 'contract_withdrawn', statusName: '合同已撤回', statusClass: 'withdrawn', time: '2024-01-27 09:40', rejectReason: '' },
-            { id: 14, name: '设计服务合同-未央区撤回示例', project: '未央区平层', type: 'design', typeName: '设计服务合同', amount: '￥30,000', status: 'change_withdrawn', statusName: '变更已撤回', statusClass: 'withdrawn', time: '2024-01-26 18:20', rejectReason: '' },
-            { id: 1, name: '基础施工服务合同-西湖区别墅', project: '西湖区别墅', type: 'base_construction', typeName: '基础施工服务合同', amount: '￥50,000', status: 'pending_review', statusName: '合同待审核', statusClass: 'pending-review', time: '2024-01-26 10:30', rejectReason: '' },
-            { id: 2, name: '设计服务合同-余杭区平层', project: '余杭区平层', type: 'design', typeName: '设计服务合同', amount: '￥35,000', status: 'pending_review', statusName: '合同待审核', statusClass: 'pending-review', time: '2024-01-26 09:15', rejectReason: '' },
-            { id: 3, name: '基础施工服务合同-拱墅区公寓', project: '拱墅区公寓', type: 'base_construction', typeName: '基础施工服务合同', amount: '￥45,000', status: 'changing', statusName: '变更待审核', statusClass: 'changing', time: '2024-01-25 16:00', rejectReason: '' },
-            { id: 4, name: '设计服务合同-滨江区住宅', project: '滨江区住宅', type: 'design', typeName: '设计服务合同', amount: '￥28,000', status: 'pending_review', statusName: '合同待审核', statusClass: 'pending-review', time: '2024-01-24 14:30', rejectReason: '' },
-            { id: 5, name: '基础施工服务合同-萧山区别墅', project: '萧山区别墅', type: 'base_construction', typeName: '基础施工服务合同', amount: '￥68,000', status: 'reviewed_pass', statusName: '已通过', statusClass: 'confirmed', time: '2024-01-20 11:00', rejectReason: '' },
-            { id: 6, name: '设计服务合同-上城区商铺', project: '上城区商铺', type: 'design', typeName: '设计服务合同', amount: '￥42,000', status: 'change_reviewed_reject', statusName: '变更已驳回', statusClass: 'review-rejected', time: '2024-01-19 15:45', rejectReason: '变更金额超过合同总额20%，需甲方书面确认后重新提交' },
-            { id: 7, name: '基础施工服务合同-下城区写字楼', project: '下城区写字楼', type: 'base_construction', typeName: '基础施工服务合同', amount: '￥55,000', status: 'reviewed_reject', statusName: '已驳回', statusClass: 'review-rejected', time: '2024-01-18 10:20', rejectReason: '合同金额与实际工程量不符，请核实后重新提交' },
-            { id: 8, name: '设计服务合同-江干区住宅', project: '江干区住宅', type: 'design', typeName: '设计服务合同', amount: '￥32,000', status: 'reviewed_pass', statusName: '已通过', statusClass: 'confirmed', time: '2024-01-15 09:00', rejectReason: '' },
-            { id: 9, name: '基础施工服务合同-临平区别墅', project: '临平区别墅', type: 'base_construction', typeName: '基础施工服务合同', amount: '￥72,000', status: 'change_reviewed_pass', statusName: '变更已通过', statusClass: 'confirmed', time: '2024-01-14 08:30', rejectReason: '' },
-            { id: 10, name: '设计服务合同-钱塘区公寓', project: '钱塘区公寓', type: 'design', typeName: '设计服务合同', amount: '￥38,000', status: 'reviewed_reject', statusName: '已驳回', statusClass: 'review-rejected', time: '2024-01-13 16:00', rejectReason: '设计图纸未附全，请补充后重新提交' },
-            { id: 11, name: '基础施工服务合同-富阳区别墅', project: '富阳区别墅', type: 'base_construction', typeName: '基础施工服务合同', amount: '￥85,000', status: 'change_reviewed_pass', statusName: '变更已通过', statusClass: 'confirmed', time: '2024-01-12 14:00', rejectReason: '' },
-            { id: 12, name: '设计服务合同-桐庐县住宅', project: '桐庐县住宅', type: 'design', typeName: '设计服务合同', amount: '￥48,000', status: 'change_reviewed_reject', statusName: '变更已驳回', statusClass: 'review-rejected', time: '2024-01-11 10:30', rejectReason: '变更内容描述不清晰，缺少具体设计范围说明' },
+        /* 合同唯一归属服务流程项 flowId/flowName（SSOT: service-miniapp/js/flow-config-store.js）。
+           lh/cs/sh 为不含合同项，故合同只落 ht/sg/cz；parentId 为上级合同 id（子合同）。
+           合同类型 8 类与 service-miniapp/create-contract.html:529-538 CONTRACT_TYPES 一致；
+           原型城市限北京 / 南阳 / 西安，id=1 与详情页「西安阳光里小区」同源。 */
+        const FLOW_OPTIONS = [
+            { id: 'lh', name: '量房', hasContract: false },
+            { id: 'cs', name: '初步设计', hasContract: false },
+            { id: 'ht', name: '设计服务', hasContract: true },
+            { id: 'sg', name: '基础施工服务', hasContract: true },
+            { id: 'cz', name: '主材安装', hasContract: true },
+            { id: 'sh', name: '售后', hasContract: false }
         ];
+        // 工人合同（6 类班组服务合同：拆除/水电/木作/泥瓦/油漆/小零工）无平台审核流程与需求，
+        // PC 合同审核管理（列表 + 筛选）一律不展示；仅基础/设计两类合同进入平台审核。
+        var WORKER_TYPES = ['demolition', 'shuidian', 'muzuo', 'niwa', 'youqi', 'xiaolingong'];
+        // 审核结果回写：详情页审核通过/驳回后带参返回，覆盖显示对应行；不改写静态数据基线
+        var REVIEW_RESULT = null;
+
+        // 演示数据 SSOT = pc/pc-contract-data.js（window.PC_CONTRACTS）；列表与详情同源，静态硬编码无数据层。
+        const allContracts = window.PC_CONTRACTS || [];
 
         function renderContractList() {
             const tbody = document.getElementById('contractTableBody');
             
-            const contracts = allContracts.filter(c => 
-                c.status === 'pending_review' || 
-                c.status === 'changing' || 
-                c.status === 'reviewed_pass' || 
+            const contracts = allContracts.map(function(c) {
+                if (REVIEW_RESULT && String(c.id) === REVIEW_RESULT.id && c.status === 'changing') {
+                    const pass = REVIEW_RESULT.result === 'pass';
+                    return Object.assign({}, c, {
+                        status: pass ? 'change_reviewed_pass' : 'change_reviewed_reject',
+                        statusName: pass ? '变更已通过' : '变更已驳回',
+                        statusClass: pass ? 'confirmed' : 'review-rejected',
+                        rejectReason: pass ? '' : REVIEW_RESULT.reason
+                    });
+                }
+                return c;
+            }).filter(c =>
+                !WORKER_TYPES.includes(c.type) &&
+                (c.status === 'pending_review' ||
+                c.status === 'changing' ||
+                c.status === 'reviewed_pass' ||
                 c.status === 'reviewed_reject' ||
                 c.status === 'change_reviewed_pass' ||
                 c.status === 'change_reviewed_reject' ||
                 c.status === 'contract_withdrawn' ||
-                c.status === 'change_withdrawn'
+                c.status === 'change_withdrawn')
             );
             
             // Apply current filter
             const statusFilter = document.getElementById('statusFilter');
             const typeFilter = document.getElementById('typeFilter');
+            const flowFilter = document.getElementById('flowFilter');
             const searchInput = document.getElementById('searchInput');
             const statusVal = statusFilter ? statusFilter.value : '';
             const typeVal = typeFilter ? typeFilter.value : '';
+            const flowVal = flowFilter ? flowFilter.value : '';
             const keyword = searchInput ? searchInput.value.toLowerCase() : '';
             const filtered = contracts.filter(function(c) {
                 if (statusVal && c.status !== statusVal) return false;
                 if (typeVal && c.type !== typeVal) return false;
-                if (keyword && (c.name + c.project).toLowerCase().indexOf(keyword) === -1) return false;
+                if (flowVal && c.flowId !== flowVal) return false;
+                if (keyword && (c.name + c.project + c.flowName).toLowerCase().indexOf(keyword) === -1) return false;
                 return true;
             });
 
@@ -117,11 +177,21 @@ function toggleUserDropdown() {
                     actionBtns = `<button class="action-btn default" onclick="viewContract(${c.id}, '${c.status}', '')">查看</button>`;
                 }
                 
+                const childCount = contracts.filter(function (x) { return x.parentId === c.id; }).length;
+                const treeBtn = childCount
+                    ? `<button class="tree-toggle" title="展开/收起子合同" onclick="toggleContractTree(${c.id})">${collapsedParents[c.id] ? '▸' : '▾'}</button>`
+                    : '';
+                const subTag = c.parentId
+                    ? `<span class="sub-contract-tag" title="上级合同：${c.parent || ''}">↳ 子合同</span>`
+                    : '';
+                const hidden = c.parentId && collapsedParents[c.parentId] ? ' display:none;' : '';
+
                 return `
-                    <tr data-status="${c.status}" data-type="${c.type}">
-                        <td><span class="contract-name" onclick="viewContract(${c.id}, '${c.status}', '')">${c.name}</span></td>
-                        <td><span class="project-link" onclick="viewProject(${c.id})">${c.project}</span></td>
+                    <tr data-status="${c.status}" data-type="${c.type}" data-flow="${c.flowId}" data-id="${c.id}"${c.parentId ? ' data-parent-id="' + c.parentId + '"' : ''} class="${c.parentId ? 'child-row' : 'parent-row'}" style="${hidden}">
+                        <td>${c.parentId ? '<span class="tree-indent"></span>' : ''}${treeBtn}<span class="contract-name" onclick="viewContract(${c.id}, '${c.status}', '')">${c.name}</span>${subTag}</td>
+                        <td>${c.project}</td>
                         <td>${c.typeName}</td>
+                        <td><span class="flow-tag">${c.flowName}</span></td>
                         <td>${getMaskedAmountList(c)}</td>
                         <td><span class="status-tag ${c.statusClass}">${c.statusName}</span></td>
                         <td>${c.time}</td>
@@ -146,62 +216,17 @@ function toggleUserDropdown() {
 
         function filterContracts() {
             currentPage = 1;
+            // 筛选变化时复位父子折叠，避免子合同命中筛选却被折叠隐藏
+            Object.keys(collapsedParents).forEach(function (k) { delete collapsedParents[k]; });
             renderContractList();
         }
 
         function resetFilters() {
             document.getElementById('statusFilter').value = '';
             document.getElementById('typeFilter').value = '';
+            document.getElementById('flowFilter').value = '';
             document.getElementById('searchInput').value = '';
             filterContracts();
-        }
-
-        function showReviewModal(id, type) {
-            currentReviewId = id;
-            currentReviewType = type;
-            
-            document.getElementById('reviewModalTitle').textContent = type === 'pass' ? '审核通过' : '审核驳回';
-            document.getElementById('rejectReasonSection').style.display = type === 'reject' ? 'block' : 'none';
-            document.getElementById('reviewConfirmBtn').textContent = type === 'pass' ? '确认通过' : '确认驳回';
-            document.getElementById('reviewConfirmBtn').className = type === 'pass' ? 'pc-btn pc-btn-primary' : 'pc-btn pc-btn-danger';
-            
-            document.getElementById('reviewModal').classList.add('show');
-        }
-
-        function closeReviewModal() {
-            document.getElementById('reviewModal').classList.remove('show');
-            document.getElementById('rejectReason').value = '';
-            currentReviewId = null;
-            currentReviewType = null;
-        }
-
-        function confirmReview() {
-            if (currentReviewType === 'reject') {
-                const reason = document.getElementById('rejectReason').value.trim();
-                if (!reason) {
-                    alert('请输入驳回原因');
-                    return;
-                }
-            }
-            
-            closeReviewModal();
-            
-            if (currentReviewType === 'pass') {
-                showToast('✅', '审核通过', '合同已通过审核，将通知合同确认方');
-            } else {
-                showToast('⚠️', '审核驳回', '合同已驳回，将通知创建方进行修改');
-            }
-        }
-
-        function showToast(icon, title, message) {
-            document.getElementById('toastIcon').textContent = icon;
-            document.getElementById('toastTitle').textContent = title;
-            document.getElementById('toastMessage').textContent = message;
-            document.getElementById('toastModal').classList.add('show');
-        }
-
-        function closeToastModal() {
-            document.getElementById('toastModal').classList.remove('show');
         }
 
         function viewContract(id, status, rejectReason) {
@@ -276,4 +301,5 @@ function toggleUserDropdown() {
             pagination.appendChild(next);
         }
 
+        applyUrlContext();
         renderContractList();

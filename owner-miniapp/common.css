@@ -582,6 +582,10 @@ body {
     overflow: hidden;
 }
 
+.page-nav.collapsed .page-nav-title {
+    margin-bottom: 0;
+}
+
 .page-nav h3,
 .page-nav-title {
     font-size: 14px;

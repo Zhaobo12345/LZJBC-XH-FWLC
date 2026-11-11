@@ -1443,6 +1443,52 @@
         .nav-card .task-tab.active[data-tab="temp"] .task-tab-badge { background: #F9F0FF; color: #722ED1; }
         .nav-card .task-tab.active[data-tab="mytasks"] .task-tab-badge { background: #E1F5EE; color: #0F6E56; }
         /* ===== UI Polish C END ===== */
+
+        /* ===== task-list 派遣入口（与 project-list 共享 FLOW_EXTERNALS_KEY） ===== */
+        /* 局部变量：本页 common.css 用 --primary-color/--text-secondary 体系，
+           与 project-list 的 .am-* 变量体系不同；在此按作用域补齐，避免 var() 失效、不影响全局 */
+        .tl-assign-bar, .assign-modal {
+            --grad-brand: linear-gradient(135deg, #1e7dff 0%, #0b57d0 100%);
+            --text: #1f2a3d; --text-2: #5a6b85; --text-3: #93a1b5;
+            --line-light: #eef3fb; --danger: #f5544f; --dot-ring: #d8e3f5;
+            --primary: #1677ff; --primary-bg: #e8f1ff; --border: #e2eaf8;
+        }
+        .tl-assign-bar { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 10px 12px; background: #f7f9fc; border-bottom: 1px solid var(--line-light); }
+        .tl-assign-hint { font-size: 12px; color: var(--text-2); }
+        .tl-assign-btn { font-size: 13px; color: #fff; background: var(--grad-brand); border: none; border-radius: 8px; padding: 8px 14px; cursor: pointer; font-family: inherit; }
+        .tl-assign-btn:active { opacity: .92; }
+        /* 本页筛选面板为 1190/1200，弹窗需高于它；toast 10000 仍在上层 */
+        .assign-modal { position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(15,23,42,.5); z-index: 1300; display: none; align-items: center; justify-content: center; }
+        .assign-modal.show { display: flex; }
+        .assign-modal .am-content { background: #fff; border-radius: 12px; width: 88%; max-width: 340px; max-height: 82%; overflow-y: auto; box-shadow: 0 12px 40px rgba(22,119,255,.2); }
+        .am-header { padding: 14px 16px; border-bottom: 1px solid var(--line-light); display: flex; justify-content: space-between; align-items: center; }
+        .am-title { font-size: 16px; font-weight: 600; color: var(--text); }
+        .am-close { font-size: 18px; color: var(--text-3); cursor: pointer; padding: 2px 6px; }
+        .am-body { padding: 14px 16px; }
+        .am-group { margin-bottom: 14px; }
+        .am-group:last-child { margin-bottom: 0; }
+        .am-label { display: block; font-size: 13px; font-weight: 500; color: var(--text); margin-bottom: 6px; }
+        .am-required { color: var(--danger); }
+        .am-input, .am-textarea { width: 100%; padding: 9px 10px; border: 1px solid var(--dot-ring); border-radius: 8px; font-size: 13px; box-sizing: border-box; font-family: inherit; background: #fff; color: var(--text); }
+        .am-textarea { min-height: 56px; resize: vertical; }
+        .am-input:focus, .am-textarea:focus { outline: none; border-color: var(--primary); }
+        .am-err { color: var(--danger); font-size: 11px; margin-top: 4px; display: none; }
+        .am-select { position: relative; }
+        .am-select-btn { display: flex; justify-content: space-between; align-items: center; gap: 8px; padding: 9px 10px; border: 1px solid var(--dot-ring); border-radius: 8px; font-size: 13px; color: var(--text-2); cursor: pointer; background: #fff; min-height: 40px; }
+        .am-select-btn .arr { font-size: 10px; color: var(--text-3); transition: transform .15s ease; flex-shrink: 0; }
+        .am-select.open .am-select-btn { border-color: var(--primary); }
+        .am-select.open .am-select-btn .arr { transform: rotate(180deg); }
+        .am-dropdown { display: none; position: absolute; top: calc(100% + 4px); left: 0; right: 0; background: #fff; border: 1px solid var(--border); border-radius: 8px; box-shadow: 0 6px 20px rgba(22,119,255,.15); max-height: 180px; overflow-y: auto; z-index: 10; }
+        .am-select.open .am-dropdown { display: block; }
+        .am-opt { padding: 10px 12px; font-size: 13px; color: var(--text); display: flex; align-items: center; gap: 8px; cursor: pointer; }
+        .am-opt:active { background: var(--primary-bg); }
+        .am-opt .role { font-size: 11px; color: var(--text-3); margin-left: auto; flex-shrink: 0; }
+        .am-opt .ck { font-size: 12px; color: var(--primary); margin-left: 6px; flex-shrink: 0; font-weight: 600; }
+        .am-opt.checked { background: var(--primary-bg); color: var(--primary); font-weight: 500; }
+        .am-select-btn > span:first-child { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .am-footer { padding: 12px 16px; border-top: 1px solid var(--line-light); }
+        .am-submit { width: 100%; padding: 11px; background: var(--grad-brand); color: #fff; border: none; border-radius: 10px; font-size: 14px; font-weight: 500; cursor: pointer; }
+        .am-submit:active { opacity: .9; }
 </style>
     <script src="js/flow-config-store.js"></script>
     <script src="js/my-tasks-store.js"></script>
@@ -1496,7 +1542,13 @@
 
                 <div class="task-panel" id="panelMyTasks" data-tab-panel="mytasks"></div>
                 <div class="task-panel is-active" id="panelContract" data-tab-panel="contract"></div>
-                <div class="task-panel" id="panelTemp" data-tab-panel="temp"></div>
+                <div class="task-panel" id="panelTemp" data-tab-panel="temp">
+                    <!-- 临时任务派遣入口：与 project-list 服务流程浮窗共用 localStorage:lzj_flow_externals_v1 -->
+                    <div class="tl-assign-bar" id="tlAssignBar">
+                        <span class="tl-assign-hint">临时任务由服务流程项指派</span>
+                        <button type="button" class="tl-assign-btn" onclick="tlOpenAssign()">＋ 指派任务</button>
+                    </div>
+                </div>
 
 
                 <div class="flow-item-card" data-flow="sg" style="display:none;">
@@ -1519,13 +1571,13 @@
                                         <div class="arrow expanded">▼</div>
                                     </div>
                                     <div class="mc-children show">
-                                        <div class="contract-section" data-contract="contract-1" data-level="水电工作组">
+                                        <div class="contract-section" data-contract="contract-1">
                     <div class="contract-header" onclick="toggleContract(this)">
                         <div class="contract-icon">📄</div>
                         <div class="contract-main">
                             <div class="contract-name">水电班组服务合同</div>
                             <div class="contract-footer-row">
-                                <div class="contract-meta">水电工作组 · 5个阶段 · 17个任务</div>
+                                <div class="contract-meta">5个阶段 · 17个任务</div>
                                 <div class="contract-progress">
                                     <div class="progress-track"><div class="progress-fill"></div></div>
                                     <div class="progress-text">已完成 0/0</div>
@@ -1731,13 +1783,13 @@
                         </div>
                     </div>
                 </div>
-                                        <div class="contract-section" data-contract="contract-2" data-level="泥瓦工作组">
+                                        <div class="contract-section" data-contract="contract-2">
                     <div class="contract-header" onclick="toggleContract(this)">
                         <div class="contract-icon" style="background: linear-gradient(135deg, #52C41A 0%, #73D13D 100%);">📄</div>
                         <div class="contract-main">
                             <div class="contract-name">泥瓦工班组服务合同</div>
                             <div class="contract-footer-row">
-                                <div class="contract-meta">泥瓦工作组 · 3个阶段 · 8个任务</div>
+                                <div class="contract-meta">3个阶段 · 8个任务</div>
                                 <div class="contract-progress">
                                     <div class="progress-track"><div class="progress-fill"></div></div>
                                     <div class="progress-text">已完成 0/0</div>
@@ -1818,13 +1870,13 @@
                         </div>
                     </div>
                 </div>
-                                        <div class="contract-section" data-contract="contract-3" data-level="木工工作组">
+                                        <div class="contract-section" data-contract="contract-3">
                     <div class="contract-header" onclick="toggleContract(this)">
                         <div class="contract-icon" style="background: linear-gradient(135deg, #FA8C16 0%, #FFA940 100%);">📄</div>
                         <div class="contract-main">
                             <div class="contract-name">木作班组服务合同</div>
                             <div class="contract-footer-row">
-                                <div class="contract-meta">木工工作组 · 2个阶段 · 4个任务</div>
+                                <div class="contract-meta">2个阶段 · 4个任务</div>
                                 <div class="contract-progress">
                                     <div class="progress-track"><div class="progress-fill"></div></div>
                                     <div class="progress-text">已完成 0/0</div>
@@ -1862,13 +1914,13 @@
                         </div>
                     </div>
                 </div>
-                                        <div class="contract-section" data-contract="contract-4" data-level="油漆工作组">
+                                        <div class="contract-section" data-contract="contract-4">
                     <div class="contract-header" onclick="toggleContract(this)">
                         <div class="contract-icon" style="background: linear-gradient(135deg, #722ED1 0%, #9254DE 100%);">📄</div>
                         <div class="contract-main">
                             <div class="contract-name">油漆工班组服务合同</div>
                             <div class="contract-footer-row">
-                                <div class="contract-meta">油漆工作组 · 2个阶段 · 4个任务</div>
+                                <div class="contract-meta">2个阶段 · 4个任务</div>
                                 <div class="contract-progress">
                                     <div class="progress-track"><div class="progress-fill"></div></div>
                                     <div class="progress-text">已完成 0/0</div>
@@ -2059,7 +2111,7 @@
                                     </div>
                                     <div class="mc-children show">
                                         
-                <div class="contract-section" data-contract="contract-design" data-level="设计服务">
+                <div class="contract-section" data-contract="contract-design">
                     <div class="contract-header" onclick="toggleContract(this)">
                         <div class="contract-icon" style="background: linear-gradient(135deg, #1677FF 0%, #4096FF 100%);">📄</div>
                         <div class="contract-main">
@@ -2435,6 +2487,63 @@
             <button type="button" class="fs-done" onclick="closeFilterSheet()">完成</button>
         </div>
     </div>
+    <!-- 临时任务派遣轻量表单：字段与 project-list 浮窗一致，归属服务流程项必选 -->
+    <div class="assign-modal" id="tlAssignModal">
+      <div class="am-content">
+        <div class="am-header">
+          <div class="am-title">指派任务</div>
+          <div class="am-close" onclick="tlCloseAssign()">✕</div>
+        </div>
+        <div class="am-body">
+          <div class="am-group">
+            <label class="am-label">隶属服务流程项 <span class="am-required">*</span></label>
+            <div class="am-select" id="tlFlowSelect">
+              <div class="am-select-btn" onclick="tlToggleSelect('tlFlowSelect')"><span id="tlFlowText">请选择服务流程项</span><span class="arr">▼</span></div>
+              <div class="am-dropdown" id="tlFlowDropdown"></div>
+            </div>
+            <div class="am-err" id="tlFlowErr"></div>
+          </div>
+          <div class="am-group">
+            <label class="am-label">任务名称 <span class="am-required">*</span></label>
+            <input type="text" class="am-input" id="tlAsName" placeholder="请输入任务名称">
+            <div class="am-err" id="tlAsNameErr"></div>
+          </div>
+          <div class="am-group">
+            <label class="am-label">执行人 <span class="am-required">*</span></label>
+            <div class="am-select" id="tlAsExecutorSelect">
+              <div class="am-select-btn" onclick="tlToggleSelect('tlAsExecutorSelect')"><span id="tlAsExecutorText">请选择执行人</span><span class="arr">▼</span></div>
+              <div class="am-dropdown" id="tlAsExecutorDropdown"></div>
+            </div>
+            <div class="am-err" id="tlAsExecutorErr"></div>
+          </div>
+          <div class="am-group">
+            <label class="am-label">确认人（选填，最多5人）</label>
+            <div class="am-select" id="tlAsConfirmSelect">
+              <div class="am-select-btn" onclick="tlToggleSelect('tlAsConfirmSelect')"><span id="tlAsConfirmText">请选择确认人</span><span class="arr">▼</span></div>
+              <div class="am-dropdown" id="tlAsConfirmDropdown"></div>
+            </div>
+            <div class="am-err" id="tlAsConfirmErr"></div>
+          </div>
+          <div class="am-group">
+            <label class="am-label">执行标准 <span class="am-required">*</span></label>
+            <textarea class="am-textarea" id="tlAsExecStd" placeholder="请输入执行标准"></textarea>
+            <div class="am-err" id="tlAsStdErr"></div>
+          </div>
+          <div class="am-group">
+            <label class="am-label">确认标准（选填）</label>
+            <textarea class="am-textarea" id="tlAsConfirmStd" placeholder="请输入确认标准（选填）"></textarea>
+          </div>
+          <div class="am-group">
+            <label class="am-label">担责标准（选填）</label>
+            <textarea class="am-textarea" id="tlAsLiableStd" placeholder="请输入担责标准（选填）"></textarea>
+          </div>
+        </div>
+        <div class="am-footer">
+          <button class="am-submit" onclick="tlConfirmAssign()">确认指派</button>
+        </div>
+      </div>
+    </div>
+
     <div class="page-nav">
         <div class="page-nav-title">原型导航</div>
         <a href="home.html" class="page-nav-item">首页</a>
@@ -2722,6 +2831,199 @@
             fade.style.display = (railOverflow && !atEnd) ? '' : 'none';
         }
 
+        /* ===== 临时任务派遣（task-list 入口，与 project-list 服务流程浮窗共用同一份数据） =====
+           数据键 lzj_flow_externals_v1：{ flowId: [{name,exec,confirms,status,execStd,confirmStd,liableStd}] }
+           DOM 级注入 .task-item 到对应流程项的 .temp-loose-list，对 sg/ht legacy 组与快照组一律生效；
+           deriveStats()/filterTasks() 会据 DOM 自动重算 Tab 徽标与结果条，无需改动既有渲染管线。 */
+        var TL_EXT_KEY = 'lzj_flow_externals_v1';
+        var TL_WORKERS = [
+            { name: '王强', role: '施工' }, { name: '李伟', role: '施工' },
+            { name: '孙磊', role: '监理' }, { name: '赵敏', role: '水电' },
+            { name: '钱七', role: '油漆' }
+        ];
+        var tlExecutor = '';
+        var tlConfirmers = [];
+        var tlFlowId = '';
+
+        function tlReadExternals() {
+            try { return JSON.parse(localStorage.getItem(TL_EXT_KEY) || '{}') || {}; } catch (e) { return {}; }
+        }
+        function tlPersistExternal(flowId, entry) {
+            if (!flowId || !entry) return;
+            var all = tlReadExternals();
+            (all[flowId] = all[flowId] || []).push(entry);
+            try { localStorage.setItem(TL_EXT_KEY, JSON.stringify(all)); } catch (e) {}
+        }
+        function tlStatusKey(s) {
+            if (s === '已完成') return 'completed';
+            if (s === '确认中') return 'confirming';
+            if (s === '执行中') return 'executing';
+            if (s === '待配置') return 'config';
+            return 'pending';
+        }
+        /* 幂等合并：清掉上次注入的行，再按当前 localStorage 重建。
+           只处理「当前配置中存在的流程项」，避免给已删除项凭空造分组。 */
+        function tlMergeExternals() {
+            var pt = document.getElementById('panelTemp');
+            if (!pt) return;
+            pt.querySelectorAll('.task-item[data-tl-external="1"]').forEach(function (n) {
+                if (n.parentNode) n.parentNode.removeChild(n);
+            });
+            pt.querySelectorAll('.temp-loose[data-tl-empty="1"]').forEach(function (n) {
+                if (n.parentNode) n.parentNode.removeChild(n);
+            });
+            var all = tlReadExternals();
+            var cfgIds = {};
+            cfgList().forEach(function (c) { cfgIds[c.id] = true; });
+            Object.keys(all).forEach(function (fid) {
+                if (!cfgIds[fid]) return;
+                var list = all[fid] || [];
+                if (!list.length) return;
+                var g = pt.querySelector('.flow-group[data-flow-id="' + fid + '"]');
+                if (!g) return;
+                var body = g.querySelector('.flow-body') || g;
+                var loose = body.querySelector('.temp-loose-list');
+                if (!loose) {
+                    var wrap = document.createElement('div');
+                    wrap.className = 'temp-loose';
+                    wrap.setAttribute('data-temp-loose', '1');
+                    wrap.setAttribute('data-tl-empty', '1');
+                    wrap.innerHTML = '<div class="temp-loose-band">无阶段单独任务 <span class="src-tag">临时任务</span> <span class="badge-n">0</span></div>' +
+                        '<div class="temp-loose-list show"></div>';
+                    var structured = body.querySelector('.temp-structured');
+                    (structured || body).appendChild(wrap);
+                    loose = wrap.querySelector('.temp-loose-list');
+                }
+                list.forEach(function (e) {
+                    var d = document.createElement('div');
+                    d.innerHTML = taskRow({ n: e.name, s: tlStatusKey(e.status), e: e.exec || '待指派' }, fid, 'temp');
+                    var row = d.firstChild;
+                    if (row) {
+                        row.setAttribute('data-tl-external', '1');
+                        row.setAttribute('data-exec', escTxt(e.exec || ''));
+                        row.setAttribute('data-confirms', escTxt((e.confirms || []).join('、')));
+                        row.setAttribute('data-exec-std', escTxt(e.execStd || ''));
+                        row.setAttribute('data-confirm-std', escTxt(e.confirmStd || ''));
+                        row.setAttribute('data-liable-std', escTxt(e.liableStd || ''));
+                        loose.appendChild(row);
+                    }
+                });
+                var badge = loose.closest('.temp-loose').querySelector('.badge-n');
+                if (badge) badge.textContent = loose.querySelectorAll('.task-item').length;
+                loose.classList.add('show');
+            });
+        }
+        /* 入口条：仅临时任务 Tab 展示，由 .task-panel.is-active 天然控制；此处同步提示文案 */
+        function tlRenderAssignBar() {
+            var bar = document.getElementById('tlAssignBar');
+            if (!bar) return;
+            var hint = bar.querySelector('.tl-assign-hint');
+            if (hint) hint.textContent = '临时任务由服务流程项指派';
+        }
+        function tlOpenAssign() {
+            var cfg = cfgList();
+            tlFlowId = (activeFlowId && activeFlowId !== 'all') ? activeFlowId : (cfg[0] ? cfg[0].id : '');
+            tlExecutor = ''; tlConfirmers = [];
+            document.getElementById('tlAsName').value = '';
+            document.getElementById('tlAsExecStd').value = '';
+            document.getElementById('tlAsConfirmStd').value = '';
+            document.getElementById('tlAsLiableStd').value = '';
+            document.getElementById('tlAsExecutorText').textContent = '请选择执行人';
+            document.getElementById('tlAsConfirmText').textContent = '请选择确认人';
+            var flowName = '';
+            cfg.forEach(function (c) { if (c.id === tlFlowId) flowName = c.name; });
+            document.getElementById('tlFlowText').textContent = flowName || '请选择服务流程项';
+            ['tlFlowErr', 'tlAsNameErr', 'tlAsStdErr', 'tlAsExecutorErr', 'tlAsConfirmErr'].forEach(function (id) {
+                var e = document.getElementById(id); if (e) e.style.display = 'none';
+            });
+            document.getElementById('tlFlowDropdown').innerHTML = cfg.map(function (c) {
+                return '<div class="am-opt" onclick="tlPickFlow(\'' + escTxt(c.id) + '\',\'' + escTxt(c.name) + '\')">' +
+                    escTxt(c.name) + (c.id === tlFlowId ? '<span class="ck">✓</span>' : '') + '</div>';
+            }).join('');
+            document.getElementById('tlAsExecutorDropdown').innerHTML = TL_WORKERS.map(function (w) {
+                return '<div class="am-opt" onclick="tlPickExecutor(\'' + escTxt(w.name) + '\',\'' + escTxt(w.role) + '\')">' +
+                    escTxt(w.name) + '<span class="role">' + escTxt(w.role) + '</span></div>';
+            }).join('');
+            tlRenderConfirmOptions();
+            tlCloseDropdowns();
+            document.getElementById('tlAssignModal').classList.add('show');
+        }
+        function tlCloseAssign() {
+            document.getElementById('tlAssignModal').classList.remove('show');
+            tlCloseDropdowns();
+        }
+        function tlToggleSelect(id) {
+            var el = document.getElementById(id);
+            if (!el) return;
+            var willOpen = !el.classList.contains('open');
+            tlCloseDropdowns();
+            if (willOpen) el.classList.add('open');
+        }
+        function tlCloseDropdowns() {
+            document.querySelectorAll('#tlAssignModal .am-select.open').forEach(function (e) { e.classList.remove('open'); });
+        }
+        function tlPickFlow(id, name) {
+            tlFlowId = id;
+            document.getElementById('tlFlowText').textContent = name;
+            document.getElementById('tlFlowErr').style.display = 'none';
+            tlCloseDropdowns();
+        }
+        function tlPickExecutor(name, role) {
+            tlExecutor = name;
+            document.getElementById('tlAsExecutorText').textContent = name + ' · ' + role;
+            document.getElementById('tlAsExecutorErr').style.display = 'none';
+            tlCloseDropdowns();
+        }
+        function tlRenderConfirmOptions() {
+            document.getElementById('tlAsConfirmDropdown').innerHTML = TL_WORKERS.map(function (w) {
+                var on = tlConfirmers.indexOf(w.name) >= 0;
+                return '<div class="am-opt' + (on ? ' checked' : '') + '" onclick="tlPickConfirmer(\'' + escTxt(w.name) + '\')">' +
+                    escTxt(w.name) + '<span class="role">' + escTxt(w.role) + '</span>' + (on ? '<span class="ck">✓</span>' : '') + '</div>';
+            }).join('');
+        }
+        function tlPickConfirmer(name) {
+            var i = tlConfirmers.indexOf(name);
+            if (i >= 0) tlConfirmers.splice(i, 1);
+            else {
+                if (tlConfirmers.length >= 5) {
+                    var err = document.getElementById('tlAsConfirmErr');
+                    err.textContent = '最多选择 5 位确认人'; err.style.display = 'block';
+                    return;
+                }
+                tlConfirmers.push(name);
+            }
+            document.getElementById('tlAsConfirmErr').style.display = 'none';
+            var n = tlConfirmers.length;
+            document.getElementById('tlAsConfirmText').textContent = n === 0 ? '请选择确认人'
+                : (n <= 2 ? tlConfirmers.join('、') : tlConfirmers.slice(0, 2).join('、') + ' 等' + n + '人');
+            tlRenderConfirmOptions();
+        }
+        function tlConfirmAssign() {
+            ['tlFlowErr', 'tlAsNameErr', 'tlAsStdErr', 'tlAsExecutorErr'].forEach(function (id) {
+                var e = document.getElementById(id); if (e) e.style.display = 'none';
+            });
+            var name = document.getElementById('tlAsName').value.trim();
+            var std = document.getElementById('tlAsExecStd').value.trim();
+            var ok = true;
+            if (!tlFlowId) { var e0 = document.getElementById('tlFlowErr'); e0.textContent = '请选择服务流程项'; e0.style.display = 'block'; ok = false; }
+            if (!name) { var e1 = document.getElementById('tlAsNameErr'); e1.textContent = '请输入任务名称'; e1.style.display = 'block'; ok = false; }
+            if (!std) { var e2 = document.getElementById('tlAsStdErr'); e2.textContent = '请输入执行标准'; e2.style.display = 'block'; ok = false; }
+            if (!tlExecutor) { var e3 = document.getElementById('tlAsExecutorErr'); e3.textContent = '请选择执行人'; e3.style.display = 'block'; ok = false; }
+            if (!ok) return;
+            tlPersistExternal(tlFlowId, {
+                name: name, exec: tlExecutor, confirms: tlConfirmers.slice(), status: '未开始',
+                execStd: std,
+                confirmStd: document.getElementById('tlAsConfirmStd').value.trim(),
+                liableStd: document.getElementById('tlAsLiableStd').value.trim()
+            });
+            var fid = tlFlowId;
+            tlCloseAssign();
+            tlMergeExternals();
+            if (activeTab !== 'temp') switchTaskTab('temp');
+            selectFlow(fid);          // 切到该流程项，refresh() 会重算徽标/结果条
+            refresh();
+        }
+
         function applyFlowCfg(cfg) {
             var exists = false;
             for (var i = 0; i < cfg.length; i++) if (cfg[i].id === activeFlowId) exists = true;
@@ -2738,6 +3040,8 @@
             if (myTasksMode) renderMyTasksPanel(cfg);
             renderFlowRail(cfg);
             selectFlow(activeFlowId, true);
+            tlMergeExternals();          // 合并 project-list 派遣的临时任务（幂等）
+            tlRenderAssignBar();         // 入口条显隐随权限/流程项
         }
 
         function activeTaskScope() {
@@ -3323,7 +3627,6 @@
             currentFilters.role = 'all';
             currentFilters.priority = 'all';
             currentFilters.mine = false;
-            currentFilters.level = null;
             const si = document.getElementById('searchInput');
             if (si) si.value = '';
             syncPills();
@@ -3355,9 +3658,6 @@
             if (currentFilters.priority !== 'all') {
                 const priText = { normal: '普通', important: '重要', urgent: '紧急' }[currentFilters.priority];
                 tags.push({ type: 'priority', text: '优先级：' + priText });
-            }
-            if (currentFilters.level) {
-                tags.push({ type: 'level', text: '架构层级：' + currentFilters.level });
             }
             
             if (tags.length > 0) {
@@ -3414,8 +3714,6 @@
                 syncPills();
             } else if (type === 'priority') {
                 currentFilters.priority = 'all';
-            } else if (type === 'level') {
-                currentFilters.level = null;
             }
             updateFilterTags();
             filterTasks();
@@ -3601,11 +3899,6 @@
             const nameEl = task.querySelector('.task-name');
             const taskName = nameEl ? nameEl.textContent.toLowerCase() : '';
             const section = task.closest('.contract-section');
-            const isMainOwn = !!task.closest('.mc-own');
-            // 架构层级过滤（URL ?level 契约）：整组显隐
-            if (currentFilters.level && section && section.dataset.level !== currentFilters.level) return false;
-            // 主合同自身阶段任务归属「项目部 / 主合同层」，指定具体工作组时不下发
-            if (currentFilters.level && currentFilters.level !== '项目部' && isMainOwn) return false;
             if (currentFilters.contract !== 'all' && (!section || section.dataset.contract !== currentFilters.contract)) return false;
             if (currentFilters.type !== 'all' && taskType !== currentFilters.type) return false;
             if (currentFilters.status !== 'all' && taskStatus !== currentFilters.status) return false;
@@ -3957,15 +4250,6 @@
             checkSequentialTasks();
             renderContractProgress();
 
-            // 架构层级初始化（来自项目详情跳转携带；项目部=不带参数）
-            try {
-                var lv = new URLSearchParams(location.search).get('level');
-                if (lv && lv !== '项目部') {
-                    currentFilters.level = lv;
-                    updateFilterTags();
-                    filterTasks();
-                }
-            } catch (e) {}
 
             // 「我参与」筛选初始化（来自项目详情「我的任务」区块跳转）
             try {

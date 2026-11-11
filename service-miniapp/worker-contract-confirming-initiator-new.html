@@ -891,7 +891,15 @@ onchange="onDraftAttPicked(event)" data-page-node-id="hxDJzopfn1HvusEgEojZJ0">
         if (icon) icon.textContent = collapsed ? '▼' : '▶';
     }
     function closeMoreOps() { var p = $('moreOpsPanel'); if (p) p.classList.remove('show'); }
-    function openCopyInitiate() { window.location.href = 'contract-copy-initiate.html?from=detail'; }
+    function openCopyInitiate() {
+        var q = new URLSearchParams(location.search);
+        var params = 'from=detail';
+        var src = q.get('id') || '';
+        if (src) params += '&source=' + encodeURIComponent(src);
+        var item = q.get('item') || q.get('flowId') || '';
+        if (item) params += '&item=' + encodeURIComponent(item);
+        window.location.href = 'contract-copy-initiate.html?' + params;
+    }
     function esc(s) { s = String(s == null ? '' : s); return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
 
     // 阶段 + 任务数据（对齐「拟定中（发起方）-新」水电工种模板，确认中状态为只读查看）

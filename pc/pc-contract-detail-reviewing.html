@@ -117,8 +117,8 @@
                             </div>
                             <div class="info-bar-row">
                                 <div class="info-bar-item">
-                                    <span class="info-bar-label">关联工作组</span>
-                                    <span class="info-bar-value">基础施工组</span>
+                                    <span class="info-bar-label">所属服务流程项</span>
+                                    <span class="info-bar-value">基础施工服务 <span style="font-size:12px;color:var(--text-tertiary);font-weight:400;">flowId: sg</span></span>
                                 </div>
                                 <div class="info-bar-item">
                                     <span class="info-bar-label">关联项目</span>
@@ -137,6 +137,10 @@
                                 <div class="info-bar-item">
                                     <span class="info-bar-label">提交时间</span>
                                     <span class="info-bar-value">2024-01-10 15:30</span>
+                                </div>
+                                <div class="info-bar-item">
+                                    <span class="info-bar-label">上级合同</span>
+                                    <span class="info-bar-value" style="font-size:12px;">—（直属合同，无 parent）</span>
                                 </div>
                             </div>
                         </div>
@@ -445,11 +449,11 @@
                                                 <span class="change-record-value">因业主需求变更，需要增加部分施工点位，涉及合同金额调整。新增卫生间施工点位5个，厨房施工点位3个，阳台施工点位2个。</span>
                                             </div>
                                             <div class="change-record-row">
-                                                <span class="change-record-label">发起人</span>
+                                                <span class="change-record-label">变更申请人</span>
                                                 <span class="change-record-value">陈庄（工长）</span>
                                             </div>
                                             <div class="change-record-row">
-                                                <span class="change-record-label">发起时间</span>
+                                                <span class="change-record-label">申请时间</span>
                                                 <span class="change-record-value">2024-02-01 14:00</span>
                                             </div>
                                             <div class="change-record-row">
@@ -483,11 +487,11 @@
                                                 <span class="change-record-value">现场墙体实际情况与图纸存在偏差，需调整阶段二部分任务顺序并增加弱电箱安装任务</span>
                                             </div>
                                             <div class="change-record-row">
-                                                <span class="change-record-label">发起人</span>
+                                                <span class="change-record-label">变更申请人</span>
                                                 <span class="change-record-value">陈庄（工长）</span>
                                             </div>
                                             <div class="change-record-row">
-                                                <span class="change-record-label">发起时间</span>
+                                                <span class="change-record-label">申请时间</span>
                                                 <span class="change-record-value">2024-01-25 09:00</span>
                                             </div>
                                             <div class="change-record-row">
@@ -523,11 +527,11 @@
                                                 <span class="change-record-value">业主要求新增阳台防水施工项目，涉及合同金额与工期调整</span>
                                             </div>
                                             <div class="change-record-row">
-                                                <span class="change-record-label">发起人</span>
+                                                <span class="change-record-label">变更申请人</span>
                                                 <span class="change-record-value">陈庄（工长）</span>
                                             </div>
                                             <div class="change-record-row">
-                                                <span class="change-record-label">发起时间</span>
+                                                <span class="change-record-label">申请时间</span>
                                                 <span class="change-record-value">2024-03-01 10:00</span>
                                             </div>
                                             <div class="change-record-row">
@@ -641,12 +645,6 @@
                 PC端原型导航
                 <span class="badge">PC</span>
             </div>
-            <div class="pc-page-nav-group" id="statusSelectorGroup">
-                <div class="pc-page-nav-group-title" id="statusSelectorTitle">页面导航</div>
-                <select class="nav-status-select" id="statusSelector" onchange="handlePageChange(this.value)">
-                    <option value="mini_program">小程序首页</option>
-                </select>
-            </div>
             <div class="pc-page-nav-group" id="pageNavGroup">
                 <div class="pc-page-nav-group-title">页面导航</div>
                 <a href="pc-contract-list.html" class="pc-page-nav-item" id="navContractList">合同审核管理</a>
@@ -663,6 +661,7 @@
     window.location.search = '?id=1&status=platform_reviewing';
   }
 </script>
+<script src="pc-contract-data.js"></script>
 <script src="pc-contract-detail.js"></script>
 <script src="pc-craft-ref.js"></script>
     <script>
@@ -715,7 +714,7 @@
                         <span class="task-detail-value" id="taskDetailExecutor"></span>
                     </div>
                     <div class="task-detail-row">
-                        <span class="task-detail-label">验收人：</span>
+                        <span class="task-detail-label">确认人：</span>
                         <div class="task-detail-value" id="taskDetailConfirmers"></div>
                     </div>
                 </div>
@@ -725,12 +724,12 @@
                     <div class="pc-craft-block" id="taskDetailExecCraftRef"></div>
                 </div>
                 <div class="task-detail-section">
-                    <h4>✅ 验收标准</h4>
+                    <h4>✅ 确认标准</h4>
                     <p class="task-detail-standard" id="taskDetailConfirmStandard"></p>
                     <div class="pc-craft-block" id="taskDetailConfirmCraftRef"></div>
                 </div>
                 <div class="task-detail-section">
-                    <h4>⚖️ 责任标准</h4>
+                    <h4>⚖️ 担责标准</h4>
                     <p class="task-detail-standard" id="taskDetailResponsibleStandard"></p>
                 </div>
             </div>
@@ -769,7 +768,7 @@
                     <div class="review-info-item"><span class="review-info-label">关联项目</span><span class="review-info-value">西安阳光里小区 · 西安市雁塔区长安南路188号</span></div>
                 </div>
                 <label style="font-size:13px;color:var(--text-secondary);margin-bottom:8px;display:block;">驳回原因<span style="color:var(--error-color);">*</span></label>
-                <textarea id="rejectReasonModal" placeholder="请输入驳回原因，将通知提交人进行修改"></textarea>
+                <textarea id="rejectReasonModal" placeholder="请输入驳回原因，结果将通过微信服务通知（订阅消息）触达提交人"></textarea>
                 <p id="rejectReasonError" style="color:var(--error-color);font-size:12px;margin-top:4px;display:none;">请输入驳回原因</p>
             </div>
             <div class="pc-modal-footer">
@@ -793,7 +792,7 @@
     </div>
     <script src="pc-common.js"></script>
     <script src="../common.js"></script>
-    <script src="pc-contract-detail.js"></script>
+    <!-- 已在页面上半部引入 pc-contract-detail.js；此处重复引入会触发顶层 let 重复声明，已移除 -->
 <script src="../shared/doc-viewer/doc-viewer.js"></script>
 </body>
 </html>

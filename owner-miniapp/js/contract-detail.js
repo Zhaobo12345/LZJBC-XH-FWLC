@@ -137,6 +137,14 @@ const ContractDetailPage = (function() {
             readonly: true,
             actions: []
         },
+        completed: {
+            text: '已签约',
+            desc: '合同已正式生效（项目已完成）',
+            bannerClass: 'signed',
+            showPcGuide: false,
+            readonly: true,
+            actions: []
+        },
         changing: {
             text: '变更中',
             desc: '变更申请已发起，等待对方确认',
@@ -227,6 +235,34 @@ const ContractDetailPage = (function() {
     function getUrlParam(name) {
         const urlParams = new URLSearchParams(window.location.search);
         return urlParams.get(name);
+    }
+
+    /**
+     * 金额格式化（人民币，千分位）
+     * @param {number} v
+     * @returns {string}
+     */
+    function formatMoney(v) {
+        const n = Number(v) || 0;
+        return '¥' + n.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+    }
+
+    /**
+     * 按 ?id 绑定真实合同标识字段，消除「点哪份都显示同一份写死 demo」
+     * 仅填充标题 / 类型 / 编号 / 金额 / 甲乙双方 / 正文编号；状态横幅仍由 ?status 驱动。
+     */
+    function bindContractById(id) {
+        if (typeof window.getOwnerContractById !== 'function') return;
+        const c = window.getOwnerContractById(id);
+        if (!c) return;
+        let el;
+        el = document.getElementById('contractNameValue'); if (el) el.textContent = c.name || '';
+        el = document.getElementById('contractTypeValue'); if (el) el.textContent = c.typeName || '';
+        el = document.getElementById('contractNoValue'); if (el) el.textContent = c.no || '—';
+        el = document.getElementById('contractAmountRow'); if (el) el.textContent = formatMoney(c.amount);
+        el = document.getElementById('partyAName'); if (el) el.textContent = c.partyA || '';
+        el = document.getElementById('partyBName'); if (el) el.textContent = c.partyB || '';
+        el = document.getElementById('clauseContractNo'); if (el) el.textContent = '合同编号：' + (c.no || '—');
     }
     
     /**
@@ -339,8 +375,7 @@ const ContractDetailPage = (function() {
                 partyB: urlParams.get('partyB') || '',
                 partyBName: urlParams.get('partyBName') || '',
                 amount: urlParams.get('amount') || '',
-                duration: urlParams.get('duration') || '',
-                group: urlParams.get('group') || ''
+                duration: urlParams.get('duration') || ''
             };
             updateContractStatus('draft');
             updateNewContractDisplay();
@@ -349,6 +384,12 @@ const ContractDetailPage = (function() {
             if (status && contractStatus[status]) {
                 updateContractStatus(status);
             }
+        }
+
+        // 按 ?id 绑定真实合同标识字段（列表点哪份显示哪份）
+        const idParam = urlParams.get('id');
+        if (idParam) {
+            bindContractById(idParam);
         }
     }
     
@@ -371,8 +412,6 @@ const ContractDetailPage = (function() {
                     value.textContent = state.newContractData.typeName;
                 } else if (labelText.includes('合同金额') && state.newContractData.amount) {
                     value.textContent = state.newContractData.amount + ' 元';
-                } else if (labelText.includes('所属架构层级') && state.newContractData.group) {
-                    value.textContent = state.newContractData.group;
                 }
             }
         });
@@ -1071,7 +1110,6 @@ const ContractDetailPage = (function() {
             withdraw: { title: '撤回确认', message: '确定要撤回确认申请吗？撤回后可重新编辑合同。' },
             reject: { title: '驳回修改', message: '确定要驳回此合同并要求修改吗？' },
             confirm: { title: '确认合同', message: '是否确认此合同内容？确认后乙方上传签约文件。' },
-            change: { title: '发起变更', message: '确定要发起合同变更吗？变更后需对方确认。' },
             withdraw_change: { title: '撤回变更', message: '确定要撤回变更申请吗？撤回后阶段任务将恢复流转。' },
             reject_change: { title: '驳回变更', message: '确定要驳回变更申请吗？' },
             confirm_change: { title: '确认变更', message: '是否确认变更内容？确认后变更将生效。' },
@@ -1210,9 +1248,6 @@ const ContractDetailPage = (function() {
             '确认合同': () => {
                 showCustomToast('确认成功！等待乙方上传签约附件');
                 updateContractStatus('confirmed_party_a');
-            },
-            '发起变更': () => {
-                showChangeModal();
             },
             '撤回变更': () => {
                 showCustomToast('已撤回变更申请，阶段任务已恢复流转');

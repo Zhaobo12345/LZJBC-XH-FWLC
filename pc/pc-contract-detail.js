@@ -8,6 +8,107 @@ let currentStatus = 'draft';
         var CONTRACT_AMOUNT_OLD = '¥150,000.00';
         var CONTRACT_AMOUNT_NEW = '¥180,000.00';
 
+        /* P1-3 归属完整性校验（2026-11-10）：合同唯一归属服务流程项，
+           ContractStore / ContractTreeStore 对空 flowId 直接拒绝创建；
+           审核端在出结果前再兜一次，防止无归属合同进入签约链路。
+           演示缺失态：URL 加 ?noFlow=1。 */
+        var CONTRACT_FLOW = { id: 'sg', name: '基础施工服务' };
+        function validateFlowAttribution() {
+            var q = new URLSearchParams(location.search);
+            var flow = q.get('noFlow') === '1' ? null : CONTRACT_FLOW;
+            if (!flow || !flow.id) {
+                showToast('该合同未归属服务流程项（flowId 为空），无法提交审核结果；请在小程序端补齐归属后重新提交。');
+                return false;
+            }
+            return true;
+        }
+
+        /* 详情按 ?id 绑定合同演示数据（SSOT: pc-contract-data.js）。
+           未携带 ?id 或无匹配数据时沿用页面内置示例；只按既有 DOM 结构填值，不改 HTML 结构 / 类名 / 样式。 */
+        var DETAIL_CONTRACT_ID = null;
+        var REVIEW_RESULT_STATE = null;
+        var BACK_LINKS = null;
+
+        function bindContractById(id) {
+            var list = window.PC_CONTRACTS || [];
+            var c = null;
+            for (var i = 0; i < list.length; i++) {
+                if (String(list[i].id) === String(id)) { c = list[i]; break; }
+            }
+            if (!c) return;
+            DETAIL_CONTRACT_ID = String(id);
+            CONTRACT_FLOW = { id: c.flowId, name: c.flowName };
+
+            var bar = document.getElementById('contractInfoBar');
+            var vals = bar ? bar.querySelectorAll('.info-bar-value') : [];
+            function setVal(idx, text) { if (vals[idx]) vals[idx].textContent = text; }
+            // 0 名称 / 1 编号 / 2 类型 / 3 流程项 / 4 关联项目 / 5 金额 / 6 提交人 / 7 提交时间 / 8 上级合同
+            setVal(0, c.name);
+            setVal(1, c.contractNo || 'BJSDSWHT000001');
+            setVal(2, c.typeName);
+            if (vals[3]) vals[3].innerHTML = c.flowName + ' <span style="font-size:12px;color:var(--text-tertiary);font-weight:400;">flowId: ' + c.flowId + '</span>';
+            if (vals[4]) vals[4].innerHTML = c.project + (c.address ? '<br><span style="color:var(--text-tertiary);">' + c.address + '</span>' : '');
+            setVal(6, c.changeSubmitter || '陈庄（工长）');
+            setVal(7, c.time || '');
+            setVal(8, c.parent ? '↳ ' + c.parent : '—（直属合同，无 parent）');
+            CONTRACT_AMOUNT = c.changeAmountNew || c.amount;
+            if (c.changeAmountOld) CONTRACT_AMOUNT_OLD = c.changeAmountOld;
+            if (c.changeAmountNew) CONTRACT_AMOUNT_NEW = c.changeAmountNew;
+
+            var preview = document.querySelector('#contentTab .contract-preview');
+            if (preview) {
+                var h3 = preview.querySelector('h3');
+                if (h3) h3.textContent = c.typeName;
+                var ps = preview.querySelectorAll('p');
+                for (var j = 0; j < ps.length; j++) {
+                    var txt = ps[j].textContent;
+                    if (txt.indexOf('1.1 工程名称') === 0) ps[j].textContent = '1.1 工程名称：' + c.project + c.typeName.replace('服务合同', '');
+                    else if (txt.indexOf('1.2 工程地点') === 0) ps[j].textContent = '1.2 工程地点：' + (c.address || c.project);
+                    else if (txt.indexOf('2.1 本合同总价款') === 0 && c.changeAmountNew) ps[j].textContent = '2.1 本合同总价款为人民币 ' + c.changeAmountNew;
+                }
+            }
+            var oldEl = document.querySelector('#contractPriceChange .old-value');
+            var newEl = document.querySelector('#contractPriceChange .new-value');
+            if (c.changeAmountOld && oldEl) oldEl.textContent = c.changeAmountOld;
+            if (c.changeAmountNew && newEl) newEl.textContent = c.changeAmountNew;
+
+            if (c.changeReason) {
+                var reason = document.getElementById('changeReasonContent');
+                if (reason) reason.textContent = c.changeReason;
+            }
+            var recRows = document.querySelectorAll('#changeRecord1 .change-record-row');
+            if (c.changeReason && recRows[0]) {
+                var rv = recRows[0].querySelector('.change-record-value');
+                if (rv) rv.textContent = c.changeReason;
+            }
+            if (recRows[1]) { var a1 = recRows[1].querySelector('.change-record-value'); if (a1) a1.textContent = c.changeSubmitter || '陈庄（工长）'; }
+            if (recRows[2]) { var a2 = recRows[2].querySelector('.change-record-value'); if (a2) a2.textContent = c.changeTime || c.time; }
+            if (recRows[3] && c.changeAmountOld && c.changeAmountNew) {
+                var firstLine = recRows[3].querySelector('.change-record-value div');
+                if (firstLine) firstLine.innerHTML = '• 合同金额：<span class="deleted">' + c.changeAmountOld + '</span><span class="added">' + c.changeAmountNew + '</span>';
+            }
+            if (c.changeAmountOld && c.changeAmountNew) {
+                var sum = document.querySelector('#changeSummaryCard .change-summary-item .content');
+                if (sum) sum.innerHTML = '合同金额：<span class="deleted">' + c.changeAmountOld + '</span> → <span class="added">' + c.changeAmountNew + '</span>';
+            }
+        }
+
+        /* 审核结果经 URL 回传列表（reviewResult / reviewId / reviewReason），无数据层、可刷新复现。 */
+        function buildListUrl() {
+            if (!REVIEW_RESULT_STATE || !DETAIL_CONTRACT_ID) return 'pc-contract-list.html';
+            var url = 'pc-contract-list.html?reviewResult=' + REVIEW_RESULT_STATE.result + '&reviewId=' + encodeURIComponent(DETAIL_CONTRACT_ID);
+            if (REVIEW_RESULT_STATE.reason) url += '&reviewReason=' + encodeURIComponent(REVIEW_RESULT_STATE.reason);
+            return url;
+        }
+        function applyBackLinks() {
+            if (!BACK_LINKS) BACK_LINKS = document.querySelectorAll('a[href="pc-contract-list.html"]');
+            for (var k = 0; k < BACK_LINKS.length; k++) BACK_LINKS[k].href = buildListUrl();
+        }
+        function markReviewResult(result, reason) {
+            REVIEW_RESULT_STATE = { result: result, reason: reason || '' };
+            applyBackLinks();
+        }
+
         function getMaskedAmount(amount) {
             if (!window.ContractAmountMask) return amount;
             // 构建简化合同对象用于权限判断
@@ -20,6 +121,9 @@ let currentStatus = 'draft';
             if (el) el.textContent = getMaskedAmount(CONTRACT_AMOUNT);
         }
 
+        /* 服务端已下线签约附件上传流程（已删勿恢复）：
+           confirmed / signing 为历史孤立状态（列表不进入），仅保留 key 以免深链失效，
+           文案统一改为线上确认口径；签约后链路 = 已签约 → 发起变更 → 对方确认 → V2。 */
         const statusConfig = {
             platform_reviewing: {
                 title: '⏳ 待平台审核',
@@ -38,7 +142,7 @@ let currentStatus = 'draft';
             },
             reviewed_reject: {
                 title: '❌ 审核已驳回',
-                desc: '合同审核未通过，已将驳回结果及原因通知给提交人',
+                desc: '合同审核未通过，驳回结果及原因已通过微信服务通知（订阅消息）触达提交人',
                 class: 'platform-rejected',
                 showRejectReason: true
             },
@@ -49,7 +153,7 @@ let currentStatus = 'draft';
             },
             change_reviewed_reject: {
                 title: '❌ 变更已驳回',
-                desc: '变更申请未通过审核，驳回结果及原因已通知提交人',
+                desc: '变更申请未通过审核，驳回结果及原因已通过微信服务通知（订阅消息）触达提交人',
                 class: 'platform-rejected',
                 showRejectReason: true
             },
@@ -60,12 +164,12 @@ let currentStatus = 'draft';
             },
             confirmed: {
                 title: '✅ 双方已确认',
-                desc: '双方已确认，请上传签约后的合同附件',
+                desc: '双方已线上确认，合同进入已签约链路（无线下附件环节）',
                 class: 'confirmed'
             },
             signing: {
                 title: '📝 待确认签约',
-                desc: '对方已上传签约文件，请确认后合同正式生效',
+                desc: '对方已线上确认，待双方确认完成后合同正式生效',
                 class: 'signing'
             },
             withdrawn: {
@@ -98,25 +202,6 @@ let currentStatus = 'draft';
             updateStagesContent();
             updateStageStatusForReview();
             renderMaskedAmounts();
-        }
-
-        function handlePageChange(value) {
-            switch(value) {
-                case 'contract_template':
-                    window.location.href = 'pc-contract-template.html';
-                    break;
-                case 'stage_template':
-                    window.location.href = 'pc-stage-template.html';
-                    break;
-                case 'contract_list':
-                    window.location.href = 'pc-contract-list.html';
-                    break;
-                case 'contract_detail':
-                    break;
-                case 'mini_program':
-                    showToast('正在打开小程序首页...');
-                    break;
-            }
         }
 
         function updateRejectReasonBanner() {
@@ -259,7 +344,7 @@ let currentStatus = 'draft';
             }
             
             if (currentStatus === 'signing' || currentStatus === 'signed') {
-                logs.push({ time: '01-12 09:00', content: '上传签约文件', user: '陈庄' });
+                logs.push({ time: '01-12 09:00', content: '双方线上确认签约（无附件上传）', user: '系统' });
             }
             
             if (currentStatus === 'signed') {
@@ -386,6 +471,10 @@ let currentStatus = 'draft';
                 case 'reviewed_reject':
                     actionsHtml = '';
                     break;
+                case 'change_reviewed_pass':
+                case 'change_reviewed_reject':
+                    actionsHtml = '<a class="pc-btn pc-btn-default" href="' + buildListUrl() + '">' + (REVIEW_RESULT_STATE ? '返回列表查看审核结果' : '返回列表') + '</a>';
+                    break;
                 case 'signed':
                     actionsHtml = '';
                     break;
@@ -478,6 +567,7 @@ let currentStatus = 'draft';
         }
 
         function confirmRejectFromModal() {
+            if (!validateFlowAttribution()) return;
             const reason = document.getElementById('rejectReasonModal').value.trim();
             if (!reason) {
                 document.getElementById('rejectReasonError').style.display = 'block';
@@ -491,9 +581,10 @@ let currentStatus = 'draft';
                 : '确定驳回该合同吗？驳回后合同将退回修改状态。';
             
             showConfirmModal(title, message, function() {
-                showToast(currentStatus === 'change_reviewing' ? '变更已驳回' : '已驳回，合同退回修改状态');
+                showToast(currentStatus === 'change_reviewing' ? '变更已驳回，已通过微信服务通知触达提交人' : '已驳回，合同退回修改状态；驳回结果已通过微信服务通知（订阅消息）触达创建方');
                 const nextStatus = currentStatus === 'change_reviewing' ? 'change_reviewed_reject' : 'reviewed_reject';
                 document.getElementById('rejectReasonContent').textContent = reason;
+                markReviewResult('reject', reason);
                 switchStatus(nextStatus);
             });
         }
@@ -504,45 +595,17 @@ let currentStatus = 'draft';
         }
 
         function approveContract() {
+            if (!validateFlowAttribution()) return;
             const title = currentStatus === 'change_reviewing' ? '确认审核通过变更' : '确认审核通过';
             const message = currentStatus === 'change_reviewing' 
                 ? '确定审核通过该变更申请吗？通过后变更将生效。' 
                 : '确定审核通过该合同吗？通过后合同将进入待确认状态。';
             
             showConfirmModal(title, message, () => {
-                showToast(currentStatus === 'change_reviewing' ? '变更审核通过' : '审核通过，合同已进入待确认状态');
+                showToast(currentStatus === 'change_reviewing' ? '变更审核通过，已通过微信服务通知触达双方' : '审核通过，合同已进入待确认状态；已通过微信服务通知（订阅消息）触达确认方');
                 const nextStatus = currentStatus === 'change_reviewing' ? 'change_reviewed_pass' : 'reviewed_pass';
+                markReviewResult('pass', '');
                 switchStatus(nextStatus);
-            });
-        }
-
-        function rejectContract() {
-            const reasonInput = document.getElementById('rejectReason');
-            const reason = reasonInput.value.trim();
-            
-            // 校验驳回原因（使用validation.js）
-            const result = Validation.validate.textLength(reason, 500, true, '驳回原因');
-            if (!result.valid) {
-                showToast(result.message);
-                reasonInput.focus();
-                return;
-            }
-            
-            const title = currentStatus === 'change_reviewing' ? '确认驳回变更' : '确认驳回';
-            const message = currentStatus === 'change_reviewing' 
-                ? '确定驳回该变更申请吗？驳回后变更将被取消。' 
-                : '确定驳回该合同吗？驳回后合同将退回修改状态。';
-            
-            showConfirmModal(title, message, () => {
-                showToast(currentStatus === 'change_reviewing' ? '变更已驳回' : '已驳回，合同退回修改状态');
-                const nextStatus = currentStatus === 'change_reviewing' ? 'change_reviewed_reject' : 'reviewed_reject';
-                switchStatus(nextStatus);
-                
-                document.getElementById('rejectReasonContent').textContent = reason;
-                document.getElementById('rejectReasonInput').style.display = 'none';
-                document.getElementById('showRejectBtn').textContent = '驳回';
-                document.getElementById('confirmRejectBtn').style.display = 'none';
-                document.getElementById('rejectReason').value = '';
             });
         }
 
@@ -719,4 +782,7 @@ let currentStatus = 'draft';
             document.getElementById('rejectReasonContent').textContent = decodeURIComponent(rejectReason);
         }
 
+        const idParam = urlParams.get('id');
+        if (idParam) { bindContractById(idParam); }
+        applyBackLinks();
         updateUI();

@@ -50,7 +50,7 @@
             </div>
             <div class="fd-info">
                 <span class="fd-badge">主线 <b>3</b>/6 环</span>
-                <span class="fd-act create" id="fdContractAct" data-kind="letter">告知书·待确认 ›</span>
+                <span class="fd-act" id="fdContractAct" style="display:none"></span>
                 <span class="fd-locate">📍 定位当前</span>
             </div>
             <div class="fd-content">
@@ -66,6 +66,11 @@
                 </div>
                 <div id="fdDetailWrap"><div id="fdDetail">
                     <div id="fdDetailBody">
+                        <div class="fd-letter-row" id="fdLetterEntry" data-kind="letter">
+                            <span class="fle-ic">📄</span>
+                            <span class="fle-t">量房服务告知书</span>
+                            <span class="fle-s" id="fdLetterState">待确认 ›</span>
+                        </div>
                         <div class="fd-sec">
                             <div class="fd-sec-h">本项任务 <span class="fd-count" id="fdTaskCount">3/3</span></div>
                             <div class="fd-item"><span class="fd-name">原始尺寸复测</span><span class="fd-meta">张设计</span><span class="fd-badge ok">已完成</span></div>
@@ -95,7 +100,7 @@
             <div class="dp-group" id="optNotice" data-role="state">
                 <div class="dp-lab">告知书状态</div>
                 <div class="dp-opts">
-                    <div class="dp-opt" data-v="notice_pending_result">结果未回填</div>
+                    <div class="dp-opt" data-v="notice_pending_result">成果未出具</div>
                     <div class="dp-opt on" data-v="notice_wait_confirm">待确认</div>
                     <div class="dp-opt" data-v="notice_confirmed">已确认</div>
                 </div>
@@ -107,7 +112,7 @@
                     <div class="dp-opt" data-v="on">开</div>
                 </div>
             </div>
-            <div class="dp-status">关 → chip 显示告知书；开 → 显示查看合同，共用同一位置。打开标记可在框内高亮该 chip（框内不增加文字）。点 chip 进入 ②。</div>
+            <div class="dp-status">关 → 流程项下、本项任务上显示「量房服务告知书」；开 → 入口隐藏，浮窗头部按既有 :763 显示「查看合同」。打开标记可在框内高亮入口行（不增加文字）。点入口进入 ②。</div>
         </div>
         <div class="letter-nav">
             <span class="ln-label">演示页串联 · 非小程序 UI</span>
@@ -122,15 +127,15 @@
         <table class="dm-table">
             <thead><tr><th style="width:52px">类型</th><th>改动点</th><th>既有位置 → 本页对应</th></tr></thead>
             <tbody>
-                <tr><td><span class="dm-tag new">新增</span></td><td>无合同流程项的告知书 chip</td><td><code>project-list.html:763</code> #fdContractAct（原 display:none）→ 浮窗 <code>.fd-info</code> 内 <code>.fd-act.create</code></td></tr>
-                <tr><td><span class="dm-tag new">新增</span></td><td>第三个分支</td><td><code>project-list.html:1419-1424</code> contractAction → 开关「关」返回告知书、「开」返回查看合同</td></tr>
-                <tr><td><span class="dm-tag new">新增</span></td><td>样式与跳转映射</td><td><code>project-list.html:1432-1441</code> renderContractAction / goContract → create / view 两种 pill</td></tr>
+                <tr><td><span class="dm-tag new">新增</span></td><td>流程项级告知书入口行</td><td><code>project-list.html:1715-1727</code> renderFdDetail 任务型分支 → <code>#fdDetailBody</code> 内 <code>tRows</code> 前插入 <code>#fdLetterEntry</code>（量房流程项下、本项任务上），仅 <code>hasContract:false</code> 渲染</td></tr>
+                <tr><td><span class="dm-tag same">沿用</span></td><td>头部合同 chip 保持原状</td><td><code>project-list.html:763</code> #fdContractAct、<code>:1419-1424</code> contractAction、<code>:1432-1441</code> renderContractAction → 有合同才显示查看 / 拟定合同，无合同隐藏，不再承载告知书</td></tr>
+                <tr><td><span class="dm-tag new">新增</span></td><td>入口状态与跳转</td><td>右端 chip 复用三态文案（成果未出具 / 待确认 / 已确认），点击进入告知书页；样式沿用 <code>.fd-item</code> 44px 触控与 <code>--primary-bg</code></td></tr>
                 <tr><td><span class="dm-tag same">沿用</span></td><td>「包含合同」配置来源</td><td><code>flow-config.html:257-265</code> #fldSw、<code>:495-502</code> toggleFldContract → 框外开关</td></tr>
-                <tr><td><span class="dm-tag same">沿用</span></td><td>任务清单与指派入口</td><td><code>project-list.html:1696-1728</code> renderFdDetail 任务分支、<code>:1772-1776</code> fdAssignBar → 3 条 <code>.fd-item</code> + <code>.fd-assignbar</code></td></tr>
+                <tr><td><span class="dm-tag same">沿用</span></td><td>任务清单与指派入口</td><td><code>project-list.html:1716-1727</code> 任务渲染、<code>:1772-1776</code> fdAssignBar → 3 条 <code>.fd-item</code> + <code>.fd-assignbar</code>；入口行插在任务区之前，任务本身零改动</td></tr>
                 <tr><td><span class="dm-tag same">沿用</span></td><td>导航 / 流程卡 / 浮窗骨架</td><td><code>project-list.html:37-70, 113-145, 209-271</code> → 逐值复刻到 <code>demo.css</code> 第 3~5 段</td></tr>
             </tbody>
         </table>
-        <div class="dm-foot">业主端同源位置：<code>owner-miniapp/js/flow-drawer.js:287-308</code>、<code>project-detail-ongoing-v2.html:433-459</code>。二者浮窗结构一致，二期需同步。</div>
+        <div class="dm-foot">业主端同源位置：<code>owner-miniapp/js/flow-drawer.js:287-308</code>、<code>project-detail-ongoing-v2.html:433-459</code>。二者任务型详情区结构一致，二期需在同一位置插入入口行。原「头部 chip 位」隶属项目级，已弃用。</div>
     </div>
 </div>
 <div class="app-toast" id="appToast"></div>

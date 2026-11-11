@@ -1082,6 +1082,17 @@ onchange="onDraftAttPicked(event)" data-page-node-id="lnbOQMua3z0W4oXt3RGvS7">
     renderStages();
     /* 工艺参考示例：复用本页 toast（共享模块 js/craft-ref.js，不注入时模块用自身兜底 toast） */
     if (window.CraftRef) { CraftRef.setToastHandler(function (msg) { showToast(msg); }); }
+
+    /* 复制发起：演示态无真实来源合同，透传 URL 中的归属参数，由复制页回退内置蓝本 */
+    function openCopyInitiate() {
+        var qs = new URLSearchParams(window.location.search);
+        var params = 'from=detail';
+        var src = qs.get('id') || '';
+        if (src) params += '&source=' + encodeURIComponent(src);
+        var item = qs.get('item') || qs.get('flowId') || '';
+        if (item) params += '&item=' + encodeURIComponent(item);
+        window.location.href = 'contract-copy-initiate.html?' + params;
+    }
 </script>
 
         <!-- 发起合同变更 二次确认（对齐原「已签约」页 confirmStartChange 交互） -->

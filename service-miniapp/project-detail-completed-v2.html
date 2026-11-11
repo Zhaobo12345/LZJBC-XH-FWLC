@@ -738,11 +738,9 @@
         <div class="page-nav-title" onclick="togglePageNav()" title="收起 / 展开 原型导航">原型导航 <span class="toggle-btn" id="pageNavToggle">▼</span></div>
         <a href="home.html">首页</a>
         <a href="project-list.html">项目主页（进行中）</a>
-        <a href="project-list-empty-demo.html">项目列表（空状态演示）</a>
         <a href="project-detail-initial-v2.html">项目详情（初始-新版）</a>
         <a href="project-detail-completed-v2.html" class="active">项目详情（已完成-新版）</a>
         <a href="project-info.html">项目信息</a>
-        <a href="architecture.html">项目架构</a>
         <a href="create-project.html">创建项目</a>
         <a href="task-list.html">任务列表</a>
         <a href="contract-detail.html">合同详情</a>
@@ -959,28 +957,28 @@
         /* ===================== 数据 ===================== */
         var SHARED = {
             nonworkerTodos: [
-                { tag: 'contract', title: '泥瓦工班组服务合同确认', desc: '泥瓦工作组 | 待确认', status: '待确认', cls: 'urgent', icon: '🔵', bg: '#E6F7FF' },
-                { tag: 'task', title: '吊顶安装', desc: '木工工作组 | 张三待确认', status: '待确认', cls: 'pending', icon: '🟢', bg: '#F6FFED', link: 'task-detail.html' }
+                { tag: 'contract', title: '泥瓦工班组服务合同确认', desc: '待确认', status: '待确认', cls: 'urgent', icon: '🔵', bg: '#E6F7FF' },
+                { tag: 'task', title: '吊顶安装', desc: '张三待确认', status: '待确认', cls: 'pending', icon: '🟢', bg: '#F6FFED', link: 'task-detail.html' }
             ],
             workerTaskTodos: [
-                { tag: 'contract', title: '泥瓦工班组服务合同确认', desc: '泥瓦工作组 | 待我确认', status: '待确认', cls: 'urgent', icon: '🔵', bg: '#E6F7FF' },
-                { tag: 'task', title: '墙面基层处理', desc: '油漆工作组 | 李四待确认', status: '待确认', cls: 'pending', icon: '🟢', bg: '#F6FFED' },
-                { tag: 'task', title: '地砖铺贴', desc: '泥瓦工作组 | 王五待确认', status: '待确认', cls: 'pending', icon: '🔵', bg: '#E6F7FF' }
+                { tag: 'contract', title: '泥瓦工班组服务合同确认', desc: '待我确认', status: '待确认', cls: 'urgent', icon: '🔵', bg: '#E6F7FF' },
+                { tag: 'task', title: '墙面基层处理', desc: '李四待确认', status: '待确认', cls: 'pending', icon: '🟢', bg: '#F6FFED' },
+                { tag: 'task', title: '地砖铺贴', desc: '王五待确认', status: '待确认', cls: 'pending', icon: '🔵', bg: '#E6F7FF' }
             ],
             workerContractTodos: [
-                { tag: 'contract', title: '泥瓦工班组服务合同确认', desc: '泥瓦工作组 | 待我确认', status: '待我确认', cls: 'urgent', icon: '🔵', bg: '#E6F7FF' },
-                { tag: 'contract', title: '木作班组服务合同签约', desc: '木工工作组 | 待我签约', status: '待我签约', cls: 'pending', icon: '🔵', bg: '#E6F7FF' }
+                { tag: 'contract', title: '泥瓦工班组服务合同确认', desc: '待我确认', status: '待我确认', cls: 'urgent', icon: '🔵', bg: '#E6F7FF' },
+                { tag: 'contract', title: '木作班组服务合同签约', desc: '待我签约', status: '待我签约', cls: 'pending', icon: '🔵', bg: '#E6F7FF' }
             ],
             // 已完工项目：全部 8 份合同已签约 · 进度 100%
             contracts: [
-                { name: '水电班组服务合同', meta: '水电工作组 | 金额：8万', percent: 100, badge: '已签约', badgeCls: 'green', detail: 'worker-contract-detail.html' },
-                { name: '泥瓦工班组服务合同', meta: '泥瓦工作组 | 金额：12万', percent: 100, badge: '已签约', badgeCls: 'green', detail: 'worker-contract-detail.html' },
-                { name: '木作班组服务合同', meta: '木工工作组 | 金额：15万', percent: 100, badge: '已签约', badgeCls: 'green', detail: 'worker-contract-detail.html' },
-                { name: '油漆工班组服务合同', meta: '油漆工作组 | 金额：10万', percent: 100, badge: '已签约', badgeCls: 'green', detail: 'worker-contract-detail.html' },
-                { name: '防水班组服务合同', meta: '防水工作组 | 金额：6万', percent: 100, badge: '已签约', badgeCls: 'green', detail: 'worker-contract-detail.html' },
-                { name: '吊顶班组服务合同', meta: '吊顶工作组 | 金额：9万', percent: 100, badge: '已签约', badgeCls: 'green', detail: 'worker-contract-detail.html' },
-                { name: '橱柜班组服务合同', meta: '柜体工作组 | 金额：11万', percent: 100, badge: '已签约', badgeCls: 'green', detail: 'worker-contract-detail.html' },
-                { name: '墙面班组服务合同', meta: '墙面工作组 | 金额：7万', percent: 100, badge: '已签约', badgeCls: 'green', detail: 'worker-contract-detail.html' }
+                { name: '水电班组服务合同', meta: '金额：8万', percent: 100, badge: '已签约', badgeCls: 'green', detail: 'worker-contract-detail.html' },
+                { name: '泥瓦工班组服务合同', meta: '金额：12万', percent: 100, badge: '已签约', badgeCls: 'green', detail: 'worker-contract-detail.html' },
+                { name: '木作班组服务合同', meta: '金额：15万', percent: 100, badge: '已签约', badgeCls: 'green', detail: 'worker-contract-detail.html' },
+                { name: '油漆工班组服务合同', meta: '金额：10万', percent: 100, badge: '已签约', badgeCls: 'green', detail: 'worker-contract-detail.html' },
+                { name: '防水班组服务合同', meta: '金额：6万', percent: 100, badge: '已签约', badgeCls: 'green', detail: 'worker-contract-detail.html' },
+                { name: '吊顶班组服务合同', meta: '金额：9万', percent: 100, badge: '已签约', badgeCls: 'green', detail: 'worker-contract-detail.html' },
+                { name: '橱柜班组服务合同', meta: '金额：11万', percent: 100, badge: '已签约', badgeCls: 'green', detail: 'worker-contract-detail.html' },
+                { name: '墙面班组服务合同', meta: '金额：7万', percent: 100, badge: '已签约', badgeCls: 'green', detail: 'worker-contract-detail.html' }
             ],
             // 非工人（基础施工服务合同）：仅非工人视角「合同概览」展示，点击跳转非工人合同详情页
             baseContracts: [

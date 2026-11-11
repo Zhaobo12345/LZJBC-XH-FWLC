@@ -70,6 +70,10 @@ body {
 .native-capsule .nc-right { font-size: 10px; }
 .native-capsule .nc-divider { width: 1px; height: 14px; background: rgba(255,255,255,.45); margin: 0 4px; }
 .page-body { flex: 1; overflow-y: auto; overflow-x: hidden; background: transparent; -webkit-overflow-scrolling: touch; }
+/* 底部拟定合同浮窗：按治理权限显隐，常驻手机框内底部（不随列表滚动） */
+.ct-dock { flex-shrink: 0; padding: 10px 12px 14px; background: linear-gradient(180deg, rgba(247,251,255,0) 0%, #fff 26%); border-top: 1px solid var(--line-light); }
+.ct-dock-btn { display: flex; align-items: center; justify-content: center; gap: 6px; width: 100%; min-height: 48px; border: 0; border-radius: 12px; background: var(--grad-brand); color: #fff; font: 600 15px/1.2 inherit; font-family: inherit; cursor: pointer; box-shadow: 0 4px 12px rgba(22,119,255,.24); }
+.ct-dock-btn:active { opacity: .9; }
 .card { background: var(--card); border: 1px solid var(--border); box-shadow: var(--shadow); border-radius: var(--r-card); padding: 10px var(--sp-3); margin: 0 var(--sp-3) 7px; }
 .card:first-of-type { margin-top: 4px; }
 
@@ -137,14 +141,9 @@ body {
 .kv .v.mono { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 11px; font-weight: 500; color: var(--text-2); }
 .kv.full { grid-column: 1 / -1; }
 
-/* 承接任务进度条 */
-.ct-bar { height: 3px; background: var(--line-light); border-radius: 2px; margin-top: 9px; overflow: hidden; }
-.ct-bar i { display: block; height: 100%; border-radius: 2px; background: var(--grad-brand); }
-
-/* 底部：流程项入口 + 操作 */
-.ct-foot { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-top: 9px; }
-.ct-flow { flex: 1; min-width: 0; font-size: 11px; color: var(--primary); }
-.ct-ops { display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
+/* 底部：操作按钮 */
+.ct-foot { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 8px; margin-top: 9px; }
+.ct-ops { flex: 1 1 100%; display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-start; }
 .op {
   font-size: var(--fs-11); border-radius: var(--r-pill); padding: 5px 11px; cursor: pointer;
   border: 1px solid var(--border); color: var(--text-2); background: #fff; min-height: 28px; display: inline-flex; align-items: center;
@@ -202,9 +201,32 @@ body {
 .demo-panel .dp-note { font-size: 10px; color: var(--text-3); line-height: 1.7; }
 @media (max-width: 720px) { body { flex-direction: column; align-items: center; } .demo-panel { width: 375px; border-left: none; border-top: 2px dashed var(--demo-blue); } }
 @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
+
+/* ===== 公共原型导航（右侧，可折叠，localStorage 记忆） ===== */
+.page-nav { position: fixed; top: 20px; right: 20px; z-index: 1000; width: 190px; background: #fff; border-radius: 10px; padding: 14px; box-shadow: 0 6px 20px rgba(0,0,0,.12); max-height: calc(100vh - 40px); overflow-y: auto; transition: max-height .3s; }
+.page-nav.collapsed { max-height: 52px; overflow: hidden; }
+.page-nav-title { font-size: var(--fs-13); font-weight: 500; color: var(--text); display: flex; justify-content: space-between; align-items: center; cursor: pointer; }
+.page-nav-title .toggle-btn { font-size: 11px; color: var(--text-3); transition: transform .3s; }
+.page-nav-title .toggle-btn.collapsed { transform: rotate(-90deg); }
+.page-nav a { display: block; padding: 8px 10px; margin: 4px 0; background: var(--bg-secondary); border-radius: 6px; color: var(--text-2); font-size: var(--fs-11); text-decoration: none; }
+.page-nav a.active { background: var(--primary); color: #fff; }
+.page-nav a:hover { background: var(--primary); color: #fff; }
 </style>
 </head>
 <body>
+<!-- ===== 公共原型导航（右侧，可折叠，localStorage 记忆） ===== -->
+<div class="page-nav">
+  <div class="page-nav-title" onclick="togglePageNav()" title="收起 / 展开 原型导航">原型导航 <span class="toggle-btn" id="pageNavToggle">▼</span></div>
+  <a href="home.html">首页</a>
+  <a href="project-list.html">项目主页（进行中）</a>
+  <a href="project-detail-initial-v2.html">项目详情（初始-新版）</a>
+  <a href="project-detail-completed-v2.html">项目详情（已完成-新版）</a>
+  <a href="project-info.html">项目信息</a>
+  <a href="create-project.html">创建项目</a>
+  <a href="task-list.html">任务列表</a>
+  <a href="contract-list.html" class="active">合同列表</a>
+  <a href="contract-detail.html">合同详情</a>
+</div>
 <!-- ===== 手机框 ===== -->
 <div class="phone-frame">
   <div class="status-bar">
@@ -225,6 +247,11 @@ body {
 
   <div class="page-body" id="pageBody">
     <div id="ctRoot"></div>
+  </div>
+
+  <!-- 拟定合同：权限内常驻；父级合同在拟定合同页「隶属合同（选填）」中选择，默认直属当前服务流程项 -->
+  <div class="ct-dock" id="ctDock" style="display:none">
+    <button type="button" class="ct-dock-btn" onclick="createContract()">＋ 拟定合同</button>
   </div>
 
 </div>
@@ -267,6 +294,7 @@ body {
   </div>
 </div>
 
+<script src="js/contract-tree-store.js"></script>
 <script>
 /* ================= 状态映射（严格对齐两个合同详情页） =================
    非工人合同（基础施工 / 设计服务）：状态取自 js/contract-detail.js 的 statusConfig
@@ -374,6 +402,9 @@ var CONTRACTS = [
     taskDone: 3, taskTotal: 5, changed: false, parent: null, mine: false
   }
 ];
+
+/* 动态合同树：把本轮用户新建的合同并入演示基线（数据层未加载时零影响） */
+if (window.ContractTreeStore) CONTRACTS = ContractTreeStore.merge(CONTRACTS);
 
 var state = { role: 'owner', dataPerm: 'all', manage: 'all', keyword: '', statusFilter: 'all', empty: false };
 
@@ -496,6 +527,7 @@ function filterCardHtml() {
 /* 操作入口只保留详情页真实存在的动作（均在详情页有对应按钮）：
    草稿→继续拟定（无治理权限时降级为只读「查看草稿」，任何情况只出现一个）
    已签约→发起变更 / 复制发起；变更相关→查看变更；待我回应→查看邀请；其余→查看合同
+   新建（直属 / 子合同）统一由页面底部「拟定合同」浮窗发起，卡片不再提供「添加子合同」
    详情页无「催办确认」「撤回」动作 → 列表不提供 */
 function opsHtml(c) {
   if (state.dataPerm === 'none') return '';
@@ -515,7 +547,7 @@ function opsHtml(c) {
     ? '<span class="op ghost" onclick="actView(\'' + c.id + '\')">查看邀请</span>'
     : '<span class="op ghost" onclick="actView(\'' + c.id + '\')">' + (isChanging ? '查看变更' : '查看合同') + '</span>';
   if (isSigned && canManage('edit')) h += '<span class="op" onclick="actChange(\'' + c.id + '\')">发起变更</span>';
-  if (isSigned && canManage('copy') && c.ct === 'service') h += '<span class="op" onclick="actCopy(\'' + c.id + '\')">复制发起</span>';
+  if (isSigned && canManage('copy')) h += '<span class="op" onclick="actCopy(\'' + c.id + '\')">复制发起</span>';
   return h;
 }
 
@@ -523,7 +555,6 @@ function opsHtml(c) {
 function rootCardHtml(c, shown) {
   var st = statusOf(c);
   var ctx = shown[c.id] === 'ctx';
-  var pct = Math.round(c.taskDone / Math.max(1, c.taskTotal) * 100);
 
   var h = '<div class="card ct-main' + (ctx ? ' ct-ctx' : '') + '" data-main="' + c.id + '" data-ct="' + c.ct + '" onclick="rowOpen(event, \'' + c.id + '\')">';
   h += '<div class="ct-main-head">';
@@ -547,11 +578,7 @@ function rootCardHtml(c, shown) {
       h += '<div class="kv"><span class="k">合同编号</span><span class="v mono">' + c.no + '</span></div>';
     }
     h += '</div>';
-    h += '<div class="ct-bar"><i style="width:' + pct + '%"></i></div>';
     h += '<div class="ct-foot">';
-    h += c.flowName
-      ? '<span class="ct-flow" onclick="openFlow(\'' + c.flowId + '\')">流程：' + c.flowName + ' ›</span>'
-      : '<span class="ct-flow"></span>';
     h += '<span class="ct-ops">' + opsHtml(c) + '</span>';
     h += '</div>';
   }
@@ -621,10 +648,20 @@ function computeShown() {
   return shown;
 }
 
+/* 拟定合同入口按治理权限显隐：worker / 无数据权限 / 无治理权限时隐藏浮窗与顶部＋ */
+function syncCreateEntries() {
+  var can = canManage('edit');
+  var dock = document.getElementById('ctDock');
+  var plus = document.getElementById('navPlus');
+  if (dock) dock.style.display = can ? '' : 'none';
+  if (plus) plus.style.display = can ? '' : 'none';
+}
 function render() {
+  syncCreateEntries();
   var root = document.getElementById('ctRoot');
   var h = '';
   if (state.empty) {
+    /* 空态保留底部拟定合同浮窗（syncCreateEntries 已在 render 开头执行） */
     h += '<div class="card empty-card"><div class="empty-ic">🗂</div><div class="empty-t">项目暂无合同</div>' +
       '<div class="empty-s">合同由服务流程项发起：在项目主页「服务流程」中选择对应流程项，点击「拟定合同」即可创建。</div>' +
       '<span class="empty-btn" onclick="goFlow()">去服务流程拟定合同</span></div>';
@@ -655,6 +692,7 @@ function render() {
       '<div class="empty-s">换个关键字，或把状态筛选切回「全部」试试。</div></div>';
   }
   root.innerHTML = h;
+  highlightExpand(root);
 }
 
 /* ================= 交互 ================= */
@@ -689,35 +727,57 @@ function actView(id) {
   if (c.ct === 'worker') q += '&viewer=' + (isWorkerRole() ? 'receiver' : 'sender');
   location.href = url + q;
 }
-/* 整行可点：点合同行任一非按钮区域进入详情（按钮 / 流程入口自行处理） */
+/* 整行可点：点合同行任一非按钮区域进入详情（按钮自行处理） */
 function rowOpen(e, id) {
   var t = e.target;
-  if (t && t.closest && (t.closest('.op') || t.closest('.ct-flow'))) return;
+  if (t && t.closest && (t.closest('.op'))) return;
   actView(id);
 }
 function actDraft(id) {
   if (!canManage('edit')) { showHint('您没有编辑合同的治理权限'); return; }
-  location.href = 'create-contract.html?from=contract-list&id=' + id;
+  location.href = 'create-contract.html?from=contract-list&editId=' + id;
 }
 function actChange(id) {
   var c = contractById(id);
   if (!c || !canManage('edit')) { showHint('您没有发起变更的治理权限'); return; }
-  c.status = 'change_confirming';
-  c.changed = true;
-  render();
-  showHint('已发起变更，等待对方确认：' + c.name);
+  // 按合同类型分流：工人合同 → 工人发起变更整页；非工人（基础/设计）→ 合同详情发起变更弹窗
+  if (c.ct === 'worker') {
+    location.href = 'worker-contract-change.html?id=' + encodeURIComponent(id);
+  } else {
+    location.href = 'contract-detail.html?id=' + encodeURIComponent(id) + '&openChange=1';
+  }
 }
 function actCopy(id) {
   var c = contractById(id);
   if (!c || !canManage('copy')) { showHint('您没有复制发起的治理权限'); return; }
-  location.href = 'contract-copy-initiate.html?from=contract-list&group=' + encodeURIComponent(c.typeName) + '&source=' + c.id;
+  // 按合同类型分流：工人合同 → 工人复制页；非工人（服务类）→ 服务类复制页
+  var page = (c.ct === 'worker') ? 'contract-copy-initiate.html' : 'service-contract-copy-initiate.html';
+  location.href = page + '?from=contract-list&item=' + encodeURIComponent(c.flowId || '') +
+    '&parent=' + encodeURIComponent(c.parent || '') + '&source=' + c.id;
 }
+function currentFlowId() {
+  var m = /[?&]item=([^&]+)/.exec(window.location.search || '');
+  if (m) { try { return decodeURIComponent(m[1]); } catch (e) { return m[1]; } }
+  var f = CONTRACTS.filter(function (c) { return c.flowId; })[0];
+  return f ? f.flowId : '';
+}
+/* 当前服务流程项：URL ?item= 优先（从服务流程浮窗/流程标签进入时带入），否则兜底列表首个流程项 */
 function createContract() {
   if (!canManage('edit')) { showHint('您没有创建合同的治理权限'); return; }
-  location.href = 'create-contract.html?from=contract-list';
+  var fid = currentFlowId();
+  location.href = 'create-contract.html?from=contract-list' + (fid ? '&item=' + encodeURIComponent(fid) : '');
 }
-function openFlow(flowId) { location.href = 'project-list.html?item=' + flowId; }
-function goFlow() { location.href = 'project-list.html'; }
+/* 返回定位：从创建页带 ?expand=<父合同id> 回来时短暂高亮该合同 */
+function highlightExpand(root) {
+  var m = /[?&]expand=([^&]+)/.exec(window.location.search || '');
+  if (!m) return;
+  var id = decodeURIComponent(m[1]);
+  var el = root.querySelector('[data-main="' + id + '"], [data-sub="' + id + '"]');
+  if (!el) return;
+  el.style.outline = '2px solid var(--primary)';
+  setTimeout(function () { el.style.outline = ''; }, 1400);
+}
+function goFlow() { location.href = 'project-list.html?item=sg'; }
 
 /* ================= 演示开关 ================= */
 function bindOpts(id, fn) {
@@ -742,6 +802,27 @@ bindOpts('optData', setDataPerm);
 bindOpts('optManage', setManage);
 bindOpts('optEmpty', setEmpty);
 render();
+</script>
+<script>
+/* 原型导航：收起/展开 + localStorage 记忆 */
+function togglePageNav() {
+  var nav = document.querySelector('.page-nav');
+  var btn = document.getElementById('pageNavToggle');
+  if (!nav) return;
+  var collapsed = nav.classList.toggle('collapsed');
+  if (btn) btn.classList.toggle('collapsed', collapsed);
+  try { localStorage.setItem('pageNavCollapsed', collapsed ? 'true' : 'false'); } catch (e) {}
+}
+(function restorePageNav() {
+  try {
+    if (localStorage.getItem('pageNavCollapsed') === 'true') {
+      var nav = document.querySelector('.page-nav');
+      var btn = document.getElementById('pageNavToggle');
+      if (nav) nav.classList.add('collapsed');
+      if (btn) btn.classList.add('collapsed');
+    }
+  } catch (e) {}
+})();
 </script>
 </body>
 </html>

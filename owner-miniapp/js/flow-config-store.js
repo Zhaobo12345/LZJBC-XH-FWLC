@@ -102,27 +102,22 @@
     return { ok: true, list: write(list) };
   }
 
-  /* 切换「含合同」：已有合同禁止关闭，避免合同悬空 */
+  /* 切换「含合同」：contracts/tasks 为演示基线值，不参与真实合同/任务的拦截校验 */
   function setContract(id, on) {
     var list = read();
     var it = find(list, id);
     if (!it) return { ok: false, msg: '流程项不存在' };
     on = !!on;
-    if (!on && it.contracts > 0) {
-      return { ok: false, msg: '该项下有 ' + it.contracts + ' 份合同，请先归档或转移到其他流程项' };
-    }
     it.hasContract = on;
     return { ok: true, list: write(list) };
   }
 
-  /* 删除：有合同或有任务的项不可删 */
+  /* 删除：仅保留最少项数校验；合同/任务数为演示基线，不作为删除拦截依据 */
   function remove(id) {
     var list = read();
     var it = find(list, id);
     if (!it) return { ok: false, msg: '流程项不存在' };
     if (list.length <= MIN_ITEMS) return { ok: false, msg: '至少保留 1 个流程项' };
-    if (it.contracts > 0) return { ok: false, msg: '该项下有 ' + it.contracts + ' 份合同，不能删除' };
-    if (it.tasks > 0) return { ok: false, msg: '该项下还有 ' + it.tasks + ' 个任务，不能删除' };
     list = list.filter(function (x) { return x.id !== id; });
     return { ok: true, list: write(list) };
   }
@@ -132,8 +127,6 @@
     var it = find(list, id);
     if (!it) return { ok: false, msg: '流程项不存在' };
     if (list.length <= MIN_ITEMS) return { ok: false, msg: '至少保留 1 个流程项' };
-    if (it.contracts > 0) return { ok: false, msg: '该项下有 ' + it.contracts + ' 份合同，不能删除' };
-    if (it.tasks > 0) return { ok: false, msg: '该项下还有 ' + it.tasks + ' 个任务，不能删除' };
     return { ok: true, msg: '' };
   }
 
