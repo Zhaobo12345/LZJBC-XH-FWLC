@@ -3017,7 +3017,7 @@ const TaskDetailPage = (function() {
     }
     
     function goToProfile(id, name, role) {
-        location.href = 'prototype-member-profile.html?id=' + encodeURIComponent(id) + '&name=' + encodeURIComponent(name) + '&role=' + encodeURIComponent(role);
+        location.href = 'member.html?id=' + encodeURIComponent(id) + '&name=' + encodeURIComponent(name) + '&role=' + encodeURIComponent(role);
     }
     window.goToProfile = goToProfile;
     

@@ -941,7 +941,9 @@
                 <div class="subsection-title" style="font-size: 16px; margin-top: 16px;">（1）配置（新建 / 编辑模板 → 添加 / 编辑任务弹窗）</div>
                 <ul style="margin: 0 0 16px 20px; color: var(--text-secondary); font-size: 13px; line-height: 1.9;">
                     <li><strong>入口：</strong>「添加任务」「编辑任务」弹窗内，执行标准 textarea 之后、确认标准 textarea 之后各一处「工艺参考示例」配置区。</li>
-                    <li><strong>配置区内容：</strong>3 列方形缩略图 + 单张标题（可编辑）+ 单张删除（×）+「＋ 添加」；顶部计数「已选 X / 9 张（仅支持图片）」。</li>
+                    <li><strong>展示顺序：</strong>执行标准 → 执行参考示例 → 确认标准 → 确认参考示例 → 担责标准；「担责标准」下方不配置参考示例，两组图片始终紧随各自标准之后。</li>
+                    <li><strong>配置区内容：</strong>3 列方形缩略图 + 单张标题（可编辑）+ 单张删除（×）+「＋ 添加图片」；顶部计数「已选 X / 9 张（仅支持图片）」。</li>
+                    <li><strong>编辑与反馈：</strong>点击缩略图右上角「✎」以 prompt 输入单张标题，留空时取默认标题「工艺参考示例」；点击「×」删除单张。配置区头部为标签「工艺参考示例」+ 计数，添加按钮文案「添加图片」，空态文案「暂无工艺参考示例，点击下方按钮添加」；新增成功提示「已添加工艺参考示例」，删除成功提示「已删除该工艺参考示例」。</li>
                     <li><strong>上传：</strong>支持<strong>一次多选上传多张</strong>；超出剩余额度按额度截断并轻提示「最多添加 9 张工艺参考示例」；已满 9 张隐藏上传入口。</li>
                     <li><strong>回显：</strong>打开「编辑任务」时按已存数据回显；未配置时显示空态提示，不隐藏配置区。</li>
                     <li><strong>落库：</strong>保存任务时与任务名称 / 三段标准一并写入模板，随「保存草稿 / 保存并发布」持久化，并在卡片预览的任务列表中体现。</li>
@@ -951,8 +953,9 @@
                 <div class="subsection-title" style="font-size: 16px;">（2）查看（模板列表 → 展开模板 → 任务列表）</div>
                 <ul style="margin: 0 0 16px 20px; color: var(--text-secondary); font-size: 13px; line-height: 1.9;">
                     <li>任务行任务名后展示<strong>两组小图条</strong>（前缀标签「执行」/「确认」）；该组无图片时不展示对应小图条。</li>
-                    <li><strong>点击放大：</strong>点击缩略图在页面上层打开固定定位查看器显示大图，点击任意处关闭；不改变模板内容与状态。</li>
+                    <li><strong>点击放大：</strong>点击缩略图在页面上层打开固定定位查看器显示大图与<strong>图片标题</strong>，点击任意处关闭；不改变模板内容与状态。</li>
                     <li>查看为只读，<strong>不提供</strong>增 / 删 / 改入口。</li>
+                    <li><strong>演示数据：</strong>原型内置 4 条任务带执行参考示例、3 条带确认参考示例（图片取自 <code>../shared/images/site-1~4.png</code>），用于展示任务行小图条与放大查看效果。</li>
                 </ul>
 
                 <div class="note" data-page-node-id="craft-ref-pc-stage-note">
@@ -978,6 +981,10 @@
                 </tbody>
             </table>
         </div>
+    <div class="section" id="flow-service-ref">
+        <div class="section-title">相关规格：服务流程（流程项）</div>
+        <p>本模块涉及的服务流程项归属、合同 <code>flowId</code> / <code>parent</code> 口径、状态机与入口矩阵，统一以<a href="PRD-项目模块详细规格.html#sub-6-13" target="_blank">《PRD-项目模块详细规格》6.13 服务流程（流程项）规格</a>为准。</p>
+    </div>
 
         <!-- 文档结束 -->
         <div style="text-align: center; padding: 48px 0; color: var(--text-tertiary);" data-page-node-id="9YBxOtud333ckwFkPBrljM">
@@ -1033,9 +1040,5 @@
         
         window.dispatchEvent(new Event('scroll'));
     </script>
-    <div class="section" id="flow-service-ref">
-        <div class="section-title">相关规格：服务流程（流程项）</div>
-        <p>本模块涉及的服务流程项归属、合同 <code>flowId</code> / <code>parent</code> 口径、状态机与入口矩阵，统一以<a href="PRD-项目模块详细规格.html#sub-6-13" target="_blank">《PRD-项目模块详细规格》6.13 服务流程（流程项）规格</a>为准。</p>
-    </div>
 </body>
 </html>

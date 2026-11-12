@@ -924,7 +924,7 @@
 
                 <div class="note" style="margin-top: 16px; background: #E6F7FF; border-left-color: var(--primary-color);" data-page-node-id="Pml2FSn6OPeMTje9KHsPz2">
                     <div class="note-title" style="color: var(--primary-color);" data-page-node-id="gsdInKBR3OSvr8Sc0JSfl6">空状态SVG插图说明</div>
-                    <p data-page-node-id="D2SJEm3bmDzaqlJHqRqRIG">空状态插图统一使用项目内置的<code data-page-node-id="bXSH0nICoZPEJUBXOpbkyB">shared/empty-state.js</code>组件，包含10种内置SVG插图。项目列表页使用的类型为<code data-page-node-id="wxFbXL3cvffc1YLPZf3iDj">empty-project</code>（空项目）和<code data-page-node-id="lUXsPS01bh8PFFXMIrvHAI">no-network</code>（无网络），详见 <a href="service-miniapp/project-list-empty-demo.html" target="_blank" style="color: var(--primary-color);" data-page-node-id="WpIF7cBs87UL8mlSdC2qSb">空状态组件演示页</a>。</p>
+                    <p data-page-node-id="D2SJEm3bmDzaqlJHqRqRIG">空状态插图统一使用项目内置的<code data-page-node-id="bXSH0nICoZPEJUBXOpbkyB">shared/empty-state.js</code>组件，包含10种内置SVG插图。项目列表页使用的类型为<code data-page-node-id="wxFbXL3cvffc1YLPZf3iDj">empty-project</code>（空项目）和<code data-page-node-id="lUXsPS01bh8PFFXMIrvHAI">no-network</code>（无网络），详见 <a href="shared/empty-state-demo.html" target="_blank" style="color: var(--primary-color);" data-page-node-id="WpIF7cBs87UL8mlSdC2qSb">空状态组件演示页</a>。</p>
                 </div>
             </div>
         </div>
@@ -2269,7 +2269,7 @@
                     <tbody data-page-node-id="R4nNNe9Tbw2xKBxY9YZRGs">
                         <tr data-page-node-id="25vAIK5lUUu9dGJRHs2XeY">
                             <td data-page-node-id="09bCDAds6Dwyq2HdfdjOzo">跳转页面</td>
-                            <td data-page-node-id="1XcBw8MsUPWIqCzTekbah1">project-detail.html?id={new_project_id}</td>
+                            <td data-page-node-id="1XcBw8MsUPWIqCzTekbah1">服务端 <code>project-detail-initial-v2.html</code> / 业主端 <code>project-detail-ongoing-v2.html</code></td>
                             <td data-page-node-id="0TgXsGooPD0O0qrBEmdaPh">跳转到新创建项目的详情页 <a href="#sub-3-8" data-page-node-id="mYykT7Fbz1PQI4hnqMA543">’初始项目详情页‘</a></td>
                         </tr>
                         <tr data-page-node-id="EkMiuQ3M5x82ITVlnV1BUc">
@@ -3299,7 +3299,7 @@
                 <table>
                     <thead><tr><th>角色 / 端</th><th>服务流程视图</th><th>关键入口</th><th>权限</th></tr></thead>
                     <tbody>
-                        <tr><td>服务方·非工人（SSOT）</td><td>项目主页 <code>project-list.html</code>：流程卡 + 右侧浮窗（鱼眼 Tab / 竖排书签 / 明细吸底指派条）；项目详情初始态 / 已完成态 <code>project-detail-initial-v2.html</code> / <code>completed-v2.html</code> 均已回迁同款流程卡与浮窗</td><td>流程项 → <code>contractAction()</code> 拟定 / 查看合同；「+ 临时派遣」按指派权限三态显隐；<code>openFlowConfig()</code> 进配置页</td><td>认证 + 角色 + 配置权限 + 指派权限（<code>assignPermMode</code>）；<code>canAssign()</code> 对工人返回 false</td></tr>
+                        <tr><td>服务方·非工人（SSOT）</td><td>项目主页 <code>project-list.html</code>：流程卡 + 右侧浮窗（鱼眼 Tab / 竖排书签 / 明细吸底指派条）；项目详情初始态 / 已完成态 <code>project-detail-initial-v2.html</code> / <code>project-detail-completed-v2.html</code> 均已回迁同款流程卡与浮窗</td><td>流程项 → <code>contractAction()</code> 拟定 / 查看合同；「+ 临时派遣」按指派权限三态显隐；<code>openFlowConfig()</code> 进配置页</td><td>认证 + 角色 + 配置权限 + 指派权限（<code>assignPermMode</code>）；<code>canAssign()</code> 对工人返回 false</td></tr>
                         <tr><td>服务方·工人</td><td>项目主页 <code>#workerView</code>：待办 / 我的任务 / 我的服务流程 / 快捷入口；「我的服务流程」按签署合同驱动，「查看全部 ›」进流程浮窗</td><td>待办全部 → <code>todo-list.html</code>；合同待办 → <code>contract-detail.html?status=confirming_sender</code>；我的任务 → <code>task-list.html?role=exec</code></td><td>无指派权限；<code>canViewAllFlow</code> 由演示开关控制</td></tr>
                         <tr><td>业主端</td><td><code>project-detail-ongoing-v2.html</code> 流程卡 + 浮窗；<code>contract-list.html</code> / <code>task-list.html</code> 按流程项分组；<code>member.html</code> 服务流程层级权限</td><td><code>openFlow()</code> 带 <code>?item=</code> 回跳项目详情浮窗；业主为受邀方，<strong>不提供复制发起</strong></td><td>只读：无拟定合同、无临时任务指派、无服务方「我的任务」执行 Tab</td></tr>
                         <tr><td>PC 管理后台</td><td>合同列表 / 详情 / 审核 / 两类模板共 5 页，为平台审核视角；服务流程项视图不在当前版本范围内</td><td><code>LIST_USER_PERMISSION='all'</code>，全静态硬编码</td><td>平台审核状态机独立</td></tr>
@@ -3636,7 +3636,7 @@
                         </tr>
                         <tr data-page-node-id="E4wK5cBPyhgds0buiaNdJK">
                             <td data-page-node-id="LiSGSGIgLUbHaPc1ObHCvf">确认加入（接收人单角色）</td>
-                            <td data-page-node-id="ElSirsmzKlZxEWmo3jnazf">关闭弹窗 → 轻提示"已加入项目，正在进入..." → <strong data-page-node-id="bZJUsIvfWHAIS7PGMznVIt">直接真实跳转</strong>至对应端 <code data-page-node-id="DVYZCNoV4XhcEdnnbGJCs1">project-detail.html</code>（服务人员跳服务端，业主跳业主端），不展示成功卡片</td>
+                            <td data-page-node-id="ElSirsmzKlZxEWmo3jnazf">关闭弹窗 → 轻提示"已加入项目，正在进入..." → <strong data-page-node-id="bZJUsIvfWHAIS7PGMznVIt">直接真实跳转</strong>至对应端项目页：服务方 <code data-page-node-id="DVYZCNoV4XhcEdnnbGJCs1">project-list.html</code>、业主方 <code>owner-miniapp/project-detail-ongoing-v2.html</code>，不展示成功卡片</td>
                         </tr>
                         <tr data-page-node-id="6R8MD00jRFMigNGe8pwuc9">
                             <td data-page-node-id="8HMTY3OiQBAoXOevC5LJLO">确认加入（接收人已认证多角色）</td>
@@ -4137,7 +4137,7 @@
                         </tr>
                         <tr data-page-node-id="heoXtpDjyambVnDMNp4BsG">
                             <td data-page-node-id="LORiVaA9CarMFm88iRF8Qi">跳转目标</td>
-                            <td data-page-node-id="7WHeDD4nSIkJCYFLDBsGMv"><code data-page-node-id="AZdjttOXvCtCKEjLiaWbaY">member-profile.html?id={成员id}&amp;name={姓名}&amp;role={角色}</code>（个人电子名片页）</td>
+                            <td data-page-node-id="7WHeDD4nSIkJCYFLDBsGMv">任务详情页成员头像 / 姓名 → <code data-page-node-id="AZdjttOXvCtCKEjLiaWbaY">member.html?id={成员id}&amp;name={姓名}&amp;role={角色}</code>（各端成员页）；成员页成员卡片 → 业主端 <code>project-detail-ongoing-v2.html</code>，服务端成员页按页面既有实现保留</td>
                         </tr>
                         <tr data-page-node-id="gJDPmi5CBHME5mvbGaCBj6">
                             <td data-page-node-id="9eqq1pmAHbvlF6YB5MZ4TC">点击反馈</td>
@@ -4155,7 +4155,7 @@
                 </table>
                 <div class="note" style="margin-top: 16px;" data-page-node-id="xZ6Xr87EXR15ClQ8Ezfq9K">
                     <div class="note-title" data-page-node-id="doSGe8YBvB67Ut6qmEUUSC">说明</div>
-                    <p data-page-node-id="xBFhkL0VnlCsArVmtytV5Q">个人电子名片页（<code data-page-node-id="2Dee1OxvhVbJyuUazLWVHN">member-profile.html</code>）为成员信息的集中展示页，包含联系方式、所属工作组、负责任务等；原型当前已打通跳转链路，页面内容可后续补充。</p>
+                    <p data-page-node-id="xBFhkL0VnlCsArVmtytV5Q">任务详情页点击成员头像或姓名跳转至各端成员页（<code data-page-node-id="2Dee1OxvhVbJyuUazLWVHN">member.html</code>），携带成员 id、姓名与角色参数；联系方式、所属工作组、负责任务等成员信息集中在成员页展示。成员页成员卡片的点击行为按各端页面自身规则处理，不在本跳转规则范围内。</p>
                 </div>
             </div>
 
@@ -6862,7 +6862,7 @@
                     <li data-page-node-id="QmfXWHHtEpaLJ35e77mXEE">移入成员（权限模态框内"移出项目"按钮，受权限/自身/唯一管理者/合同关联等保护，详见"<a href="#sub-7-10" style="color: var(--primary-color);" data-page-node-id="igXRxvgCpFfvNK9bcvXFPP">7.10 移出指定成员规则</a>"）</li>
                     <li data-page-node-id="WzF1H8AaF7539zXIpmxaqj">退出项目（头部右上角"退出项目"按钮，确认弹窗后跳转至项目列表页，详见"<a href="#sub-7-9" style="color: var(--primary-color);" data-page-node-id="Vqxe8c0PUBZHBfvag008wB">7.9 退出项目规则</a>"）</li>
                     <li data-page-node-id="WoPsTPAhfA7XJkpAPVXUxS">权限管理入口可见性（"›"箭头与权限区域按当前用户权限三态展示：无权限隐藏、仅移出人员/全部权限显示，详见"<a href="#sub-7-11" style="color: var(--primary-color);" data-page-node-id="s0qKd3OMwI3A4kvvZ0Z6Hz">7.11 权限管理入口可见性规则</a>"）</li>
-                    <li data-page-node-id="rv6VCovdSNwu6XvCJ7kG71">成员个人电子名片（点击成员头像/姓名跳转 <code data-page-node-id="xDhhdngMLTOGzykgr4uS6l">member-profile.html</code>，权限无关，详见"<a href="#sub-7-12" style="color: var(--primary-color);" data-page-node-id="rPevrjiktNF9L45ICDENJJ">7.12 成员个人电子名片跳转规则</a>"）</li>
+                    <li data-page-node-id="rv6VCovdSNwu6XvCJ7kG71">成员个人电子名片（点击成员头像/姓名跳转 <code data-page-node-id="xDhhdngMLTOGzykgr4uS6l">member.html</code>，权限无关，详见"<a href="#sub-7-12" style="color: var(--primary-color);" data-page-node-id="rPevrjiktNF9L45ICDENJJ">7.12 成员个人电子名片跳转规则</a>"）</li>
                     <li data-page-node-id="oBzcRX2aoDqVYl0iMXFMi7">人员操作模态框（当前用户仅拥有"移出人员"权限时，点击成员弹出"人员操作"模态框，仅可移出，详见"<a href="#sub-7-13" style="color: var(--primary-color);" data-page-node-id="lNRkJLeJzHqTNEPLlwCDtO">7.13 人员操作模态框规则</a>"）</li>
                     <li data-page-node-id="a16_2_lvl">成员架构层级标识（按项目架构三级层级展示 L0 项目部 / L1 工作组 / L2 子施工组，组标题带层级徽标、L2 成员卡片级补标，配色复用架构页蓝 / 绿 / 紫，详见"<a href="#sub-7-14" style="color: var(--primary-color);" data-page-node-id="a16_2_lvlref">7.14 成员架构层级标识规格</a>"）</li>
                     <li data-page-node-id="a16_2_permbadge">成员卡权限角标（卡片右侧两行角标：上「数据」下「治理」，数据权限四档映射"数据: 全部 / 所在层级 / 层级含合同 / 公开"、治理权限三态映射"治理: 全部 / 部分 / 无"，蓝 / 绿 / 灰配色，文案为弹窗选项简写，详见"<a href="#sub-7-15" style="color: var(--primary-color);" data-page-node-id="a16_2_permbadgeref">7.15 成员卡权限角标展示规格</a>"）</li>

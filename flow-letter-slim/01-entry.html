@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>量房服务告知书 · 精简美化版 ① 流程项入口</title>
+<link rel="stylesheet" href="slim.css">
+</head>
+<!-- A 档精简版：独立新增目录，既有 flow-letter-demo/ 7 页零改动。
+     本页 = 服务端项目主页 + 流程项浮窗打开态，告知书入口挂在量房流程项下、本项任务上方。 -->
+<body data-page="01">
+
+<nav class="page-nav collapsed" id="pageNav" aria-label="原型页导航">
+    <div class="pn-head"><span>原型导航</span><button type="button" class="pn-toggle" id="pnToggle" aria-label="展开或收起导航">展开</button></div>
+    <div class="pn-body">
+        <a class="active" href="01-entry.html">精简版 · ① 流程项入口</a>
+        <a href="02-letter.html">精简版 · ② 告知书（一页多态）</a>
+        <div class="pn-sep"></div>
+        <a href="../flow-letter-demo/01-config-launch.html">原演示 · ① 配置发起</a>
+        <a href="../flow-letter-demo/02-notice-wait-confirm.html">原演示 · ② 待确认</a>
+        <a href="../flow-letter-demo/03-notice-confirmed.html">原演示 · ③ 已确认</a>
+        <a href="../flow-letter-demo/07-compare.html">原演示 · ⑦ 并排对比</a>
+    </div>
+</nav>
+
+<div class="stage">
+    <div class="phone-frame" id="phoneFrame">
+        <div class="status-bar">
+            <div class="time">9:41</div>
+            <div class="icons">
+                <svg width="16" height="12" viewBox="0 0 16 12" aria-hidden="true"><rect x="0" y="8" width="3" height="4" rx="1" fill="currentColor"/><rect x="4.5" y="5" width="3" height="7" rx="1" fill="currentColor"/><rect x="9" y="2" width="3" height="10" rx="1" fill="currentColor"/><rect x="13.5" y="0" width="2.5" height="12" rx="1" fill="currentColor"/></svg>
+                <svg width="20" height="12" viewBox="0 0 20 12" aria-hidden="true"><rect x="0.5" y="0.5" width="16" height="11" rx="3" fill="none" stroke="currentColor"/><rect x="2.5" y="2.5" width="12" height="7" rx="1.5" fill="currentColor"/><rect x="17.5" y="4" width="2" height="4" rx="1" fill="currentColor"/></svg>
+            </div>
+        </div>
+        <div class="nav-bar">
+            <div class="back">← 返回</div>
+            <div class="title">项目主页（进行中）</div>
+            <div class="actions">
+                <div class="native-capsule" title="微信原生胶囊：由微信客户端渲染，开发者不可自定义其内容"><span class="nc-left">···</span><span class="nc-divider"></span><span class="nc-right">○</span></div>
+            </div>
+        </div>
+
+        <div class="content-area" id="contentArea">
+            <div class="flow-card">
+                <div class="flow-head"><span class="fh-t">项目流程 ›</span><span class="fh-n">主线 3/6</span><span class="fh-cfg">配置</span></div>
+                <div class="flow-stats">
+                    <span><span class="fs-num">3/5</span><span class="fs-lab">合同 · 60%</span></span>
+                    <span class="fs-div"></span>
+                    <span><span class="fs-num">12/20</span><span class="fs-lab">任务 · 60%</span></span>
+                </div>
+            </div>
+        </div>
+
+        <div class="drawer-mask"></div>
+        <div class="flow-drawer">
+            <div class="fd-header">
+                <span class="fd-ic">i</span><span class="fd-title">项目流程项</span><span class="fd-tag">施工路线</span>
+                <span class="fd-right"><span>配置</span><span class="fd-close">×</span></span>
+            </div>
+            <div class="fd-info">
+                <span class="fd-badge">主线 <b>3</b>/6 环</span>
+                <span class="fd-act hidden" id="headAct">查看合同 ›</span>
+                <span class="fd-locate">定位当前</span>
+            </div>
+            <div class="fd-content">
+                <div class="fd-rail">
+                    <div class="fd-rail-item active"><span class="fd-ri-name">量房</span><span class="fd-ri-prog">3/3</span></div>
+                    <div class="fd-rail-item"><span class="fd-ri-name">初步设计</span><span class="fd-ri-prog">4/4</span></div>
+                    <div class="fd-rail-item"><span class="fd-ri-name">设计服务</span><span class="fd-ri-prog">7/7</span></div>
+                    <div class="fd-rail-item"><span class="fd-ri-name">基础施工服务</span><span class="fd-ri-prog">20/39</span></div>
+                    <div class="fd-rail-item"><span class="fd-ri-name">主材安装</span><span class="fd-ri-prog">0/5</span></div>
+                    <div class="fd-rail-item"><span class="fd-ri-name">售后</span><span class="fd-ri-prog">—</span></div>
+                </div>
+
+                <div class="letter-entry" id="letterEntry" data-kind="letter">
+                    <span class="le-ic"><svg viewBox="0 0 24 24" fill="none" stroke="#1b3a6b" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/><path d="M9 13h6M9 17h4"/></svg></span>
+                    <span class="le-t">量房服务告知书</span>
+                    <span class="le-s" id="entryChip">待确认 ›</span>
+                </div>
+
+                <div class="fd-sec-h">本项任务 <span class="fd-count">3/3</span></div>
+                <div class="fd-item"><span class="fd-name">原始尺寸复测</span><span class="fd-meta">张设计</span><span class="fd-badge-ok">已完成</span></div>
+                <div class="fd-item"><span class="fd-name">墙体结构勘测</span><span class="fd-meta">李设计</span><span class="fd-badge-ok">已完成</span></div>
+                <div class="fd-item"><span class="fd-name">设备点位确认</span><span class="fd-meta">王设计</span><span class="fd-badge-ok">已完成</span></div>
+                <div style="margin-top:12px"><button type="button" class="fd-assign" id="btnAssign">＋ 指派任务</button></div>
+            </div>
+            <div class="fd-footer">点击流程项可切换 · 点击任务查看详情</div>
+        </div>
+    </div>
+
+    <div class="control-col">
+        <div class="panel">
+            <span class="badge-slim">A 档 · 精简美化版</span>
+            <h4>演示场景</h4>
+            <div class="sub">一组预设替代原有 3 组开关；框内不出现任何演示说明文字。</div>
+            <div class="seg" id="sceneSeg">
+                <button type="button" class="on" data-v="no_wait">无合同 · 待确认</button>
+                <button type="button" data-v="no_done">无合同 · 已确认</button>
+                <button type="button" data-v="with_contract">有合同</button>
+            </div>
+            <div class="hint" id="sceneHint">无合同流程项：告知书入口位于量房流程项下、本项任务上方（无合同 · 待确认）；量房结果在本项任务中查看。</div>
+        </div>
+
+        <div class="panel">
+            <h4>页间串联</h4>
+            <div class="sub">点击框内「量房服务告知书」入口，或直接用下方按钮进入单据页。</div>
+            <div class="nav-btns">
+                <a class="primary" href="02-letter.html">查看告知书 →</a>
+                <a href="../flow-letter-demo/01-config-launch.html">对照原演示 ①</a>
+            </div>
+        </div>
+
+        <details class="notes">
+            <summary>改动点说明（默认折叠）</summary>
+            <ul>
+                <li>入口落点：<code>project-list.html</code> 流程项明细区 <code>#fdDetailBody</code>，位于本项任务之前；仅无合同流程项渲染。</li>
+                <li>头部「查看合同」保持既有语义：有合同才显示，不承载告知书。</li>
+                <li>精简：原 3 组框外开关 → 1 组场景预设；删除「改动点标记」与逐页重复对照表。</li>
+                <li>结果口径：量房实测数据与成果归属本项任务；告知书仅用于通知业主并取得「同意开始量房」的标识，不做结果关联、不展示结果。</li>
+                <li>不写状态、不进计数、不碰指派权限与任务状态机，零落盘。</li>
+            </ul>
+        </details>
+    </div>
+</div>
+
+<div class="app-toast" id="appToast"></div>
+<script src="slim.js"></script>
+</body>
+</html>

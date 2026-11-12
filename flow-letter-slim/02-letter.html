@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>量房服务告知书 · 精简美化版 ② 一页多态</title>
+<link rel="stylesheet" href="slim.css">
+</head>
+<!-- A 档精简版：②③ 两态合并为同一页，两态由框外开关 / ?state= 深链切换。
+     口径：告知书仅用于通知业主并取得「开始量房」的知晓与同意；量房结果归量房服务项任务，不在此展示。
+     确认动作原地转绿，不跳页；六章精简为两章（服务告知与标准 / 业主知晓与同意）+ 页脚存证。 -->
+<body data-page="02" data-default-state="notice_wait_confirm">
+
+<nav class="page-nav collapsed" id="pageNav" aria-label="原型页导航">
+    <div class="pn-head"><span>原型导航</span><button type="button" class="pn-toggle" id="pnToggle" aria-label="展开或收起导航">展开</button></div>
+    <div class="pn-body">
+        <a href="01-entry.html">精简版 · ① 流程项入口</a>
+        <a class="active" href="02-letter.html">精简版 · ② 告知书（一页多态）</a>
+        <div class="pn-sep"></div>
+        <a href="../flow-letter-demo/01-config-launch.html">原演示 · ① 配置发起</a>
+        <a href="../flow-letter-demo/02-notice-wait-confirm.html">原演示 · ② 待确认</a>
+        <a href="../flow-letter-demo/03-notice-confirmed.html">原演示 · ③ 已确认</a>
+        <a href="../flow-letter-demo/07-compare.html">原演示 · ⑦ 并排对比</a>
+    </div>
+</nav>
+
+<div class="stage">
+    <div class="phone-frame" id="phoneFrame">
+        <div class="status-bar">
+            <div class="time">9:41</div>
+            <div class="icons">
+                <svg width="16" height="12" viewBox="0 0 16 12" aria-hidden="true"><rect x="0" y="8" width="3" height="4" rx="1" fill="currentColor"/><rect x="4.5" y="5" width="3" height="7" rx="1" fill="currentColor"/><rect x="9" y="2" width="3" height="10" rx="1" fill="currentColor"/><rect x="13.5" y="0" width="2.5" height="12" rx="1" fill="currentColor"/></svg>
+                <svg width="20" height="12" viewBox="0 0 20 12" aria-hidden="true"><rect x="0.5" y="0.5" width="16" height="11" rx="3" fill="none" stroke="currentColor"/><rect x="2.5" y="2.5" width="12" height="7" rx="1.5" fill="currentColor"/><rect x="17.5" y="4" width="2" height="4" rx="1" fill="currentColor"/></svg>
+            </div>
+        </div>
+        <div class="nav-bar">
+            <div class="back">← 返回</div>
+            <div class="title">量房服务告知书</div>
+            <div class="actions">
+                <div class="native-capsule" title="微信原生胶囊：由微信客户端渲染，开发者不可自定义其内容"><span class="nc-left">···</span><span class="nc-divider"></span><span class="nc-right">○</span></div>
+            </div>
+        </div>
+
+        <div class="content-area" id="contentArea">
+            <div class="doc" id="letterDocument">
+                <div class="doc-head">
+                    <div class="doc-kicker">平台正式服务文书</div>
+                    <div class="doc-title">量房服务告知书</div>
+                    <span class="status-pill" id="statusPill">待确认</span>
+                </div>
+                <div class="doc-meta"><span>文书编号　GL-2024-LH-001</span><span>签发日期　2024-01-25</span></div>
+                <div class="doc-addressee"><span>受文　<b>王先生 · 业主</b></span><span>签发　<b>平台服务管理中心</b></span></div>
+                <div class="doc-scope">依据平台量房服务标准出具，经业主确认后生效；量房结果在「量房」服务项任务中查看，本告知书不展示。</div>
+
+                <div class="sect">
+                    <div class="sect-h"><span class="sect-no">一</span><span class="sect-t">服务告知与标准</span><span class="sect-tip">共 3 条</span></div>
+                    <div class="std"><span class="std-no">一</span><span class="std-tx">净尺寸逐项实测，误差 <span class="chip">≤ 5mm</span>，当场记录不补录。</span></div>
+                    <div class="std"><span class="std-no">二</span><span class="std-tx">每空间 <span class="chip">≥ 4 角度</span>留影，照片 <span class="chip">≥ 8 张</span>带水印。</span></div>
+                    <div class="std"><span class="std-no">三</span><span class="std-tx">数据当场复述确认，<span class="chip">24h 内</span>录入「量房」服务项任务。</span></div>
+                    <div class="flow-summary"><b>服务流程</b>　预约 → 到场 → 实测 → 任务内记录</div>
+                </div>
+
+                <div class="sect">
+                    <div class="sect-h"><span class="sect-no">二</span><span class="sect-t">业主知晓与同意</span><span class="sect-tip">许可标识</span></div>
+                    <label class="agree" id="agreeRow">
+                        <input type="checkbox" id="agreeCheck">
+                        <span class="agree-dot"></span>
+                        <span>我已阅读并知晓上述安排，同意开始量房</span>
+                    </label>
+                    <div class="hidden" id="agreedRow">
+                        <div class="agreed">✓ 已同意开始量房</div>
+                        <div class="confirm-meta">王先生（业主）· 2024-01-25 10:12</div>
+                    </div>
+                </div>
+
+                <div class="doc-foot hidden" id="docFoot">
+                    <b>知晓与同意存证</b>　CZ-2024-LH-001 · 依据 Q/LZJ-LH-001 · 平台备案 · 文书已归档
+                    <button type="button" class="save-link" id="btnSaveLink">保存告知书长图 ›</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="doc-actions" id="letterActions">
+            <button type="button" class="action-btn is-disabled" id="btnAction">确认并同意</button>
+        </div>
+    </div>
+
+    <div class="control-col">
+        <div class="panel">
+            <span class="badge-slim">A 档 · 一页多态</span>
+            <h4>告知书状态</h4>
+            <div class="sub">原 ② 待确认 / ③ 已确认两页合并为本页；也可用 <code>?state=</code> 深链直达。告知书只承载「通知 + 同意开始量房」，不承载量房结果。</div>
+            <div class="seg" id="stateSeg">
+                <button type="button" class="on" data-v="notice_wait_confirm">待确认</button>
+                <button type="button" data-v="notice_confirmed">已确认</button>
+            </div>
+            <div class="hint" id="stateHint">当前：待确认 · 橙章 · 勾选「同意开始量房」后点底栏按钮，本页原地转绿</div>
+        </div>
+
+        <div class="panel">
+            <h4>页间串联</h4>
+            <div class="sub">确认动作不再自动跳页；两态只改本页 DOM，不写状态、不落盘。量房结果请到「量房」服务项任务中查看。</div>
+            <div class="nav-btns">
+                <a class="primary" href="01-entry.html">← 返回 ① 入口</a>
+                <a href="../flow-letter-demo/02-notice-wait-confirm.html">对照原演示 ②</a>
+            </div>
+        </div>
+
+        <details class="notes">
+            <summary>精简与美化点（默认折叠）</summary>
+            <ul>
+                <li>步骤：删除确认后 1.2s 自动跳页；「保存长图」降级为页脚文字链，已确认态收起底栏。</li>
+                <li>章节：六章 → 两章 + 页脚凭证条；服务流程 4 步压成 1 行摘要；删除假甲乙方签名框。</li>
+                <li>结果口径：下线整章结果展示与成果态，不呈现实测数据、达标结论与交付物；结果归「量房」服务项任务，告知书不做结果关联。</li>
+                <li>定位：告知书 = 通知业主 + 业主知晓且同意开始量房的标识；勾选与确认文案、存证页脚均按此改写。</li>
+                <li>视觉：纸质单据卡片化、去扫描件分割线、70px 圆章改状态胶囊、统一一套蓝色梯度。</li>
+                <li>可访问性：主按钮与勾选行 48px；阈值 chip 高亮；首屏容纳全部模块。</li>
+            </ul>
+        </details>
+    </div>
+</div>
+
+<div class="app-toast" id="appToast"></div>
+<script src="slim.js"></script>
+</body>
+</html>
